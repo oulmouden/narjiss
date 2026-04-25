@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Carte Globale</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+.page-hero { padding: 3rem 1.5rem 2rem; background: linear-gradient(160deg, var(--ocean-deep), var(--ocean)); color: white; text-align: center; }
+.page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 3.5vw, 2.5rem); margin-bottom: .5rem; }
+html[dir=rtl] .page-hero h1 { font-family: 'Noto Sans Arabic', serif; }
+.page-hero p { color: rgba(255,255,255,.75); max-width: 600px; margin: 0 auto; }
+.map-section { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
+#globalMap { width: 100%; height: 70vh; min-height: 500px; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+.popup-card { padding: .9rem 1.1rem; min-width: 220px; }
+.popup-card .pc-cat { font-size: .58rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ocean); font-weight: 600; margin-bottom: .15rem; }
+.popup-card .pc-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--charcoal); margin-bottom: .15rem; }
+.popup-card .pc-loc { font-size: .75rem; color: var(--muted); margin-bottom: .5rem; }
+.popup-card a.pc-link { display: inline-block; background: var(--ocean); color: white; text-decoration: none; padding: .35rem .75rem; border-radius: 6px; font-size: .75rem; font-weight: 500; }
+.popup-card a.pc-link:hover { background: var(--ocean-deep); }
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+<main>
+  <section class="page-hero">
+    <h1 id="pageTitle">Carte Globale</h1>
+    <p id="pageSubtitle">Tous nos projets immobiliers au Maroc</p>
+  </section>
+  <section class="map-section">
+    <div id="globalMap"></div>
+  </section>
+</main>
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: { title: "Carte Globale", subtitle: "Tous nos projets immobiliers au Maroc", viewProject: "Voir le projet →", comingSoon: "Bientôt disponible" },
+  en: { title: "Global Map", subtitle: "All our real estate projects in Morocco", viewProject: "View project →", comingSoon: "Coming soon" },
+  ar: { title: "خريطة شاملة", subtitle: "جميع مشاريعنا العقارية بالمغرب", viewProject: "عرض المشروع ←", comingSoon: "قريبا" },
+  es: { title: "Mapa Global", subtitle: "Todos nuestros proyectos inmobiliarios en Marruecos", viewProject: "Ver proyecto →", comingSoon: "Próximamente" }
+};
+
+var globalMap = L.map('globalMap').setView([31.5, -8], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(globalMap);
+
+var allMarkers = [];
+
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById('pageTitle').textContent = t.title;
+  document.getElementById('pageSubtitle').textContent = t.subtitle;
+
+  for (var i = 0; i < allMarkers.length; i++) globalMap.removeLayer(allMarkers[i]);
+  allMarkers = [];
+
+  for (var i = 0; i < PROJECTS.length; i++) {
+    var p = PROJECTS[i];
+    var color = p.status === 'live' ? '#1B6B93' : '#7A7A8A';
+    var icon = L.divIcon({
+      html: '<div style="background:' + color + ';width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,.3)">' + p.icon + '</div>',
+      iconSize: [42, 42],
+      iconAnchor: [21, 21],
+      popupAnchor: [0, -21],
+      className: ''
+    });
+
+    var link = p.status === 'live'
+      ? '<a class="pc-link" href="' + p.folder + '/' + p.id + '.html#' + lang + '">' + t.viewProject + '</a>'
+      : '<span style="color:var(--muted);font-size:.75rem;font-style:italic">' + t.comingSoon + '</span>';
+
+    var popup = '<div class="popup-card"><div class="pc-cat">Narjiss</div><div class="pc-name">' + p.name[lang] + '</div><div class="pc-loc">📍 ' + p.location[lang] + '</div>' + link + '</div>';
+
+    var marker = L.marker([p.lat, p.lng], { icon: icon }).bindPopup(popup);
+    marker.addTo(globalMap);
+    allMarkers.push(marker);
+  }
+
+  if (allMarkers.length > 1) {
+    globalMap.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.3));
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  initPage('map', '');
+});
+</script>
+</body>
+</html>

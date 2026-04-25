@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — À propos</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+.page-hero { padding: 4rem 1.5rem 3rem; background: linear-gradient(160deg, var(--ocean-deep), var(--ocean), var(--sun)); color: white; text-align: center; }
+.page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: .5rem; }
+html[dir=rtl] .page-hero h1 { font-family: 'Noto Sans Arabic', serif; }
+.page-hero h1 em { color: var(--sun-light); font-style: italic; }
+.page-hero p { color: rgba(255,255,255,.8); max-width: 600px; margin: 0 auto; font-size: 1.05rem; }
+.content-section { max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; }
+.content-section h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--charcoal); margin-bottom: 1rem; margin-top: 2.5rem; }
+html[dir=rtl] .content-section h2 { font-family: 'Noto Sans Arabic', serif; }
+.content-section h2:first-child { margin-top: 0; }
+.content-section p { color: var(--text); margin-bottom: 1rem; font-size: 1rem; line-height: 1.8; }
+.values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.value-card { background: var(--sand); padding: 1.5rem; border-radius: var(--radius); text-align: center; }
+.value-icon { font-size: 2rem; margin-bottom: .5rem; }
+.value-card h3 { font-family: 'Playfair Display', serif; color: var(--charcoal); margin-bottom: .4rem; font-size: 1.1rem; }
+html[dir=rtl] .value-card h3 { font-family: 'Noto Sans Arabic', serif; }
+.value-card p { color: var(--muted); font-size: .85rem; margin: 0; }
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+<main>
+  <section class="page-hero">
+    <h1 id="pageTitle"></h1>
+    <p id="pageSubtitle"></p>
+  </section>
+  <section class="content-section" id="content"></section>
+</main>
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: {
+    title: 'À propos de <em>Narjiss</em>',
+    subtitle: "L'immobilier au Maroc, réinventé par la technologie",
+    sections: [
+      { h: "Notre histoire", p: "Narjiss est une agence immobilière marocaine née de la passion pour l'architecture et l'innovation. Nous accompagnons depuis plusieurs années les acquéreurs et investisseurs dans la découverte de biens d'exception, à Marrakech, Agadir, Casablanca et partout au Maroc." },
+      { h: "Notre approche", p: "Nous croyons qu'un bien immobilier ne se résume pas à des photos. C'est un quartier, des voisins, des commerces, un cadre de vie. C'est pourquoi chacun de nos projets est présenté avec une carte interactive multilingue détaillant tous les points d'intérêt à proximité, et une visite virtuelle 360° pour vous projeter chez vous avant même la première visite." }
+    ],
+    valuesTitle: "Nos valeurs",
+    values: [
+      { icon: "🌍", h: "Multiculturel", p: "Tous nos services en 4 langues : français, anglais, arabe, espagnol" },
+      { icon: "💎", h: "Qualité", p: "Sélection rigoureuse de chaque bien proposé à nos clients" },
+      { icon: "🤝", h: "Confiance", p: "Transparence totale sur les prix, l'environnement et les services" },
+      { icon: "🚀", h: "Innovation", p: "Visites virtuelles, IA, cartes interactives — la tech au service de l'immobilier" }
+    ],
+    closing_h: "Pourquoi nous choisir ?",
+    closing_p: "Parce que vous méritez plus qu'une simple annonce. Vous méritez une expérience immobilière complète, transparente et immersive. Bienvenue chez Narjiss."
+  },
+  en: {
+    title: 'About <em>Narjiss</em>',
+    subtitle: "Real estate in Morocco, reinvented by technology",
+    sections: [
+      { h: "Our story", p: "Narjiss is a Moroccan real estate agency born from a passion for architecture and innovation. For several years, we have been guiding buyers and investors in discovering exceptional properties in Marrakech, Agadir, Casablanca and throughout Morocco." },
+      { h: "Our approach", p: "We believe that a property is more than just photos. It's a neighborhood, neighbors, shops, a way of life. That's why each of our projects is presented with a multilingual interactive map detailing all nearby points of interest, and a 360° virtual tour to help you envision your future home before the first visit." }
+    ],
+    valuesTitle: "Our values",
+    values: [
+      { icon: "🌍", h: "Multicultural", p: "All our services in 4 languages: French, English, Arabic, Spanish" },
+      { icon: "💎", h: "Quality", p: "Rigorous selection of every property offered to our clients" },
+      { icon: "🤝", h: "Trust", p: "Total transparency on prices, environment, and services" },
+      { icon: "🚀", h: "Innovation", p: "Virtual tours, AI, interactive maps — tech serving real estate" }
+    ],
+    closing_h: "Why choose us?",
+    closing_p: "Because you deserve more than a simple listing. You deserve a complete, transparent and immersive real estate experience. Welcome to Narjiss."
+  },
+  ar: {
+    title: 'حول <em>نرجس</em>',
+    subtitle: "العقارات بالمغرب، أعادت التكنولوجيا اختراعها",
+    sections: [
+      { h: "قصتنا", p: "نرجس وكالة عقارية مغربية ولدت من شغف بالعمارة والابتكار. منذ عدة سنوات، نرافق المشترين والمستثمرين في اكتشاف عقارات استثنائية، بمراكش وأكادير والدار البيضاء وفي جميع أنحاء المغرب." },
+      { h: "نهجنا", p: "نعتقد أن العقار ليس مجرد صور. إنه حي، جيران، محلات، أسلوب حياة. لهذا السبب، يتم تقديم كل من مشاريعنا مع خريطة تفاعلية متعددة اللغات تفصل جميع نقاط الاهتمام القريبة، وجولة افتراضية 360° لتتخيل منزلك المستقبلي قبل أول زيارة." }
+    ],
+    valuesTitle: "قيمنا",
+    values: [
+      { icon: "🌍", h: "متعدد الثقافات", p: "جميع خدماتنا بأربع لغات: الفرنسية، الإنجليزية، العربية، الإسبانية" },
+      { icon: "💎", h: "الجودة", p: "اختيار صارم لكل عقار نقدمه لعملائنا" },
+      { icon: "🤝", h: "الثقة", p: "شفافية كاملة في الأسعار والبيئة والخدمات" },
+      { icon: "🚀", h: "الابتكار", p: "جولات افتراضية، ذكاء اصطناعي، خرائط تفاعلية — التكنولوجيا في خدمة العقارات" }
+    ],
+    closing_h: "لماذا تختارنا؟",
+    closing_p: "لأنك تستحق أكثر من مجرد إعلان. تستحق تجربة عقارية كاملة وشفافة وغامرة. مرحبا بك في نرجس."
+  },
+  es: {
+    title: 'Acerca de <em>Narjiss</em>',
+    subtitle: "El sector inmobiliario en Marruecos, reinventado por la tecnología",
+    sections: [
+      { h: "Nuestra historia", p: "Narjiss es una agencia inmobiliaria marroquí nacida de la pasión por la arquitectura y la innovación. Desde hace varios años, acompañamos a compradores e inversores en el descubrimiento de propiedades excepcionales en Marrakech, Agadir, Casablanca y en todo Marruecos." },
+      { h: "Nuestro enfoque", p: "Creemos que una propiedad es más que fotos. Es un barrio, vecinos, comercios, un estilo de vida. Por eso, cada uno de nuestros proyectos se presenta con un mapa interactivo multilingüe que detalla todos los puntos de interés cercanos, y una visita virtual 360° para imaginar tu futuro hogar antes de la primera visita." }
+    ],
+    valuesTitle: "Nuestros valores",
+    values: [
+      { icon: "🌍", h: "Multicultural", p: "Todos nuestros servicios en 4 idiomas: francés, inglés, árabe, español" },
+      { icon: "💎", h: "Calidad", p: "Selección rigurosa de cada propiedad ofrecida a nuestros clientes" },
+      { icon: "🤝", h: "Confianza", p: "Transparencia total en precios, entorno y servicios" },
+      { icon: "🚀", h: "Innovación", p: "Visitas virtuales, IA, mapas interactivos — la tecnología al servicio del inmobiliario" }
+    ],
+    closing_h: "¿Por qué elegirnos?",
+    closing_p: "Porque mereces más que un simple anuncio. Mereces una experiencia inmobiliaria completa, transparente e inmersiva. Bienvenido a Narjiss."
+  }
+};
+
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById('pageTitle').innerHTML = t.title;
+  document.getElementById('pageSubtitle').textContent = t.subtitle;
+
+  var content = document.getElementById('content');
+  var html = '';
+  for (var i = 0; i < t.sections.length; i++) {
+    html += '<h2>' + t.sections[i].h + '</h2><p>' + t.sections[i].p + '</p>';
+  }
+  html += '<h2>' + t.valuesTitle + '</h2><div class="values-grid">';
+  for (var i = 0; i < t.values.length; i++) {
+    var v = t.values[i];
+    html += '<div class="value-card"><div class="value-icon">' + v.icon + '</div><h3>' + v.h + '</h3><p>' + v.p + '</p></div>';
+  }
+  html += '</div><h2>' + t.closing_h + '</h2><p>' + t.closing_p + '</p>';
+  content.innerHTML = html;
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  initPage('about', '');
+});
+</script>
+</body>
+</html>

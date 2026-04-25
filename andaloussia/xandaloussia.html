@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carte Interactive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+<style>
+:root{--ocean:#1B6B93;--ocean-deep:#0F4C75;--sun:#E8A838;--sun-light:#F5C96A;--sand:#F2E8D5;--sand-dark:#D4C1A1;--white:#FDFAF5;--charcoal:#1E1E2A;--text:#2A2A3A;--text-muted:#7A7A8A;--shadow-lg:0 12px 50px rgba(0,0,0,.12);--radius:14px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--white);color:var(--text);line-height:1.6;}
+html[dir=rtl] body{font-family:'Noto Sans Arabic','Outfit',sans-serif;}
+.lang-bar{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(30,30,42,.92);backdrop-filter:blur(10px);display:flex;justify-content:center;align-items:center;gap:.3rem;padding:.4rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);}
+.lang-btn{background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);padding:.25rem .6rem;border-radius:6px;cursor:pointer;font-size:.72rem;font-family:'Outfit',sans-serif;transition:all .2s;display:flex;align-items:center;gap:.3rem;}
+.lang-btn:hover{background:rgba(255,255,255,.08);color:white;}
+.lang-btn.active{background:var(--ocean);color:white;border-color:var(--ocean);}
+.lang-btn .flag{font-size:.85rem;}
+.hero{position:relative;height:55vh;min-height:380px;background:linear-gradient(160deg,var(--ocean-deep) 0%,var(--ocean) 50%,var(--sun) 100%);display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;margin-top:36px;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 90%,rgba(232,168,56,.2) 0%,transparent 60%),radial-gradient(ellipse at 70% 10%,rgba(15,76,117,.3) 0%,transparent 50%);}
+.hero-content{position:relative;z-index:2;max-width:700px;padding:0 2rem;}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);padding:.3rem 1rem;border-radius:40px;font-size:.72rem;color:var(--sand);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:1rem;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4.5vw,3.2rem);font-weight:800;color:white;line-height:1.12;margin-bottom:.7rem;}
+html[dir=rtl] .hero h1{font-family:'Noto Sans Arabic',serif;font-weight:700;}
+.hero h1 em{color:var(--sun-light);font-style:italic;font-weight:500;}
+.hero p{color:rgba(255,255,255,.7);font-size:1rem;max-width:500px;margin:0 auto;font-weight:300;}
+.stats{display:flex;justify-content:center;flex-wrap:wrap;background:var(--charcoal);}
+.stat-item{flex:1;min-width:120px;max-width:180px;padding:.85rem .9rem;text-align:center;border-right:1px solid rgba(255,255,255,.06);}
+html[dir=rtl] .stat-item{border-right:none;border-left:1px solid rgba(255,255,255,.06);}
+.stat-item:last-child{border:none;}
+.stat-item .se{font-size:1.05rem;margin-bottom:.12rem;}
+.stat-item .sl{color:var(--sand-dark);font-size:.62rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;}
+.stat-item .sv{color:var(--sun-light);font-family:'Playfair Display',serif;font-size:.9rem;font-weight:600;}
+.tour-section{max-width:1200px;margin:0 auto;padding:3rem 1.5rem;}
+.tour-container{background:var(--charcoal);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg);}
+.tour-embed{width:100%;aspect-ratio:16/9;border:none;}
+.tour-placeholder{width:100%;aspect-ratio:16/9;background:#0a0a15;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:.85rem;flex-direction:column;gap:.8rem;}
+.tour-placeholder .play{width:60px;height:60px;border-radius:50%;background:rgba(212,168,83,.2);border:2px solid var(--sun);display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;transition:all .3s;}
+.tour-placeholder .play:hover{background:var(--sun);color:var(--charcoal);}
+.map-section{background:var(--sand);padding:3rem 0;}
+.map-wrapper{max-width:1200px;margin:0 auto;padding:0 1.5rem;}
+.section-header{text-align:center;margin-bottom:2rem;}
+.section-header h2{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,2.5vw,2.1rem);font-weight:700;color:var(--charcoal);margin-bottom:.25rem;}
+html[dir=rtl] .section-header h2{font-family:'Noto Sans Arabic',serif;}
+.section-header p{color:var(--text-muted);max-width:500px;margin:0 auto;font-weight:300;font-size:.9rem;}
+.accent-line{width:40px;height:3px;background:var(--ocean);margin:.8rem auto 0;border-radius:2px;}
+.map-layout{display:grid;grid-template-columns:300px 1fr;gap:0;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg);min-height:580px;}
+@media(max-width:768px){.map-layout{grid-template-columns:1fr;}.map-sidebar{max-height:350px;}}
+.map-sidebar{background:var(--charcoal);overflow-y:auto;padding:0;}
+.sidebar-header{padding:.9rem 1.1rem .5rem;color:var(--sand-dark);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;}
+.cat-group{border-bottom:1px solid rgba(255,255,255,.04);}
+.cat-header{display:flex;align-items:center;gap:.45rem;width:100%;padding:.6rem 1.1rem;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:.8rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;text-align:left;}
+html[dir=rtl] .cat-header{text-align:right;font-family:'Noto Sans Arabic',sans-serif;}
+.cat-header:hover{background:rgba(255,255,255,.05);color:white;}
+.cat-header.active{background:var(--ocean);color:white;}
+.cat-header .ch-emoji{font-size:.95rem;width:22px;text-align:center;}.cat-header .ch-label{flex:1;font-weight:500;}
+.cat-header .ch-count{background:rgba(255,255,255,.1);padding:.08rem .38rem;border-radius:8px;font-size:.58rem;}
+.cat-header.active .ch-count{background:rgba(255,255,255,.2);}
+.cat-header .ch-arrow{font-size:.5rem;transition:transform .2s;color:rgba(255,255,255,.3);}
+.cat-header.open .ch-arrow{transform:rotate(90deg);}
+html[dir=rtl] .cat-header .ch-arrow{transform:rotate(180deg);}
+html[dir=rtl] .cat-header.open .ch-arrow{transform:rotate(90deg);}
+.cat-items{display:none;background:rgba(0,0,0,.15);}.cat-items.show{display:block;}
+.poi-item{display:flex;align-items:center;gap:.45rem;padding:.4rem 1.1rem .4rem 2.6rem;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(255,255,255,.02);}
+html[dir=rtl] .poi-item{padding:.4rem 2.6rem .4rem 1.1rem;}
+.poi-item:hover{background:rgba(255,255,255,.05);}
+.poi-item .pi-dot{width:5px;height:5px;border-radius:50%;background:var(--sun);flex-shrink:0;}
+.poi-item .pi-name{color:rgba(255,255,255,.6);font-size:.72rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.poi-item .pi-rating{color:var(--sun-light);font-size:.62rem;flex-shrink:0;}
+.poi-item .pi-phone{color:rgba(255,255,255,.3);font-size:.58rem;flex-shrink:0;}
+.poi-item:hover .pi-name{color:white;}
+#map{width:100%;height:100%;min-height:580px;}
+.leaflet-popup-content-wrapper{border-radius:10px!important;box-shadow:0 4px 20px rgba(0,0,0,.15)!important;padding:0!important;}
+.leaflet-popup-content{margin:0!important;font-family:'Outfit',sans-serif!important;min-width:200px;max-width:280px;}
+html[dir=rtl] .leaflet-popup-content{font-family:'Noto Sans Arabic',sans-serif!important;text-align:right;}
+.pc{padding:.85rem 1rem;}.pc .pc-cat{font-size:.55rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ocean);font-weight:600;margin-bottom:.12rem;}
+.pc .pc-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--charcoal);margin-bottom:.12rem;}
+html[dir=rtl] .pc .pc-name{font-family:'Noto Sans Arabic',serif;}
+.pc .pc-addr{font-size:.7rem;color:var(--text-muted);margin-bottom:.08rem;}.pc .pc-det{font-size:.7rem;color:var(--text-muted);line-height:1.4;}
+.pc .pc-rt{color:var(--sun);font-size:.72rem;margin-top:.1rem;}.pc .pc-phone{font-size:.68rem;color:var(--ocean);margin-top:.15rem;}
+.pc .pc-phone a{color:var(--ocean);text-decoration:none;}.pc .pc-phone a:hover{text-decoration:underline;}
+footer{text-align:center;padding:1.2rem;color:var(--text-muted);font-size:.7rem;background:var(--sand);}
+#csvFileInput{display:none;}
+.loading{display:flex;align-items:center;justify-content:center;padding:3rem;color:rgba(255,255,255,.4);font-size:.8rem;flex-direction:column;gap:.5rem;}
+.spinner{width:24px;height:24px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--sun);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="lang-bar">
+<button class="lang-btn active" onclick="switchLang('fr')"><span class="flag">\ud83c\uddeb\ud83c\uddf7</span> FR</button>
+<button class="lang-btn" onclick="switchLang('en')"><span class="flag">\ud83c\uddec\ud83c\udde7</span> EN</button>
+<button class="lang-btn" onclick="switchLang('ar')"><span class="flag">\ud83c\uddf2\ud83c\udde6</span> \u0639\u0631\u0628\u064a</button>
+<button class="lang-btn" onclick="switchLang('es')"><span class="flag">\ud83c\uddea\ud83c\uddf8</span> ES</button>
+</div>
+<section class="hero"><div class="hero-content"><div class="hero-badge" id="heroBadge">...</div><h1 id="heroTitle">Carte <em>Interactive</em></h1><p id="heroSubtitle"></p></div></section>
+<div class="stats" id="statsBar"></div>
+<section class="tour-section"><div class="section-header"><h2 id="tourTitle">Visite Virtuelle 360\u00b0</h2><p id="tourSubtitle"></p><div class="accent-line"></div></div><div class="tour-container"><div class="tour-placeholder" id="tourPlaceholder"><div class="play">\u25b6</div><span id="tourPlaceholderText"></span><span id="tourTechText" style="font-size:.7rem;opacity:.5"></span></div></div></section>
+<section class="map-section" id="carte"><div class="map-wrapper"><div class="section-header"><h2 id="mapTitle"></h2><p id="mapSubtitle"></p><div class="accent-line"></div></div><div class="map-layout"><div class="map-sidebar"><div id="sidebarContent"><div class="loading"><div class="spinner"></div>Chargement...</div></div></div><div id="map"></div></div></div></section>
+<input type="file" id="csvFileInput" accept=".csv">
+<footer><span id="footerName">Carte Interactive</span> \u2014 \u00a9 OpenStreetMap</footer>
+
+<script>
+const map=L.map('map').setView([31,-8],7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'\u00a9 <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19}).addTo(map);
+let allLayers=[],markerMap={},currentLang='fr';
+const UI={
+fr:{heroSub:'points d\'int\u00e9r\u00eat \u00e0 proximit\u00e9',tourTitle:'Visite Virtuelle 360\u00b0',tourSub:'Explorez chaque pi\u00e8ce comme si vous y \u00e9tiez',tourPH:'Votre visite virtuelle 3DVista s\'affichera ici',tourTech:'Compatible VR \u00b7 Navigation libre',mapTitle:'Carte Interactive du Quartier',mapSub:'Cliquez sur une cat\u00e9gorie pour d\u00e9plier la liste',sbHeader:'Points d\'int\u00e9r\u00eat',sbLieux:'lieux',yourRes:'votre r\u00e9sidence',reviews:'avis',cats:{pharmacie:'Pharmacies',magasin:'Supermarch\u00e9s',boulangerie:'Boulangeries',mosquee:'Mosqu\u00e9es',ecole:'\u00c9coles',cafe:'Caf\u00e9s & Restos',banque:'Banques',sante:'Sant\u00e9',hammam:'Hammams',hotel:'H\u00f4tels',restaurant:'Restaurants',shopping:'Shopping',culture:'Sites touristiques'}},
+en:{heroSub:'points of interest nearby',tourTitle:'Virtual Tour 360\u00b0',tourSub:'Explore every room as if you were there',tourPH:'Your 3DVista virtual tour will appear here',tourTech:'VR Compatible \u00b7 Free navigation',mapTitle:'Interactive Neighborhood Map',mapSub:'Click a category to expand the list',sbHeader:'Points of Interest',sbLieux:'places',yourRes:'your residence',reviews:'reviews',cats:{pharmacie:'Pharmacies',magasin:'Supermarkets',boulangerie:'Bakeries',mosquee:'Mosques',ecole:'Schools',cafe:'Caf\u00e9s & Restaurants',banque:'Banks',sante:'Healthcare',hammam:'Hammams',hotel:'Hotels',restaurant:'Restaurants',shopping:'Shopping',culture:'Tourist Sites'}},
+ar:{heroSub:'\u0646\u0642\u0627\u0637 \u0627\u0647\u062a\u0645\u0627\u0645 \u0628\u0627\u0644\u0642\u0631\u0628',tourTitle:'\u062c\u0648\u0644\u0629 \u0627\u0641\u062a\u0631\u0627\u0636\u064a\u0629 360\u00b0',tourSub:'\u0627\u0633\u062a\u0643\u0634\u0641 \u0643\u0644 \u063a\u0631\u0641\u0629 \u0643\u0623\u0646\u0643 \u0647\u0646\u0627\u0643',tourPH:'\u0633\u062a\u0638\u0647\u0631 \u062c\u0648\u0644\u062a\u0643 \u0627\u0644\u0627\u0641\u062a\u0631\u0627\u0636\u064a\u0629 \u0647\u0646\u0627',tourTech:'\u0645\u062a\u0648\u0627\u0641\u0642 \u0645\u0639 VR \u00b7 \u062a\u0646\u0642\u0644 \u062d\u0631',mapTitle:'\u062e\u0631\u064a\u0637\u0629 \u062a\u0641\u0627\u0639\u0644\u064a\u0629 \u0644\u0644\u062d\u064a',mapSub:'\u0627\u0646\u0642\u0631 \u0639\u0644\u0649 \u0641\u0626\u0629 \u0644\u062a\u0648\u0633\u064a\u0639 \u0627\u0644\u0642\u0627\u0626\u0645\u0629',sbHeader:'\u0646\u0642\u0627\u0637 \u0627\u0644\u0627\u0647\u062a\u0645\u0627\u0645',sbLieux:'\u0645\u0643\u0627\u0646',yourRes:'\u0625\u0642\u0627\u0645\u062a\u0643',reviews:'\u062a\u0642\u064a\u064a\u0645',cats:{pharmacie:'\u0627\u0644\u0635\u064a\u062f\u0644\u064a\u0627\u062a',magasin:'\u0627\u0644\u0645\u062a\u0627\u062c\u0631',boulangerie:'\u0627\u0644\u0645\u062e\u0627\u0628\u0632',mosquee:'\u0627\u0644\u0645\u0633\u0627\u062c\u062f',ecole:'\u0627\u0644\u0645\u062f\u0627\u0631\u0633',cafe:'\u0627\u0644\u0645\u0642\u0627\u0647\u064a',banque:'\u0627\u0644\u0628\u0646\u0648\u0643',sante:'\u0627\u0644\u0635\u062d\u0629',hammam:'\u0627\u0644\u062d\u0645\u0627\u0645\u0627\u062a',hotel:'\u0627\u0644\u0641\u0646\u0627\u062f\u0642',restaurant:'\u0627\u0644\u0645\u0637\u0627\u0639\u0645',shopping:'\u0627\u0644\u062a\u0633\u0648\u0642',culture:'\u0627\u0644\u0645\u0639\u0627\u0644\u0645'}},
+es:{heroSub:'puntos de inter\u00e9s cercanos',tourTitle:'Visita Virtual 360\u00b0',tourSub:'Explora cada habitaci\u00f3n como si estuvieras all\u00ed',tourPH:'Tu visita virtual 3DVista aparecer\u00e1 aqu\u00ed',tourTech:'Compatible VR \u00b7 Navegaci\u00f3n libre',mapTitle:'Mapa Interactivo del Barrio',mapSub:'Haz clic en una categor\u00eda para desplegar',sbHeader:'Puntos de Inter\u00e9s',sbLieux:'lugares',yourRes:'tu residencia',reviews:'rese\u00f1as',cats:{pharmacie:'Farmacias',magasin:'Supermercados',boulangerie:'Panader\u00edas',mosquee:'Mezquitas',ecole:'Escuelas',cafe:'Caf\u00e9s y Restaurantes',banque:'Bancos',sante:'Salud',hammam:'Hammams',hotel:'Hoteles',restaurant:'Restaurantes',shopping:'Tiendas',culture:'Sitios Tur\u00edsticos'}}
+};
+
+function mkI(e,s=28){return L.divIcon({html:'<div style="background:white;width:'+s+'px;height:'+s+'px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(s*.48)+'px;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid white">'+e+'</div>',iconSize:[s,s],iconAnchor:[s/2,s/2],popupAnchor:[0,-s/2],className:''});}
+function mkH(){return L.divIcon({html:'<div style="background:#1B6B93;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 0 6px rgba(27,107,147,.22),0 4px 12px rgba(0,0,0,.3);border:3px solid white;animation:pp 2s infinite">\ud83c\udfe0</div><style>@keyframes pp{0%,100%{box-shadow:0 0 0 6px rgba(27,107,147,.22)}50%{box-shadow:0 0 0 14px rgba(27,107,147,.06)}}</style>',iconSize:[38,38],iconAnchor:[19,19],popupAnchor:[0,-22],className:''});}
+
+function mkP(poi){var t=UI[currentLang];var r=poi.note?'<div class="pc-rt">'+('\u2605'.repeat(Math.floor(poi.note)))+' '+poi.note+'/5'+(poi.avis?' \u00b7 '+poi.avis+' '+t.reviews:'')+'</div>':'';var ph=poi.tel?'<div class="pc-phone">\ud83d\udcde <a href="tel:'+poi.tel.replace(/\s/g,'')+'">'+poi.tel+'</a></div>':'';var hr=poi.horaires?'<div class="pc-det">\ud83d\udd50 '+poi.horaires+'</div>':'';var cl=poi.cat==='home'?t.yourRes:(t.cats[poi.cat]||poi.cat);return '<div class="pc"><div class="pc-cat">'+cl+'</div><div class="pc-name">'+poi.nom+'</div><div class="pc-addr">'+poi.adresse+'</div>'+hr+r+ph+'</div>';}
+
+function parseCSV(text){var lines=text.replace(/\r/g,'').split('\n').filter(function(l){return l.trim();});if(lines.length<2)return[];var sep=lines[0].includes(';')?';':',';var hdr=lines[0].replace(/^\uFEFF/,'').split(sep).map(function(h){return h.trim().toLowerCase();});var cm={};hdr.forEach(function(h,i){if(h.includes('cat'))cm.cat=i;else if(h.includes('emoji'))cm.emoji=i;else if(h.includes('nom')||h.includes('name'))cm.nom=i;else if(h.includes('adresse')||h.includes('address'))cm.adresse=i;else if(h.includes('note')||h.includes('rating'))cm.note=i;else if(h.includes('lat'))cm.lat=i;else if(h.includes('lng')||h.includes('lon'))cm.lng=i;else if(h.includes('avis')||h.includes('review'))cm.avis=i;else if(h.includes('tel')||h.includes('phone'))cm.tel=i;else if(h.includes('horaire')||h.includes('hour')||h.includes('notes'))cm.horaires=i;});var pois=[];for(var i=1;i<lines.length;i++){var c=lines[i].split(sep);if(c.length<6)continue;var lat=parseFloat(c[cm.lat]),lng=parseFloat(c[cm.lng]);if(isNaN(lat)||isNaN(lng))continue;pois.push({cat:(c[cm.cat]||'').trim().toLowerCase(),emoji:(c[cm.emoji]||'\ud83d\udccd').trim(),nom:(c[cm.nom]||'').trim(),adresse:(c[cm.adresse]||'').trim(),note:parseFloat(c[cm.note])||null,lat:lat,lng:lng,avis:parseInt(c[cm.avis])||null,tel:(c[cm.tel]||'').trim(),horaires:(c[cm.horaires]||'').trim()});}return pois;}
+
+function buildMap(pois){var t=UI[currentLang];allLayers.forEach(function(l){map.removeLayer(l);});allLayers=[];markerMap={};var home=pois.find(function(p){return p.cat==='home';});if(home)map.setView([home.lat,home.lng],15);else if(pois.length)map.setView([pois[0].lat,pois[0].lng],15);
+pois.forEach(function(p,i){var ic=p.cat==='home'?mkH():mkI(p.emoji);var l=L.marker([p.lat,p.lng],{icon:ic}).bindPopup(mkP(p));l._cat=p.cat;l._idx=i;l.addTo(map);allLayers.push(l);markerMap[i]=l;});
+var catOrder=[],catItems={};pois.forEach(function(p,i){if(p.cat==='home')return;if(!catItems[p.cat]){catItems[p.cat]=[];catOrder.push(p.cat);}catItems[p.cat].push(Object.assign({},p,{idx:i}));});
+if(home){document.getElementById('heroBadge').textContent=home.adresse||'';document.getElementById('heroTitle').innerHTML='<em>'+home.nom+'</em>';document.getElementById('heroSubtitle').textContent=(pois.length-1)+' '+t.heroSub;document.title=home.nom;document.getElementById('footerName').textContent=home.nom;}
+document.getElementById('tourTitle').textContent=t.tourTitle;document.getElementById('tourSubtitle').textContent=t.tourSub;document.getElementById('tourPlaceholderText').textContent=t.tourPH;document.getElementById('tourTechText').textContent=t.tourTech;document.getElementById('mapTitle').textContent=t.mapTitle;document.getElementById('mapSubtitle').textContent=t.mapSub;
+var sb=document.getElementById('statsBar');sb.innerHTML='';catOrder.forEach(function(cat){var items=catItems[cat];sb.innerHTML+='<div class="stat-item"><div class="se">'+items[0].emoji+'</div><div class="sl">'+(t.cats[cat]||cat)+'</div><div class="sv">'+items.length+'</div></div>';});
+var sc=document.getElementById('sidebarContent');var h='<div class="sidebar-header"><span>'+t.sbHeader+' \u2014 '+(pois.length-1)+' '+t.sbLieux+'</span></div>';
+catOrder.forEach(function(cat){var items=catItems[cat];h+='<div class="cat-group"><button class="cat-header" onclick="tC(this,\''+cat+'\')"><span class="ch-emoji">'+items[0].emoji+'</span><span class="ch-label">'+(t.cats[cat]||cat)+'</span><span class="ch-count">'+items.length+'</span><span class="ch-arrow">\u25b6</span></button><div class="cat-items" id="ci-'+cat+'">';
+items.forEach(function(p){var rs=p.note?'\u2b50'+p.note:'';var ph=p.tel?'\ud83d\udcde':'';h+='<div class="poi-item" onclick="fP('+p.idx+')"><span class="pi-dot"></span><span class="pi-name">'+p.nom+'</span><span class="pi-phone">'+ph+'</span><span class="pi-rating">'+rs+'</span></div>';});h+='</div></div>';});
+sc.innerHTML=h;if(pois.length>1)map.fitBounds(L.featureGroup(allLayers).getBounds().pad(0.15));}
+
+function tC(btn,ck){var it=document.getElementById('ci-'+ck),op=btn.classList.contains('open');document.querySelectorAll('.cat-header').forEach(function(b){b.classList.remove('open','active');});document.querySelectorAll('.cat-items').forEach(function(i){i.classList.remove('show');});if(!op){btn.classList.add('open','active');it.classList.add('show');allLayers.forEach(function(l){(l._cat===ck||l._cat==='home')?map.addLayer(l):map.removeLayer(l);});var cl=allLayers.filter(function(l){return l._cat===ck;});if(cl.length)map.fitBounds(L.featureGroup(cl).getBounds().pad(0.3));}else{allLayers.forEach(function(l){map.addLayer(l);});map.fitBounds(L.featureGroup(allLayers).getBounds().pad(0.15));}}
+function fP(idx){var l=markerMap[idx];if(l){map.setView(l.getLatLng(),17);l.openPopup();}}
+
+document.getElementById('csvFileInput').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){var p=parseCSV(ev.target.result);if(p.length)buildMap(p);};r.readAsText(f);});
+
+function getBase(){var p=window.location.pathname;var f=p.split('/').pop()||'index.html';return f.replace(/\.html?$/i,'');}
+
+async function switchLang(lang){currentLang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';document.documentElement.lang=lang;document.querySelectorAll('.lang-btn').forEach(function(b){b.classList.remove('active');});var btns=document.querySelectorAll('.lang-btn');for(var i=0;i<btns.length;i++){if(btns[i].getAttribute('onclick').includes(lang))btns[i].classList.add('active');}
+window.location.hash=lang;
+var tf=document.getElementById('tourFrame');if(tf){var bs=tf.src.split('?')[0];tf.src=bs+'?lang='+lang;}
+var base=getBase();var files=[base+'_'+lang+'.csv',base+'.csv'];
+for(var i=0;i<files.length;i++){try{var resp=await fetch(files[i]);if(!resp.ok)continue;var text=await resp.text();var pois=parseCSV(text);if(pois.length){console.log('Loaded: '+files[i]);buildMap(pois);return;}}catch(e){continue;}}
+if(EMBEDDED_CSV.trim()){var pois=parseCSV(EMBEDDED_CSV);if(pois.length)buildMap(pois);}}
+
+var EMBEDDED_CSV="Cat\u00e9gorie;Emoji;Nom;Adresse;Note;Latitude;Longitude;Nb Avis;T\u00e9l\u00e9phone;Horaires / Notes\nhome;\ud83c\udfe0;R\u00e9sidence Al Jawhara;Dcheira El Jihadia;;30.3732;-9.5372;;;\npharmacie;\ud83d\udc8a;Pharmacie Dcheira;Av. Bir Anzarane;4.4;30.3712;-9.5413;22;+212 5 28 27 04 75;Lun-Ven 9h-20h45\npharmacie;\ud83d\udc8a;Pharmacie Principale;Av. Bir Anzarane;4.5;30.3711;-9.535;13;;\npharmacie;\ud83d\udc8a;Pharmacie Hay Al Ihssane;Bd AbouBakr Assedek;3.8;30.3675;-9.5292;10;;24h/24\nmagasin;\ud83d\uded2;Mido Market;Av. Allal El Fassi;4.0;30.3732;-9.5359;21;;9h-2h\nmagasin;\ud83d\uded2;Pergola Market;Rue Essaada;4.1;30.3753;-9.5468;12;;Cave \u00e0 vins\nmosquee;\ud83d\udd4c;Mosqu\u00e9e Tabarine;N8 Dcheira;4.6;30.3745;-9.5311;12;;La plus proche\nmosquee;\ud83d\udd4c;Mosqu\u00e9e Al Mohsinines;Av. Mehdi Ben Barka;4.8;30.3757;-9.5442;277;;\ncafe;\u2615;Poz Caf\u00e9;Av. Abderrahim Bouabid;4.5;30.3719;-9.5271;175;;7h-23h\nbanque;\ud83c\udfe6;Bank of Africa;Av. Bir Anzarane;4.3;30.3707;-9.5368;15;;\nsante;\ud83c\udfe5;Dr Imane Chaibi;R\u00e9sidence Jawharat;4.9;30.3719;-9.5475;117;;\nhammam;\ud83e\uddd6;Hammam Al Andalos;Dcheira El Jihadia;4.3;30.3727;-9.5191;57;;7h30-23h";
+
+(function(){var hash=window.location.hash.replace('#','');var lang=['fr','en','ar','es'].indexOf(hash)>=0?hash:'fr';switchLang(lang);})();
+</script>
+</body>
+</html>

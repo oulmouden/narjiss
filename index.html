@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Immobilier au Maroc</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+.hero { position: relative; padding: 5rem 1.5rem 4rem; background: linear-gradient(160deg, var(--ocean-deep) 0%, var(--ocean) 50%, var(--sun) 100%); text-align: center; overflow: hidden; color: white; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 90%, rgba(232,168,56,.2) 0%, transparent 60%), radial-gradient(ellipse at 70% 10%, rgba(15,76,117,.3) 0%, transparent 50%); }
+.hero-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+.hero-badge { display: inline-block; background: rgba(255,255,255,.12); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.2); padding: .3rem 1rem; border-radius: 40px; font-size: .72rem; color: var(--sand); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 1.2rem; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 4.8vw, 3.5rem); font-weight: 800; line-height: 1.1; margin-bottom: .8rem; }
+html[dir=rtl] .hero h1 { font-family: 'Noto Sans Arabic', serif; font-weight: 700; }
+.hero h1 em { color: var(--sun-light); font-style: italic; font-weight: 500; }
+.hero p { color: rgba(255,255,255,.75); font-size: 1.05rem; max-width: 580px; margin: 0 auto 2rem; font-weight: 300; }
+.hero-actions { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+.projects-section { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.5rem; }
+.project-card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all .3s; border: 1px solid rgba(0,0,0,.04); text-decoration: none; color: inherit; display: block; }
+.project-card:hover:not(.coming-soon) { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.project-card.coming-soon { opacity: .55; cursor: default; pointer-events: none; }
+.project-thumb { height: 170px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.project-thumb::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.15) 0%, transparent 60%); }
+.project-thumb .icon { font-size: 3.2rem; position: relative; z-index: 2; filter: drop-shadow(0 2px 8px rgba(0,0,0,.2)); }
+.project-thumb .badge-status { position: absolute; top: .8rem; right: .8rem; padding: .2rem .6rem; border-radius: 20px; font-size: .6rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; z-index: 3; }
+.badge-status.live { background: #4CAF84; color: white; }
+.badge-status.soon { background: rgba(255,255,255,.9); color: var(--muted); }
+html[dir=rtl] .project-thumb .badge-status { right: auto; left: .8rem; }
+.project-card:nth-child(1) .project-thumb { background: linear-gradient(135deg, #1B6B93 0%, #E8A838 100%); }
+.project-card:nth-child(2) .project-thumb { background: linear-gradient(135deg, #C2553A 0%, #D4A853 100%); }
+.project-card:nth-child(3) .project-thumb { background: linear-gradient(135deg, #4A6741 0%, #6B8F5E 100%); }
+.project-body { padding: 1.2rem 1.4rem; }
+.project-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--charcoal); margin-bottom: .2rem; }
+html[dir=rtl] .project-name { font-family: 'Noto Sans Arabic', serif; }
+.project-location { font-size: .78rem; color: var(--muted); margin-bottom: .8rem; }
+.project-stats { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; padding-top: .8rem; border-top: 1px solid rgba(0,0,0,.06); }
+.project-stats .stat { font-size: .7rem; color: var(--muted); background: var(--sand); padding: .15rem .5rem; border-radius: 6px; }
+.features { background: var(--sand); padding: 4rem 1.5rem; }
+.features-grid { max-width: 1200px; margin: 2.5rem auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+.feature-card { background: white; border-radius: var(--radius); padding: 1.5rem; text-align: center; box-shadow: var(--shadow); }
+.feature-icon { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--ocean), var(--sun)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem; }
+.feature-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: .4rem; color: var(--charcoal); }
+html[dir=rtl] .feature-card h3 { font-family: 'Noto Sans Arabic', serif; }
+.feature-card p { color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<div id="mainMenu"></div>
+
+<main>
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge" id="heroBadge"></div>
+      <h1 id="heroTitle"></h1>
+      <p id="heroSubtitle"></p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-primary" id="ctaProjects"></a>
+        <a href="carte.html" class="btn btn-outline" id="ctaMap"></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects-section" id="projects">
+    <div class="section-title">
+      <h2 id="projectsTitle"></h2>
+      <p id="projectsSubtitle"></p>
+      <div class="accent-line"></div>
+    </div>
+    <div class="projects-grid" id="projectsGrid"></div>
+  </section>
+
+  <section class="features">
+    <div class="section-title">
+      <h2 id="featuresTitle"></h2>
+      <div class="accent-line"></div>
+    </div>
+    <div class="features-grid" id="featuresGrid"></div>
+  </section>
+</main>
+
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: {
+    badge: "Narjiss — Immobilier au Maroc",
+    title: "Vivez vos biens<br><em>immobiliers</em> autrement",
+    subtitle: "Découvrez nos projets à travers des cartes interactives multilingues et des visites virtuelles 360°.",
+    ctaProjects: "Voir les projets →",
+    ctaMap: "🗺️ Carte globale",
+    projectsTitle: "Nos Projets",
+    projectsSubtitle: "Sélectionnez une résidence pour explorer son quartier et tous ses points d'intérêt",
+    featuresTitle: "Pourquoi choisir Narjiss ?",
+    statusLive: "En ligne",
+    statusSoon: "Bientôt",
+    features: [
+      { icon: "🌐", title: "Multilingue", desc: "Toutes nos cartes en français, anglais, arabe et espagnol" },
+      { icon: "📍", title: "Cartes interactives", desc: "Découvrez chaque quartier en détail avec OpenStreetMap" },
+      { icon: "🎥", title: "Visites 360°", desc: "Explorez chaque pièce comme si vous y étiez" },
+      { icon: "🤝", title: "Accompagnement", desc: "Un expert à vos côtés à chaque étape" }
+    ]
+  },
+  en: {
+    badge: "Narjiss — Real Estate in Morocco",
+    title: "Experience real estate<br><em>differently</em>",
+    subtitle: "Discover our projects through multilingual interactive maps and immersive 360° virtual tours.",
+    ctaProjects: "View projects →",
+    ctaMap: "🗺️ Global map",
+    projectsTitle: "Our Projects",
+    projectsSubtitle: "Select a residence to explore its neighborhood and all points of interest",
+    featuresTitle: "Why choose Narjiss?",
+    statusLive: "Live",
+    statusSoon: "Soon",
+    features: [
+      { icon: "🌐", title: "Multilingual", desc: "All our maps in French, English, Arabic and Spanish" },
+      { icon: "📍", title: "Interactive maps", desc: "Discover every neighborhood with OpenStreetMap" },
+      { icon: "🎥", title: "360° tours", desc: "Explore every room as if you were there" },
+      { icon: "🤝", title: "Support", desc: "An expert by your side at every step" }
+    ]
+  },
+  ar: {
+    badge: "نرجس — العقارات بالمغرب",
+    title: "عش عقاراتك<br><em>بطريقة مختلفة</em>",
+    subtitle: "اكتشف مشاريعنا من خلال خرائط تفاعلية متعددة اللغات وجولات افتراضية 360°.",
+    ctaProjects: "عرض المشاريع ←",
+    ctaMap: "🗺️ خريطة شاملة",
+    projectsTitle: "مشاريعنا",
+    projectsSubtitle: "اختر إقامة لاستكشاف حيها وجميع نقاط الاهتمام",
+    featuresTitle: "لماذا تختار نرجس؟",
+    statusLive: "متاح",
+    statusSoon: "قريبا",
+    features: [
+      { icon: "🌐", title: "متعدد اللغات", desc: "جميع خرائطنا بالفرنسية والإنجليزية والعربية والإسبانية" },
+      { icon: "📍", title: "خرائط تفاعلية", desc: "اكتشف كل حي بالتفصيل" },
+      { icon: "🎥", title: "جولات 360°", desc: "استكشف كل غرفة كأنك هناك" },
+      { icon: "🤝", title: "مرافقة", desc: "خبير بجانبك في كل خطوة" }
+    ]
+  },
+  es: {
+    badge: "Narjiss — Inmobiliaria en Marruecos",
+    title: "Vive tus bienes<br><em>inmobiliarios</em> diferente",
+    subtitle: "Descubre nuestros proyectos a través de mapas interactivos multilingües y visitas virtuales 360°.",
+    ctaProjects: "Ver proyectos →",
+    ctaMap: "🗺️ Mapa global",
+    projectsTitle: "Nuestros Proyectos",
+    projectsSubtitle: "Selecciona una residencia para explorar su barrio y todos los puntos de interés",
+    featuresTitle: "¿Por qué elegir Narjiss?",
+    statusLive: "En línea",
+    statusSoon: "Pronto",
+    features: [
+      { icon: "🌐", title: "Multilingüe", desc: "Todos nuestros mapas en francés, inglés, árabe y español" },
+      { icon: "📍", title: "Mapas interactivos", desc: "Descubre cada barrio con OpenStreetMap" },
+      { icon: "🎥", title: "Visitas 360°", desc: "Explora cada habitación como si estuvieras allí" },
+      { icon: "🤝", title: "Acompañamiento", desc: "Un experto a tu lado en cada paso" }
+    ]
+  }
+};
+
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById('heroBadge').textContent = t.badge;
+  document.getElementById('heroTitle').innerHTML = t.title;
+  document.getElementById('heroSubtitle').textContent = t.subtitle;
+  document.getElementById('ctaProjects').textContent = t.ctaProjects;
+  document.getElementById('ctaMap').textContent = t.ctaMap;
+  document.getElementById('projectsTitle').textContent = t.projectsTitle;
+  document.getElementById('projectsSubtitle').textContent = t.projectsSubtitle;
+  document.getElementById('featuresTitle').textContent = t.featuresTitle;
+
+  var grid = document.getElementById('projectsGrid');
+  grid.innerHTML = '';
+  for (var i = 0; i < PROJECTS.length; i++) {
+    var p = PROJECTS[i];
+    var card = document.createElement('a');
+    card.className = 'project-card' + (p.status === 'soon' ? ' coming-soon' : '');
+    card.href = p.status === 'live' ? (p.folder + '/' + p.id + '.html#' + lang) : '#';
+    var statusLabel = p.status === 'live' ? t.statusLive : t.statusSoon;
+    var statusClass = p.status === 'live' ? 'live' : 'soon';
+    var statsHtml = '';
+    for (var j = 0; j < p.stats.length; j++) {
+      statsHtml += '<span class="stat">' + p.stats[j][lang] + '</span>';
+    }
+    card.innerHTML =
+      '<div class="project-thumb">' +
+        '<span class="icon">' + p.icon + '</span>' +
+        '<span class="badge-status ' + statusClass + '">' + statusLabel + '</span>' +
+      '</div>' +
+      '<div class="project-body">' +
+        '<div class="project-name">' + p.name[lang] + '</div>' +
+        '<div class="project-location">📍 ' + p.location[lang] + '</div>' +
+        '<div class="project-stats">' + statsHtml + '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  }
+
+  var fg = document.getElementById('featuresGrid');
+  fg.innerHTML = '';
+  for (var i = 0; i < t.features.length; i++) {
+    var f = t.features[i];
+    fg.innerHTML += '<div class="feature-card"><div class="feature-icon">' + f.icon + '</div><h3>' + f.title + '</h3><p>' + f.desc + '</p></div>';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  initPage('home', '');
+});
+</script>
+</body>
+</html>
