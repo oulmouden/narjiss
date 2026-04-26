@@ -1,306 +1,325 @@
+
 <!DOCTYPE html>
 <html lang="fr" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Résidence Al Jawhara — Narjiss</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/menu.css">
+<title>Carte Interactive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-/* ========== HERO ========== */
-.project-hero { position: relative; padding: 4rem 1.5rem 3rem; background: linear-gradient(160deg, #0F4C75 0%, #1B6B93 50%, #E8A838 100%); color: white; text-align: center; overflow: hidden; }
-.project-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 90%, rgba(232,168,56,.2) 0%, transparent 60%); }
-.project-hero-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
-.project-hero .badge { display: inline-block; background: rgba(255,255,255,.15); padding: .3rem 1rem; border-radius: 30px; font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
-.project-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; margin-bottom: .5rem; }
-html[dir=rtl] .project-hero h1 { font-family: 'Noto Sans Arabic', serif; font-weight: 700; }
-.project-hero h1 em { color: var(--sun-light); font-style: italic; }
-.project-hero .location { color: rgba(255,255,255,.8); font-size: 1rem; margin-bottom: 1.8rem; }
-.hero-actions { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+:root {
+  --ocean: #1B6B93;
+  --sun: #E8A838;
+  --sand: #F2E8D5;
+  --charcoal: #1E1E2A;
+  --text: #2A2A3A;
+  --muted: #7A7A8A;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #FDFAF5;
+  color: var(--text);
+  line-height: 1.6;
+}
+html[dir=rtl] body { font-family: 'Noto Sans Arabic', 'Outfit', sans-serif; }
 
-/* ========== QUICK NAV ========== */
-.quick-nav { background: white; padding: 1rem; border-bottom: 1px solid rgba(0,0,0,.06); position: sticky; top: 60px; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
-.quick-nav-content { max-width: 1200px; margin: 0 auto; display: flex; gap: .5rem; overflow-x: auto; padding: 0 1rem; }
-.quick-nav a { white-space: nowrap; padding: .4rem 1rem; border-radius: 20px; text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 500; transition: all .2s; }
-.quick-nav a:hover, .quick-nav a.active { background: var(--ocean); color: white; }
+.lang-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(30,30,42,.95);
+  display: flex; justify-content: center; gap: .3rem;
+  padding: .5rem 1rem;
+}
+.lang-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.6); padding: .3rem .7rem;
+  border-radius: 6px; cursor: pointer; font-size: .8rem;
+  font-family: inherit;
+}
+.lang-btn:hover { background: rgba(255,255,255,.1); color: white; }
+.lang-btn.active { background: var(--ocean); color: white; border-color: var(--ocean); }
 
-/* ========== SECTIONS ========== */
-.section { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; scroll-margin-top: 120px; }
-.section-alt { background: var(--sand); }
-.section-alt-wrap { padding: 4rem 1.5rem; }
+.hero {
+  margin-top: 42px;
+  padding: 4rem 2rem;
+  background: linear-gradient(160deg, #0F4C75, var(--ocean), var(--sun));
+  text-align: center;
+  color: white;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,.15);
+  padding: .3rem 1rem;
+  border-radius: 30px;
+  font-size: .75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  margin-bottom: .5rem;
+}
+html[dir=rtl] .hero h1 { font-family: 'Noto Sans Arabic', serif; }
+.hero h1 em { color: #F5C96A; font-style: italic; }
+.hero p { opacity: .8; max-width: 500px; margin: 0 auto; }
 
-/* ========== TOUR ========== */
-.tour-container { background: var(--charcoal); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); }
-.tour-frame { width: 100%; aspect-ratio: 16/9; border: none; background: #0a0a15; }
-.tour-placeholder { width: 100%; aspect-ratio: 16/9; background: #0a0a15; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.4); flex-direction: column; gap: 1rem; padding: 2rem; text-align: center; }
-.tour-placeholder .play { width: 70px; height: 70px; border-radius: 50%; background: rgba(232,168,56,.2); border: 2px solid var(--sun); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-.tour-info { padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; color: rgba(255,255,255,.7); font-size: .85rem; }
+.stats {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  background: var(--charcoal);
+}
+.stat-item {
+  flex: 1; min-width: 120px; max-width: 180px;
+  padding: 1rem; text-align: center;
+  border-right: 1px solid rgba(255,255,255,.05);
+}
+.stat-item:last-child { border-right: none; }
+.stat-item .se { font-size: 1.2rem; }
+.stat-item .sl {
+  color: rgba(212,193,161,1); font-size: .65rem;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.stat-item .sv {
+  color: #F5C96A; font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 600;
+}
 
-/* ========== SPECS ========== */
-.specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 2rem 0; }
-.spec-card { background: white; padding: 1.2rem; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,.04); }
-.section-alt .spec-card { background: white; }
-.spec-icon { font-size: 1.5rem; margin-bottom: .3rem; }
-.spec-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-.spec-value { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--charcoal); margin-top: .2rem; }
-html[dir=rtl] .spec-value { font-family: 'Noto Sans Arabic', serif; }
-.description-text { max-width: 800px; margin: 0 auto; font-size: 1rem; color: var(--text); line-height: 1.8; text-align: center; }
+.map-section { padding: 3rem 1.5rem; max-width: 1200px; margin: 0 auto; }
+.section-title { text-align: center; margin-bottom: 1.5rem; }
+.section-title h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; color: var(--charcoal);
+}
+html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
+.section-title p { color: var(--muted); font-size: .9rem; margin-top: .3rem; }
 
-/* ========== PHOTOS ========== */
-.photos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-.photo-card { aspect-ratio: 4/3; border-radius: var(--radius); overflow: hidden; background: linear-gradient(135deg, var(--ocean), var(--sun)); position: relative; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; box-shadow: var(--shadow); transition: transform .3s; }
-.photo-card:hover { transform: scale(1.02); }
-.photo-card img { width: 100%; height: 100%; object-fit: cover; }
-.photo-card .photo-fallback { font-size: 3rem; opacity: .5; }
-.photo-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: .8rem 1rem; background: linear-gradient(transparent, rgba(0,0,0,.7)); color: white; font-size: .85rem; font-weight: 500; }
+.map-layout {
+  display: grid; grid-template-columns: 280px 1fr;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,.1);
+  min-height: 550px; background: white;
+}
+@media (max-width: 768px) {
+  .map-layout { grid-template-columns: 1fr; }
+  .sidebar { max-height: 300px; }
+}
 
-/* ========== MAP ========== */
-.map-layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); min-height: 550px; }
-@media (max-width: 768px) { .map-layout { grid-template-columns: 1fr; } .map-sidebar { max-height: 320px; } }
-.map-sidebar { background: var(--charcoal); overflow-y: auto; }
-.sidebar-header { padding: .9rem 1.1rem .5rem; color: var(--sand-dark); font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.06); }
-.cat-group { border-bottom: 1px solid rgba(255,255,255,.04); }
-.cat-btn { display: flex; align-items: center; gap: .5rem; width: 100%; padding: .65rem 1.1rem; border: none; background: transparent; color: rgba(255,255,255,.7); font-size: .8rem; font-family: inherit; cursor: pointer; text-align: left; }
+.sidebar { background: var(--charcoal); overflow-y: auto; }
+.sidebar-title {
+  padding: 1rem 1.2rem .5rem; color: rgba(212,193,161,1);
+  font-size: .65rem; letter-spacing: 2px; text-transform: uppercase;
+}
+.cat {
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.cat-btn {
+  display: flex; align-items: center; gap: .5rem;
+  width: 100%; padding: .7rem 1.2rem;
+  border: none; background: transparent;
+  color: rgba(255,255,255,.7);
+  font-family: inherit; font-size: .85rem;
+  cursor: pointer; text-align: left;
+}
 html[dir=rtl] .cat-btn { text-align: right; }
 .cat-btn:hover { background: rgba(255,255,255,.05); color: white; }
 .cat-btn.active { background: var(--ocean); color: white; }
-.cat-btn .ch-emoji { width: 22px; text-align: center; }
-.cat-btn .ch-label { flex: 1; }
-.cat-btn .ch-count { background: rgba(255,255,255,.1); padding: .08rem .38rem; border-radius: 8px; font-size: .58rem; }
-.cat-btn .ch-arrow { font-size: .5rem; transition: transform .2s; }
-.cat-btn.open .ch-arrow { transform: rotate(90deg); }
+.cat-btn .emoji { font-size: 1rem; width: 24px; }
+.cat-btn .label { flex: 1; }
+.cat-btn .count {
+  background: rgba(255,255,255,.1);
+  padding: .1rem .4rem; border-radius: 8px;
+  font-size: .65rem;
+}
+.cat-btn.active .count { background: rgba(255,255,255,.2); }
+.cat-btn .arrow {
+  font-size: .55rem; transition: transform .2s;
+  color: rgba(255,255,255,.3);
+}
+.cat-btn.open .arrow { transform: rotate(90deg); }
+
 .cat-list { display: none; background: rgba(0,0,0,.2); }
 .cat-list.show { display: block; }
-.poi-item { display: flex; align-items: center; gap: .45rem; padding: .4rem 1.1rem .4rem 2.6rem; cursor: pointer; transition: background .15s; border-bottom: 1px solid rgba(255,255,255,.02); }
-html[dir=rtl] .poi-item { padding: .4rem 2.6rem .4rem 1.1rem; }
-.poi-item:hover { background: rgba(255,255,255,.05); }
-.poi-item .pi-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sun); }
-.poi-item .pi-name { color: rgba(255,255,255,.6); font-size: .72rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.poi-item .pi-rating { color: var(--sun-light); font-size: .62rem; }
+.poi {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .45rem 1.2rem .45rem 2.7rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,.02);
+}
+html[dir=rtl] .poi { padding: .45rem 2.7rem .45rem 1.2rem; }
+.poi:hover { background: rgba(255,255,255,.05); }
+.poi .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%; background: var(--sun);
+}
+.poi .name {
+  flex: 1; color: rgba(255,255,255,.65);
+  font-size: .75rem; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.poi:hover .name { color: white; }
+.poi .rating { color: #F5C96A; font-size: .7rem; }
+
 #map { width: 100%; height: 100%; min-height: 550px; }
-.popup-card { padding: .85rem 1rem; min-width: 200px; }
-.popup-card .pc-cat { font-size: .55rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ocean); font-weight: 600; }
-.popup-card .pc-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--charcoal); margin: .15rem 0; }
+
+.popup-card { padding: .8rem 1rem; min-width: 200px; }
+.popup-card .pc-cat {
+  font-size: .55rem; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--ocean);
+  font-weight: 600; margin-bottom: .15rem;
+}
+.popup-card .pc-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 700;
+  color: var(--charcoal); margin-bottom: .15rem;
+}
 html[dir=rtl] .popup-card .pc-name { font-family: 'Noto Sans Arabic', serif; }
-.popup-card .pc-addr, .popup-card .pc-det { font-size: .72rem; color: var(--muted); }
-.popup-card .pc-rt { color: var(--sun); font-size: .72rem; margin-top: .15rem; }
-.popup-card .pc-phone { font-size: .68rem; color: var(--ocean); margin-top: .15rem; }
+.popup-card .pc-addr,
+.popup-card .pc-det {
+  font-size: .72rem; color: var(--muted);
+}
+.popup-card .pc-rt {
+  color: var(--sun); font-size: .75rem;
+  margin-top: .2rem;
+}
+.popup-card .pc-phone {
+  font-size: .72rem; color: var(--ocean);
+  margin-top: .2rem;
+}
 .popup-card .pc-phone a { color: var(--ocean); text-decoration: none; }
 
-/* ========== WALKS ========== */
-.walks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-.walk-card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all .3s; border: 1px solid rgba(0,0,0,.04); }
-.walk-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-.walk-header { padding: 1.2rem 1.4rem; color: white; display: flex; align-items: center; gap: 1rem; }
-.walk-num { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; flex-shrink: 0; }
-.walk-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
-html[dir=rtl] .walk-title { font-family: 'Noto Sans Arabic', serif; }
-.walk-meta { font-size: .75rem; opacity: .85; margin-top: .15rem; }
-.walk-body { padding: 1.2rem 1.4rem; }
-.walk-stops { list-style: none; padding-left: 1rem; position: relative; }
-html[dir=rtl] .walk-stops { padding-left: 0; padding-right: 1rem; }
-.walk-stops::before { content: ''; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 2px; background: var(--sand-dark); }
-html[dir=rtl] .walk-stops::before { left: auto; right: 4px; }
-.walk-stops li { position: relative; padding: .35rem 0 .35rem 1rem; font-size: .82rem; color: var(--muted); }
-html[dir=rtl] .walk-stops li { padding: .35rem 1rem .35rem 0; }
-.walk-stops li::before { content: ''; position: absolute; left: -1rem; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; border-radius: 50%; background: var(--sand); border: 2px solid var(--sand-dark); }
-html[dir=rtl] .walk-stops li::before { left: auto; right: -1rem; }
+footer {
+  text-align: center; padding: 1rem;
+  color: var(--muted); font-size: .75rem;
+  background: var(--sand);
+}
 
-/* ========== FLOOR PLAN ========== */
-.floor-plan { max-width: 800px; margin: 2rem auto 0; }
-.floor-plan-img { width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow-lg); background: white; padding: 1rem; }
-.floor-plan-placeholder { aspect-ratio: 4/3; background: white; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: .9rem; flex-direction: column; gap: .5rem; }
-.floor-plan-placeholder .icon { font-size: 3rem; opacity: .3; }
-
-/* ========== TESTIMONIALS ========== */
-.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-.testimonial { background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); }
-.testimonial-stars { color: var(--sun); font-size: .9rem; margin-bottom: .5rem; }
-.testimonial-text { color: var(--text); font-style: italic; line-height: 1.7; margin-bottom: 1rem; font-size: .9rem; }
-.testimonial-author { display: flex; align-items: center; gap: .8rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,.06); }
-.testimonial-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--ocean), var(--sun)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0; }
-.testimonial-author strong { display: block; color: var(--charcoal); font-size: .9rem; }
-.testimonial-author span { color: var(--muted); font-size: .75rem; }
-
-/* ========== CTA SECTION ========== */
-.cta-section { background: linear-gradient(135deg, var(--charcoal), var(--ocean-deep)); color: white; padding: 4rem 1.5rem; text-align: center; }
-.cta-section h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: .8rem; }
-html[dir=rtl] .cta-section h2 { font-family: 'Noto Sans Arabic', serif; }
-.cta-section p { color: rgba(255,255,255,.7); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
-.cta-actions { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
-.cta-actions .btn-primary { background: var(--sun); color: var(--charcoal); }
-.cta-actions .btn-primary:hover { background: white; }
-.cta-actions .btn-outline { color: white; border-color: rgba(255,255,255,.4); }
-.cta-actions .btn-outline:hover { background: white; color: var(--charcoal); }
+.loading {
+  padding: 3rem; text-align: center;
+  color: rgba(255,255,255,.4);
+}
 </style>
 </head>
 <body>
 
-<div id="mainMenu"></div>
+<div class="lang-bar">
+  <button class="lang-btn active" data-lang="fr">🇫🇷 FR</button>
+  <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+  <button class="lang-btn" data-lang="ar">🇲🇦 عربي</button>
+  <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
+</div>
 
-<main>
-  <!-- HERO -->
-  <section class="project-hero">
-    <div class="project-hero-content">
-      <div class="badge">Narjiss</div>
-      <h1 id="heroTitle">Résidence <em>Al Jawhara</em></h1>
-      <p class="location" id="heroLocation">📍 Dcheira El Jihadia, Agadir</p>
-      <div class="hero-actions">
-        <a href="#tour" class="btn btn-primary" id="heroBtnTour">▶ Visite virtuelle</a>
-        <a href="#carte" class="btn btn-outline" id="heroBtnMap">🗺️ Carte du quartier</a>
-      </div>
-    </div>
-  </section>
+<section class="hero">
+  <div class="hero-badge" id="heroBadge">Chargement...</div>
+  <h1 id="heroTitle">Carte <em>Interactive</em></h1>
+  <p id="heroSubtitle"></p>
+</section>
 
-  <!-- QUICK NAV -->
-  <nav class="quick-nav">
-    <div class="quick-nav-content">
-      <a href="#description" id="qnDescription">📄 Description</a>
-      <a href="#photos" id="qnPhotos">🖼️ Photos</a>
-      <a href="#tour" id="qnTour">🎥 Visite 360°</a>
-      <a href="#plan" id="qnPlan">📐 Plan</a>
-      <a href="#carte" id="qnMap">🗺️ Carte</a>
-      <a href="#promenades" id="qnWalks">🚶 Promenades</a>
-      <a href="#avis" id="qnReviews">⭐ Avis</a>
-      <a href="#contact-cta" id="qnContact">✉️ Contact</a>
-    </div>
-  </nav>
+<div class="stats" id="statsBar"></div>
 
-  <!-- DESCRIPTION + SPECS -->
-  <section class="section" id="description">
-    <div class="section-title">
-      <h2 id="descTitle">Description</h2>
-      <div class="accent-line"></div>
+<section class="map-section">
+  <div class="section-title">
+    <h2 id="mapTitle">Carte du Quartier</h2>
+    <p id="mapSubtitle">Cliquez sur une catégorie</p>
+  </div>
+  <div class="map-layout">
+    <div class="sidebar" id="sidebar">
+      <div class="loading">Chargement...</div>
     </div>
-    <p class="description-text" id="descText"></p>
-    <div class="specs-grid" id="specsGrid"></div>
-  </section>
+    <div id="map"></div>
+  </div>
+</section>
 
-  <!-- PHOTOS -->
-  <section class="section-alt">
-    <div class="section-alt-wrap">
-      <div class="section-title">
-        <h2 id="photosTitle">Galerie photos</h2>
-        <div class="accent-line"></div>
-      </div>
-      <div class="photos-grid" id="photosGrid" style="max-width:1200px;margin:0 auto"></div>
-    </div>
-  </section>
+<footer><span id="footerName">Carte</span> — © OpenStreetMap</footer>
 
-  <!-- VIRTUAL TOUR -->
-  <section class="section" id="tour">
-    <div class="section-title">
-      <h2 id="tourTitle">Visite Virtuelle 360°</h2>
-      <p id="tourSub">Explorez chaque pièce comme si vous y étiez</p>
-      <div class="accent-line"></div>
-    </div>
-    <div class="tour-container" id="tourContainer">
-      <!-- iframe ou placeholder injecté ici -->
-    </div>
-  </section>
-
-  <!-- FLOOR PLAN -->
-  <section class="section-alt" id="plan">
-    <div class="section-alt-wrap">
-      <div class="section-title">
-        <h2 id="planTitle">Plan au sol</h2>
-        <div class="accent-line"></div>
-      </div>
-      <div class="floor-plan" id="floorPlan"></div>
-    </div>
-  </section>
-
-  <!-- MAP & POI -->
-  <section class="section" id="carte">
-    <div class="section-title">
-      <h2 id="mapTitle">Carte du Quartier</h2>
-      <p id="mapSub">Cliquez sur une catégorie pour explorer les points d'intérêt</p>
-      <div class="accent-line"></div>
-    </div>
-    <div class="map-layout">
-      <div class="map-sidebar" id="sidebar"><div style="padding:2rem;color:rgba(255,255,255,.4)">Chargement...</div></div>
-      <div id="map"></div>
-    </div>
-  </section>
-
-  <!-- WALKS -->
-  <section class="section-alt" id="promenades">
-    <div class="section-alt-wrap">
-      <div class="section-title">
-        <h2 id="walksTitle">Promenades suggérées</h2>
-        <div class="accent-line"></div>
-      </div>
-      <div class="walks-grid" id="walksGrid" style="max-width:1100px;margin:0 auto"></div>
-    </div>
-  </section>
-
-  <!-- TESTIMONIALS -->
-  <section class="section" id="avis">
-    <div class="section-title">
-      <h2 id="testimonialsTitle">Ils nous ont fait confiance</h2>
-      <div class="accent-line"></div>
-    </div>
-    <div class="testimonials-grid" id="testimonialsGrid"></div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section" id="contact-cta">
-    <h2 id="ctaTitle">Intéressé par cette résidence ?</h2>
-    <p id="ctaText">Téléchargez la brochure complète ou contactez-nous pour organiser une visite.</p>
-    <div class="cta-actions">
-      <a href="brochure.pdf" download class="btn btn-primary" id="ctaBrochure">📥 Télécharger la brochure</a>
-      <a href="../contact.html" class="btn btn-outline" id="ctaContact">✉️ Nous contacter</a>
-    </div>
-  </section>
-</main>
-
-<div id="mainFooter"></div>
-
-<script src="../shared/menu.js"></script>
 <script>
-// ============================================================
-// PAGE PROJET ANDALOUSSIA
-// ============================================================
-
-var PAGE_UI = {
-  fr: { btnTour:"▶ Visite virtuelle", btnMap:"🗺️ Carte du quartier", desc:"Description", photos:"Galerie photos", tour:"Visite Virtuelle 360°", tourSub:"Explorez chaque pièce comme si vous y étiez", plan:"Plan au sol", map:"Carte du Quartier", mapSub:"Cliquez sur une catégorie pour explorer les points d'intérêt", walks:"Promenades suggérées", testimonials:"Ils nous ont fait confiance", ctaTitle:"Intéressé par cette résidence ?", ctaText:"Téléchargez la brochure complète ou contactez-nous pour organiser une visite.", ctaBrochure:"📥 Télécharger la brochure", ctaContact:"✉️ Nous contacter", yourRes:"votre résidence", reviews:"avis", lieux:"lieux", sbHeader:"Points d'intérêt", tourPlaceholder:"Visite virtuelle 3DVista à venir", qn:{description:"📄 Description",photos:"🖼️ Photos",tour:"🎥 Visite 360°",plan:"📐 Plan",map:"🗺️ Carte",walks:"🚶 Promenades",reviews:"⭐ Avis",contact:"✉️ Contact"}, cats:{pharmacie:"Pharmacies",magasin:"Supermarchés",boulangerie:"Boulangeries",mosquee:"Mosquées",ecole:"Écoles",cafe:"Cafés",banque:"Banques",sante:"Santé",hammam:"Hammams"} },
-  en: { btnTour:"▶ Virtual tour", btnMap:"🗺️ Neighborhood map", desc:"Description", photos:"Photo gallery", tour:"360° Virtual Tour", tourSub:"Explore every room as if you were there", plan:"Floor plan", map:"Neighborhood Map", mapSub:"Click a category to explore points of interest", walks:"Suggested walks", testimonials:"They trusted us", ctaTitle:"Interested in this residence?", ctaText:"Download the full brochure or contact us to arrange a visit.", ctaBrochure:"📥 Download brochure", ctaContact:"✉️ Contact us", yourRes:"your residence", reviews:"reviews", lieux:"places", sbHeader:"Points of Interest", tourPlaceholder:"3DVista virtual tour coming soon", qn:{description:"📄 Description",photos:"🖼️ Photos",tour:"🎥 360° Tour",plan:"📐 Plan",map:"🗺️ Map",walks:"🚶 Walks",reviews:"⭐ Reviews",contact:"✉️ Contact"}, cats:{pharmacie:"Pharmacies",magasin:"Supermarkets",boulangerie:"Bakeries",mosquee:"Mosques",ecole:"Schools",cafe:"Cafés",banque:"Banks",sante:"Healthcare",hammam:"Hammams"} },
-  ar: { btnTour:"▶ جولة افتراضية", btnMap:"🗺️ خريطة الحي", desc:"الوصف", photos:"معرض الصور", tour:"جولة افتراضية 360°", tourSub:"استكشف كل غرفة كأنك هناك", plan:"المخطط", map:"خريطة الحي", mapSub:"انقر على فئة لاستكشاف نقاط الاهتمام", walks:"نزهات مقترحة", testimonials:"آراء عملائنا", ctaTitle:"مهتم بهذه الإقامة؟", ctaText:"حمل الكتيب الكامل أو اتصل بنا لتنظيم زيارة.", ctaBrochure:"📥 تحميل الكتيب", ctaContact:"✉️ اتصل بنا", yourRes:"إقامتك", reviews:"تقييم", lieux:"مكان", sbHeader:"نقاط الاهتمام", tourPlaceholder:"الجولة الافتراضية قريبا", qn:{description:"📄 الوصف",photos:"🖼️ الصور",tour:"🎥 جولة 360°",plan:"📐 المخطط",map:"🗺️ الخريطة",walks:"🚶 نزهات",reviews:"⭐ آراء",contact:"✉️ اتصال"}, cats:{pharmacie:"الصيدليات",magasin:"المتاجر",boulangerie:"المخابز",mosquee:"المساجد",ecole:"المدارس",cafe:"المقاهي",banque:"البنوك",sante:"الصحة",hammam:"الحمامات"} },
-  es: { btnTour:"▶ Visita virtual", btnMap:"🗺️ Mapa del barrio", desc:"Descripción", photos:"Galería de fotos", tour:"Visita Virtual 360°", tourSub:"Explora cada habitación como si estuvieras allí", plan:"Plano", map:"Mapa del Barrio", mapSub:"Haz clic en una categoría para explorar los puntos de interés", walks:"Paseos sugeridos", testimonials:"Confiaron en nosotros", ctaTitle:"¿Interesado en esta residencia?", ctaText:"Descarga el folleto completo o contáctanos para organizar una visita.", ctaBrochure:"📥 Descargar folleto", ctaContact:"✉️ Contáctanos", yourRes:"tu residencia", reviews:"reseñas", lieux:"lugares", sbHeader:"Puntos de Interés", tourPlaceholder:"Visita virtual 3DVista próximamente", qn:{description:"📄 Descripción",photos:"🖼️ Fotos",tour:"🎥 Visita 360°",plan:"📐 Plano",map:"🗺️ Mapa",walks:"🚶 Paseos",reviews:"⭐ Reseñas",contact:"✉️ Contacto"}, cats:{pharmacie:"Farmacias",magasin:"Supermercados",boulangerie:"Panaderías",mosquee:"Mezquitas",ecole:"Escuelas",cafe:"Cafés",banque:"Bancos",sante:"Salud",hammam:"Hammams"} }
+// === TRADUCTIONS ===
+var UI = {
+  fr: {
+    heroSub: "points d'intérêt à proximité",
+    mapTitle: "Carte du Quartier",
+    mapSub: "Cliquez sur une catégorie pour déplier la liste",
+    sbTitle: "Points d'intérêt",
+    lieux: "lieux",
+    yourRes: "votre résidence",
+    reviews: "avis",
+    cats: { pharmacie:"Pharmacies", magasin:"Supermarchés", boulangerie:"Boulangeries", mosquee:"Mosquées", ecole:"Écoles", cafe:"Cafés", banque:"Banques", sante:"Santé", hammam:"Hammams" }
+  },
+  en: {
+    heroSub: "points of interest nearby",
+    mapTitle: "Neighborhood Map",
+    mapSub: "Click a category to expand the list",
+    sbTitle: "Points of Interest",
+    lieux: "places",
+    yourRes: "your residence",
+    reviews: "reviews",
+    cats: { pharmacie:"Pharmacies", magasin:"Supermarkets", boulangerie:"Bakeries", mosquee:"Mosques", ecole:"Schools", cafe:"Cafés", banque:"Banks", sante:"Healthcare", hammam:"Hammams" }
+  },
+  ar: {
+    heroSub: "نقاط اهتمام بالقرب",
+    mapTitle: "خريطة الحي",
+    mapSub: "انقر على فئة لتوسيع القائمة",
+    sbTitle: "نقاط الاهتمام",
+    lieux: "مكان",
+    yourRes: "إقامتك",
+    reviews: "تقييم",
+    cats: { pharmacie:"الصيدليات", magasin:"المتاجر", boulangerie:"المخابز", mosquee:"المساجد", ecole:"المدارس", cafe:"المقاهي", banque:"البنوك", sante:"الصحة", hammam:"الحمامات" }
+  },
+  es: {
+    heroSub: "puntos de interés cercanos",
+    mapTitle: "Mapa del Barrio",
+    mapSub: "Haz clic en una categoría",
+    sbTitle: "Puntos de Interés",
+    lieux: "lugares",
+    yourRes: "tu residencia",
+    reviews: "reseñas",
+    cats: { pharmacie:"Farmacias", magasin:"Supermercados", boulangerie:"Panaderías", mosquee:"Mezquitas", ecole:"Escuelas", cafe:"Cafés", banque:"Bancos", sante:"Salud", hammam:"Hammams" }
+  }
 };
 
-var projectData = null;
+var currentLang = 'fr';
 var allLayers = [];
 var markerMap = {};
-var leafletMap = null;
 
-// === MAP SETUP ===
-function initMap() {
-  if (leafletMap) return;
-  leafletMap = L.map('map').setView([30.3732, -9.5372], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(leafletMap);
-}
+var map = L.map('map').setView([31, -8], 7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap',
+  maxZoom: 19
+}).addTo(map);
 
 function makeIcon(emoji) {
-  return L.divIcon({ html: '<div style="background:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid white">' + emoji + '</div>', iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -14], className: '' });
-}
-function makeHomeIcon() {
-  return L.divIcon({ html: '<div style="background:#1B6B93;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;border:3px solid white;box-shadow:0 0 0 5px rgba(27,107,147,.2),0 4px 12px rgba(0,0,0,.3)">🏠</div>', iconSize: [38, 38], iconAnchor: [19, 19], popupAnchor: [0, -22], className: '' });
+  return L.divIcon({
+    html: '<div style="background:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid white">' + emoji + '</div>',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14],
+    className: ''
+  });
 }
 
-function makePopup(poi) {
-  var t = PAGE_UI[currentLang];
-  var cat = poi.cat === 'home' ? t.yourRes : (t.cats[poi.cat] || poi.cat);
-  var rt = poi.note ? '<div class="pc-rt">★ ' + poi.note + '/5' + (poi.avis ? ' · ' + poi.avis + ' ' + t.reviews : '') + '</div>' : '';
-  var ph = poi.tel ? '<div class="pc-phone">📞 <a href="tel:' + poi.tel.replace(/\s/g,'') + '">' + poi.tel + '</a></div>' : '';
-  var hr = poi.horaires ? '<div class="pc-det">🕐 ' + poi.horaires + '</div>' : '';
-  return '<div class="popup-card"><div class="pc-cat">' + cat + '</div><div class="pc-name">' + poi.nom + '</div><div class="pc-addr">' + poi.adresse + '</div>' + hr + rt + ph + '</div>';
+function makeHomeIcon() {
+  return L.divIcon({
+    html: '<div style="background:#1B6B93;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;border:3px solid white;box-shadow:0 0 0 5px rgba(27,107,147,.2),0 4px 12px rgba(0,0,0,.3)">🏠</div>',
+    iconSize: [38, 38],
+    iconAnchor: [19, 19],
+    popupAnchor: [0, -22],
+    className: ''
+  });
+}
+
+function makePopup(p) {
+  var t = UI[currentLang];
+  var cat = p.cat === 'home' ? t.yourRes : (t.cats[p.cat] || p.cat);
+  var rating = p.note ? '<div class="pc-rt">★ ' + p.note + '/5' + (p.avis ? ' · ' + p.avis + ' ' + t.reviews : '') + '</div>' : '';
+  var phone = p.tel ? '<div class="pc-phone">📞 <a href="tel:' + p.tel.replace(/\s/g,'') + '">' + p.tel + '</a></div>' : '';
+  var hours = p.horaires ? '<div class="pc-det">🕐 ' + p.horaires + '</div>' : '';
+  return '<div class="popup-card"><div class="pc-cat">' + cat + '</div><div class="pc-name">' + p.nom + '</div><div class="pc-addr">' + p.adresse + '</div>' + hours + rating + phone + '</div>';
 }
 
 function parseCSV(text) {
-  var lines = text.replace(/\r/g,'').split('\n').filter(function(l){return l.trim();});
+  var lines = text.replace(/\r/g,'').split('\n').filter(function(l) { return l.trim(); });
   if (lines.length < 2) return [];
   var sep = lines[0].indexOf(';') >= 0 ? ';' : ',';
   var hdr = lines[0].replace(/^\uFEFF/,'').split(sep);
@@ -321,231 +340,209 @@ function parseCSV(text) {
   var pois = [];
   for (var i = 1; i < lines.length; i++) {
     var c = lines[i].split(sep);
-    var lat = parseFloat(c[idx.lat]), lng = parseFloat(c[idx.lng]);
+    var lat = parseFloat(c[idx.lat]);
+    var lng = parseFloat(c[idx.lng]);
     if (isNaN(lat) || isNaN(lng)) continue;
-    pois.push({ cat:(c[idx.cat]||'').trim().toLowerCase(), emoji:(c[idx.emoji]||'📍').trim(), nom:(c[idx.nom]||'').trim(), adresse:(c[idx.adresse]||'').trim(), note:parseFloat(c[idx.note])||null, lat:lat, lng:lng, avis:parseInt(c[idx.avis])||null, tel:(c[idx.tel]||'').trim(), horaires:(c[idx.horaires]||'').trim() });
+    pois.push({
+      cat: (c[idx.cat] || '').trim().toLowerCase(),
+      emoji: (c[idx.emoji] || '📍').trim(),
+      nom: (c[idx.nom] || '').trim(),
+      adresse: (c[idx.adresse] || '').trim(),
+      note: parseFloat(c[idx.note]) || null,
+      lat: lat, lng: lng,
+      avis: parseInt(c[idx.avis]) || null,
+      tel: (c[idx.tel] || '').trim(),
+      horaires: (c[idx.horaires] || '').trim()
+    });
   }
   return pois;
 }
 
 function buildMap(pois) {
-  var t = PAGE_UI[currentLang];
-  for (var i = 0; i < allLayers.length; i++) leafletMap.removeLayer(allLayers[i]);
-  allLayers = []; markerMap = {};
+  var t = UI[currentLang];
+
+  for (var i = 0; i < allLayers.length; i++) map.removeLayer(allLayers[i]);
+  allLayers = [];
+  markerMap = {};
 
   var home = null;
-  for (var i = 0; i < pois.length; i++) if (pois[i].cat === 'home') { home = pois[i]; break; }
+  for (var i = 0; i < pois.length; i++) {
+    if (pois[i].cat === 'home') { home = pois[i]; break; }
+  }
+  if (home) map.setView([home.lat, home.lng], 15);
 
   for (var i = 0; i < pois.length; i++) {
     var p = pois[i];
     var ic = p.cat === 'home' ? makeHomeIcon() : makeIcon(p.emoji);
     var layer = L.marker([p.lat, p.lng], { icon: ic }).bindPopup(makePopup(p));
     layer._cat = p.cat;
-    layer.addTo(leafletMap);
+    layer.addTo(map);
     allLayers.push(layer);
     markerMap[i] = layer;
   }
 
-  var catOrder = [], catItems = {};
+  var catOrder = [];
+  var catItems = {};
   for (var i = 0; i < pois.length; i++) {
-    if (pois[i].cat === 'home') continue;
-    if (!catItems[pois[i].cat]) { catItems[pois[i].cat] = []; catOrder.push(pois[i].cat); }
-    catItems[pois[i].cat].push({ p: pois[i], idx: i });
+    var p = pois[i];
+    if (p.cat === 'home') continue;
+    if (!catItems[p.cat]) {
+      catItems[p.cat] = [];
+      catOrder.push(p.cat);
+    }
+    catItems[p.cat].push({ p: p, idx: i });
   }
 
-  var sb = document.getElementById('sidebar');
-  var html = '<div class="sidebar-header">' + t.sbHeader + ' — ' + (pois.length - 1) + ' ' + t.lieux + '</div>';
+  if (home) {
+    document.getElementById('heroBadge').textContent = home.adresse || '';
+    document.getElementById('heroTitle').innerHTML = '<em>' + home.nom + '</em>';
+    document.getElementById('heroSubtitle').textContent = (pois.length - 1) + ' ' + t.heroSub;
+    document.getElementById('footerName').textContent = home.nom;
+    document.title = home.nom;
+  }
+
+  document.getElementById('mapTitle').textContent = t.mapTitle;
+  document.getElementById('mapSubtitle').textContent = t.mapSub;
+
+  var sb = document.getElementById('statsBar');
+  sb.innerHTML = '';
   for (var i = 0; i < catOrder.length; i++) {
-    var cat = catOrder[i], items = catItems[cat];
-    html += '<div class="cat-group"><button class="cat-btn" data-cat="' + cat + '"><span class="ch-emoji">' + items[0].p.emoji + '</span><span class="ch-label">' + (t.cats[cat] || cat) + '</span><span class="ch-count">' + items.length + '</span><span class="ch-arrow">▶</span></button><div class="cat-list" id="list-' + cat + '">';
+    var cat = catOrder[i];
+    var items = catItems[cat];
+    sb.innerHTML += '<div class="stat-item"><div class="se">' + items[0].p.emoji + '</div><div class="sl">' + (t.cats[cat] || cat) + '</div><div class="sv">' + items.length + '</div></div>';
+  }
+
+  var sd = document.getElementById('sidebar');
+  var html = '<div class="sidebar-title">' + t.sbTitle + ' — ' + (pois.length - 1) + ' ' + t.lieux + '</div>';
+
+  for (var i = 0; i < catOrder.length; i++) {
+    var cat = catOrder[i];
+    var items = catItems[cat];
+    html += '<div class="cat">';
+    html += '<button class="cat-btn" data-cat="' + cat + '"><span class="emoji">' + items[0].p.emoji + '</span><span class="label">' + (t.cats[cat] || cat) + '</span><span class="count">' + items.length + '</span><span class="arrow">▶</span></button>';
+    html += '<div class="cat-list" id="list-' + cat + '">';
     for (var j = 0; j < items.length; j++) {
-      var rt = items[j].p.note ? '⭐' + items[j].p.note : '';
-      html += '<div class="poi-item" data-idx="' + items[j].idx + '"><span class="pi-dot"></span><span class="pi-name">' + items[j].p.nom + '</span><span class="pi-rating">' + rt + '</span></div>';
+      var item = items[j];
+      var rt = item.p.note ? '⭐' + item.p.note : '';
+      html += '<div class="poi" data-idx="' + item.idx + '"><span class="dot"></span><span class="name">' + item.p.nom + '</span><span class="rating">' + rt + '</span></div>';
     }
     html += '</div></div>';
   }
-  sb.innerHTML = html;
+  sd.innerHTML = html;
 
-  var btns = sb.querySelectorAll('.cat-btn');
+  var btns = sd.querySelectorAll('.cat-btn');
   for (var i = 0; i < btns.length; i++) {
-    btns[i].addEventListener('click', function() { toggleCat(this, this.getAttribute('data-cat')); });
+    btns[i].addEventListener('click', function() {
+      toggleCat(this, this.getAttribute('data-cat'));
+    });
   }
-  var pois_el = sb.querySelectorAll('.poi-item');
+  var pois_el = sd.querySelectorAll('.poi');
   for (var i = 0; i < pois_el.length; i++) {
     pois_el[i].addEventListener('click', function() {
       var idx = parseInt(this.getAttribute('data-idx'));
       var l = markerMap[idx];
-      if (l) { leafletMap.setView(l.getLatLng(), 17); l.openPopup(); }
+      if (l) {
+        map.setView(l.getLatLng(), 17);
+        l.openPopup();
+      }
     });
   }
 
   if (allLayers.length > 1) {
-    leafletMap.fitBounds(L.featureGroup(allLayers).getBounds().pad(0.15));
+    map.fitBounds(L.featureGroup(allLayers).getBounds().pad(0.15));
   }
 }
 
 function toggleCat(btn, cat) {
   var list = document.getElementById('list-' + cat);
   var open = btn.classList.contains('open');
+
   var allBtns = document.querySelectorAll('.cat-btn');
-  for (var i = 0; i < allBtns.length; i++) allBtns[i].classList.remove('open', 'active');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].classList.remove('open', 'active');
+  }
   var allLists = document.querySelectorAll('.cat-list');
-  for (var i = 0; i < allLists.length; i++) allLists[i].classList.remove('show');
+  for (var i = 0; i < allLists.length; i++) {
+    allLists[i].classList.remove('show');
+  }
 
   if (!open) {
     btn.classList.add('open', 'active');
     list.classList.add('show');
     for (var i = 0; i < allLayers.length; i++) {
-      if (allLayers[i]._cat === cat || allLayers[i]._cat === 'home') leafletMap.addLayer(allLayers[i]);
-      else leafletMap.removeLayer(allLayers[i]);
+      if (allLayers[i]._cat === cat || allLayers[i]._cat === 'home') {
+        map.addLayer(allLayers[i]);
+      } else {
+        map.removeLayer(allLayers[i]);
+      }
     }
   } else {
-    for (var i = 0; i < allLayers.length; i++) leafletMap.addLayer(allLayers[i]);
+    for (var i = 0; i < allLayers.length; i++) {
+      map.addLayer(allLayers[i]);
+    }
   }
 }
 
-// === LOAD CSV ===
-function loadCSV(lang) {
-  var csvFile = 'andaloussia_' + lang + '.csv';
+function getBaseName() {
+  var p = window.location.pathname;
+  var f = p.split('/').pop() || 'index.html';
+  return f.replace(/\.html?$/i, '');
+}
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+
+  var btns = document.querySelectorAll('.lang-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active');
+    if (btns[i].getAttribute('data-lang') === lang) {
+      btns[i].classList.add('active');
+    }
+  }
+
+  window.location.hash = lang;
+
+  var base = getBaseName();
+  var csvFile = base + '_' + lang + '.csv';
+
   fetch(csvFile)
-    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
     .then(function(text) {
       var pois = parseCSV(text);
-      var t = PAGE_UI[currentLang];
-      // Update home title from CSV
-      for (var i = 0; i < pois.length; i++) {
-        if (pois[i].cat === 'home') {
-          document.getElementById('heroTitle').innerHTML = '<em>' + pois[i].nom + '</em>';
-          document.getElementById('heroLocation').textContent = '📍 ' + pois[i].adresse;
-          document.title = pois[i].nom + ' — Narjiss';
-          break;
-        }
-      }
+      console.log('Loaded ' + csvFile + ': ' + pois.length + ' POI');
       buildMap(pois);
     })
-    .catch(function() {
-      // fallback to fr
+    .catch(function(err) {
+      console.error('Error loading ' + csvFile + ':', err.message);
+      // Fallback to French
       if (lang !== 'fr') {
-        fetch('andaloussia_fr.csv').then(function(r){return r.text();}).then(function(t){buildMap(parseCSV(t));});
+        fetch(base + '_fr.csv')
+          .then(function(r) { return r.text(); })
+          .then(function(t) {
+            var pois = parseCSV(t);
+            buildMap(pois);
+          });
       }
     });
 }
 
-// === LOAD DATA.JSON ===
-function loadProjectData(lang) {
-  if (projectData) {
-    renderProjectData(lang);
-    return;
-  }
-  fetch('data.json')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      projectData = data;
-      renderProjectData(lang);
-    })
-    .catch(function(e) { console.warn('data.json not found, using defaults'); });
-}
-
-function renderProjectData(lang) {
-  if (!projectData) return;
-  var t = PAGE_UI[lang];
-  var d = projectData.details[lang];
-
-  // Description
-  document.getElementById('descText').textContent = d.description;
-  var sg = document.getElementById('specsGrid');
-  sg.innerHTML = '';
-  for (var i = 0; i < d.specs.length; i++) {
-    var s = d.specs[i];
-    sg.innerHTML += '<div class="spec-card"><div class="spec-icon">' + s.icon + '</div><div class="spec-label">' + s.label + '</div><div class="spec-value">' + s.value + '</div></div>';
-  }
-
-  // Photos
-  var pg = document.getElementById('photosGrid');
-  pg.innerHTML = '';
-  for (var i = 0; i < projectData.photos.length; i++) {
-    var photo = projectData.photos[i];
-    var caption = photo['caption_' + lang] || photo.caption_fr;
-    pg.innerHTML += '<div class="photo-card"><img src="' + photo.src + '" alt="' + caption + '" onerror="this.style.display=\'none\';this.parentNode.innerHTML+=\'<span class=photo-fallback>🖼️</span>\'"><div class="photo-caption">' + caption + '</div></div>';
-  }
-
-  // Walks
-  var wg = document.getElementById('walksGrid');
-  wg.innerHTML = '';
-  var walks = projectData.walks[lang];
-  for (var i = 0; i < walks.length; i++) {
-    var w = walks[i];
-    var stops = '';
-    for (var j = 0; j < w.stops.length; j++) stops += '<li>' + w.stops[j] + '</li>';
-    wg.innerHTML += '<div class="walk-card"><div class="walk-header" style="background:' + w.color + '"><div class="walk-num">' + w.n + '</div><div><div class="walk-title">' + w.title + '</div><div class="walk-meta">🚶 ' + w.duration + ' · 📏 ' + w.distance + '</div></div></div><div class="walk-body"><ul class="walk-stops">' + stops + '</ul></div></div>';
-  }
-
-  // Floor plan
-  var fp = document.getElementById('floorPlan');
-  if (projectData.floor_plan) {
-    fp.innerHTML = '<img class="floor-plan-img" src="' + projectData.floor_plan + '" alt="Plan" onerror="this.parentNode.innerHTML=\'<div class=floor-plan-placeholder><div class=icon>📐</div><div>Plan au sol — ajoutez votre image dans le dossier du projet</div></div>\'">';
-  } else {
-    fp.innerHTML = '<div class="floor-plan-placeholder"><div class="icon">📐</div><div>Plan au sol à venir</div></div>';
-  }
-
-  // Testimonials
-  var tg = document.getElementById('testimonialsGrid');
-  tg.innerHTML = '';
-  var testimonials = projectData.testimonials[lang];
-  for (var i = 0; i < testimonials.length; i++) {
-    var tm = testimonials[i];
-    var stars = '';
-    for (var j = 0; j < tm.rating; j++) stars += '★';
-    var initial = tm.name.charAt(0);
-    tg.innerHTML += '<div class="testimonial"><div class="testimonial-stars">' + stars + '</div><div class="testimonial-text">"' + tm.text + '"</div><div class="testimonial-author"><div class="testimonial-avatar">' + initial + '</div><div><strong>' + tm.name + '</strong><span>' + tm.role + '</span></div></div></div>';
-  }
-
-  // Tour iframe / placeholder
-  var tc = document.getElementById('tourContainer');
-  var tourSrc = projectData.tour_external_url || projectData.tour_url;
-  if (tourSrc) {
-    tc.innerHTML = '<iframe class="tour-frame" src="' + tourSrc + '?lang=' + lang + '" allowfullscreen onerror="this.outerHTML=\'<div class=tour-placeholder><div class=play>▶</div><span>' + t.tourPlaceholder + '</span></div>\'"></iframe><div class="tour-info"><span>🎥 3DVista · 21 panoramas</span><span>🌐 ' + lang.toUpperCase() + '</span></div>';
-  } else {
-    tc.innerHTML = '<div class="tour-placeholder"><div class="play">▶</div><span>' + t.tourPlaceholder + '</span></div>';
-  }
-}
-
-// === LANGUAGE CHANGE ===
-window.onLanguageChange = function(lang) {
-  var t = PAGE_UI[lang];
-
-  document.getElementById('heroBtnTour').textContent = t.btnTour;
-  document.getElementById('heroBtnMap').textContent = t.btnMap;
-  document.getElementById('descTitle').textContent = t.desc;
-  document.getElementById('photosTitle').textContent = t.photos;
-  document.getElementById('tourTitle').textContent = t.tour;
-  document.getElementById('tourSub').textContent = t.tourSub;
-  document.getElementById('planTitle').textContent = t.plan;
-  document.getElementById('mapTitle').textContent = t.map;
-  document.getElementById('mapSub').textContent = t.mapSub;
-  document.getElementById('walksTitle').textContent = t.walks;
-  document.getElementById('testimonialsTitle').textContent = t.testimonials;
-  document.getElementById('ctaTitle').textContent = t.ctaTitle;
-  document.getElementById('ctaText').textContent = t.ctaText;
-  document.getElementById('ctaBrochure').textContent = t.ctaBrochure;
-  document.getElementById('ctaContact').textContent = t.ctaContact;
-
-  document.getElementById('qnDescription').textContent = t.qn.description;
-  document.getElementById('qnPhotos').textContent = t.qn.photos;
-  document.getElementById('qnTour').textContent = t.qn.tour;
-  document.getElementById('qnPlan').textContent = t.qn.plan;
-  document.getElementById('qnMap').textContent = t.qn.map;
-  document.getElementById('qnWalks').textContent = t.qn.walks;
-  document.getElementById('qnReviews').textContent = t.qn.reviews;
-  document.getElementById('qnContact').textContent = t.qn.contact;
-
-  initMap();
-  loadCSV(lang);
-  loadProjectData(lang);
-};
-
+// INIT
 document.addEventListener('DOMContentLoaded', function() {
-  initPage('projects', '../');
+  var btns = document.querySelectorAll('.lang-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function() {
+      switchLang(this.getAttribute('data-lang'));
+    });
+  }
+
+  var hash = window.location.hash.replace('#', '');
+  var lang = ['fr','en','ar','es'].indexOf(hash) >= 0 ? hash : 'fr';
+  switchLang(lang);
 });
 </script>
 </body>
