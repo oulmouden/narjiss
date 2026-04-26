@@ -1,0 +1,17 @@
+Catégorie;Emoji;Nom;Adresse;Note;Latitude;Longitude;Nb Avis;Téléphone;Horaires / Notes
+home;🏠;Résidence Al Jawhara;Dcheira El Jihadia;;30.3732;-9.5372;;;
+aeroport;✈️;Aéroport Al Massira;Agadir;4.0;30.3811;-9.5462;;+212 5 28 83 91 22;Aéroport international
+plage;🏖️;Plage d'Agadir;Corniche d'Agadir;4.5;30.4278;-9.6189;;;Plage principale
+plage;🏖️;Plage d'Aghroud;Aghroud;4.6;30.5119;-9.7139;;;Plage à 25 min
+medina;🏛️;Souk El Had;Agadir;4.4;30.4198;-9.5897;;;Plus grand souk d'Agadir
+hopital;🏥;Hôpital Hassan II;Av. Hassan II Agadir;3.5;30.4042;-9.5811;;+212 5 28 84 13 51;CHU régional
+hopital;🏥;Polyclinique du Sud;Av. Mohammed V Agadir;4.2;30.4153;-9.5828;;+212 5 28 22 78 78;Clinique privée
+police;👮;Commissariat Inezgane;Inezgane;3.0;30.3589;-9.5314;;+212 5 28 33 09 30;Commissariat principal
+admin;⚖️;Tribunal de 1ère instance;Inezgane;;30.3617;-9.5333;;+212 5 28 83 24 50;Tribunal
+admin;📬;Bureau de Poste Inezgane;Inezgane;;30.3611;-9.5325;;+212 5 28 83 12 75;La Poste
+ecole_int;🏫;École Française d'Agadir;Agadir;4.5;30.4214;-9.5836;;+212 5 28 82 26 74;Lycée français Lyautey
+stade;🏟️;Stade Adrar;Agadir;4.5;30.4256;-9.5378;;;28000 places
+autoroute;🛣️;Sortie Autoroute A7 Agadir;A7;;30.3669;-9.4786;;;Direction Casablanca/Marrakech
+gare;🚌;Gare routière Inezgane;Inezgane;3.8;30.3550;-9.5350;;;Bus longue distance
+restos;🍴;Quartier Founty (restos);Agadir;;30.4036;-9.6011;;;Marina & restaurants
+mall;🛍️;Marina Mall Agadir;Marina;4.4;30.4153;-9.6189;;;Centre commercial Marina
