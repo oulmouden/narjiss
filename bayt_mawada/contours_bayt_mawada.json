@@ -1,0 +1,26 @@
+{
+  "_comment": "Polygone de contour initial genere depuis PROJECTS. Ajustable dans la carte avec Leaflet Draw.",
+  "_format": "GeoJSON-like : tableau de [lat, lng]. Le polygone se ferme automatiquement.",
+  "type": "Polygon",
+  "color": "#1B6B93",
+  "fillOpacity": 0.15,
+  "weight": 3,
+  "coordinates": [
+    [
+      30.381888,
+      -9.469081
+    ],
+    [
+      30.381888,
+      -9.468641
+    ],
+    [
+      30.381528,
+      -9.468641
+    ],
+    [
+      30.381528,
+      -9.469081
+    ]
+  ]
+}

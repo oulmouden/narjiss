@@ -1,0 +1,64 @@
+{
+  "phones": [
+     {
+      "label": "Commercial test",
+      "number": "+33 6 12 45 53 87",
+      "whatsapp": true
+    },
+    {
+      "label": "Commercial",
+      "number": "+212 6 88 11 55 22",
+      "whatsapp": true
+    },
+    {
+      "label": "Commercial",
+      "number": "+212 6 88 11 55 99",
+      "whatsapp": true
+    } 
+            ],
+  "email": "contact@nargiss.company",
+  "address": {
+    "fr": "Agadir, Maroc",
+    "en": "Agadir, Morocco",
+    "ar": "أكادير — إنزكان — الدشيرة، المغرب",
+    "es": "Agadir, Marruecos"
+  },
+  "whatsappMessages": {
+    "fr": "Bonjour,\nJe suis : {name}\nTéléphone : {phone}\nJe souhaite me renseigner sur : {subject}",
+    "en": "Hello,\nI am: {name}\nPhone: {phone}\nI would like information about: {subject}",
+    "ar": "السلام عليكم،\nأنا: {name}\nالهاتف: {phone}\nأرغب في الاستفسار عن: {subject}",
+    "es": "Hola,\nSoy: {name}\nTeléfono: {phone}\nQuiero información sobre: {subject}"
+  },
+  "socials": [
+    {
+      "platform": "instagram",
+      "label": "Instagram",
+      "url": "https://www.instagram.com/",
+      "enabled": true
+    },
+    {
+      "platform": "facebook",
+      "label": "Facebook",
+      "url": "https://www.facebook.com/",
+      "enabled": true
+    },
+    {
+      "platform": "x",
+      "label": "X",
+      "url": "https://x.com/",
+      "enabled": true
+    },
+    {
+      "platform": "tiktok",
+      "label": "TikTok",
+      "url": "https://www.tiktok.com/",
+      "enabled": true
+    },
+    {
+      "platform": "youtube",
+      "label": "YouTube",
+      "url": "https://www.youtube.com/",
+      "enabled": true
+    }
+  ]
+}

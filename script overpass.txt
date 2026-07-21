@@ -1,0 +1,60 @@
+code
+Overpass
+[out:json][timeout:25];
+
+// 1. Définition des paramètres (Modifiez ces valeurs)
+// Format : (around:rayon_en_mètres, latitude, longitude)
+// Ici : 1000 mètres (1km) autour de la Résidence Al Jawhara
+{{radius=1000}}
+{{lat=30.3732}}
+{{lon=-9.5372}}
+
+(
+  // SANTÉ
+  nwr[amenity=pharmacy](around:{{radius}},{{lat}},{{lon}});
+  nwr[amenity=hospital](around:{{radius}},{{lat}},{{lon}});
+  nwr[amenity=clinic](around:{{radius}},{{lat}},{{lon}});
+
+  // COMMERCE
+  nwr[shop=supermarket](around:{{radius}},{{lat}},{{lon}});
+  nwr[shop=convenience](around:{{radius}},{{lat}},{{lon}});
+  nwr[shop=mall](around:{{radius}},{{lat}},{{lon}});
+  nwr[shop=market](around:{{radius}},{{lat}},{{lon}});
+
+  // RESTAURATION
+  nwr[amenity=cafe](around:{{radius}},{{lat}},{{lon}});
+  nwr[amenity=restaurant](around:{{radius}},{{lat}},{{lon}});
+
+  // RELIGION
+  nwr[amenity=place_of_worship](around:{{radius}},{{lat}},{{lon}});
+
+  // BANQUES & ADMIN
+  nwr[amenity=bank](around:{{radius}},{{lat}},{{lon}});
+  nwr[amenity=police](around:{{radius}},{{lat}},{{lon}});
+  nwr[amenity=post_office](around:{{radius}},{{lat}},{{lon}});
+
+  // LOISIRS
+  nwr[amenity=baths](around:{{radius}},{{lat}},{{lon}});
+  nwr[natural=beach](around:{{radius}},{{lat}},{{lon}});
+  nwr[leisure=pitch](around:{{radius}},{{lat}},{{lon}});
+);
+
+// Affichage des résultats
+out body;
+>;
+out skel qt;
+Ce qui a changé et comment l'utiliser :
+La syntaxe around : Au lieu de ({{bbox}}), j'utilise (around:1000, 30.3732, -9.5372).
+Le premier chiffre est la distance en mètres (donc 1000 pour 1 km).
+Les deux suivants sont la Latitude et la Longitude.
+Utilisation des Variables (Astuce) :
+Au début du script, j'ai ajouté des lignes comme {{lat=30.3732}}.
+Cela vous permet de ne changer les coordonnées qu'une seule fois en haut du script, au lieu de devoir les modifier sur chaque ligne de la recherche. C'est beaucoup plus rapide et évite les erreurs.
+Comment tester un autre lieu ?
+Prenez les coordonnées de votre nouveau lieu sur Google Maps.
+Remplacez les valeurs de {{lat=...}} et {{lon=...}} en haut du script.
+Appuyez sur Run.
+Résumé des différences de recherche :
+Méthode	Commande Overpass	Résultat
+Zone visible	nwr[amenity=pharmacy]({{bbox}});	Tout ce qui est affiché sur votre écran actuel.
+Rayon précis	nwr[amenity=pharmacy](around:1000, lat, lon);	Un cercle parfait de 1 km autour de votre point.

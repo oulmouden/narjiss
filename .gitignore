@@ -1,0 +1,24 @@
+# Dépendances / paquets installés
+node_modules/
+.tmp_qrcode_pkg/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Archives et fichiers générés
+*.zip
+*.log
+*.tmp
+*.bak
+
+# Système
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Éditeurs / IDE
+.vscode/
+.idea/
+*.swp

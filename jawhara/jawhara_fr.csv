@@ -1,0 +1,20 @@
+Catégorie;Emoji;Nom;Adresse;Note;Latitude;Longitude;Nb Avis;Téléphone;Horaires / Notes
+home;🏠;Résidence Al Jawhara;Dcheira El Jihadia;;30.3732;-9.5372;;;
+pharmacie;💊;Pharmacie Dcheira;Av. Bir Anzarane;4.4;30.3712;-9.5413;22;+212 5 28 27 04 75;Lun-Ven 9h-20h45
+pharmacie;💊;Pharmacie Principale;Av. Bir Anzarane;4.5;30.3711;-9.535;13;+212 6 66 24 42 88;Lun-Sam 9h-20h30
+pharmacie;💊;Pharmacie Tafoukt;Av. Adarissa;3.6;30.3717;-9.5328;28;+212 5 28 27 36 22;
+pharmacie;💊;Pharmacie Hay Al Ihssane;Bd AbouBakr Assedek;3.8;30.3675;-9.5292;10;+212 5 28 83 64 83;24h/24 7j/7
+pharmacie;💊;Pharmacie El Jihadia;Face au souk d'Inezgane;5.0;30.3624;-9.5298;2;+212 5 28 33 09 30;Lun-Ven 9h-13h
+magasin;🛒;Mido Market;Av. Allal El Fassi;4.0;30.3732;-9.5359;21;+212 6 17 33 47 68;9h-2h tous les jours
+magasin;🛒;Akroumai Supermarket;Av. Haj Lahbib Talti;5.0;30.3761;-9.5393;1;;
+magasin;🛒;EcoPrix Market;Dcheira El Jihadia;4.5;30.3661;-9.5332;4;+212 5 28 27 15 95;Lun-Sam 9h-23h
+magasin;🛒;Pergola Market;Rue Essaada;4.1;30.3753;-9.5468;12;+212 5 25 25 46 76;7h-2h, Cave à vins
+mosquee;🕌;Mosquée Tabarine;N8, Dcheira;4.6;30.3745;-9.5311;12;;La plus proche
+mosquee;🕌;Mosquée Al Mohsinines;Av. Mehdi Ben Barka;4.8;30.3757;-9.5442;277;;La plus belle
+cafe;☕;Poz Café;Av. Abderrahim Bouabid;4.5;30.3719;-9.5271;175;+212 6 61 77 91 31;7h-23h · Idéal pour travailler
+cafe;☕;Café Agora;Dcheira El Jihadia;5.0;30.3739;-9.5445;15;;8h30-minuit
+banque;🏦;Bank of Africa;Av. Bir Anzarane;4.3;30.3707;-9.5368;15;;Lun-Ven 8h-16h
+banque;🏦;Attijariwafa Bank;Av. Bir Anzarane;3.1;30.3706;-9.5398;14;;Lun-Ven 8h15-15h45
+sante;🏥;Dr Imane Chaibi;Résidence Jawharat;4.9;30.3719;-9.5475;117;+212 5 28 86 73 80;Lun-Ven 8h30-17h
+sante;🏥;Clinique Firdaouss;Inezgane;2.7;30.3644;-9.5411;112;+212 5 28 33 40 80;24h/24 · Urgences
+hammam;🧖;Hammam Al Andalos;Dcheira El Jihadia;4.3;30.3727;-9.5191;57;+212 6 73 67 22 40;7h30-23h

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss - Confidentialité</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+.legal-hero {
+  padding: 4rem 1.5rem 3rem;
+  background: var(--sand);
+  text-align: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.legal-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--charcoal);
+  font-weight: 700;
+}
+.legal-hero p { color: var(--muted); max-width: 680px; margin: .7rem auto 0; }
+.legal-content {
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+}
+.legal-content h2 {
+  color: var(--charcoal);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 2.2rem 0 .75rem;
+  border-left: 3px solid var(--ocean);
+  padding-left: 1rem;
+}
+html[dir=rtl] .legal-content h2 {
+  border-left: none;
+  border-right: 3px solid var(--ocean);
+  padding-left: 0;
+  padding-right: 1rem;
+}
+.legal-content h2:first-child { margin-top: 0; }
+.legal-content p, .legal-content li { color: var(--text); line-height: 1.9; margin-bottom: .75rem; }
+.legal-content ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+html[dir=rtl] .legal-content ul { padding-left: 0; padding-right: 1.2rem; }
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+<main>
+  <section class="legal-hero"><h1 id="pageTitle"></h1><p id="pageSubtitle"></p></section>
+  <section class="legal-content" id="legalContent"></section>
+</main>
+<div id="mainFooter"></div>
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: {
+    title: "Politique de confidentialité",
+    subtitle: "Comment Narjiss traite les informations transmises via le site.",
+    sections: [
+      { h: "Données collectées", p: "Lorsque vous utilisez le formulaire de contact ou les liens WhatsApp, vous pouvez transmettre votre nom, votre téléphone, votre email, le projet qui vous intéresse et votre message." },
+      { h: "Utilisation des données", p: "Ces informations sont utilisées uniquement pour répondre à votre demande, préparer un échange commercial, organiser une visite ou vous transmettre des informations relatives aux projets Narjiss." },
+      { h: "Partage des données", p: "Narjiss ne vend pas vos données personnelles. Elles peuvent être partagées uniquement avec les personnes ou partenaires nécessaires au traitement de votre demande." },
+      { h: "Services externes", p: "Le site peut utiliser des services externes comme OpenStreetMap, Leaflet, Google Fonts, WhatsApp ou des bibliothèques hébergées sur CDN. Ces services peuvent appliquer leurs propres règles de confidentialité." },
+      { h: "Vos droits", p: "Vous pouvez demander l'accès, la correction ou la suppression de vos informations en contactant Narjiss via les coordonnées affichées sur le site." }
+    ]
+  },
+  en: {
+    title: "Privacy policy",
+    subtitle: "How Narjiss handles information submitted through the website.",
+    sections: [
+      { h: "Data collected", p: "When using the contact form or WhatsApp links, you may provide your name, phone number, email, project of interest and message." },
+      { h: "Use of data", p: "This information is used only to answer your request, prepare a commercial exchange, arrange a visit or send information about Narjiss projects." },
+      { h: "Data sharing", p: "Narjiss does not sell your personal data. It may only be shared with people or partners necessary to process your request." },
+      { h: "External services", p: "The website may use external services such as OpenStreetMap, Leaflet, Google Fonts, WhatsApp or CDN-hosted libraries. These services may apply their own privacy rules." },
+      { h: "Your rights", p: "You may request access, correction or deletion of your information by contacting Narjiss through the contact details displayed on the website." }
+    ]
+  },
+  ar: {
+    title: "سياسة الخصوصية",
+    subtitle: "كيف تعالج نرجس المعلومات المرسلة عبر الموقع.",
+    sections: [
+      { h: "البيانات التي يتم جمعها", p: "عند استعمال نموذج الاتصال أو روابط واتساب، يمكن أن ترسل اسمك ورقم هاتفك وبريدك الإلكتروني والمشروع الذي يهمك ورسالتك." },
+      { h: "استخدام البيانات", p: "تستعمل هذه المعلومات فقط للرد على طلبك أو تحضير تواصل تجاري أو تنظيم زيارة أو إرسال معلومات حول مشاريع نرجس." },
+      { h: "مشاركة البيانات", p: "لا تبيع نرجس بياناتك الشخصية. يمكن مشاركتها فقط مع الأشخاص أو الشركاء الضروريين لمعالجة طلبك." },
+      { h: "خدمات خارجية", p: "قد يستخدم الموقع خدمات خارجية مثل OpenStreetMap وLeaflet وGoogle Fonts وWhatsApp أو مكتبات مستضافة على CDN. قد تطبق هذه الخدمات قواعد خصوصية خاصة بها." },
+      { h: "حقوقك", p: "يمكنك طلب الوصول إلى معلوماتك أو تصحيحها أو حذفها عبر التواصل مع نرجس من خلال بيانات الاتصال المعروضة في الموقع." }
+    ]
+  },
+  es: {
+    title: "Política de privacidad",
+    subtitle: "Cómo Narjiss trata la información enviada a través del sitio.",
+    sections: [
+      { h: "Datos recopilados", p: "Al utilizar el formulario de contacto o los enlaces de WhatsApp, puedes enviar tu nombre, teléfono, correo electrónico, proyecto de interés y mensaje." },
+      { h: "Uso de los datos", p: "Esta información se utiliza únicamente para responder a tu solicitud, preparar un intercambio comercial, organizar una visita o enviar información sobre los proyectos Narjiss." },
+      { h: "Compartir datos", p: "Narjiss no vende tus datos personales. Solo pueden compartirse con personas o socios necesarios para procesar tu solicitud." },
+      { h: "Servicios externos", p: "El sitio puede usar servicios externos como OpenStreetMap, Leaflet, Google Fonts, WhatsApp o bibliotecas alojadas en CDN. Estos servicios pueden aplicar sus propias reglas de privacidad." },
+      { h: "Tus derechos", p: "Puedes solicitar acceso, corrección o eliminación de tu información contactando con Narjiss mediante los datos mostrados en el sitio." }
+    ]
+  }
+};
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById("pageTitle").textContent = t.title;
+  document.getElementById("pageSubtitle").textContent = t.subtitle;
+  document.getElementById("legalContent").innerHTML = t.sections.map(function(s) {
+    return "<h2>" + s.h + "</h2><p>" + s.p + "</p>";
+  }).join("");
+};
+document.addEventListener("DOMContentLoaded", function() { initPage("", ""); });
+</script>
+</body>
+</html>

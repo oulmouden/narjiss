@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Carte globale de nos projets</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+.page-hero {
+  padding: 1rem 1.5rem .65rem;
+  background: linear-gradient(180deg, var(--sand) 0%, var(--white) 100%);
+  color: var(--charcoal);
+  text-align: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.page-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: .2rem;
+}
+.page-hero p { color: var(--muted); max-width: 600px; margin: 0 auto; }
+.map-section { max-width: 1200px; margin: .75rem auto 1.5rem; padding: 0 1.5rem; }
+#globalMap { width: 100%; height: 70vh; min-height: 500px; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+.map-section.map-compact #globalMap { height: 42vh; min-height: 320px; }
+.map-tool-btn { cursor:pointer; width:30px; height:30px; display:flex; align-items:center; justify-content:center; text-decoration:none; background:white; color:#222; font-size:16px; font-weight:800; }
+.map-tool-btn:hover { background:#f4f4f4; }
+.popup-card {
+  padding: .9rem 1.1rem;
+  min-width: 220px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+.popup-card .pc-cat { font-size: .58rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ocean); font-weight: 600; margin-bottom: .15rem; }
+.popup-card .pc-name { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 700; color: var(--charcoal); margin-bottom: .15rem; }
+.popup-card .pc-loc { font-size: .75rem; color: var(--muted); margin-bottom: .65rem; }
+.popup-card a.pc-link {
+  display: inline-flex;
+  align-items: center;
+  background: var(--ocean);
+  color: white;
+  text-decoration: none;
+  padding: .4rem .85rem;
+  border-radius: 30px;
+  font-size: .75rem;
+  font-weight: 600;
+  transition: background var(--duration-fast);
+}
+.popup-card a.pc-link:hover { background: var(--ocean-deep); }
+.project-name-marker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 180px;
+  min-width: 92px;
+  min-height: 34px;
+  padding: .34rem .75rem;
+  background: #c15a00;
+  color: white;
+  border: 2px solid #c15a00;
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(17,24,39,.28);
+  font-size: .78rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-name-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: #c15a00;
+  border-right: 2px solid #c15a00;
+  border-bottom: 2px solid #c15a00;
+  transform: translateX(-50%) rotate(45deg);
+}
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+<main>
+  <section class="page-hero">
+    <h1 id="pageTitle">Carte globale de nos projets</h1>
+    <p id="pageSubtitle">Tous nos projets immobiliers au Maroc</p>
+  </section>
+  <section class="map-section" id="globalMapSection">
+    <div id="globalMap"></div>
+  </section>
+</main>
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: { title: "Carte globale de nos projets", subtitle: "Tous nos projets immobiliers au Maroc", viewProject: "Voir le projet →", comingSoon: "Bientôt disponible" },
+  en: { title: "Global map of our projects", subtitle: "All our real estate projects in Morocco", viewProject: "View project →", comingSoon: "Coming soon" },
+  ar: { title: "الخريطة الشاملة لمشاريعنا", subtitle: "جميع مشاريعنا العقارية بالمغرب", viewProject: "عرض المشروع ←", comingSoon: "قريبا" },
+  es: { title: "Mapa global de nuestros proyectos", subtitle: "Todos nuestros proyectos inmobiliarios en Marruecos", viewProject: "Ver proyecto →", comingSoon: "Próximamente" }
+};
+
+var globalMap = L.map('globalMap', { maxZoom: 22 }).setView([31.5, -8], 6);
+var globalPlanLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxNativeZoom: 19, maxZoom: 22 });
+var globalCartoLightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap © CARTO', maxNativeZoom: 20, maxZoom: 22 });
+var globalCartoVoyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap © CARTO', maxNativeZoom: 20, maxZoom: 22 });
+var globalCartoDarkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap © CARTO', maxNativeZoom: 20, maxZoom: 22 });
+var globalTopoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap © OpenTopoMap', maxNativeZoom: 17, maxZoom: 22 });
+var globalSatelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '© Esri', maxNativeZoom: 19, maxZoom: 22 });
+globalPlanLayer.addTo(globalMap);
+L.control.layers({ 'Plan OSM': globalPlanLayer, 'Clair': globalCartoLightLayer, 'Voyager': globalCartoVoyagerLayer, 'Sombre': globalCartoDarkLayer, 'Topographique': globalTopoLayer, 'Satellite': globalSatelliteLayer }, {}, { position: 'topright', collapsed: true }).addTo(globalMap);
+L.control.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo(globalMap);
+
+var ViewControls = L.Control.extend({
+  options: { position: 'topleft' },
+  onAdd: function() {
+    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+    var fullBtn = L.DomUtil.create('a', 'map-tool-btn', container);
+    var compactBtn = L.DomUtil.create('a', 'map-tool-btn', container);
+    fullBtn.href = '#';
+    compactBtn.href = '#';
+    fullBtn.innerHTML = '⛶';
+    compactBtn.innerHTML = '−';
+    fullBtn.title = 'Plein écran';
+    compactBtn.title = 'Réduire / agrandir la carte';
+    L.DomEvent.on(fullBtn, 'click', function(e) {
+      L.DomEvent.stopPropagation(e);
+      L.DomEvent.preventDefault(e);
+      var target = document.getElementById('globalMapSection') || document.getElementById('globalMap');
+      if (!target) return;
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (target.requestFullscreen) target.requestFullscreen();
+      window.setTimeout(function() { globalMap.invalidateSize(); }, 250);
+    });
+    L.DomEvent.on(compactBtn, 'click', function(e) {
+      L.DomEvent.stopPropagation(e);
+      L.DomEvent.preventDefault(e);
+      var section = document.getElementById('globalMapSection');
+      if (!section) return;
+      section.classList.toggle('map-compact');
+      compactBtn.innerHTML = section.classList.contains('map-compact') ? '+' : '−';
+      window.setTimeout(function() { globalMap.invalidateSize(); }, 250);
+    });
+    L.DomEvent.disableClickPropagation(container);
+    return container;
+  }
+});
+globalMap.addControl(new ViewControls());
+
+var allMarkers = [];
+
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById('pageTitle').textContent = t.title;
+  document.getElementById('pageSubtitle').textContent = t.subtitle;
+
+  for (var i = 0; i < allMarkers.length; i++) globalMap.removeLayer(allMarkers[i]);
+  allMarkers = [];
+
+  for (var i = 0; i < PROJECTS.length; i++) {
+    var p = PROJECTS[i];
+    var projectName = p.name[lang] || p.name.fr || p.id;
+    var markerHtml = '<div class="project-name-marker">' + projectName + '</div>';
+    var icon = L.divIcon({
+      html: markerHtml,
+      iconSize: [180, 42],
+      iconAnchor: [90, 40],
+      popupAnchor: [0, -40],
+      className: ''
+    });
+
+    var link = '<a class="pc-link" href="project.html?id=' + encodeURIComponent(p.id) + '#' + lang + '">' + (p.status === 'live' ? t.viewProject : t.comingSoon) + '</a>';
+
+    var popup = '<div class="popup-card"><div class="pc-cat">Narjiss</div><div class="pc-name">' + projectName + '</div><div class="pc-loc">📍 ' + p.location[lang] + '</div>' + link + '</div>';
+
+    var marker = L.marker([p.lat, p.lng], { icon: icon, zIndexOffset: 1000 }).bindPopup(popup);
+    marker.on('mouseover', function() { this.openPopup(); });
+    marker.on('click', function() { this.openPopup(); });
+    marker.addTo(globalMap);
+    allMarkers.push(marker);
+  }
+
+  if (allMarkers.length > 1) {
+    globalMap.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.3));
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  initPage('map', '');
+});
+</script>
+</body>
+</html>

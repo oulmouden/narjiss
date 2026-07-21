@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Immobilier au Maroc</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<link rel="stylesheet" href="shared/index.css">
+</head>
+<body>
+
+<div id="mainMenu"></div>
+
+<main>
+  <section class="hero">
+    <div class="home-slider" id="homeSlider" aria-label="Galerie Narjiss">
+      <div class="slider-track" id="sliderTrack"></div>
+      <button class="slider-btn slider-prev" type="button" id="sliderPrev" aria-label="Image précédente">‹</button>
+      <button class="slider-btn slider-next" type="button" id="sliderNext" aria-label="Image suivante">›</button>
+      <div class="slider-dots" id="sliderDots" aria-label="Navigation du slider"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge" id="heroBadge"></div>
+      <h1 id="heroTitle"></h1>
+      <p id="heroSubtitle"></p>
+      <div class="hero-actions">
+        <a href="explorer.html" class="btn btn-primary" id="ctaProjects"></a>
+        <a href="carte.html" class="btn btn-outline" id="ctaMap"></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects-section" id="projects">
+    <div class="section-title">
+      <h2 id="projectsTitle"></h2>
+      <p id="projectsSubtitle"></p>
+      <div class="accent-line"></div>
+    </div>
+    <div class="projects-grid" id="projectsGrid"></div>
+  </section>
+
+  <section class="features">
+    <div class="features-inner">
+      <div class="section-title">
+        <h2 id="featuresTitle"></h2>
+        <div class="accent-line"></div>
+      </div>
+      <div class="features-grid" id="featuresGrid"></div>
+    </div>
+  </section>
+
+  <section class="home-contact-band">
+    <div>
+      <span class="section-kicker" id="contactKicker"></span>
+      <h2 id="contactTitle"></h2>
+      <p id="contactText"></p>
+    </div>
+    <div class="contact-band-actions">
+      <a href="contact.html" class="btn btn-primary" id="contactAction"></a>
+      <a href="carte.html" class="btn btn-outline map-band-link" id="mapAction"></a>
+    </div>
+  </section>
+</main>
+
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: {
+    badge: "<strong class=\"brand-word\">NARJISS</strong> — Immobilier au Maroc",
+    title: "Achetez mieux,<br><em>investissez sereinement</em>",
+    subtitle: "<strong class=\"brand-word\">NARJISS</strong> vous accompagne en toute confiance.",
+    ctaProjects: "Voir les projets →",
+    ctaMap: "🗺️ Carte globale",
+    projectsTitle: "Nos Projets",
+    projectsSubtitle: "Sélectionnez une résidence pour explorer son quartier et tous ses points d'intérêt",
+    featuresTitle: "Pourquoi choisir <strong class=\"brand-word\">NARJISS</strong> ?",
+    contactKicker: "Nos équipes vous accompagnent",
+    contactTitle: "Un projet vous intéresse ?",
+    contactText: "Contactez-nous pour obtenir les informations utiles, comparer les emplacements ou préparer une visite.",
+    contactAction: "Nous contacter",
+    mapAction: "Voir la carte",
+    statusLive: "En ligne",
+    statusSoon: "Bientôt",
+    features: [
+      { icon: "⌁", title: "Trouvez le bon projet plus vite", desc: "Comparez les emplacements, les résidences et les atouts de chaque quartier en quelques instants." },
+      { icon: "◈", title: "Achetez avec une vision claire", desc: "Découvrez l’environnement réel du projet : commerces, écoles, services, accès et lieux de vie autour de vous." },
+      { icon: "⌖", title: "Visitez avant de vous déplacer", desc: "Explorez les biens à distance et concentrez vos visites sur les opportunités qui vous correspondent vraiment." },
+      { icon: "✓", title: "Soyez accompagné à chaque étape", desc: "Notre équipe vous guide avec transparence, de la première recherche jusqu’à la prise de décision." },
+      { icon: "↗", title: "Investissez avec plus de confiance", desc: "Accédez aux informations essentielles pour évaluer le potentiel du projet et choisir sereinement." },
+      { icon: "◆", title: "Un choix adapté à votre mode de vie", desc: "Logement, terrain ou investissement : trouvez un projet aligné avec vos besoins et vos priorités." }
+    ]
+  },
+  en: {
+    badge: "<strong class=\"brand-word\">NARJISS</strong> — Real Estate in Morocco",
+    title: "Buy smarter,<br><em>invest with confidence</em>",
+    subtitle: "<strong class=\"brand-word\">NARJISS</strong> supports you with trust at every step.",
+    ctaProjects: "View projects →",
+    ctaMap: "🗺️ Global map",
+    projectsTitle: "Our Projects",
+    projectsSubtitle: "Select a residence to explore its neighborhood and all points of interest",
+    featuresTitle: "Why choose <strong class=\"brand-word\">NARJISS</strong>?",
+    contactKicker: "Our team supports you",
+    contactTitle: "Interested in a project?",
+    contactText: "Contact us to get useful information, compare locations or prepare a visit.",
+    contactAction: "Contact us",
+    mapAction: "View map",
+    statusLive: "Live",
+    statusSoon: "Soon",
+    features: [
+      { icon: "⌁", title: "Find the right project faster", desc: "Compare locations, residences and neighborhood advantages in just a few moments." },
+      { icon: "◈", title: "Buy with a clear view", desc: "Understand the project’s real surroundings: shops, schools, services, access and daily-life places nearby." },
+      { icon: "⌖", title: "Visit before you travel", desc: "Explore properties remotely and focus your in-person visits on the opportunities that truly fit." },
+      { icon: "✓", title: "Be guided at every step", desc: "Our team supports you with transparency, from the first search to the final decision." },
+      { icon: "↗", title: "Invest with more confidence", desc: "Access the essential information you need to evaluate potential and choose with peace of mind." },
+      { icon: "◆", title: "A choice matched to your lifestyle", desc: "Home, land or investment: find a project aligned with your needs and priorities." }
+    ]
+  },
+  ar: {
+    badge: "<strong>نرجس</strong> — العقارات بالمغرب",
+    title: "امتلك بثقة أكبر<br><em>واستثمر باطمئنان</em>",
+    subtitle: "<strong>نرجس</strong> ترافقك بكل ثقة.",
+    ctaProjects: "عرض المشاريع ←",
+    ctaMap: "🗺️ خريطة شاملة",
+    projectsTitle: "مشاريعنا",
+    projectsSubtitle: "اختر إقامة لاستكشاف حيها وجميع نقاط الاهتمام",
+    featuresTitle: "لماذا تختار <strong>نرجس</strong>؟",
+    contactKicker: "فريقنا يرافقك",
+    contactTitle: "هل يهمك أحد المشاريع؟",
+    contactText: "تواصل معنا للحصول على المعلومات المناسبة، مقارنة المواقع أو التحضير لزيارة.",
+    contactAction: "اتصل بنا",
+    mapAction: "عرض الخريطة",
+    statusLive: "متاح",
+    statusSoon: "قريبا",
+    features: [
+      { icon: "⌁", title: "اعثر على المشروع المناسب بسرعة", desc: "قارن بين المواقع والإقامات ومزايا كل حي في وقت قصير وبوضوح أكبر." },
+      { icon: "◈", title: "امتلك برؤية واضحة", desc: "تعرّف على محيط المشروع الحقيقي: المحلات، المدارس، الخدمات، الطرق وأماكن الحياة اليومية." },
+      { icon: "⌖", title: "زر المشروع قبل أن تنتقل", desc: "استكشف العقارات عن بعد وركّز زياراتك الميدانية على الفرص الأقرب إلى احتياجاتك." },
+      { icon: "✓", title: "مرافقة في كل مرحلة", desc: "يرافقك فريقنا بشفافية من أول بحث إلى لحظة اتخاذ القرار." },
+      { icon: "↗", title: "استثمر بثقة أكبر", desc: "احصل على المعلومات الأساسية لتقييم إمكانات المشروع والاختيار باطمئنان." },
+      { icon: "◆", title: "اختيار يناسب أسلوب حياتك", desc: "سكن، أرض أو استثمار: اختر مشروعا منسجما مع احتياجاتك وأولوياتك." }
+    ]
+  },
+  es: {
+    badge: "<strong class=\"brand-word\">NARJISS</strong> — Inmobiliaria en Marruecos",
+    title: "Compra mejor,<br><em>invierte con tranquilidad</em>",
+    subtitle: "<strong class=\"brand-word\">NARJISS</strong> te acompaña con total confianza.",
+    ctaProjects: "Ver proyectos →",
+    ctaMap: "🗺️ Mapa global",
+    projectsTitle: "Nuestros Proyectos",
+    projectsSubtitle: "Selecciona una residencia para explorar su barrio y todos los puntos de interés",
+    featuresTitle: "¿Por qué elegir <strong class=\"brand-word\">NARJISS</strong>?",
+    contactKicker: "Nuestro equipo te acompaña",
+    contactTitle: "¿Te interesa un proyecto?",
+    contactText: "Contáctanos para obtener información útil, comparar ubicaciones o preparar una visita.",
+    contactAction: "Contáctanos",
+    mapAction: "Ver mapa",
+    statusLive: "En línea",
+    statusSoon: "Pronto",
+    features: [
+      { icon: "⌁", title: "Encuentra el proyecto ideal más rápido", desc: "Compara ubicaciones, residencias y ventajas de cada barrio en pocos instantes." },
+      { icon: "◈", title: "Compra con una visión clara", desc: "Conoce el entorno real del proyecto: comercios, colegios, servicios, accesos y vida diaria alrededor." },
+      { icon: "⌖", title: "Visita antes de desplazarte", desc: "Explora los bienes a distancia y concentra tus visitas presenciales en las mejores oportunidades." },
+      { icon: "✓", title: "Acompañamiento en cada etapa", desc: "Nuestro equipo te guía con transparencia, desde la primera búsqueda hasta la decisión final." },
+      { icon: "↗", title: "Invierte con más confianza", desc: "Accede a la información esencial para evaluar el potencial del proyecto y elegir con tranquilidad." },
+      { icon: "◆", title: "Una elección adaptada a tu estilo de vida", desc: "Vivienda, terreno o inversión: encuentra un proyecto alineado con tus necesidades y prioridades." }
+    ]
+  }
+};
+
+var SLIDER_IMAGES = [];
+
+var sliderIndex = 0;
+var sliderTimer = null;
+var PROJECT_SLIDERS = {};
+var projectSliderTimer = null;
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, function(ch) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+  });
+}
+
+function initHomeSlider() {
+  var slider = document.getElementById('homeSlider');
+  var track = document.getElementById('sliderTrack');
+  var dots = document.getElementById('sliderDots');
+  var prev = document.getElementById('sliderPrev');
+  var next = document.getElementById('sliderNext');
+  if (!slider || !track || !dots || !SLIDER_IMAGES.length) return;
+  if (sliderTimer) window.clearInterval(sliderTimer);
+  sliderTimer = null;
+  sliderIndex = 0;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var slidesHtml = '';
+  var dotsHtml = '';
+  for (var i = 0; i < SLIDER_IMAGES.length; i++) {
+    slidesHtml += '<div class="slider-slide' + (i === 0 ? ' active' : '') + '">' +
+      '<img src="' + escapeHtml(SLIDER_IMAGES[i].src) + '" alt="' + escapeHtml(SLIDER_IMAGES[i].alt) + '" loading="' + (i === 0 ? 'eager' : 'lazy') + '">' +
+    '</div>';
+    dotsHtml += '<button type="button" class="slider-dot' + (i === 0 ? ' active' : '') + '" data-slide="' + i + '" aria-label="Afficher l’image ' + (i + 1) + '"></button>';
+  }
+  track.innerHTML = slidesHtml;
+  dots.innerHTML = dotsHtml;
+  dots.classList.toggle('many', SLIDER_IMAGES.length > 12);
+
+  function showSlide(index) {
+    var slides = track.querySelectorAll('.slider-slide');
+    var dotButtons = dots.querySelectorAll('.slider-dot');
+    sliderIndex = (index + slides.length) % slides.length;
+    for (var j = 0; j < slides.length; j++) {
+      slides[j].classList.toggle('active', j === sliderIndex);
+      dotButtons[j].classList.toggle('active', j === sliderIndex);
+    }
+  }
+
+  function startSlider() {
+    if (reduceMotion) return;
+    stopSlider();
+    sliderTimer = window.setInterval(function() {
+      showSlide(sliderIndex + 1);
+    }, 5200);
+  }
+
+  function stopSlider() {
+    if (sliderTimer) window.clearInterval(sliderTimer);
+    sliderTimer = null;
+  }
+
+  if (prev) {
+    prev.addEventListener('click', function() {
+      showSlide(sliderIndex - 1);
+      startSlider();
+    });
+  }
+  if (next) {
+    next.addEventListener('click', function() {
+      showSlide(sliderIndex + 1);
+      startSlider();
+    });
+  }
+  var dotButtons = dots.querySelectorAll('.slider-dot');
+  for (var d = 0; d < dotButtons.length; d++) {
+    dotButtons[d].addEventListener('click', function() {
+      showSlide(parseInt(this.getAttribute('data-slide'), 10));
+      startSlider();
+    });
+  }
+  slider.addEventListener('mouseenter', stopSlider);
+  slider.addEventListener('mouseleave', startSlider);
+  slider.addEventListener('focusin', stopSlider);
+  slider.addEventListener('focusout', startSlider);
+  if (!reduceMotion) startSlider();
+}
+
+function projectSliderHtml(project, lang) {
+  var images = PROJECT_SLIDERS[project.id];
+  if (!images || !images.length) return '';
+  var html = '<div class="project-card-slider" data-project-slider="' + project.id + '">';
+  for (var i = 0; i < images.length; i++) {
+    html += '<img class="project-card-slide' + (i === 0 ? ' active' : '') + '" src="' + images[i] + '" alt="' + escapeHtml(project.name[lang]) + '" loading="lazy">';
+  }
+  if (images.length > 1) {
+    html += '<div class="project-card-dots" aria-hidden="true">';
+    for (var d = 0; d < Math.min(images.length, 6); d++) {
+      html += '<span class="' + (d === 0 ? 'active' : '') + '"></span>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function projectTypesHtml(project, lang) {
+  var types = project.types && project.types[lang];
+  if (!types || !types.length) return '';
+  var html = '<div class="project-types" aria-label="Types de biens">';
+  for (var i = 0; i < types.length; i++) {
+    html += '<span class="project-type">' + escapeHtml(types[i]) + '</span>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function startProjectCardSliders() {
+  if (projectSliderTimer) window.clearInterval(projectSliderTimer);
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+  var sliders = document.querySelectorAll('[data-project-slider]');
+  if (!sliders.length) return;
+  projectSliderTimer = window.setInterval(function() {
+    for (var i = 0; i < sliders.length; i++) {
+      var slides = sliders[i].querySelectorAll('.project-card-slide');
+      if (slides.length < 2) continue;
+      var dots = sliders[i].querySelectorAll('.project-card-dots span');
+      var active = 0;
+      for (var j = 0; j < slides.length; j++) {
+        if (slides[j].classList.contains('active')) active = j;
+      }
+      var next = (active + 1) % slides.length;
+      slides[active].classList.remove('active');
+      slides[next].classList.add('active');
+      for (var d = 0; d < dots.length; d++) {
+        dots[d].classList.toggle('active', d === next % dots.length);
+      }
+    }
+  }, 3600);
+}
+
+function loadProjectSliders() {
+  return fetch('data/project-sliders.json')
+    .then(function(res) {
+      if (!res.ok) return {};
+      return res.json();
+    })
+    .then(function(data) {
+      data = data || {};
+      var checks = [];
+      var validSliders = {};
+      Object.keys(data).forEach(function(projectId) {
+        var images = Array.isArray(data[projectId]) ? data[projectId] : [];
+        checks.push(Promise.all(images.map(function(src) {
+          return imageExists(src).then(function(exists) {
+            return exists ? src : null;
+          });
+        })).then(function(existingImages) {
+          existingImages = existingImages.filter(Boolean);
+          if (existingImages.length) {
+            validSliders[projectId] = existingImages;
+          }
+        }));
+      });
+      return Promise.all(checks).then(function() {
+        PROJECT_SLIDERS = validSliders;
+      });
+    })
+    .catch(function() {
+      PROJECT_SLIDERS = {};
+    });
+}
+
+function imageExists(src) {
+  return new Promise(function(resolve) {
+    if (!src) {
+      resolve(false);
+      return;
+    }
+
+    var image = new Image();
+    image.onload = function() { resolve(true); };
+    image.onerror = function() { resolve(false); };
+    image.src = src;
+  });
+}
+
+function sliderAltFromPath(path) {
+  var file = String(path || '').split('/').pop() || '';
+  var label = file.replace(/\.(jpe?g|png|webp)$/i, '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return label ? 'Projet immobilier Narjiss - ' + label : 'Projet immobilier Narjiss';
+}
+
+function loadHomeSliderImages() {
+  return fetch('data/home-slider-images.json')
+    .then(function(res) {
+      if (!res.ok) return [];
+      return res.json();
+    })
+    .then(function(images) {
+      SLIDER_IMAGES = (images || []).filter(function(src) {
+        return /\.(jpe?g|png|webp)$/i.test(src);
+      }).map(function(src) {
+        return {
+          src: src,
+          alt: sliderAltFromPath(src)
+        };
+      });
+    })
+    .catch(function() {
+      SLIDER_IMAGES = [];
+    });
+}
+
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById('heroBadge').innerHTML = t.badge;
+  document.getElementById('heroTitle').innerHTML = t.title;
+  document.getElementById('heroSubtitle').innerHTML = t.subtitle;
+  document.getElementById('ctaProjects').textContent = t.ctaProjects;
+  document.getElementById('ctaProjects').href = 'explorer.html#' + lang;
+  document.getElementById('ctaMap').textContent = t.ctaMap;
+  document.getElementById('ctaMap').href = 'carte.html#' + lang;
+  document.getElementById('projectsTitle').textContent = t.projectsTitle;
+  document.getElementById('projectsSubtitle').textContent = t.projectsSubtitle;
+  document.getElementById('featuresTitle').innerHTML = t.featuresTitle;
+  document.getElementById('contactKicker').textContent = t.contactKicker;
+  document.getElementById('contactTitle').textContent = t.contactTitle;
+  document.getElementById('contactText').textContent = t.contactText;
+  document.getElementById('contactAction').textContent = t.contactAction;
+  document.getElementById('contactAction').href = 'contact.html#' + lang;
+  document.getElementById('mapAction').textContent = t.mapAction;
+  document.getElementById('mapAction').href = 'carte.html#' + lang;
+
+  var grid = document.getElementById('projectsGrid');
+  grid.innerHTML = '';
+  for (var i = 0; i < PROJECTS.length; i++) {
+    var p = PROJECTS[i];
+    var card = document.createElement('a');
+    card.className = 'project-card' + (p.status === 'soon' ? ' coming-soon' : '');
+    card.href = 'project.html?id=' + encodeURIComponent(p.id) + '#' + lang;
+    var statusLabel = p.status === 'live' ? t.statusLive : t.statusSoon;
+    var statusClass = p.status === 'live' ? 'live' : 'soon';
+    var logo = p.images && p.images.logo ? p.images.logo : '';
+    var sliderHtml = projectSliderHtml(p, lang);
+    var hasImage = !!logo && !sliderHtml;
+    var iconHtml = p.icon ? '<span class="icon" aria-hidden="true">' + p.icon + '</span>' : '';
+    var thumbClass = 'project-thumb' + (hasImage ? ' has-image' : '');
+    var thumbAttrs = hasImage
+      ? ' style="background-image:url(' + logo + ')"'
+      : ' data-color="' + (i % 6) + '"';
+    var poiCount = p.poi_count ? '📍 ' + p.poi_count + ' POI' : '';
+    var typesHtml = projectTypesHtml(p, lang);
+    var statsHtml = '';
+    for (var j = 0; j < p.stats.length; j++) {
+      statsHtml += '<span class="stat">' + p.stats[j][lang] + '</span>';
+    }
+    card.innerHTML =
+      '<div class="' + thumbClass + '"' + thumbAttrs + '>' +
+        sliderHtml +
+        iconHtml +
+        '<div class="project-card-badges">' +
+          typesHtml +
+          '<span class="badge-status ' + statusClass + '">' + statusLabel + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="project-body">' +
+        '<div class="project-name">' + p.name[lang] + '</div>' +
+        '<div class="project-location">' + p.location[lang] + '</div>' +
+        (poiCount ? '<div class="project-poi">' + poiCount + '</div>' : '') +
+        '<div class="project-stats">' + statsHtml + '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  }
+  startProjectCardSliders();
+
+  var fg = document.getElementById('featuresGrid');
+  fg.innerHTML = '';
+  var secondaryHtml = '';
+  for (var i = 0; i < t.features.length; i++) {
+    var f = t.features[i];
+    if (i < 2) {
+      fg.innerHTML +=
+        '<div class="feature-card feature-main">' +
+          '<div class="feature-icon" aria-hidden="true">' + f.icon + '</div>' +
+          '<div class="feature-text">' +
+            '<h3>' + f.title + '</h3>' +
+            '<p>' + f.desc + '</p>' +
+          '</div>' +
+        '</div>';
+    } else {
+      secondaryHtml +=
+        '<div class="feature-card feature-secondary">' +
+          '<div class="feature-icon" aria-hidden="true">' + f.icon + '</div>' +
+          '<div class="feature-text">' +
+            '<h3>' + f.title + '</h3>' +
+            '<p>' + f.desc + '</p>' +
+          '</div>' +
+        '</div>';
+    }
+  }
+  if (secondaryHtml) {
+    fg.innerHTML += '<div class="features-secondary-stack">' + secondaryHtml + '</div>';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadHomeSliderImages().then(initHomeSlider);
+  initPage('home', '');
+  loadProjectSliders().then(function() {
+    var lang = typeof currentLang !== 'undefined' ? currentLang : 'fr';
+    if (window.onLanguageChange) window.onLanguageChange(lang);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+[
+    {
+        "id": "jawhara",
+        "folder": "jawhara",
+        "status": "live",
+        "type": "appartements",
+        "lat": 30.3732,
+        "lng": -9.5372,
+        "poi_count": 41,
+        "has_tour": true,
+        "detail_url": "jawhara/jawhara.html",
+        "tour_url": "jawhara/Tour/index.htm",
+        "brochure_pdf": "images/projects/jawhara/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Residence Al Jawhara",
+            "en": "Al Jawhara Residence",
+            "ar": "إقامة الجوهرة",
+            "es": "Residencia Al Jawhara"
+        },
+        "location": {
+            "fr": "Dcheira El Jihadia, Agadir",
+            "en": "Dcheira El Jihadia, Agadir",
+            "ar": "الدشيرة الجهادية، أكادير",
+            "es": "Dcheira El Jihadia, Agadir"
+        },
+        "description": {
+            "fr": "Projet residentiel Narjiss a Dcheira El Jihadia, pres d'Agadir.",
+            "en": "Narjiss residential project in Dcheira El Jihadia, near Agadir.",
+            "ar": "مشروع سكني لنرجس في الدشيرة الجهادية قرب أكادير.",
+            "es": "Proyecto residencial Narjiss en Dcheira El Jihadia, cerca de Agadir."
+        },
+        "images": {
+            "logo": "images/projects/jawhara/jawhara_logo.png",
+            "hero": "images/projects/jawhara/concept-hero.png",
+            "floorplan": "images/projects/jawhara/floorplan.png"
+        }
+    },
+    {
+        "id": "tazroute",
+        "folder": "tazroute",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.358739340382268,
+        "lng": -9.460496051159458,
+        "poi_count": 27,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/tazroute/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Tazroute",
+            "en": "Tazroute",
+            "ar": "تازروت",
+            "es": "Tazroute"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet foncier Narjiss presente avec localisation precise et carte interactive.",
+            "en": "Narjiss land project presented with precise location and interactive map.",
+            "ar": "مشروع أراض لنرجس مع موقع دقيق وخريطة تفاعلية.",
+            "es": "Proyecto de terrenos Narjiss con ubicacion precisa y mapa interactivo."
+        },
+        "images": {
+            "logo": "images/projects/tazroute/tazroute_logo.png",
+            "hero": "images/projects/tazroute/concept-triptych.png",
+            "floorplan": "images/projects/tazroute/floorplan.png"
+        }
+    },
+    {
+        "id": "dar_ben_cheikh",
+        "folder": "dar_ben_cheikh",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.361823687819,
+        "lng": -9.4366524680182,
+        "poi_count": 8,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/dar_ben_cheikh/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Dar Ben Cheikh",
+            "en": "Dar Ben Cheikh",
+            "ar": "دار بن الشيخ",
+            "es": "Dar Ben Cheikh"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet foncier Narjiss avec une lecture claire de l'environnement proche.",
+            "en": "Narjiss land project with clear nearby context.",
+            "ar": "مشروع أراض لنرجس مع قراءة واضحة للمحيط القريب.",
+            "es": "Proyecto de terrenos Narjiss con contexto cercano claro."
+        },
+        "images": {
+            "logo": "images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.png",
+            "hero": "images/projects/dar_ben_cheikh/concept-hero.png",
+            "floorplan": "images/projects/dar_ben_cheikh/floorplan.png"
+        }
+    },
+    {
+        "id": "tazroute_yassamine",
+        "folder": "tazroute_yassamine",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.3616466330063,
+        "lng": -9.455007371697246,
+        "poi_count": 21,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/tazroute_yassamine/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Tazroute Al Yassamine",
+            "en": "Tazroute Al Yassamine",
+            "ar": "تازروت الياسمين",
+            "es": "Tazroute Al Yassamine"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet foncier Narjiss avec contexte cartographique.",
+            "en": "Narjiss land project with map context.",
+            "ar": "مشروع أراض لنرجس مع سياق خرائطي.",
+            "es": "Proyecto de terrenos Narjiss con contexto cartografico."
+        },
+        "images": {
+            "logo": "images/projects/tazroute_yassamine/tazroute_yassamine_logo.png",
+            "hero": "images/projects/tazroute_yassamine/concept-hero.png",
+            "floorplan": "images/projects/tazroute_yassamine/floorplan.png"
+        }
+    },
+    {
+        "id": "farah",
+        "folder": "farah",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.3993056,
+        "lng": -9.5658333,
+        "poi_count": 108,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/farah/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Farah",
+            "en": "Farah",
+            "ar": "فرح",
+            "es": "Farah"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet foncier avec une forte densite de points utiles cartographies.",
+            "en": "Land project with a rich set of mapped useful points.",
+            "ar": "مشروع أراض مع عدد كبير من النقاط المفيدة على الخريطة.",
+            "es": "Proyecto de terrenos con muchos puntos utiles cartografiados."
+        },
+        "images": {
+            "logo": "images/projects/farah/farah_logo.png",
+            "hero": "images/projects/farah/concept-hero.png",
+            "floorplan": "images/projects/farah/floorplan.png"
+        }
+    },
+    {
+        "id": "amical",
+        "folder": "amical",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.33269020683,
+        "lng": -9.5112780966889,
+        "poi_count": 74,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/amical/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Lot Amical I",
+            "en": "Lot Amical I",
+            "ar": "تجزئة أميكال",
+            "es": "Lot Amical I"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet presente avec sa position, ses points utiles et son contexte local.",
+            "en": "Project shown with its position, useful points and local context.",
+            "ar": "مشروع مع موقعه ونقاطه المفيدة وسياقه المحلي.",
+            "es": "Proyecto con posicion, puntos utiles y contexto local."
+        },
+        "images": {
+            "logo": "images/projects/amical/amical_logo.png",
+            "hero": "images/projects/amical/concept-hero.png",
+            "floorplan": "images/projects/amical/floorplan.png"
+        }
+    },
+    {
+        "id": "azrou",
+        "folder": "azrou",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.358741122541407,
+        "lng": -9.460487731940148,
+        "poi_count": 27,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/azrou/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Lot Azrou",
+            "en": "Lot Azrou",
+            "ar": "تجزئة أزرو",
+            "es": "Lot Azrou"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet foncier Narjiss proche des autres developpements Tazroute.",
+            "en": "Narjiss land project near the other Tazroute developments.",
+            "ar": "مشروع أراض لنرجس قرب مشاريع تازروت الأخرى.",
+            "es": "Proyecto de terrenos Narjiss cerca de otros desarrollos Tazroute."
+        },
+        "images": {
+            "logo": "images/projects/azrou/azrou_logo.png",
+            "hero": "images/projects/azrou/concept-hero.png",
+            "floorplan": "images/projects/azrou/floorplan.png"
+        }
+    },
+    {
+        "id": "bayt_mawada",
+        "folder": "bayt_mawada",
+        "status": "live",
+        "type": "appartements",
+        "lat": 30.381708282802176,
+        "lng": -9.468861100000003,
+        "poi_count": 24,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/bayt_mawada/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Bayt Al Mawada",
+            "en": "Bayt Al Mawada",
+            "ar": "بيت المودة",
+            "es": "Bayt Al Mawada"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet residentiel Narjiss avec affichage cartographique multilingue.",
+            "en": "Narjiss residential project with multilingual map display.",
+            "ar": "مشروع سكني لنرجس مع عرض خرائطي متعدد اللغات.",
+            "es": "Proyecto residencial Narjiss con mapa multilingue."
+        },
+        "images": {
+            "logo": "images/projects/bayt_mawada/bayt_mawada_logo.png",
+            "hero": "images/projects/bayt_mawada/concept-hero.png",
+            "floorplan": "images/projects/bayt_mawada/floorplan.png"
+        }
+    },
+    {
+        "id": "founty",
+        "folder": "founty",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.400406468380485,
+        "lng": -9.573180104254527,
+        "poi_count": 122,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/founty/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Lot Founty",
+            "en": "Lot Founty",
+            "ar": "تجزئة فونتي",
+            "es": "Lot Founty"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet foncier avec une carte riche en points utiles.",
+            "en": "Land project with a rich useful-points map.",
+            "ar": "مشروع أراض مع خريطة غنية بالنقاط المفيدة.",
+            "es": "Proyecto de terrenos con mapa rico en puntos utiles."
+        },
+        "images": {
+            "logo": "images/projects/founty/founty_logo.png",
+            "hero": "images/projects/founty/concept-hero.png",
+            "floorplan": "images/projects/founty/floorplan.png"
+        }
+    },
+    {
+        "id": "nahda2",
+        "folder": "nahda2",
+        "status": "live",
+        "type": "terrains",
+        "lat": 30.303208344750637,
+        "lng": -9.463554523291856,
+        "poi_count": 45,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/nahda2/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "Lot Nahda 2",
+            "en": "Lot Nahda 2",
+            "ar": "تجزئة النهضة 2",
+            "es": "Lot Nahda 2"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet Narjiss presente avec localisation et environnement.",
+            "en": "Narjiss project shown with location and surrounding context.",
+            "ar": "مشروع نرجس مع الموقع والمحيط.",
+            "es": "Proyecto Narjiss con ubicacion y entorno."
+        },
+        "images": {
+            "logo": "images/projects/nahda2/nahda2_logo.png",
+            "hero": "images/projects/nahda2/concept-hero.png",
+            "floorplan": "images/projects/nahda2/floorplan.png"
+        }
+    },
+    {
+        "id": "andalusia",
+        "folder": "andalusia",
+        "status": "live",
+        "type": "appartements",
+        "lat": 30.371616372016,
+        "lng": -9.5235006754834,
+        "poi_count": 106,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/andalusia/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "R+3 Andalusia",
+            "en": "R+3 Andalusia",
+            "ar": "أندلسيا",
+            "es": "Andalusia"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet d'appartements avec carte interactive et experience de presentation avancee.",
+            "en": "Apartment project with interactive map and advanced presentation experience.",
+            "ar": "مشروع شقق مع خريطة تفاعلية وتجربة عرض متقدمة.",
+            "es": "Proyecto de apartamentos con mapa interactivo y presentacion avanzada."
+        },
+        "images": {
+            "logo": "images/projects/andalusia/andalusia_logo.png",
+            "hero": "images/projects/andalusia/concept-hero.png",
+            "floorplan": "images/projects/andalusia/floorplan.png"
+        }
+    },
+    {
+        "id": "kb",
+        "folder": "kb",
+        "status": "live",
+        "type": "appartements",
+        "lat": 30.371826407823608,
+        "lng": -9.549940706126623,
+        "poi_count": 78,
+        "has_tour": false,
+        "detail_url": "",
+        "tour_url": "",
+        "brochure_pdf": "images/projects/kb/PLAN DE MASSE.pdf",
+        "name": {
+            "fr": "R+4 K&B",
+            "en": "R+4 K&B",
+            "ar": "كي أند بي",
+            "es": "K&B"
+        },
+        "location": {
+            "fr": "Agadir",
+            "en": "Agadir",
+            "ar": "أكادير",
+            "es": "Agadir"
+        },
+        "description": {
+            "fr": "Projet d'appartements presente avec carte et donnees de proximite.",
+            "en": "Apartment project presented with map and nearby context data.",
+            "ar": "مشروع شقق مع خريطة ومعطيات القرب.",
+            "es": "Proyecto de apartamentos con mapa y datos de proximidad."
+        },
+        "images": {
+            "logo": "images/projects/kb/kb_logo.png",
+            "hero": "images/projects/kb/concept-hero.png",
+            "floorplan": "images/projects/kb/floorplan.png"
+        }
+    }
+]

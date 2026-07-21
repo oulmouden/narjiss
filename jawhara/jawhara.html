@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résidence Al Jawhara — Narjiss</title>
+<link rel="icon" type="image/jpeg" href="../images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/menu.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.polylinemeasure@3.1.0/Leaflet.PolylineMeasure.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@2.4.0/Control.FullScreen.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-minimap@3.6.1/dist/Control.MiniMap.min.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.polylinemeasure@3.1.0/Leaflet.PolylineMeasure.js"></script>
+<script src="https://unpkg.com/leaflet.fullscreen@2.4.0/Control.FullScreen.js"></script>
+<script src="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.umd.js"></script>
+<script src="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<script src="https://unpkg.com/leaflet-minimap@3.6.1/dist/Control.MiniMap.min.js"></script>
+<style>
+/* ========== HERO ========== */
+.project-hero { position: relative; padding: 4rem 1.5rem 3rem; background: linear-gradient(160deg, #0F4C75 0%, #1B6B93 50%, #E8A838 100%); color: white; text-align: center; overflow: hidden; }
+.project-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 90%, rgba(232,168,56,.2) 0%, transparent 60%); }
+.project-hero-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+.project-hero .badge { display: inline-block; background: rgba(255,255,255,.15); padding: .3rem 1rem; border-radius: 30px; font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+.project-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; margin-bottom: .5rem; }
+html[dir=rtl] .project-hero h1 { font-family: 'Noto Sans Arabic', serif; font-weight: 700; }
+.project-hero h1 em { color: var(--sun-light); font-style: italic; }
+.project-hero .location { color: rgba(255,255,255,.8); font-size: 1rem; margin-bottom: 1.8rem; }
+.hero-actions { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+
+/* ========== QUICK NAV ========== */
+.quick-nav { background: white; padding: 1rem; border-bottom: 1px solid rgba(0,0,0,.06); position: sticky; top: 56px; z-index: 500; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+.quick-nav-content { max-width: 1200px; margin: 0 auto; display: flex; gap: .5rem; overflow-x: auto; padding: 0 1rem; }
+.quick-nav a { white-space: nowrap; padding: .4rem 1rem; border-radius: 20px; text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 500; transition: all .2s; }
+.quick-nav a:hover, .quick-nav a.active { background: var(--ocean); color: white; }
+
+/* ========== SECTIONS ========== */
+.section { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; scroll-margin-top: 120px; }
+.section-alt { background: var(--sand); }
+.section-alt-wrap { padding: 4rem 1.5rem; }
+
+/* ========== TOUR ========== */
+.tour-container { background: var(--charcoal); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); }
+.tour-frame { width: 100%; aspect-ratio: 16/9; border: none; background: #0a0a15; }
+.tour-placeholder { width: 100%; aspect-ratio: 16/9; background: #0a0a15; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.4); flex-direction: column; gap: 1rem; padding: 2rem; text-align: center; }
+.tour-placeholder .play { width: 70px; height: 70px; border-radius: 50%; background: rgba(232,168,56,.2); border: 2px solid var(--sun); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.tour-info { padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; color: rgba(255,255,255,.7); font-size: .85rem; }
+
+/* ========== SPECS ========== */
+.specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 2rem 0; }
+.spec-card { background: white; padding: 1.2rem; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,.04); }
+.section-alt .spec-card { background: white; }
+.spec-icon { font-size: 1.5rem; margin-bottom: .3rem; }
+.spec-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.spec-value { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--charcoal); margin-top: .2rem; }
+html[dir=rtl] .spec-value { font-family: 'Noto Sans Arabic', serif; }
+.description-text { max-width: 800px; margin: 0 auto; font-size: 1rem; color: var(--text); line-height: 1.8; text-align: center; }
+
+/* ========== PHOTOS ========== */
+.photos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.photo-card { aspect-ratio: 4/3; border-radius: var(--radius); overflow: hidden; background: linear-gradient(135deg, var(--ocean), var(--sun)); position: relative; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; box-shadow: var(--shadow); transition: transform .3s; }
+.photo-card:hover { transform: scale(1.02); }
+.photo-card img { width: 100%; height: 100%; object-fit: cover; }
+.photo-card .photo-fallback { font-size: 3rem; opacity: .5; }
+.photo-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: .8rem 1rem; background: linear-gradient(transparent, rgba(0,0,0,.7)); color: white; font-size: .85rem; font-weight: 500; }
+
+/* ========== MAP ========== */
+.map-layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); min-height: 550px; position: relative; isolation: isolate; }
+@media (max-width: 768px) { .map-layout { grid-template-columns: 1fr; } .map-sidebar { max-height: 320px; } }
+.map-sidebar { background: var(--charcoal); overflow-y: auto; }
+.sidebar-header { padding: .9rem 1.1rem .5rem; color: var(--sand-dark); font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.06); }
+.cat-group { border-bottom: 1px solid rgba(255,255,255,.04); }
+.cat-btn { display: flex; align-items: center; gap: .5rem; width: 100%; padding: .65rem 1.1rem; border: none; background: transparent; color: rgba(255,255,255,.7); font-size: .8rem; font-family: inherit; cursor: pointer; text-align: left; }
+html[dir=rtl] .cat-btn { text-align: right; }
+.cat-btn:hover { background: rgba(255,255,255,.05); color: white; }
+.cat-btn.active { background: var(--ocean); color: white; }
+.cat-btn .ch-emoji { width: 22px; text-align: center; }
+.cat-btn .ch-label { flex: 1; }
+.cat-btn .ch-count { background: rgba(255,255,255,.1); padding: .08rem .38rem; border-radius: 8px; font-size: .58rem; }
+.cat-btn .ch-arrow { font-size: .5rem; transition: transform .2s; }
+.cat-btn.open .ch-arrow { transform: rotate(90deg); }
+.cat-list { display: none; background: rgba(0,0,0,.2); }
+.cat-list.show { display: block; }
+.poi-item { display: flex; align-items: center; gap: .45rem; padding: .4rem 1.1rem .4rem 2.6rem; cursor: pointer; transition: background .15s; border-bottom: 1px solid rgba(255,255,255,.02); }
+html[dir=rtl] .poi-item { padding: .4rem 2.6rem .4rem 1.1rem; }
+.poi-item:hover { background: rgba(255,255,255,.05); }
+.poi-item .pi-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sun); }
+.poi-item .pi-name { color: rgba(255,255,255,.6); font-size: .72rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poi-item .pi-rating { color: var(--sun-light); font-size: .62rem; }
+#map { width: 100%; height: 100%; min-height: 550px; }
+.popup-card { padding: .85rem 1rem; min-width: 200px; }
+.popup-card .pc-cat { font-size: .55rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ocean); font-weight: 600; }
+.popup-card .pc-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--charcoal); margin: .15rem 0; }
+html[dir=rtl] .popup-card .pc-name { font-family: 'Noto Sans Arabic', serif; }
+.popup-card .pc-addr, .popup-card .pc-det { font-size: .72rem; color: var(--muted); }
+.popup-card .pc-rt { color: var(--sun); font-size: .72rem; margin-top: .15rem; }
+.popup-card .pc-phone { font-size: .68rem; color: var(--ocean); margin-top: .15rem; }
+.popup-card .pc-phone a { color: var(--ocean); text-decoration: none; }
+.popup-card .pc-dist { background: var(--sand); padding: .35rem .5rem; border-radius: 6px; font-size: .7rem; color: var(--text); margin: .35rem 0; line-height: 1.5; }
+
+/* === MAJOR LANDMARKS === */
+.major-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+.major-card { background: white; padding: 1.2rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,.04); display: flex; align-items: center; gap: 1rem; transition: all .25s; cursor: pointer; }
+.major-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--ocean); }
+.major-icon { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; background: linear-gradient(135deg, var(--ocean), var(--sun)); color: white; }
+.major-text { flex: 1; min-width: 0; }
+.major-cat-label { font-size: .6rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ocean); font-weight: 600; margin-bottom: .15rem; }
+.major-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--charcoal); margin-bottom: .15rem; line-height: 1.2; }
+html[dir=rtl] .major-name { font-family: 'Noto Sans Arabic', serif; }
+.major-distance { font-size: .75rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .5rem; }
+.major-distance .dist-item { display: inline-flex; align-items: center; gap: .25rem; }
+.major-distance .dist-bullet { color: var(--sand-dark); }
+
+/* === POLYGON EDITOR (admin mode only — using native Leaflet.draw controls) === */
+/* Status notification when polygon is modified */
+.poly-status {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: rgba(30, 30, 42, .92);
+  color: white;
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  font-size: .8rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  display: none;
+  align-items: center;
+  gap: .5rem;
+  white-space: nowrap;
+}
+.poly-status.show { display: flex; }
+.poly-status .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4CAF84; }
+.poly-status button { background: var(--ocean); color: white; border: none; padding: .25rem .6rem; border-radius: 5px; font-size: .7rem; cursor: pointer; font-family: inherit; margin-left: .3rem; }
+.poly-status button:hover { background: var(--ocean-deep); }
+.poly-status button.btn-discard { background: rgba(255,255,255,.15); }
+.poly-status button.btn-discard:hover { background: rgba(255,255,255,.25); }
+
+/* Customize Leaflet.draw toolbar to match our design */
+.leaflet-draw-toolbar a {
+  background-color: white !important;
+}
+.leaflet-draw-toolbar a:hover {
+  background-color: var(--sand) !important;
+}
+
+/* === GEOSEARCH (address search bar) === */
+.leaflet-control-geosearch.bar { 
+  width: 280px !important; 
+  max-width: 90vw;
+}
+.leaflet-control-geosearch .results { 
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  border-radius: 6px;
+}
+.leaflet-control-geosearch .results > * {
+  padding: .5rem .8rem !important;
+  font-size: .82rem;
+  font-family: 'Outfit', sans-serif;
+}
+.leaflet-control-geosearch .results > .active,
+.leaflet-control-geosearch .results > :hover {
+  background: var(--sand) !important;
+  color: var(--charcoal);
+}
+.leaflet-control-geosearch form input {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: .85rem;
+  padding: .5rem !important;
+}
+
+/* === GEOLOCATION CONTROL === */
+.leaflet-control-locate a {
+  background-image: none !important;
+}
+.leaflet-control-locate.active a {
+  background-color: var(--ocean) !important;
+  color: white !important;
+}
+
+/* === ROUTING MACHINE === */
+.leaflet-routing-container {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif !important;
+  max-width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.leaflet-routing-container h2,
+.leaflet-routing-container h3 {
+  font-family: 'Playfair Display', serif !important;
+  font-size: .95rem !important;
+  color: var(--charcoal);
+}
+.leaflet-routing-alt {
+  font-size: .8rem;
+}
+.leaflet-routing-alt h2 { font-size: .9rem !important; }
+.leaflet-routing-alt h3 { font-size: .8rem !important; }
+.leaflet-routing-alt table tr { font-size: .75rem; }
+
+/* === MINIMAP === */
+.leaflet-control-minimap {
+  border: 2px solid white !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+/* === SIDEBAR CONTROLS === */
+.sb-controls { padding: .8rem 1rem; background: rgba(0,0,0,.2); border-bottom: 1px solid rgba(255,255,255,.04); }
+.sb-control-row { display: flex; align-items: center; gap: .4rem; margin-bottom: .5rem; flex-wrap: wrap; }
+.sb-control-row:last-child { margin-bottom: 0; }
+.sb-control-row label { font-size: .65rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; min-width: 60px; }
+.sort-btn { background: transparent; border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.6); padding: .25rem .5rem; border-radius: 6px; font-size: .68rem; cursor: pointer; font-family: inherit; transition: all .2s; }
+.sort-btn:hover { background: rgba(255,255,255,.05); color: white; }
+.sort-btn.active { background: var(--ocean); color: white; border-color: var(--ocean); }
+.filter-select { flex: 1; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: white; padding: .3rem .4rem; border-radius: 6px; font-size: .7rem; font-family: inherit; cursor: pointer; }
+.filter-select option { background: var(--charcoal); color: white; }
+
+/* === POI ITEM (improved with distance) === */
+.poi-item .pi-info { flex: 1; overflow: hidden; }
+.poi-item .pi-info .pi-name { color: rgba(255,255,255,.8); font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.poi-item:hover .pi-info .pi-name { color: white; }
+.poi-item .pi-info .pi-meta { color: rgba(255,255,255,.4); font-size: .62rem; line-height: 1.3; margin-top: 1px; }
+
+/* ========== WALKS ========== */
+.walks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.walk-card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all .3s; border: 1px solid rgba(0,0,0,.04); }
+.walk-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.walk-header { padding: 1.2rem 1.4rem; color: white; display: flex; align-items: center; gap: 1rem; }
+.walk-num { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; flex-shrink: 0; }
+.walk-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+html[dir=rtl] .walk-title { font-family: 'Noto Sans Arabic', serif; }
+.walk-meta { font-size: .75rem; opacity: .85; margin-top: .15rem; }
+.walk-body { padding: 1.2rem 1.4rem; }
+.walk-stops { list-style: none; padding-left: 1rem; position: relative; }
+html[dir=rtl] .walk-stops { padding-left: 0; padding-right: 1rem; }
+.walk-stops::before { content: ''; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 2px; background: var(--sand-dark); }
+html[dir=rtl] .walk-stops::before { left: auto; right: 4px; }
+.walk-stops li { position: relative; padding: .35rem 0 .35rem 1rem; font-size: .82rem; color: var(--muted); }
+html[dir=rtl] .walk-stops li { padding: .35rem 1rem .35rem 0; }
+.walk-stops li::before { content: ''; position: absolute; left: -1rem; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; border-radius: 50%; background: var(--sand); border: 2px solid var(--sand-dark); }
+html[dir=rtl] .walk-stops li::before { left: auto; right: -1rem; }
+
+/* ========== FLOOR PLAN ========== */
+.floor-plan { max-width: 800px; margin: 2rem auto 0; }
+.floor-plan-img { width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow-lg); background: white; padding: 1rem; }
+.floor-plan-placeholder { aspect-ratio: 4/3; background: white; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: .9rem; flex-direction: column; gap: .5rem; }
+.floor-plan-placeholder .icon { font-size: 3rem; opacity: .3; }
+
+/* ========== TESTIMONIALS ========== */
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.testimonial { background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); }
+.testimonial-stars { color: var(--sun); font-size: .9rem; margin-bottom: .5rem; }
+.testimonial-text { color: var(--text); font-style: italic; line-height: 1.7; margin-bottom: 1rem; font-size: .9rem; }
+.testimonial-author { display: flex; align-items: center; gap: .8rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,.06); }
+.testimonial-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--ocean), var(--sun)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0; }
+.testimonial-author strong { display: block; color: var(--charcoal); font-size: .9rem; }
+.testimonial-author span { color: var(--muted); font-size: .75rem; }
+
+/* ========== CTA SECTION ========== */
+.cta-section { background: linear-gradient(135deg, var(--charcoal), var(--ocean-deep)); color: white; padding: 4rem 1.5rem; text-align: center; }
+.cta-section h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: .8rem; }
+html[dir=rtl] .cta-section h2 { font-family: 'Noto Sans Arabic', serif; }
+.cta-section p { color: rgba(255,255,255,.7); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+.cta-actions { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+.cta-actions .btn-primary { background: var(--sun); color: var(--charcoal); }
+.cta-actions .btn-primary:hover { background: white; }
+.cta-actions .btn-outline { color: white; border-color: rgba(255,255,255,.4); }
+.cta-actions .btn-outline:hover { background: white; color: var(--charcoal); }
+</style>
+</head>
+<body>
+
+<div id="mainMenu"></div>
+
+<main>
+  <!-- HERO -->
+  <section class="project-hero">
+    <div class="project-hero-content">
+      <div class="badge">Narjiss</div>
+      <h1 id="heroTitle">Résidence <em>Al Jawhara</em></h1>
+      <p class="location" id="heroLocation">📍 Dcheira El Jihadia, Agadir</p>
+      <div class="hero-actions">
+        <a href="#tour" class="btn btn-primary" id="heroBtnTour">▶ Visite virtuelle</a>
+        <a href="#carte" class="btn btn-outline" id="heroBtnMap">🗺️ Carte du quartier</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK NAV -->
+  <nav class="quick-nav">
+    <div class="quick-nav-content">
+      <a href="#description" id="qnDescription">📄 Description</a>
+      <a href="#photos" id="qnPhotos">🖼️ Photos</a>
+      <a href="#tour" id="qnTour">🎥 Visite 360°</a>
+      <a href="#plan" id="qnPlan">📐 Plan</a>
+      <a href="#major" id="qnMajor">🌟 Repères</a>
+      <a href="#carte" id="qnMap">🗺️ Carte</a>
+      <a href="#promenades" id="qnWalks">🚶 Promenades</a>
+      <a href="#avis" id="qnReviews">⭐ Avis</a>
+      <a href="#contact-cta" id="qnContact">✉️ Contact</a>
+    </div>
+  </nav>
+
+  <!-- DESCRIPTION + SPECS -->
+  <section class="section" id="description">
+    <div class="section-title">
+      <h2 id="descTitle">Description</h2>
+      <div class="accent-line"></div>
+    </div>
+    <p class="description-text" id="descText"></p>
+    <div class="specs-grid" id="specsGrid"></div>
+  </section>
+
+  <!-- PHOTOS -->
+  <section class="section-alt">
+    <div class="section-alt-wrap">
+      <div class="section-title">
+        <h2 id="photosTitle">Galerie photos</h2>
+        <div class="accent-line"></div>
+      </div>
+      <div class="photos-grid" id="photosGrid" style="max-width:1200px;margin:0 auto"></div>
+    </div>
+  </section>
+
+  <!-- VIRTUAL TOUR -->
+  <section class="section" id="tour">
+    <div class="section-title">
+      <h2 id="tourTitle">Visite Virtuelle 360°</h2>
+      <p id="tourSub">Explorez chaque pièce comme si vous y étiez</p>
+      <div class="accent-line"></div>
+    </div>
+    <div class="tour-container" id="tourContainer">
+      <!-- iframe ou placeholder injecté ici -->
+    </div>
+  </section>
+
+  <!-- FLOOR PLAN -->
+  <section class="section-alt" id="plan">
+    <div class="section-alt-wrap">
+      <div class="section-title">
+        <h2 id="planTitle">Plan au sol</h2>
+        <div class="accent-line"></div>
+      </div>
+      <div class="floor-plan" id="floorPlan"></div>
+    </div>
+  </section>
+
+  <!-- MAJOR LANDMARKS -->
+  <section class="section-alt" id="major">
+    <div class="section-alt-wrap">
+      <div class="section-title">
+        <h2 id="majorTitle">Repères majeurs</h2>
+        <p id="majorSub">Distances et temps de trajet vers les points clés de la région</p>
+        <div class="accent-line"></div>
+      </div>
+      <div class="major-grid" id="majorGrid" style="max-width:1100px;margin:0 auto"></div>
+    </div>
+  </section>
+
+  <!-- MAP & POI -->
+  <section class="section" id="carte">
+    <div class="section-title">
+      <h2 id="mapTitle">Carte du Quartier</h2>
+      <p id="mapSub">Cliquez sur une catégorie pour explorer les points d'intérêt</p>
+      <div class="accent-line"></div>
+    </div>
+    <div class="map-layout">
+      <div class="map-sidebar" id="sidebar"><div style="padding:2rem;color:rgba(255,255,255,.4)">Chargement...</div></div>
+      <div id="map"></div>
+    </div>
+  </section>
+
+  <!-- WALKS -->
+  <section class="section-alt" id="promenades">
+    <div class="section-alt-wrap">
+      <div class="section-title">
+        <h2 id="walksTitle">Promenades suggérées</h2>
+        <div class="accent-line"></div>
+      </div>
+      <div class="walks-grid" id="walksGrid" style="max-width:1100px;margin:0 auto"></div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section" id="avis">
+    <div class="section-title">
+      <h2 id="testimonialsTitle">Ils nous ont fait confiance</h2>
+      <div class="accent-line"></div>
+    </div>
+    <div class="testimonials-grid" id="testimonialsGrid"></div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contact-cta">
+    <h2 id="ctaTitle">Intéressé par cette résidence ?</h2>
+    <p id="ctaText">Téléchargez la brochure complète ou contactez-nous pour organiser une visite.</p>
+    <div class="cta-actions">
+      <a href="brochure.pdf" download class="btn btn-primary" id="ctaBrochure">📥 Télécharger la brochure</a>
+      <a href="../contact.html" class="btn btn-outline" id="ctaContact">✉️ Nous contacter</a>
+    </div>
+  </section>
+</main>
+
+<div id="mainFooter"></div>
+
+<script src="../shared/menu.js"></script>
+<script>
+// ============================================================
+// PAGE PROJET Jawhara
+// ============================================================
+
+var PAGE_UI = {
+  fr: { btnTour:"▶ Visite virtuelle", btnMap:"🗺️ Carte du quartier", desc:"Description", photos:"Galerie photos", tour:"Visite Virtuelle 360°", tourSub:"Explorez chaque pièce comme si vous y étiez", plan:"Plan au sol", map:"Carte du Quartier", mapSub:"Cliquez sur une catégorie pour explorer les points d'intérêt", walks:"Promenades suggérées", testimonials:"Ils nous ont fait confiance", ctaTitle:"Intéressé par cette résidence ?", ctaText:"Téléchargez la brochure complète ou contactez-nous pour organiser une visite.", ctaBrochure:"📥 Télécharger la brochure", ctaContact:"✉️ Nous contacter", yourRes:"votre résidence", reviews:"avis", lieux:"lieux", sbHeader:"Points d'intérêt", tourPlaceholder:"Visite virtuelle 3DVista à venir", sortBy:"Trier par", sortDist:"Distance", sortName:"Nom", walking:"min à pied", driving:"min en voiture", from_residence:"depuis la résidence", filter_max:"Distance max", min_walk:"min", all_distances:"Toutes distances", majorTitle:"Repères majeurs", majorSub:"Distances et temps de trajet vers les points clés de la région", showOnMap:"Voir sur la carte", polyTitle:"🔶 Contour de la résidence", polyEdit:"Modifier", polyDone:"Terminer", polySave:"Sauvegarder", polyReset:"Réinitialiser", polyInfo:"Cliquez \"Modifier\" puis déplacez les points sur la carte. \"Sauvegarder\" télécharge le fichier contours.json à uploader sur GitHub.", polyInfoEdit:"Glissez les points pour modifier le contour. Cliquez \"Terminer\" quand vous avez fini.", polySaved:"✅ contours.json téléchargé. Uploadez-le dans le dossier jawhara/ sur GitHub.", qn:{description:"📄 Description",photos:"🖼️ Photos",tour:"🎥 Visite 360°",plan:"📐 Plan",major:"🌟 Repères",map:"🗺️ Carte",walks:"🚶 Promenades",reviews:"⭐ Avis",contact:"✉️ Contact"}, cats:{pharmacie:"Pharmacies",magasin:"Supermarchés",boulangerie:"Boulangeries",mosquee:"Mosquées",ecole:"Écoles",cafe:"Cafés",banque:"Banques",sante:"Santé",hammam:"Hammams",aeroport:"Aéroport",plage:"Plages",medina:"Médina/Souk",hopital:"Hôpitaux",police:"Police",admin:"Administration",ecole_int:"Écoles internationales",stade:"Sports",autoroute:"Autoroute",gare:"Transport",restos:"Restaurants",mall:"Centres commerciaux"} },
+  en: { btnTour:"▶ Virtual tour", btnMap:"🗺️ Neighborhood map", desc:"Description", photos:"Photo gallery", tour:"360° Virtual Tour", tourSub:"Explore every room as if you were there", plan:"Floor plan", map:"Neighborhood Map", mapSub:"Click a category to explore points of interest", walks:"Suggested walks", testimonials:"They trusted us", ctaTitle:"Interested in this residence?", ctaText:"Download the full brochure or contact us to arrange a visit.", ctaBrochure:"📥 Download brochure", ctaContact:"✉️ Contact us", yourRes:"your residence", reviews:"reviews", lieux:"places", sbHeader:"Points of Interest", tourPlaceholder:"3DVista virtual tour coming soon", sortBy:"Sort by", sortDist:"Distance", sortName:"Name", walking:"min walk", driving:"min drive", from_residence:"from residence", filter_max:"Max distance", min_walk:"min", all_distances:"All distances", majorTitle:"Major landmarks", majorSub:"Distances and travel times to key locations in the region", showOnMap:"Show on map", polyTitle:"🔶 Residence outline", polyEdit:"Edit", polyDone:"Done", polySave:"Save", polyReset:"Reset", polyInfo:"Click \"Edit\" then move the points on the map. \"Save\" downloads contours.json to upload on GitHub.", polyInfoEdit:"Drag points to edit the contour. Click \"Done\" when finished.", polySaved:"✅ contours.json downloaded. Upload it to the jawhara/ folder on GitHub.", qn:{description:"📄 Description",photos:"🖼️ Photos",tour:"🎥 360° Tour",plan:"📐 Plan",major:"🌟 Landmarks",map:"🗺️ Map",walks:"🚶 Walks",reviews:"⭐ Reviews",contact:"✉️ Contact"}, cats:{pharmacie:"Pharmacies",magasin:"Supermarkets",boulangerie:"Bakeries",mosquee:"Mosques",ecole:"Schools",cafe:"Cafés",banque:"Banks",sante:"Healthcare",hammam:"Hammams",aeroport:"Airport",plage:"Beaches",medina:"Medina/Souk",hopital:"Hospitals",police:"Police",admin:"Administration",ecole_int:"International schools",stade:"Sports",autoroute:"Highway",gare:"Transport",restos:"Restaurants",mall:"Shopping malls"} },
+  ar: { btnTour:"▶ جولة افتراضية", btnMap:"🗺️ خريطة الحي", desc:"الوصف", photos:"معرض الصور", tour:"جولة افتراضية 360°", tourSub:"استكشف كل غرفة كأنك هناك", plan:"المخطط", map:"خريطة الحي", mapSub:"انقر على فئة لاستكشاف نقاط الاهتمام", walks:"نزهات مقترحة", testimonials:"آراء عملائنا", ctaTitle:"مهتم بهذه الإقامة؟", ctaText:"حمل الكتيب الكامل أو اتصل بنا لتنظيم زيارة.", ctaBrochure:"📥 تحميل الكتيب", ctaContact:"✉️ اتصل بنا", yourRes:"إقامتك", reviews:"تقييم", lieux:"مكان", sbHeader:"نقاط الاهتمام", tourPlaceholder:"الجولة الافتراضية قريبا", sortBy:"ترتيب حسب", sortDist:"المسافة", sortName:"الاسم", walking:"دقيقة سيرا", driving:"دقيقة بالسيارة", from_residence:"من الإقامة", filter_max:"المسافة القصوى", min_walk:"دقيقة", all_distances:"جميع المسافات", majorTitle:"المعالم الرئيسية", majorSub:"المسافات وأوقات السفر إلى المواقع الرئيسية في المنطقة", showOnMap:"عرض على الخريطة", polyTitle:"🔶 محيط الإقامة", polyEdit:"تعديل", polyDone:"إنهاء", polySave:"حفظ", polyReset:"إعادة تعيين", polyInfo:"انقر \"تعديل\" ثم حرك النقاط على الخريطة. \"حفظ\" يحمل ملف contours.json للرفع على GitHub.", polyInfoEdit:"اسحب النقاط لتعديل المحيط. انقر \"إنهاء\" عند الانتهاء.", polySaved:"✅ تم تحميل contours.json. ارفعه إلى مجلد jawhara/ على GitHub.", qn:{description:"📄 الوصف",photos:"🖼️ الصور",tour:"🎥 جولة 360°",plan:"📐 المخطط",major:"🌟 المعالم",map:"🗺️ الخريطة",walks:"🚶 نزهات",reviews:"⭐ آراء",contact:"✉️ اتصال"}, cats:{pharmacie:"الصيدليات",magasin:"المتاجر",boulangerie:"المخابز",mosquee:"المساجد",ecole:"المدارس",cafe:"المقاهي",banque:"البنوك",sante:"الصحة",hammam:"الحمامات",aeroport:"المطار",plage:"الشواطئ",medina:"المدينة العتيقة",hopital:"المستشفيات",police:"الشرطة",admin:"الإدارة",ecole_int:"مدارس دولية",stade:"الرياضة",autoroute:"الطريق السيار",gare:"النقل",restos:"المطاعم",mall:"المراكز التجارية"} },
+  es: { btnTour:"▶ Visita virtual", btnMap:"🗺️ Mapa del barrio", desc:"Descripción", photos:"Galería de fotos", tour:"Visita Virtual 360°", tourSub:"Explora cada habitación como si estuvieras allí", plan:"Plano", map:"Mapa del Barrio", mapSub:"Haz clic en una categoría para explorar los puntos de interés", walks:"Paseos sugeridos", testimonials:"Confiaron en nosotros", ctaTitle:"¿Interesado en esta residencia?", ctaText:"Descarga el folleto completo o contáctanos para organizar una visita.", ctaBrochure:"📥 Descargar folleto", ctaContact:"✉️ Contáctanos", yourRes:"tu residencia", reviews:"reseñas", lieux:"lugares", sbHeader:"Puntos de Interés", tourPlaceholder:"Visita virtual 3DVista próximamente", sortBy:"Ordenar por", sortDist:"Distancia", sortName:"Nombre", walking:"min a pie", driving:"min en coche", from_residence:"desde la residencia", filter_max:"Distancia máx", min_walk:"min", all_distances:"Todas las distancias", majorTitle:"Puntos clave de la región", majorSub:"Distancias y tiempos de viaje a los lugares clave de la región", showOnMap:"Ver en el mapa", polyTitle:"🔶 Contorno de la residencia", polyEdit:"Editar", polyDone:"Hecho", polySave:"Guardar", polyReset:"Reiniciar", polyInfo:"Haz clic en \"Editar\" y mueve los puntos en el mapa. \"Guardar\" descarga contours.json para subir a GitHub.", polyInfoEdit:"Arrastra los puntos para editar el contorno. Haz clic en \"Hecho\" cuando termines.", polySaved:"✅ contours.json descargado. Súbelo a la carpeta jawhara/ en GitHub.", qn:{description:"📄 Descripción",photos:"🖼️ Fotos",tour:"🎥 Visita 360°",plan:"📐 Plano",major:"🌟 Puntos clave",map:"🗺️ Mapa",walks:"🚶 Paseos",reviews:"⭐ Reseñas",contact:"✉️ Contacto"}, cats:{pharmacie:"Farmacias",magasin:"Supermercados",boulangerie:"Panaderías",mosquee:"Mezquitas",ecole:"Escuelas",cafe:"Cafés",banque:"Bancos",sante:"Salud",hammam:"Hammams",aeroport:"Aeropuerto",plage:"Playas",medina:"Medina/Souk",hopital:"Hospitales",police:"Policía",admin:"Administración",ecole_int:"Escuelas internacionales",stade:"Deportes",autoroute:"Autopista",gare:"Transporte",restos:"Restaurantes",mall:"Centros comerciales"} }
+};
+
+var projectData = null;
+var allLayers = [];
+var markerMap = {};
+var leafletMap = null;
+var homePoi = null;
+var currentSort = 'distance';
+var maxDistanceFilter = 0;
+var majorPois = [];  // Stores major landmarks
+var majorMarkers = []; // Map markers for major POIs
+var showMajorOnMap = false; // Toggle major POIs on the map
+
+// === DISTANCE CALCULATION ===
+// Haversine formula — distance between two GPS coordinates in meters
+function haversineDistance(lat1, lng1, lat2, lng2) {
+  var R = 6371000; // Earth radius in meters
+  var toRad = function(deg) { return deg * Math.PI / 180; };
+  var dLat = toRad(lat2 - lat1);
+  var dLng = toRad(lng2 - lng1);
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+          Math.sin(dLng/2) * Math.sin(dLng/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+// Format distance as human-readable string
+function formatDistance(meters) {
+  if (meters < 1000) return Math.round(meters) + ' m';
+  return (meters / 1000).toFixed(1) + ' km';
+}
+
+// Estimate walking time (5 km/h average + 20% urban penalty)
+function walkingMinutes(meters) {
+  var realMeters = meters * 1.2; // walking is rarely straight line
+  var minutes = (realMeters / 1000) * 12; // 12 min/km
+  return Math.max(1, Math.round(minutes));
+}
+
+// Estimate driving time (30 km/h urban average)
+function drivingMinutes(meters) {
+  var realMeters = meters * 1.3;
+  var minutes = (realMeters / 1000) * 2; // 2 min/km
+  return Math.max(1, Math.round(minutes));
+}
+
+// === POLYGON CONTOUR (admin editing with native Leaflet.draw) ===
+var contourLayer = null;
+var contourData = null;
+var isAdminMode = false;
+var drawControl = null;
+var drawnItems = null;
+var hasUnsavedChanges = false;
+
+function checkAdminMode() {
+  var params = new URLSearchParams(window.location.search);
+  isAdminMode = params.get('admin') === '1';
+  if (isAdminMode) console.log('🔧 Admin mode active. Polygon editing enabled.');
+}
+
+function generateDefaultPolygon(lat, lng) {
+  var dLat = 10 / 111000;
+  var dLng = 10 / (111000 * Math.cos(lat * Math.PI / 180));
+  return [
+    [lat + dLat, lng - dLng],
+    [lat + dLat, lng + dLng],
+    [lat - dLat, lng + dLng],
+    [lat - dLat, lng - dLng]
+  ];
+}
+
+// Build the contour data structure
+function buildContourData(coords) {
+  return {
+    _comment: "Polygone de contour de la résidence. Modifiable en mode admin (URL?admin=1).",
+    _format: "GeoJSON-like : tableau de [lat, lng]. Le polygone se ferme automatiquement.",
+    type: 'Polygon',
+    color: '#1B6B93',
+    fillOpacity: 0.15,
+    weight: 3,
+    coordinates: coords
+  };
+}
+
+// Get project ID from HTML filename (e.g. "jawhara.html" → "jawhara")
+function getProjectId() {
+  var path = window.location.pathname;
+  var f = path.split('/').pop() || 'index.html';
+  return f.replace(/\.html?$/i, '');
+}
+
+// Storage key per project
+function storageKey() {
+  return 'contour_' + getProjectId();
+}
+
+// Get the contour JSON filename for current project
+function getContourFilename() {
+  return 'contours_' + getProjectId() + '.json';
+}
+
+// Load contour: priority = localStorage > contours_<project>.json > default
+function loadContour() {
+  // 1. Try localStorage first (admin's recent changes)
+  try {
+    var saved = localStorage.getItem(storageKey());
+    if (saved) {
+      var data = JSON.parse(saved);
+      if (data && data.coordinates) {
+        contourData = data;
+        console.log('📌 Loaded contour from localStorage');
+        drawContour();
+        return;
+      }
+    }
+  } catch (e) { /* ignore */ }
+
+  // 2. Try contours_<project>.json from server
+  var contourFile = getContourFilename();
+  fetch(contourFile)
+    .then(function(r) { if (!r.ok) throw new Error('Not found'); return r.json(); })
+    .then(function(data) {
+      contourData = data;
+      console.log('📌 Loaded contour from ' + contourFile);
+      drawContour();
+    })
+    .catch(function() {
+      // 3. Generate default 20×20m square
+      if (homePoi) {
+        contourData = buildContourData(generateDefaultPolygon(homePoi.lat, homePoi.lng));
+        console.log('📌 Generated default 20×20m polygon (' + contourFile + ' not found)');
+        drawContour();
+      }
+    });
+}
+
+// Draw the polygon and add admin controls if needed
+function drawContour() {
+  if (!leafletMap || !contourData || !contourData.coordinates) return;
+
+  // Remove old layer
+  if (contourLayer && drawnItems) drawnItems.removeLayer(contourLayer);
+  if (contourLayer && !drawnItems) leafletMap.removeLayer(contourLayer);
+
+  if (isAdminMode) {
+    // Admin mode: editable polygon in a FeatureGroup
+    if (!drawnItems) {
+      drawnItems = new L.FeatureGroup();
+      leafletMap.addLayer(drawnItems);
+    }
+    contourLayer = L.polygon(contourData.coordinates, {
+      color: contourData.color || '#1B6B93',
+      fillOpacity: contourData.fillOpacity || 0.15,
+      weight: contourData.weight || 3
+    });
+    drawnItems.addLayer(contourLayer);
+
+    // Add native Leaflet.draw control if not present
+    if (!drawControl) {
+      drawControl = new L.Control.Draw({
+        position: 'topright',
+        edit: {
+          featureGroup: drawnItems,
+          remove: false  // we don't allow deletion, only editing
+        },
+        draw: false  // we don't allow creating new shapes, only editing the existing one
+      });
+      leafletMap.addControl(drawControl);
+
+      // Listen to edit events
+      leafletMap.on(L.Draw.Event.EDITED, function(e) {
+        e.layers.eachLayer(function(layer) {
+          var latlngs = layer.getLatLngs()[0];
+          contourData.coordinates = latlngs.map(function(ll) {
+            return [parseFloat(ll.lat.toFixed(6)), parseFloat(ll.lng.toFixed(6))];
+          });
+          autoSavePolygon();
+        });
+      });
+
+      // Add custom save/reset buttons as Leaflet controls
+      addCustomPolygonControls();
+    }
+  } else {
+    // Visitor mode: simple read-only polygon
+    contourLayer = L.polygon(contourData.coordinates, {
+      color: contourData.color || '#1B6B93',
+      fillOpacity: contourData.fillOpacity || 0.15,
+      weight: contourData.weight || 3
+    }).addTo(leafletMap);
+  }
+}
+
+// Auto-save to localStorage immediately, plus show notification
+function autoSavePolygon() {
+  if (!contourData) return;
+  try {
+    localStorage.setItem(storageKey(), JSON.stringify(contourData));
+    console.log('💾 Polygon saved to localStorage');
+    showStatusNotification();
+    hasUnsavedChanges = true;
+  } catch (e) { console.warn('localStorage save failed:', e); }
+}
+
+// Show "saved + download" notification
+function showStatusNotification() {
+  var t = PAGE_UI[currentLang];
+  var existing = document.getElementById('polyStatus');
+  if (existing) existing.remove();
+
+  var status = document.createElement('div');
+  status.id = 'polyStatus';
+  status.className = 'poly-status show';
+  status.innerHTML =
+    '<span class="status-dot"></span>' +
+    '<span>' + (t.polySavedLocal || '✅ Sauvegardé') + '</span>' +
+    '<button id="downloadJsonBtn">⬇ ' + (t.polyDownload || 'Télécharger contours.json') + '</button>' +
+    '<button class="btn-discard" id="discardBtn">↺ ' + (t.polyReset || 'Réinitialiser') + '</button>';
+
+  // Insert above the map
+  var mapEl = document.getElementById('map');
+  mapEl.parentNode.insertBefore(status, mapEl);
+
+  document.getElementById('downloadJsonBtn').addEventListener('click', downloadContoursJson);
+  document.getElementById('discardBtn').addEventListener('click', function() {
+    if (confirm(t.polyResetConfirm || 'Réinitialiser au polygone par défaut ?')) {
+      localStorage.removeItem(storageKey());
+      if (homePoi) {
+        contourData = buildContourData(generateDefaultPolygon(homePoi.lat, homePoi.lng));
+        drawContour();
+        status.remove();
+        hasUnsavedChanges = false;
+      }
+    }
+  });
+}
+
+// Download contours_<project>.json directly
+function downloadContoursJson() {
+  if (!contourData) return;
+  var output = buildContourData(contourData.coordinates);
+  var json = JSON.stringify(output, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = getContourFilename();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  console.log('📥 ' + getContourFilename() + ' downloaded — upload it to GitHub to make it permanent');
+}
+
+// Add custom save/reset controls inside Leaflet
+function addCustomPolygonControls() {
+  // Custom Leaflet control for download
+  var DownloadControl = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd: function() {
+      var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      container.style.cssText = 'background:white;padding:4px;display:flex;flex-direction:column;gap:2px;';
+
+      var btn1 = L.DomUtil.create('a', '', container);
+      btn1.innerHTML = '⬇';
+      btn1.title = 'Télécharger contours.json';
+      btn1.style.cssText = 'cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none;color:#333;';
+      L.DomEvent.on(btn1, 'click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        downloadContoursJson();
+      });
+
+      var btn2 = L.DomUtil.create('a', '', container);
+      btn2.innerHTML = '↺';
+      btn2.title = 'Réinitialiser polygone';
+      btn2.style.cssText = 'cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none;color:#333;border-top:1px solid #ddd;';
+      L.DomEvent.on(btn2, 'click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        if (confirm('Réinitialiser au polygone par défaut ?')) {
+          localStorage.removeItem(storageKey());
+          if (homePoi) {
+            contourData = buildContourData(generateDefaultPolygon(homePoi.lat, homePoi.lng));
+            drawContour();
+            var status = document.getElementById('polyStatus');
+            if (status) status.remove();
+          }
+        }
+      });
+
+      L.DomEvent.disableClickPropagation(container);
+      return container;
+    }
+  });
+  leafletMap.addControl(new DownloadControl());
+}
+
+// === MAP SETUP ===
+function initMap() {
+  if (leafletMap) return;
+
+  // Create map with optional fullscreen control
+  var mapOptions = { };
+  try {
+    if (L.Control && L.Control.Fullscreen) {
+      mapOptions.fullscreenControl = true;
+      mapOptions.fullscreenControlOptions = { position: 'topleft', title: 'Plein écran', titleCancel: 'Quitter le plein écran' };
+    }
+  } catch (e) { /* ignore */ }
+
+  leafletMap = L.map('map', mapOptions).setView([30.3732, -9.5372], 15);
+
+  // Multiple tile layers for selection
+  var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+  });
+  var cartoLightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxNativeZoom: 20, maxZoom: 22
+  });
+  var cartoVoyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxNativeZoom: 20, maxZoom: 22
+  });
+  var cartoDarkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxNativeZoom: 20, maxZoom: 22
+  });
+  var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap © OpenTopoMap', maxNativeZoom: 17, maxZoom: 22
+  });
+  var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri', maxZoom: 19
+  });
+
+  osmLayer.addTo(leafletMap);
+
+  // Layer switcher (top-right)
+  var baseMaps = {
+    "🗺️ Plan OSM": osmLayer,
+    "Clair": cartoLightLayer,
+    "Voyager": cartoVoyagerLayer,
+    "Sombre": cartoDarkLayer,
+    "Topographique": topoLayer,
+    "🛰️ Satellite": satelliteLayer
+  };
+  L.control.layers(baseMaps, {}, { position: 'topright', collapsed: true }).addTo(leafletMap);
+
+  // Distance/area measurement tool (top-left, for ALL visitors)
+  try {
+    // The plugin may register as L.control.polylineMeasure OR L.Control.PolylineMeasure
+    var measureFn = null;
+    if (L.control && typeof L.control.polylineMeasure === 'function') {
+      measureFn = L.control.polylineMeasure;
+    } else if (L.Control && L.Control.PolylineMeasure) {
+      measureFn = function(opts) { return new L.Control.PolylineMeasure(opts); };
+    }
+
+    if (measureFn) {
+      measureFn({
+        position: 'topleft',
+        unit: 'metres',
+        showBearings: false,
+        clearMeasurementsOnStop: false,
+        showClearControl: true,
+        showUnitControl: false,
+        backgroundColor: '#1B6B93',
+        cursor: 'crosshair',
+        clearControlTitle: 'Effacer toutes les mesures',
+        clearControlLabel: '&times;',
+        measureControlTitleOn: '📏 Activer la mesure de distance',
+        measureControlTitleOff: 'Désactiver la mesure',
+        measureControlLabel: '&#128207;'
+      }).addTo(leafletMap);
+    } else {
+      console.warn('PolylineMeasure plugin not loaded');
+    }
+  } catch (e) { console.warn('PolylineMeasure plugin failed:', e); }
+
+  // Scale control (bottom-left)
+  L.control.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo(leafletMap);
+
+  // === SEARCH ADDRESS (top-left) ===
+  try {
+    if (typeof window.GeoSearch !== 'undefined' && window.GeoSearch.GeoSearchControl) {
+      var searchControl = new window.GeoSearch.GeoSearchControl({
+        provider: new window.GeoSearch.OpenStreetMapProvider(),
+        style: 'bar',
+        showMarker: true,
+        showPopup: true,
+        autoClose: true,
+        retainZoomLevel: false,
+        animateZoom: true,
+        keepResult: true,
+        searchLabel: '🔍 Rechercher une adresse...',
+        notFoundMessage: 'Adresse introuvable',
+        position: 'topleft'
+      });
+      leafletMap.addControl(searchControl);
+    }
+  } catch (e) { console.warn('GeoSearch plugin failed:', e); }
+
+  // === GEOLOCATION (top-left) ===
+  try {
+    if (L.control && typeof L.control.locate === 'function') {
+      L.control.locate({
+        position: 'topleft',
+        strings: {
+          title: '📍 Me localiser',
+          popup: 'Vous êtes à environ {distance} {unit} de la résidence',
+          outsideMapBoundsMsg: 'Vous semblez être hors de la zone visible de la carte'
+        },
+        locateOptions: { maxZoom: 15, enableHighAccuracy: true },
+        flyTo: true,
+        cacheLocation: true,
+        drawCircle: true,
+        drawMarker: true,
+        showCompass: true,
+        onLocationError: function(err) { alert('Géolocalisation impossible : ' + err.message); }
+      }).addTo(leafletMap);
+    }
+  } catch (e) { console.warn('Locate plugin failed:', e); }
+
+  // === MINIMAP (bottom-right) ===
+  try {
+    if (L.Control && L.Control.MiniMap) {
+      var miniLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap', maxZoom: 13
+      });
+      new L.Control.MiniMap(miniLayer, {
+        position: 'bottomright',
+        width: 150,
+        height: 150,
+        zoomLevelOffset: -5,
+        toggleDisplay: true,
+        minimized: false,
+        aimingRectOptions: { color: '#1B6B93', weight: 2, opacity: 0.7 },
+        shadowRectOptions: { color: '#E8A838', weight: 1, opacity: 0.4 }
+      }).addTo(leafletMap);
+    }
+  } catch (e) { console.warn('MiniMap plugin failed:', e); }
+
+  // === ROUTING (button to open route from user's address) ===
+  try {
+    if (L.Routing && L.Routing.control) {
+      var RoutingButton = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd: function() {
+          var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+          var btn = L.DomUtil.create('a', '', container);
+          btn.innerHTML = '🚗';
+          btn.title = "Calculer l'itinéraire vers la résidence";
+          btn.style.cssText = 'cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none;color:#333;background:white;';
+          L.DomEvent.on(btn, 'click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            startRouting();
+          });
+          L.DomEvent.disableClickPropagation(container);
+          return container;
+        }
+      });
+      leafletMap.addControl(new RoutingButton());
+    }
+  } catch (e) { console.warn('Routing button failed:', e); }
+}
+
+// === ROUTING FUNCTION ===
+var routingControl = null;
+function startRouting() {
+  if (!homePoi) {
+    alert('La position de la résidence n\'est pas encore chargée');
+    return;
+  }
+  // Remove existing route
+  if (routingControl) {
+    leafletMap.removeControl(routingControl);
+    routingControl = null;
+    return; // toggle off
+  }
+  // Ask user for starting point address
+  var startAddress = prompt("Entrez votre adresse de départ (rue, ville, pays) :", "");
+  if (!startAddress) return;
+
+  // Geocode the address using OpenStreetMap Nominatim
+  fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(startAddress) + '&format=json&limit=1')
+    .then(function(r) { return r.json(); })
+    .then(function(results) {
+      if (!results.length) {
+        alert('Adresse introuvable. Essayez d\'être plus précis.');
+        return;
+      }
+      var startLat = parseFloat(results[0].lat);
+      var startLng = parseFloat(results[0].lon);
+
+      // Create routing
+      routingControl = L.Routing.control({
+        waypoints: [
+          L.latLng(startLat, startLng),
+          L.latLng(homePoi.lat, homePoi.lng)
+        ],
+        routeWhileDragging: true,
+        showAlternatives: true,
+        fitSelectedRoutes: true,
+        lineOptions: {
+          styles: [{ color: '#1B6B93', weight: 5, opacity: 0.8 }]
+        },
+        altLineOptions: {
+          styles: [{ color: '#999', weight: 4, opacity: 0.5 }]
+        },
+        createMarker: function(i, wp) {
+          var label = i === 0 ? 'A' : 'B';
+          var color = i === 0 ? '#E8A838' : '#1B6B93';
+          return L.marker(wp.latLng, {
+            icon: L.divIcon({
+              html: '<div style="background:' + color + ';width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3)">' + label + '</div>',
+              iconSize: [32, 32],
+              iconAnchor: [16, 16],
+              className: ''
+            })
+          });
+        },
+        router: L.Routing.osrmv1({
+          serviceUrl: 'https://router.project-osrm.org/route/v1',
+          profile: 'driving'
+        }),
+        collapsible: true,
+        position: 'topleft'
+      }).addTo(leafletMap);
+    })
+    .catch(function(e) {
+      alert('Erreur lors du géocodage : ' + e.message);
+    });
+}
+
+var POI_MARKER_STYLES = {
+  pharmacie:{color:'#2ecc71',icon:'medical'}, pharmacy:{color:'#2ecc71',icon:'medical'}, sante:{color:'#2ecc71',icon:'medical'}, health:{color:'#2ecc71',icon:'medical'},
+  cafe:{color:'#e67e22',icon:'coffee'}, restaurant:{color:'#e67e22',icon:'food'}, magasin:{color:'#9b59b6',icon:'shop'}, shop:{color:'#9b59b6',icon:'shop'},
+  banque:{color:'#2b8cbe',icon:'bank'}, bank:{color:'#2b8cbe',icon:'bank'}, admin:{color:'#2b8cbe',icon:'bank'}, administration:{color:'#2b8cbe',icon:'bank'},
+  ecole:{color:'#8e44ad',icon:'school'}, school:{color:'#8e44ad',icon:'school'}, education:{color:'#8e44ad',icon:'school'}, mosquee:{color:'#16a085',icon:'mosque'}, mosque:{color:'#16a085',icon:'mosque'},
+  transport:{color:'#3498db',icon:'bus'}, hotel:{color:'#2f80ed',icon:'bed'}, hammam:{color:'#00a6a6',icon:'waves'}, parc:{color:'#6ab04c',icon:'leaf'}, park:{color:'#6ab04c',icon:'leaf'},
+  sport:{color:'#6ab04c',icon:'sport'}, marche:{color:'#9b59b6',icon:'shop'}, market:{color:'#9b59b6',icon:'shop'}, loisir:{color:'#6ab04c',icon:'leaf'}, major:{color:'#e67e22',icon:'pin'}
+};
+function normalizePoiCat(cat) {
+  return (cat || '').toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_');
+}
+function poiIconSvg(icon, size) {
+  var iconSize = size || 21;
+  var paths = {
+    medical: '<path d="M12 5v14M5 12h14"/>',
+    coffee: '<path d="M5 8h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8z"/><path d="M16 10h2a2 2 0 0 1 0 4h-2"/><path d="M8 5h6"/>',
+    food: '<path d="M5 12h14"/><path d="M7 12a5 5 0 0 1 10 0"/><path d="M8 12v5h8v-5"/><path d="M12 5v2"/>',
+    shop: '<path d="M6 7h12l-1 6H8L6 7z"/><path d="M6 7l-1-3H3"/><circle cx="9" cy="18" r="1.4"/><circle cx="16" cy="18" r="1.4"/>',
+    bank: '<path d="M4 10h16"/><path d="M6 10v7M10 10v7M14 10v7M18 10v7"/><path d="M3 18h18"/><path d="M5 8l7-4 7 4"/>',
+    school: '<path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v4l5 2 5-2v-4"/><path d="M19 10v5"/>',
+    mosque: '<path d="M12 5a5 5 0 0 0 0 10 6 6 0 0 1 0-10z" fill="currentColor" stroke="none"/><path d="M5 18h14"/><path d="M7 18v-5M17 18v-5"/>',
+    bus: '<path d="M6 5h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M4 10h16"/><circle cx="8" cy="17" r="1"/><circle cx="16" cy="17" r="1"/>',
+    bed: '<path d="M4 17V7"/><path d="M4 13h16v4"/><path d="M7 13V9h5a3 3 0 0 1 3 3v1"/><path d="M20 17v-5"/>',
+    waves: '<path d="M4 9c2 2 4 2 6 0s4-2 6 0 3 2 4 1"/><path d="M4 15c2 2 4 2 6 0s4-2 6 0 3 2 4 1"/>',
+    leaf: '<path d="M5 19c8-1 13-6 14-14C11 5 6 10 5 19z"/><path d="M5 19c3-4 6-7 10-9"/>',
+    sport: '<circle cx="12" cy="12" r="7"/><path d="M5 12h14"/><path d="M12 5c2 2 3 4 3 7s-1 5-3 7"/><path d="M12 5c-2 2-3 4-3 7s1 5 3 7"/>',
+    pin: '<path d="M12 20s6-5 6-10a6 6 0 0 0-12 0c0 5 6 10 6 10z"/><circle cx="12" cy="10" r="2"/>'
+  };
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:' + iconSize + 'px;height:' + iconSize + 'px;display:block;color:white;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round">' + (paths[icon] || paths.pin) + '</svg>';
+}
+function poiLegendMarker(cat) {
+  var style = POI_MARKER_STYLES[normalizePoiCat(cat)] || { color:'#7f8c8d', icon:'pin' };
+  return '<span class="ch-emoji"><span style="background:' + style.color + ';width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;box-shadow:0 1px 4px rgba(20,20,29,.25);border:2px solid white">' + poiIconSvg(style.icon, 14) + '</span></span>';
+}
+function makeIcon(emoji, cat) {
+  var style = POI_MARKER_STYLES[normalizePoiCat(cat)] || { color:'#7f8c8d', icon:'pin' };
+  return L.divIcon({ html: '<div style="background:' + style.color + ';width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;box-shadow:0 2px 7px rgba(20,20,29,.35);border:3px solid white">' + poiIconSvg(style.icon) + '</div>', iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -17], className: '' });
+}
+function makeHomeIcon() {
+  return L.divIcon({ html: '<div style="position:relative;width:24px;height:24px;background:#c15a00;border-radius:50% 50% 50% 0;box-shadow:0 5px 14px rgba(20,20,29,.28);transform:rotate(-45deg)"><span style="position:absolute;left:50%;top:50%;width:9px;height:9px;background:white;border-radius:50%;transform:translate(-50%,-50%);display:block"></span></div>', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24], className: '' });
+}
+
+function makePopup(poi) {
+  var t = PAGE_UI[currentLang];
+  var cat = poi.cat === 'home' ? t.yourRes : (t.cats[poi.cat] || poi.cat);
+  var rt = poi.note ? '<div class="pc-rt">★ ' + poi.note + '/5' + (poi.avis ? ' · ' + poi.avis + ' ' + t.reviews : '') + '</div>' : '';
+  var ph = poi.tel ? '<div class="pc-phone">📞 <a href="tel:' + poi.tel.replace(/\s/g,'') + '">' + poi.tel + '</a></div>' : '';
+  var hr = poi.horaires ? '<div class="pc-det">🕐 ' + poi.horaires + '</div>' : '';
+
+  // Distance info (only for non-home POI when home exists)
+  var distInfo = '';
+  if (poi.cat !== 'home' && homePoi) {
+    var meters = haversineDistance(homePoi.lat, homePoi.lng, poi.lat, poi.lng);
+    var walk = walkingMinutes(meters);
+    var drive = drivingMinutes(meters);
+    distInfo = '<div class="pc-dist">📏 ' + formatDistance(meters) + ' · 🚶 ' + walk + ' ' + t.walking + ' · 🚗 ' + drive + ' ' + t.driving + '</div>';
+  }
+
+  return '<div class="popup-card"><div class="pc-cat">' + cat + '</div><div class="pc-name">' + poi.nom + '</div><div class="pc-addr">' + poi.adresse + '</div>' + distInfo + hr + rt + ph + '</div>';
+}
+
+function parseCSV(text) {
+  var lines = text.replace(/\r/g,'').split('\n').filter(function(l){return l.trim();});
+  if (lines.length < 2) return [];
+  var sep = lines[0].indexOf(';') >= 0 ? ';' : ',';
+  var hdr = lines[0].replace(/^\uFEFF/,'').split(sep);
+  var idx = {};
+  for (var i = 0; i < hdr.length; i++) {
+    var h = hdr[i].trim().toLowerCase();
+    if (h.indexOf('cat') >= 0) idx.cat = i;
+    else if (h.indexOf('emoji') >= 0) idx.emoji = i;
+    else if (h.indexOf('nom') >= 0 || h.indexOf('name') >= 0) idx.nom = i;
+    else if (h.indexOf('adresse') >= 0 || h.indexOf('address') >= 0) idx.adresse = i;
+    else if (h.indexOf('note') >= 0) idx.note = i;
+    else if (h.indexOf('lat') >= 0) idx.lat = i;
+    else if (h.indexOf('lng') >= 0 || h.indexOf('lon') >= 0) idx.lng = i;
+    else if (h.indexOf('avis') >= 0) idx.avis = i;
+    else if (h.indexOf('tel') >= 0 || h.indexOf('phone') >= 0) idx.tel = i;
+    else if (h.indexOf('horaire') >= 0 || h.indexOf('notes') >= 0) idx.horaires = i;
+  }
+  var pois = [];
+  for (var i = 1; i < lines.length; i++) {
+    var c = lines[i].split(sep);
+    var lat = parseFloat(c[idx.lat]), lng = parseFloat(c[idx.lng]);
+    if (isNaN(lat) || isNaN(lng)) continue;
+    pois.push({ cat:(c[idx.cat]||'').trim().toLowerCase(), emoji:(c[idx.emoji]||'📍').trim(), nom:(c[idx.nom]||'').trim(), adresse:(c[idx.adresse]||'').trim(), note:parseFloat(c[idx.note])||null, lat:lat, lng:lng, avis:parseInt(c[idx.avis])||null, tel:(c[idx.tel]||'').trim(), horaires:(c[idx.horaires]||'').trim() });
+  }
+  return pois;
+}
+
+function buildMap(pois) {
+  var t = PAGE_UI[currentLang];
+  for (var i = 0; i < allLayers.length; i++) leafletMap.removeLayer(allLayers[i]);
+  allLayers = []; markerMap = {};
+
+  // Find home and store it globally for distance calculations
+  homePoi = null;
+  for (var i = 0; i < pois.length; i++) if (pois[i].cat === 'home') { homePoi = pois[i]; break; }
+
+  // Calculate distance for each POI
+  for (var i = 0; i < pois.length; i++) {
+    if (pois[i].cat !== 'home' && homePoi) {
+      pois[i]._distance = haversineDistance(homePoi.lat, homePoi.lng, pois[i].lat, pois[i].lng);
+      pois[i]._walking = walkingMinutes(pois[i]._distance);
+      pois[i]._driving = drivingMinutes(pois[i]._distance);
+    } else {
+      pois[i]._distance = 0;
+    }
+  }
+
+  for (var i = 0; i < pois.length; i++) {
+    var p = pois[i];
+    var ic = p.cat === 'home' ? makeHomeIcon() : makeIcon(p.emoji, p.cat);
+    var layer = L.marker([p.lat, p.lng], { icon: ic, zIndexOffset: p.cat === 'home' ? 1000 : 0 }).bindPopup(makePopup(p));
+    if (p.cat === 'home') {
+      layer.on('mouseover', function() { this.openPopup(); });
+    }
+    layer._cat = p.cat;
+    layer._distance = p._distance;
+    layer.addTo(leafletMap);
+    allLayers.push(layer);
+    markerMap[i] = layer;
+  }
+
+  var catOrder = [], catItems = {};
+  for (var i = 0; i < pois.length; i++) {
+    if (pois[i].cat === 'home') continue;
+    if (!catItems[pois[i].cat]) { catItems[pois[i].cat] = []; catOrder.push(pois[i].cat); }
+    catItems[pois[i].cat].push({ p: pois[i], idx: i });
+  }
+
+  // Sort items in each category by distance (default)
+  for (var cat in catItems) {
+    catItems[cat].sort(function(a, b) {
+      if (currentSort === 'distance') return a.p._distance - b.p._distance;
+      return a.p.nom.localeCompare(b.p.nom);
+    });
+  }
+
+  var sb = document.getElementById('sidebar');
+  var html = '<div class="sidebar-header">' + t.sbHeader + ' — ' + (pois.length - 1) + ' ' + t.lieux + '</div>';
+
+  // Sort and filter controls
+  html += '<div class="sb-controls">';
+  html += '<div class="sb-control-row">';
+  html += '<label>' + t.sortBy + ':</label>';
+  html += '<button class="sort-btn' + (currentSort === 'distance' ? ' active' : '') + '" data-sort="distance">📏 ' + t.sortDist + '</button>';
+  html += '<button class="sort-btn' + (currentSort === 'name' ? ' active' : '') + '" data-sort="name">🔤 ' + t.sortName + '</button>';
+  html += '</div>';
+  html += '<div class="sb-control-row">';
+  html += '<label>' + t.filter_max + ':</label>';
+  html += '<select class="filter-select" id="distFilter">';
+  html += '<option value="0"' + (maxDistanceFilter === 0 ? ' selected' : '') + '>' + t.all_distances + '</option>';
+  html += '<option value="5"' + (maxDistanceFilter === 5 ? ' selected' : '') + '>≤ 5 ' + t.min_walk + ' 🚶</option>';
+  html += '<option value="10"' + (maxDistanceFilter === 10 ? ' selected' : '') + '>≤ 10 ' + t.min_walk + ' 🚶</option>';
+  html += '<option value="15"' + (maxDistanceFilter === 15 ? ' selected' : '') + '>≤ 15 ' + t.min_walk + ' 🚶</option>';
+  html += '<option value="30"' + (maxDistanceFilter === 30 ? ' selected' : '') + '>≤ 30 ' + t.min_walk + ' 🚶</option>';
+  html += '</select>';
+  html += '</div>';
+  html += '</div>';
+
+  for (var i = 0; i < catOrder.length; i++) {
+    var cat = catOrder[i], items = catItems[cat];
+
+    // Filter by distance if active
+    var visibleItems = items;
+    if (maxDistanceFilter > 0) {
+      visibleItems = items.filter(function(it) { return it.p._walking <= maxDistanceFilter; });
+    }
+    if (visibleItems.length === 0) continue; // skip empty categories after filter
+
+    html += '<div class="cat-group"><button class="cat-btn" data-cat="' + cat + '">' + poiLegendMarker(cat) + '<span class="ch-label">' + (t.cats[cat] || cat) + '</span><span class="ch-count">' + visibleItems.length + '</span><span class="ch-arrow">▶</span></button><div class="cat-list" id="list-' + cat + '">';
+    for (var j = 0; j < visibleItems.length; j++) {
+      var it = visibleItems[j];
+      var rt = it.p.note ? '⭐' + it.p.note : '';
+      var distLabel = it.p._distance ? formatDistance(it.p._distance) + ' · 🚶' + it.p._walking + 'min' : '';
+      html += '<div class="poi-item" data-idx="' + it.idx + '"><span class="pi-dot"></span><div class="pi-info"><div class="pi-name">' + it.p.nom + '</div><div class="pi-meta">' + distLabel + (rt ? ' · ' + rt : '') + '</div></div></div>';
+    }
+    html += '</div></div>';
+  }
+  sb.innerHTML = html;
+
+  // Hook sort buttons
+  var sortBtns = sb.querySelectorAll('.sort-btn');
+  for (var i = 0; i < sortBtns.length; i++) {
+    sortBtns[i].addEventListener('click', function() {
+      currentSort = this.getAttribute('data-sort');
+      buildMap(pois);
+    });
+  }
+
+  // Hook filter dropdown
+  var filterSel = document.getElementById('distFilter');
+  if (filterSel) {
+    filterSel.addEventListener('change', function() {
+      maxDistanceFilter = parseInt(this.value);
+      buildMap(pois);
+    });
+  }
+
+  var btns = sb.querySelectorAll('.cat-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', function() { toggleCat(this, this.getAttribute('data-cat')); });
+  }
+  var pois_el = sb.querySelectorAll('.poi-item');
+  for (var i = 0; i < pois_el.length; i++) {
+    pois_el[i].addEventListener('click', function() {
+      var idx = parseInt(this.getAttribute('data-idx'));
+      var l = markerMap[idx];
+      if (l) { leafletMap.setView(l.getLatLng(), 17); l.openPopup(); }
+    });
+  }
+
+  if (allLayers.length > 1) {
+    leafletMap.fitBounds(L.featureGroup(allLayers).getBounds().pad(0.15));
+  }
+}
+
+function toggleCat(btn, cat) {
+  var list = document.getElementById('list-' + cat);
+  var open = btn.classList.contains('open');
+  var allBtns = document.querySelectorAll('.cat-btn');
+  for (var i = 0; i < allBtns.length; i++) allBtns[i].classList.remove('open', 'active');
+  var allLists = document.querySelectorAll('.cat-list');
+  for (var i = 0; i < allLists.length; i++) allLists[i].classList.remove('show');
+
+  if (!open) {
+    btn.classList.add('open', 'active');
+    list.classList.add('show');
+    for (var i = 0; i < allLayers.length; i++) {
+      if (allLayers[i]._cat === cat || allLayers[i]._cat === 'home') leafletMap.addLayer(allLayers[i]);
+      else leafletMap.removeLayer(allLayers[i]);
+    }
+  } else {
+    for (var i = 0; i < allLayers.length; i++) leafletMap.addLayer(allLayers[i]);
+  }
+}
+
+// === LOAD CSV ===
+function loadCSV(lang) {
+  var csvFile = 'jawhara_' + lang + '.csv';
+  fetch(csvFile)
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(function(text) {
+      var pois = parseCSV(text);
+      var t = PAGE_UI[currentLang];
+      // Update home title from CSV
+      for (var i = 0; i < pois.length; i++) {
+        if (pois[i].cat === 'home') {
+          document.getElementById('heroTitle').innerHTML = '<em>' + pois[i].nom + '</em>';
+          document.getElementById('heroLocation').textContent = '📍 ' + pois[i].adresse;
+          document.title = pois[i].nom + ' — Narjiss';
+          break;
+        }
+      }
+      buildMap(pois);
+    })
+    .catch(function() {
+      // fallback to fr
+      if (lang !== 'fr') {
+        fetch('jawhara_fr.csv').then(function(r){return r.text();}).then(function(t){buildMap(parseCSV(t));});
+      }
+    });
+}
+
+// === LOAD MAJOR POIs ===
+function loadMajorPOIs(lang) {
+  var csvFile = 'jawhara_major_' + lang + '.csv';
+  fetch(csvFile)
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(function(text) {
+      majorPois = parseCSV(text);
+      renderMajorPOIs();
+    })
+    .catch(function() {
+      // Fallback to French if other language fails
+      if (lang !== 'fr') {
+        fetch('jawhara_major_fr.csv')
+          .then(function(r) { return r.ok ? r.text() : null; })
+          .then(function(text) {
+            if (text) { majorPois = parseCSV(text); renderMajorPOIs(); }
+          })
+          .catch(function() {
+            console.warn('No major POIs CSV found');
+            document.getElementById('major').style.display = 'none';
+          });
+      } else {
+        document.getElementById('major').style.display = 'none';
+      }
+    });
+}
+
+function renderMajorPOIs() {
+  if (!majorPois || majorPois.length === 0 || !homePoi) return;
+  var t = PAGE_UI[currentLang];
+  var grid = document.getElementById('majorGrid');
+  grid.innerHTML = '';
+
+  // Group by category
+  var byCat = {};
+  var catOrder = [];
+  for (var i = 0; i < majorPois.length; i++) {
+    var p = majorPois[i];
+    if (p.cat === 'home') continue;
+    if (!byCat[p.cat]) { byCat[p.cat] = []; catOrder.push(p.cat); }
+    byCat[p.cat].push(p);
+  }
+
+  // For each category, find the closest one (or display all if few)
+  for (var c = 0; c < catOrder.length; c++) {
+    var cat = catOrder[c];
+    var items = byCat[cat];
+    // Sort by distance
+    for (var i = 0; i < items.length; i++) {
+      items[i]._distance = haversineDistance(homePoi.lat, homePoi.lng, items[i].lat, items[i].lng);
+      items[i]._walking = walkingMinutes(items[i]._distance);
+      items[i]._driving = drivingMinutes(items[i]._distance);
+    }
+    items.sort(function(a, b) { return a._distance - b._distance; });
+
+    // Display all items in the category
+    for (var j = 0; j < items.length; j++) {
+      var p = items[j];
+      var card = document.createElement('div');
+      card.className = 'major-card';
+      card.setAttribute('data-lat', p.lat);
+      card.setAttribute('data-lng', p.lng);
+      card.setAttribute('data-name', p.nom);
+
+      // Distance display: short for close (< 3 km), driving for far
+      var distHTML = '';
+      if (p._distance < 3000) {
+        distHTML = '<span class="dist-item">📏 ' + formatDistance(p._distance) + '</span><span class="dist-bullet">·</span><span class="dist-item">🚶 ' + p._walking + ' ' + t.walking + '</span>';
+      } else {
+        distHTML = '<span class="dist-item">📏 ' + formatDistance(p._distance) + '</span><span class="dist-bullet">·</span><span class="dist-item">🚗 ' + p._driving + ' ' + t.driving + '</span>';
+      }
+
+      card.innerHTML =
+        '<div class="major-icon">' + p.emoji + '</div>' +
+        '<div class="major-text">' +
+          '<div class="major-cat-label">' + (t.cats[p.cat] || p.cat) + '</div>' +
+          '<div class="major-name">' + p.nom + '</div>' +
+          '<div class="major-distance">' + distHTML + '</div>' +
+        '</div>';
+
+      // Click to show on map
+      card.addEventListener('click', function() {
+        var lat = parseFloat(this.getAttribute('data-lat'));
+        var lng = parseFloat(this.getAttribute('data-lng'));
+        var name = this.getAttribute('data-name');
+        if (leafletMap) {
+          // Add a temporary marker for this major POI
+          var tempMarker = L.marker([lat, lng], { icon: makeIcon('🌟', 'major') }).bindPopup('<div class="popup-card"><div class="pc-name">' + name + '</div></div>');
+          tempMarker.addTo(leafletMap);
+          // Fit bounds to include both home and this POI
+          var bounds = L.latLngBounds([[homePoi.lat, homePoi.lng], [lat, lng]]);
+          leafletMap.fitBounds(bounds.pad(0.2));
+          tempMarker.openPopup();
+          // Scroll to map
+          document.getElementById('carte').scrollIntoView({ behavior: 'smooth' });
+          // Remove the temp marker after 30 seconds
+          setTimeout(function() { leafletMap.removeLayer(tempMarker); }, 30000);
+        }
+      });
+
+      grid.appendChild(card);
+    }
+  }
+}
+
+// === LOAD DATA.JSON ===
+function loadProjectData(lang) {
+  if (projectData) {
+    renderProjectData(lang);
+    return;
+  }
+  fetch('data.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      projectData = data;
+      renderProjectData(lang);
+    })
+    .catch(function(e) { console.warn('data.json not found, using defaults'); });
+}
+
+function renderProjectData(lang) {
+  if (!projectData) return;
+  var t = PAGE_UI[lang];
+  var d = projectData.details[lang];
+
+  // Description
+  document.getElementById('descText').textContent = d.description;
+  var sg = document.getElementById('specsGrid');
+  sg.innerHTML = '';
+  for (var i = 0; i < d.specs.length; i++) {
+    var s = d.specs[i];
+    sg.innerHTML += '<div class="spec-card"><div class="spec-icon">' + s.icon + '</div><div class="spec-label">' + s.label + '</div><div class="spec-value">' + s.value + '</div></div>';
+  }
+
+  // Photos
+  var pg = document.getElementById('photosGrid');
+  pg.innerHTML = '';
+  for (var i = 0; i < projectData.photos.length; i++) {
+    var photo = projectData.photos[i];
+    var caption = photo['caption_' + lang] || photo.caption_fr;
+    pg.innerHTML += '<div class="photo-card"><img src="' + photo.src + '" alt="' + caption + '" onerror="this.style.display=\'none\';this.parentNode.innerHTML+=\'<span class=photo-fallback>🖼️</span>\'"><div class="photo-caption">' + caption + '</div></div>';
+  }
+
+  // Walks
+  var wg = document.getElementById('walksGrid');
+  wg.innerHTML = '';
+  var walks = projectData.walks[lang];
+  for (var i = 0; i < walks.length; i++) {
+    var w = walks[i];
+    var stops = '';
+    for (var j = 0; j < w.stops.length; j++) stops += '<li>' + w.stops[j] + '</li>';
+    wg.innerHTML += '<div class="walk-card"><div class="walk-header" style="background:' + w.color + '"><div class="walk-num">' + w.n + '</div><div><div class="walk-title">' + w.title + '</div><div class="walk-meta">🚶 ' + w.duration + ' · 📏 ' + w.distance + '</div></div></div><div class="walk-body"><ul class="walk-stops">' + stops + '</ul></div></div>';
+  }
+
+  // Floor plan
+  var fp = document.getElementById('floorPlan');
+  if (projectData.floor_plan) {
+    fp.innerHTML = '<img class="floor-plan-img" src="' + projectData.floor_plan + '" alt="Plan" onerror="this.parentNode.innerHTML=\'<div class=floor-plan-placeholder><div class=icon>📐</div><div>Plan au sol — ajoutez votre image dans le dossier du projet</div></div>\'">';
+  } else {
+    fp.innerHTML = '<div class="floor-plan-placeholder"><div class="icon">📐</div><div>Plan au sol à venir</div></div>';
+  }
+
+  // Testimonials
+  var tg = document.getElementById('testimonialsGrid');
+  tg.innerHTML = '';
+  var testimonials = projectData.testimonials[lang];
+  for (var i = 0; i < testimonials.length; i++) {
+    var tm = testimonials[i];
+    var stars = '';
+    for (var j = 0; j < tm.rating; j++) stars += '★';
+    var initial = tm.name.charAt(0);
+    tg.innerHTML += '<div class="testimonial"><div class="testimonial-stars">' + stars + '</div><div class="testimonial-text">"' + tm.text + '"</div><div class="testimonial-author"><div class="testimonial-avatar">' + initial + '</div><div><strong>' + tm.name + '</strong><span>' + tm.role + '</span></div></div></div>';
+  }
+
+  // Tour iframe / placeholder
+  var tc = document.getElementById('tourContainer');
+  var tourSrc = projectData.tour_external_url || projectData.tour_url;
+  if (tourSrc) {
+    tc.innerHTML = '<iframe class="tour-frame" src="' + tourSrc + '?lang=' + lang + '" allowfullscreen onerror="this.outerHTML=\'<div class=tour-placeholder><div class=play>▶</div><span>' + t.tourPlaceholder + '</span></div>\'"></iframe><div class="tour-info"><span>🎥 3DVista · 21 panoramas</span><span>🌐 ' + lang.toUpperCase() + '</span></div>';
+  } else {
+    tc.innerHTML = '<div class="tour-placeholder"><div class="play">▶</div><span>' + t.tourPlaceholder + '</span></div>';
+  }
+}
+
+// === LANGUAGE CHANGE ===
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+
+  document.getElementById('heroBtnTour').textContent = t.btnTour;
+  document.getElementById('heroBtnMap').textContent = t.btnMap;
+  document.getElementById('descTitle').textContent = t.desc;
+  document.getElementById('photosTitle').textContent = t.photos;
+  document.getElementById('tourTitle').textContent = t.tour;
+  document.getElementById('tourSub').textContent = t.tourSub;
+  document.getElementById('planTitle').textContent = t.plan;
+  document.getElementById('mapTitle').textContent = t.map;
+  document.getElementById('mapSub').textContent = t.mapSub;
+  document.getElementById('walksTitle').textContent = t.walks;
+  document.getElementById('testimonialsTitle').textContent = t.testimonials;
+  document.getElementById('ctaTitle').textContent = t.ctaTitle;
+  document.getElementById('ctaText').textContent = t.ctaText;
+  document.getElementById('ctaBrochure').textContent = t.ctaBrochure;
+  document.getElementById('ctaContact').textContent = t.ctaContact;
+
+  document.getElementById('qnDescription').textContent = t.qn.description;
+  document.getElementById('qnPhotos').textContent = t.qn.photos;
+  document.getElementById('qnTour').textContent = t.qn.tour;
+  document.getElementById('qnPlan').textContent = t.qn.plan;
+  document.getElementById('qnMajor').textContent = t.qn.major;
+  document.getElementById('qnMap').textContent = t.qn.map;
+  document.getElementById('qnWalks').textContent = t.qn.walks;
+  document.getElementById('qnReviews').textContent = t.qn.reviews;
+  document.getElementById('qnContact').textContent = t.qn.contact;
+
+  // Major landmarks section labels
+  document.getElementById('majorTitle').textContent = t.majorTitle;
+  document.getElementById('majorSub').textContent = t.majorSub;
+
+  initMap();
+  loadCSV(lang);
+  loadMajorPOIs(lang);
+  loadProjectData(lang);
+
+  // Polygon editor (admin mode)
+  checkAdminMode();
+  setTimeout(function() { loadContour(); }, 500);
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  initPage('projects', '../');
+});
+</script>
+</body>
+</html>

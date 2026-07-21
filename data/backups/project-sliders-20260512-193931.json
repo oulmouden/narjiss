@@ -1,0 +1,47 @@
+{
+  "amical": [
+    "images/slider/amical/01PAGE DE GARDE.jpg",
+    "images/slider/amical/02SITUATION.jpg",
+    "images/slider/amical/03plache amical 1.jpg"
+  ],
+  "andalusia": [
+    "images/slider/andaloussia/01 page de garde.jpg",
+    "images/slider/andaloussia/03 situation du projet.jpg",
+    "images/slider/andaloussia/04 plan masse.jpg",
+    "images/slider/andaloussia/05 plan rdc.jpg",
+    "images/slider/andaloussia/06 plan sous sol.jpg",
+    "images/slider/andaloussia/07 perspective1.jpg",
+    "images/slider/andaloussia/08 perspective.jpg",
+    "images/slider/andaloussia/09 perspective2.jpg",
+    "images/slider/andaloussia/10 perspective3.jpg",
+    "images/slider/andaloussia/11 SEVIELLE RDC.jpg",
+    "images/slider/andaloussia/12 SEVIELLE etage.jpg",
+    "images/slider/andaloussia/14 cortobA RDC.jpg",
+    "images/slider/andaloussia/15 cortoba etage.jpg",
+    "images/slider/andaloussia/17 granada rdc.jpg",
+    "images/slider/andaloussia/18 granada ETAGE.jpg",
+    "images/slider/andaloussia/20 valancia rdc.jpg",
+    "images/slider/andaloussia/21 valancia ETAGE.jpg"
+  ],
+  "bayt_mawada": [
+    "images/slider/bayt_mawada/01.jpg",
+    "images/slider/bayt_mawada/02.jpg",
+    "images/slider/bayt_mawada/03.jpg"
+  ],
+  "founty": [
+    "images/slider/founty/page de garede.jpg",
+    "images/slider/founty/plan lotissement.jpg",
+    "images/slider/founty/situation.jpg"
+  ],
+  "kb": [
+    "images/slider/R+4 K&B/1.jpg",
+    "images/slider/R+4 K&B/11.jpg",
+    "images/slider/R+4 K&B/2.jpg",
+    "images/slider/R+4 K&B/3.jpg",
+    "images/slider/R+4 K&B/4.jpg",
+    "images/slider/R+4 K&B/5.jpg",
+    "images/slider/R+4 K&B/6.jpg",
+    "images/slider/R+4 K&B/7.jpg",
+    "images/slider/R+4 K&B/9.jpg"
+  ]
+}

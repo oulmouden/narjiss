@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Contact</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+.page-hero { padding: 4rem 1.5rem 3rem; background: linear-gradient(160deg, var(--ocean-deep), var(--ocean), var(--sun)); color: white; text-align: center; }
+.page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: .5rem; }
+html[dir=rtl] .page-hero h1 { font-family: 'Noto Sans Arabic', serif; }
+.page-hero h1 em,
+.brand-word {
+  color: var(--sun-light);
+  font-family: 'Outfit', 'Montserrat', 'Arial', sans-serif;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+.page-hero p { color: rgba(255,255,255,.8); max-width: 600px; margin: 0 auto; }
+
+.contact-section { max-width: 1100px; margin: 0 auto; padding: 4rem 1.5rem; display: grid; grid-template-columns: 1fr 1.3fr; gap: 3rem; }
+@media (max-width: 768px) { .contact-section { grid-template-columns: 1fr; gap: 2rem; } }
+
+.contact-info h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--charcoal); margin-bottom: 1rem; }
+html[dir=rtl] .contact-info h2 { font-family: 'Noto Sans Arabic', serif; }
+.contact-info p { color: var(--muted); margin-bottom: 2rem; line-height: 1.8; }
+
+.contact-method { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+.contact-method:last-child { border-bottom: none; }
+.contact-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--sand); border: 1px solid var(--border-medium); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.contact-text strong { display: block; color: var(--charcoal); font-size: .85rem; margin-bottom: .15rem; }
+.contact-text a, .contact-text span { color: var(--muted); font-size: .85rem; text-decoration: none; }
+.contact-text a:hover { color: var(--ocean); }
+.contact-link-list { display: grid; gap: .2rem; }
+.contact-phone-row { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.social-buttons { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .1rem; }
+.social-buttons a { display: inline-flex; align-items: center; min-height: 32px; padding: .35rem .7rem; border-radius: 7px; background: white; border: 1px solid rgba(0,174,239,.2); font-weight: 700; }
+.whatsapp-actions { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .25rem; }
+.whatsapp-actions a { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; color: white; font-weight: 900; }
+.whatsapp-actions .whatsapp-call { background: #25d366; }
+.whatsapp-actions .whatsapp-write { background: #1d8cff; }
+.whatsapp-actions .whatsapp-call:hover { background: #1fb45a; color: white; }
+.whatsapp-actions .whatsapp-write:hover { background: #0f72d8; color: white; }
+
+.contact-form { background: var(--sand); padding: 2rem; border-radius: var(--radius); }
+.contact-form h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--charcoal); margin-bottom: 1.5rem; }
+html[dir=rtl] .contact-form h2 { font-family: 'Noto Sans Arabic', serif; }
+
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-size: .78rem; color: var(--charcoal); font-weight: 600; margin-bottom: .4rem; letter-spacing: .01em; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: .7rem .9rem;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .9rem;
+  background: white;
+  color: var(--text);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.form-group input::placeholder, .form-group textarea::placeholder { color: var(--muted); }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--ocean);
+  box-shadow: var(--focus-ring);
+}
+.form-group textarea { min-height: 120px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+.btn-submit {
+  display: flex;
+  margin: 0 auto;
+  min-width: 200px;
+  background: var(--ocean);
+  color: white;
+  padding: .85rem 2rem;
+  border: none;
+  border-radius: 30px;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duration-fast), transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast);
+  font-family: inherit;
+  justify-content: center;
+}
+@media (hover: hover) {
+  .btn-submit:hover {
+    background: var(--ocean-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,174,239,.28);
+  }
+}
+
+.form-success { display: none; padding: 1rem; background: #4CAF84; color: white; border-radius: 8px; text-align: center; font-size: .9rem; margin-bottom: 1rem; }
+.form-success.show { display: block; }
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+<main>
+  <section class="page-hero">
+    <h1 id="pageTitle"></h1>
+    <p id="pageSubtitle"></p>
+  </section>
+  <section class="contact-section">
+    <div class="contact-info">
+      <h2 id="infoTitle"></h2>
+      <p id="infoText"></p>
+
+      <div class="contact-method">
+        <div class="contact-icon">📞</div>
+        <div class="contact-text">
+          <strong id="phoneLabel"></strong>
+          <div class="contact-link-list" id="phoneLinks"><a href="tel:+212600000000">+212 6 00 00 00 00</a></div>
+        </div>
+      </div>
+
+      <div class="contact-method">
+        <div class="contact-icon">✉️</div>
+        <div class="contact-text">
+          <strong id="emailLabel"></strong>
+          <a id="emailLink" href="mailto:contact@narjiss.company">contact@narjiss.company</a>
+        </div>
+      </div>
+
+      <div class="contact-method">
+        <div class="contact-icon">💬</div>
+        <div class="contact-text">
+          <strong id="whatsappLabel"></strong>
+          <div class="contact-link-list" id="whatsappLinks"><a href="https://wa.me/212600000000" target="_blank" rel="noopener">+212 6 00 00 00 00</a></div>
+        </div>
+      </div>
+
+      <div class="contact-method">
+        <div class="contact-icon">📍</div>
+        <div class="contact-text">
+          <strong id="addressLabel"></strong>
+          <span id="addressText">Casablanca, Maroc</span>
+        </div>
+      </div>
+
+      <div class="contact-method">
+        <div class="contact-icon">↗</div>
+        <div class="contact-text">
+          <strong id="socialLabel"></strong>
+          <div class="social-buttons" id="socialLinks"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form">
+      <h2 id="formTitle"></h2>
+      <div class="form-success" id="formSuccess"></div>
+      <form id="contactForm" onsubmit="return submitForm(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label id="lblName" for="name"></label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label id="lblPhone" for="phone"></label>
+            <input type="tel" id="phone" name="phone">
+          </div>
+        </div>
+        <div class="form-group">
+          <label id="lblEmail" for="email"></label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label id="lblProject" for="project"></label>
+          <select id="project" name="project">
+            <option value="">—</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="lblMessage" for="message"></label>
+          <textarea id="message" name="message" required></textarea>
+        </div>
+        <button type="submit" class="btn-submit" id="btnSubmit"></button>
+      </form>
+    </div>
+  </section>
+</main>
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: {
+    title: 'Contactez <em class="brand-word">NARJISS</em>',
+    subtitle: "Nous sommes à votre écoute pour tout projet immobilier",
+    infoTitle: "Restons en contact",
+    infoText: "Que vous soyez à la recherche d'un appartement, d'une villa ou d'un investissement, notre équipe est disponible pour vous accompagner dans votre projet.",
+    phoneLabel: "Téléphone",
+    emailLabel: "Email",
+    whatsappLabel: "WhatsApp",
+    addressLabel: "Adresse",
+    socialLabel: "Réseaux sociaux",
+    formTitle: "Envoyez-nous un message",
+    lblName: "Votre nom *",
+    lblPhone: "Téléphone",
+    lblEmail: "Email *",
+    lblProject: "Projet d'intérêt",
+    lblMessage: "Votre message *",
+    btnSubmit: "Envoyer le message",
+    success: "✓ Merci ! Votre message a bien été envoyé. Nous vous répondrons sous 24h."
+  },
+  en: {
+    title: 'Contact <em class="brand-word">NARJISS</em>',
+    subtitle: "We're here for all your real estate projects",
+    infoTitle: "Get in touch",
+    infoText: "Whether you're looking for an apartment, a villa or an investment, our team is available to support you in your project.",
+    phoneLabel: "Phone",
+    emailLabel: "Email",
+    whatsappLabel: "WhatsApp",
+    addressLabel: "Address",
+    socialLabel: "Social media",
+    formTitle: "Send us a message",
+    lblName: "Your name *",
+    lblPhone: "Phone",
+    lblEmail: "Email *",
+    lblProject: "Project of interest",
+    lblMessage: "Your message *",
+    btnSubmit: "Send message",
+    success: "✓ Thank you! Your message has been sent. We'll reply within 24h."
+  },
+  ar: {
+    title: 'اتصل بـ <em>نرجس</em>',
+    subtitle: "نحن هنا لمشروعك العقاري",
+    infoTitle: "ابق على تواصل",
+    infoText: "سواء كنت تبحث عن شقة أو فيلا أو استثمار، فريقنا متاح لمرافقتك في مشروعك.",
+    phoneLabel: "الهاتف",
+    emailLabel: "البريد الإلكتروني",
+    whatsappLabel: "واتساب",
+    addressLabel: "العنوان",
+    socialLabel: "الشبكات الاجتماعية",
+    formTitle: "أرسل لنا رسالة",
+    lblName: "اسمك *",
+    lblPhone: "الهاتف",
+    lblEmail: "البريد الإلكتروني *",
+    lblProject: "المشروع المهتم به",
+    lblMessage: "رسالتك *",
+    btnSubmit: "إرسال الرسالة",
+    success: "✓ شكرا! تم إرسال رسالتك. سنرد خلال 24 ساعة."
+  },
+  es: {
+    title: 'Contacta <em class="brand-word">NARJISS</em>',
+    subtitle: "Estamos aquí para todos tus proyectos inmobiliarios",
+    infoTitle: "Manténgase en contacto",
+    infoText: "Ya sea que busque un apartamento, una villa o una inversión, nuestro equipo está disponible para acompañarlo en su proyecto.",
+    phoneLabel: "Teléfono",
+    emailLabel: "Correo",
+    whatsappLabel: "WhatsApp",
+    addressLabel: "Dirección",
+    socialLabel: "Redes sociales",
+    formTitle: "Envíanos un mensaje",
+    lblName: "Tu nombre *",
+    lblPhone: "Teléfono",
+    lblEmail: "Correo *",
+    lblProject: "Proyecto de interés",
+    lblMessage: "Tu mensaje *",
+    btnSubmit: "Enviar mensaje",
+    success: "✓ ¡Gracias! Tu mensaje ha sido enviado. Te responderemos en 24h."
+  }
+};
+
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById('pageTitle').innerHTML = t.title;
+  document.getElementById('pageSubtitle').textContent = t.subtitle;
+  document.getElementById('infoTitle').textContent = t.infoTitle;
+  document.getElementById('infoText').textContent = t.infoText;
+  document.getElementById('phoneLabel').textContent = t.phoneLabel;
+  document.getElementById('emailLabel').textContent = t.emailLabel;
+  document.getElementById('whatsappLabel').textContent = t.whatsappLabel;
+  document.getElementById('addressLabel').textContent = t.addressLabel;
+  document.getElementById('socialLabel').textContent = t.socialLabel;
+  document.getElementById('formTitle').textContent = t.formTitle;
+  document.getElementById('lblName').textContent = t.lblName;
+  document.getElementById('lblPhone').textContent = t.lblPhone;
+  document.getElementById('lblEmail').textContent = t.lblEmail;
+  document.getElementById('lblProject').textContent = t.lblProject;
+  document.getElementById('lblMessage').textContent = t.lblMessage;
+  document.getElementById('btnSubmit').textContent = t.btnSubmit;
+  document.getElementById('formSuccess').textContent = t.success;
+
+  // Project dropdown
+  var sel = document.getElementById('project');
+  sel.innerHTML = '<option value="">—</option>';
+  for (var i = 0; i < PROJECTS.length; i++) {
+    var p = PROJECTS[i];
+    sel.innerHTML += '<option value="' + p.id + '">' + p.name[lang] + '</option>';
+  }
+  if (window.siteContacts) {
+    renderContactData(window.siteContacts, lang);
+  }
+};
+
+function renderContactData(contacts, lang) {
+  if (!contacts) return;
+  var phones = contacts.phones || [];
+  var phoneLinks = document.getElementById('phoneLinks');
+  var whatsappLinks = document.getElementById('whatsappLinks');
+  if (phoneLinks) {
+    phoneLinks.innerHTML = '';
+    for (var i = 0; i < phones.length; i++) {
+      phoneLinks.innerHTML += '<div class="contact-phone-row"><a class="phone-number" href="' + contactPhoneHref(phones[i].number) + '">' + escapeHtml(phones[i].number) + (phones[i].label ? ' · ' + escapeHtml(phones[i].label) : '') + '</a>';
+      if (phones[i].whatsapp) {
+        phoneLinks.innerHTML += '<div class="whatsapp-actions"><a class="whatsapp-call" href="' + contactWhatsappCallHref(phones[i].number) + '" target="_blank" rel="noopener" title="Appeler par WhatsApp" aria-label="Appeler par WhatsApp">' + whatsappIconSvg() + '</a><a class="whatsapp-write whatsapp-message-action" data-whatsapp-number="' + escapeHtml(phones[i].number) + '" href="' + contactWhatsappMessageHref(phones[i].number, lang) + '" target="_blank" rel="noopener" title="Ecrire par WhatsApp" aria-label="Ecrire par WhatsApp">✎</a></div>';
+      }
+      phoneLinks.innerHTML += '</div>';
+    }
+    bindWhatsappMessageActions(lang);
+  }
+  if (whatsappLinks) {
+    whatsappLinks.innerHTML = '';
+    for (var w = 0; w < phones.length; w++) {
+      if (!phones[w].whatsapp) continue;
+      whatsappLinks.innerHTML += '<a class="phone-number" href="' + contactWhatsappHref(phones[w].number) + '" target="_blank" rel="noopener">' + escapeHtml(phones[w].number) + (phones[w].label ? ' · ' + escapeHtml(phones[w].label) : '') + '</a>';
+    }
+  }
+  var emailLink = document.getElementById('emailLink');
+  if (emailLink && contacts.email) {
+    emailLink.href = 'mailto:' + contacts.email;
+    emailLink.textContent = contacts.email;
+  }
+  var addressText = document.getElementById('addressText');
+  if (addressText && contacts.address) {
+    addressText.textContent = menuText(contacts.address, lang);
+  }
+  var socialLinks = document.getElementById('socialLinks');
+  if (socialLinks) {
+    socialLinks.innerHTML = renderSocialLinks(contacts);
+  }
+}
+
+window.onContactDataChange = renderContactData;
+
+function contactWhatsappFormValues() {
+  var projectSelect = document.getElementById('project');
+  var projectText = projectSelect && projectSelect.selectedIndex > 0 ? projectSelect.options[projectSelect.selectedIndex].text : '';
+  var messageText = document.getElementById('message') ? document.getElementById('message').value.trim() : '';
+  return {
+    name: document.getElementById('name') ? document.getElementById('name').value.trim() : '',
+    phone: document.getElementById('phone') ? document.getElementById('phone').value.trim() : '',
+    project: projectText,
+    message: messageText,
+    subject: messageText || projectText
+  };
+}
+
+function bindWhatsappMessageActions(lang) {
+  var links = document.querySelectorAll('.whatsapp-message-action');
+  for (var i = 0; i < links.length; i++) {
+    links[i].onclick = function() {
+      this.href = contactWhatsappMessageHref(this.getAttribute('data-whatsapp-number'), lang || currentLang, contactWhatsappFormValues());
+    };
+  }
+}
+
+function submitForm(e) {
+  e.preventDefault();
+  // Pour l'instant, simule un envoi.
+  // Pour activer un vrai envoi : utilisez Formspree, EmailJS, ou un endpoint serveur
+  document.getElementById('formSuccess').classList.add('show');
+  document.getElementById('contactForm').reset();
+  setTimeout(function() {
+    document.getElementById('formSuccess').classList.remove('show');
+  }, 5000);
+  return false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initPage('contact', '');
+});
+</script>
+</body>
+</html>

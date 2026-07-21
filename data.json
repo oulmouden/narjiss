@@ -1,0 +1,95 @@
+{
+  "id": "andaloussia",
+  "tour_url": "jawhara/Tour/index.htm",
+  "tour_external_url": "",
+  "brochure_pdf": "brochure.pdf",
+  "floor_plan": "plan-au-sol.png",
+  "photos": [
+    { "src": "photos/01-salon.jpg", "caption_fr": "Salon principal", "caption_en": "Main living room", "caption_ar": "الصالون الرئيسي", "caption_es": "Salón principal" },
+    { "src": "photos/02-cuisine.jpg", "caption_fr": "Cuisine équipée", "caption_en": "Equipped kitchen", "caption_ar": "مطبخ مجهز", "caption_es": "Cocina equipada" },
+    { "src": "photos/03-chambre.jpg", "caption_fr": "Chambre principale", "caption_en": "Master bedroom", "caption_ar": "غرفة النوم الرئيسية", "caption_es": "Habitación principal" },
+    { "src": "photos/04-sdb.jpg", "caption_fr": "Salle de bain", "caption_en": "Bathroom", "caption_ar": "الحمام", "caption_es": "Baño" }
+  ],
+  "details": {
+    "fr": {
+      "description": "Magnifique appartement situé au cœur du quartier résidentiel d'Al Jawhara à Dcheira El Jihadia, près d'Agadir. Cet espace lumineux et spacieux offre un cadre de vie idéal entre tranquillité et proximité avec tous les commerces et services.",
+      "specs": [
+        { "icon": "🛏️", "label": "Chambres", "value": "3" },
+        { "icon": "🚿", "label": "Salles de bain", "value": "2" },
+        { "icon": "📐", "label": "Surface", "value": "120 m²" },
+        { "icon": "🏢", "label": "Étage", "value": "3ème" },
+        { "icon": "🚗", "label": "Parking", "value": "Inclus" },
+        { "icon": "💰", "label": "Prix", "value": "850 000 MAD" }
+      ]
+    },
+    "en": {
+      "description": "Magnificent apartment located in the heart of the residential Al Jawhara district in Dcheira El Jihadia, near Agadir. This bright and spacious space offers an ideal living environment between tranquility and proximity to all shops and services.",
+      "specs": [
+        { "icon": "🛏️", "label": "Bedrooms", "value": "3" },
+        { "icon": "🚿", "label": "Bathrooms", "value": "2" },
+        { "icon": "📐", "label": "Surface", "value": "120 m²" },
+        { "icon": "🏢", "label": "Floor", "value": "3rd" },
+        { "icon": "🚗", "label": "Parking", "value": "Included" },
+        { "icon": "💰", "label": "Price", "value": "850,000 MAD" }
+      ]
+    },
+    "ar": {
+      "description": "شقة رائعة تقع في قلب الحي السكني الجوهرة بالدشيرة الجهادية، بالقرب من أكادير. توفر هذه المساحة المضيئة والواسعة بيئة معيشية مثالية بين الهدوء والقرب من جميع المحلات والخدمات.",
+      "specs": [
+        { "icon": "🛏️", "label": "غرف النوم", "value": "3" },
+        { "icon": "🚿", "label": "الحمامات", "value": "2" },
+        { "icon": "📐", "label": "المساحة", "value": "120 م²" },
+        { "icon": "🏢", "label": "الطابق", "value": "الثالث" },
+        { "icon": "🚗", "label": "موقف السيارات", "value": "مشمول" },
+        { "icon": "💰", "label": "السعر", "value": "850 000 درهم" }
+      ]
+    },
+    "es": {
+      "description": "Magnífico apartamento ubicado en el corazón del barrio residencial Al Jawhara en Dcheira El Jihadia, cerca de Agadir. Este espacio luminoso y amplio ofrece un entorno de vida ideal entre tranquilidad y proximidad a todos los comercios y servicios.",
+      "specs": [
+        { "icon": "🛏️", "label": "Habitaciones", "value": "3" },
+        { "icon": "🚿", "label": "Baños", "value": "2" },
+        { "icon": "📐", "label": "Superficie", "value": "120 m²" },
+        { "icon": "🏢", "label": "Planta", "value": "3ª" },
+        { "icon": "🚗", "label": "Aparcamiento", "value": "Incluido" },
+        { "icon": "💰", "label": "Precio", "value": "850.000 MAD" }
+      ]
+    }
+  },
+  "walks": {
+    "fr": [
+      { "n": 1, "title": "Vers le centre commercial", "duration": "10 min", "distance": "800 m", "color": "#1B6B93", "stops": ["Résidence Al Jawhara", "Av. Bir Anzarane", "Pharmacie Dcheira", "Carrefour Market"] },
+      { "n": 2, "title": "Promenade matinale", "duration": "15 min", "distance": "1.2 km", "color": "#E8A838", "stops": ["Résidence", "Boulangerie Doha", "Mosquée Al Mohsinines", "Café Agora", "Retour"] }
+    ],
+    "en": [
+      { "n": 1, "title": "To the shopping center", "duration": "10 min", "distance": "800 m", "color": "#1B6B93", "stops": ["Al Jawhara Residence", "Bir Anzarane Ave.", "Dcheira Pharmacy", "Carrefour Market"] },
+      { "n": 2, "title": "Morning walk", "duration": "15 min", "distance": "1.2 km", "color": "#E8A838", "stops": ["Residence", "Doha Bakery", "Al Mohsinines Mosque", "Café Agora", "Return"] }
+    ],
+    "ar": [
+      { "n": 1, "title": "نحو المركز التجاري", "duration": "10 دقائق", "distance": "800 م", "color": "#1B6B93", "stops": ["إقامة الجوهرة", "شارع بئر أنزران", "صيدلية الدشيرة", "كارفور ماركت"] },
+      { "n": 2, "title": "نزهة صباحية", "duration": "15 دقيقة", "distance": "1.2 كم", "color": "#E8A838", "stops": ["الإقامة", "مخبزة الضحى", "مسجد المحسنين", "مقهى أغورا", "العودة"] }
+    ],
+    "es": [
+      { "n": 1, "title": "Al centro comercial", "duration": "10 min", "distance": "800 m", "color": "#1B6B93", "stops": ["Residencia Al Jawhara", "Av. Bir Anzarane", "Farmacia Dcheira", "Carrefour Market"] },
+      { "n": 2, "title": "Paseo matinal", "duration": "15 min", "distance": "1.2 km", "color": "#E8A838", "stops": ["Residencia", "Panadería Doha", "Mezquita Al Mohsinines", "Café Agora", "Regreso"] }
+    ]
+  },
+  "testimonials": {
+    "fr": [
+      { "name": "Fatima B.", "role": "Propriétaire", "rating": 5, "text": "Une expérience exceptionnelle ! L'équipe Narjiss m'a accompagnée tout au long du processus. La visite virtuelle m'a permis de me décider rapidement." },
+      { "name": "Hassan M.", "role": "Investisseur", "rating": 5, "text": "Service professionnel et transparent. La carte interactive avec tous les commerces m'a beaucoup aidé pour prendre ma décision." }
+    ],
+    "en": [
+      { "name": "Fatima B.", "role": "Owner", "rating": 5, "text": "An exceptional experience! The Narjiss team supported me throughout the process. The virtual tour allowed me to decide quickly." },
+      { "name": "Hassan M.", "role": "Investor", "rating": 5, "text": "Professional and transparent service. The interactive map with all the shops helped me a lot in making my decision." }
+    ],
+    "ar": [
+      { "name": "فاطمة ب.", "role": "مالكة", "rating": 5, "text": "تجربة استثنائية! رافقني فريق نرجس طوال العملية. سمحت لي الجولة الافتراضية باتخاذ القرار بسرعة." },
+      { "name": "حسن م.", "role": "مستثمر", "rating": 5, "text": "خدمة احترافية وشفافة. ساعدتني الخريطة التفاعلية مع جميع المحلات كثيرا في اتخاذ قراري." }
+    ],
+    "es": [
+      { "name": "Fatima B.", "role": "Propietaria", "rating": 5, "text": "¡Una experiencia excepcional! El equipo Narjiss me acompañó durante todo el proceso. La visita virtual me permitió decidirme rápidamente." },
+      { "name": "Hassan M.", "role": "Inversor", "rating": 5, "text": "Servicio profesional y transparente. El mapa interactivo con todas las tiendas me ayudó mucho a tomar mi decisión." }
+    ]
+  }
+}

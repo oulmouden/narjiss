@@ -1,0 +1,34 @@
+{
+  "_comment": "Polygone de contour de la résidence. Modifiable en mode admin (URL?admin=1).",
+  "_format": "GeoJSON-like : tableau de [lat, lng]. Le polygone se ferme automatiquement.",
+  "type": "Polygon",
+  "color": "#1B6B93",
+  "fillOpacity": 0.15,
+  "weight": 3,
+  "coordinates": [
+    [
+      30.373407,
+      -9.53738
+    ],
+    [
+      30.373241,
+      -9.536267
+    ],
+    [
+      30.373042,
+      -9.536342
+    ],
+    [
+      30.37306,
+      -9.536715
+    ],
+    [
+      30.373086,
+      -9.537098
+    ],
+    [
+      30.37309,
+      -9.537391
+    ]
+  ]
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss - Mentions légales</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+.legal-hero {
+  padding: 4rem 1.5rem 3rem;
+  background: var(--sand);
+  text-align: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.legal-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--charcoal);
+  font-weight: 700;
+}
+.legal-hero p { color: var(--muted); max-width: 680px; margin: .7rem auto 0; }
+.legal-content {
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+}
+.legal-content h2 {
+  color: var(--charcoal);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 2.2rem 0 .75rem;
+  border-left: 3px solid var(--ocean);
+  padding-left: 1rem;
+}
+html[dir=rtl] .legal-content h2 {
+  border-left: none;
+  border-right: 3px solid var(--ocean);
+  padding-left: 0;
+  padding-right: 1rem;
+}
+.legal-content h2:first-child { margin-top: 0; }
+.legal-content p, .legal-content li { color: var(--text); line-height: 1.9; margin-bottom: .75rem; }
+.legal-content ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+html[dir=rtl] .legal-content ul { padding-left: 0; padding-right: 1.2rem; }
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+<main>
+  <section class="legal-hero">
+    <h1 id="pageTitle"></h1>
+    <p id="pageSubtitle"></p>
+  </section>
+  <section class="legal-content" id="legalContent"></section>
+</main>
+<div id="mainFooter"></div>
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: {
+    title: "Mentions légales",
+    subtitle: "Informations générales relatives au site Narjiss.",
+    sections: [
+      { h: "Éditeur du site", p: "Le site Narjiss est édité par Narjiss Immobilière. Les informations de contact affichées sur le site sont centralisées dans le fichier de contact du site." },
+      { h: "Objet du site", p: "Le site présente des projets immobiliers, des informations de quartier, des cartes interactives, des supports visuels et des moyens de contact. Les contenus sont fournis à titre informatif et peuvent être modifiés sans préavis." },
+      { h: "Propriété intellectuelle", p: "Les textes, visuels, logos, interfaces, cartes de présentation et éléments graphiques présents sur le site sont protégés. Toute reproduction ou réutilisation non autorisée est interdite." },
+      { h: "Responsabilité", p: "Narjiss s'efforce de maintenir des informations exactes et à jour. Toutefois, les prix, disponibilités, distances, points d'intérêt et descriptions doivent être confirmés auprès de l'équipe commerciale avant toute décision." },
+      { h: "Hébergement", p: "Le site est hébergé chez Hostinger. Les conditions d'hébergement et de disponibilité relèvent des services fournis par l'hébergeur." }
+    ]
+  },
+  en: {
+    title: "Legal notice",
+    subtitle: "General information about the Narjiss website.",
+    sections: [
+      { h: "Website publisher", p: "The Narjiss website is published by Narjiss Immobilière. Contact information displayed on the site is centralized in the site's contact file." },
+      { h: "Purpose of the website", p: "The website presents real estate projects, neighborhood information, interactive maps, visual assets and contact options. Content is provided for information only and may be changed without notice." },
+      { h: "Intellectual property", p: "Texts, visuals, logos, interfaces, presentation maps and graphic elements on the site are protected. Unauthorized reproduction or reuse is prohibited." },
+      { h: "Liability", p: "Narjiss makes every effort to keep information accurate and up to date. However, prices, availability, distances, points of interest and descriptions must be confirmed with the sales team before any decision." },
+      { h: "Hosting", p: "The website is hosted by Hostinger. Hosting conditions and availability are governed by the services provided by the host." }
+    ]
+  },
+  ar: {
+    title: "إشعار قانوني",
+    subtitle: "معلومات عامة حول موقع نرجس.",
+    sections: [
+      { h: "ناشر الموقع", p: "يتم نشر موقع نرجس من طرف نرجس العقارية. معلومات الاتصال المعروضة في الموقع مركزية في ملف الاتصال الخاص بالموقع." },
+      { h: "هدف الموقع", p: "يعرض الموقع مشاريع عقارية ومعلومات عن الأحياء وخرائط تفاعلية ووسائط بصرية ووسائل الاتصال. تقدم المحتويات لأغراض معلوماتية ويمكن تعديلها دون إشعار مسبق." },
+      { h: "الملكية الفكرية", p: "النصوص والصور والشعارات والواجهات والخرائط والعناصر الرسومية الموجودة في الموقع محمية. يمنع أي نسخ أو إعادة استعمال غير مرخص." },
+      { h: "المسؤولية", p: "تسعى نرجس إلى توفير معلومات دقيقة ومحدثة. ومع ذلك يجب تأكيد الأسعار والتوفر والمسافات ونقاط الاهتمام والأوصاف مع الفريق التجاري قبل اتخاذ أي قرار." },
+      { h: "الاستضافة", p: "الموقع مستضاف لدى Hostinger. تخضع شروط الاستضافة والتوفر للخدمات التي يقدمها المستضيف." }
+    ]
+  },
+  es: {
+    title: "Aviso legal",
+    subtitle: "Información general sobre el sitio Narjiss.",
+    sections: [
+      { h: "Editor del sitio", p: "El sitio Narjiss es publicado por Narjiss Immobilière. La información de contacto mostrada en el sitio está centralizada en el archivo de contacto del sitio." },
+      { h: "Objeto del sitio", p: "El sitio presenta proyectos inmobiliarios, información de barrio, mapas interactivos, recursos visuales y medios de contacto. El contenido se ofrece con fines informativos y puede modificarse sin previo aviso." },
+      { h: "Propiedad intelectual", p: "Los textos, imágenes, logotipos, interfaces, mapas de presentación y elementos gráficos del sitio están protegidos. Queda prohibida cualquier reproducción o reutilización no autorizada." },
+      { h: "Responsabilidad", p: "Narjiss se esfuerza por mantener información exacta y actualizada. Sin embargo, precios, disponibilidad, distancias, puntos de interés y descripciones deben confirmarse con el equipo comercial antes de cualquier decisión." },
+      { h: "Alojamiento", p: "El sitio está alojado en Hostinger. Las condiciones de alojamiento y disponibilidad dependen de los servicios proporcionados por el proveedor." }
+    ]
+  }
+};
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById("pageTitle").textContent = t.title;
+  document.getElementById("pageSubtitle").textContent = t.subtitle;
+  document.getElementById("legalContent").innerHTML = t.sections.map(function(s) {
+    return "<h2>" + s.h + "</h2><p>" + s.p + "</p>";
+  }).join("");
+};
+document.addEventListener("DOMContentLoaded", function() { initPage("", ""); });
+</script>
+</body>
+</html>

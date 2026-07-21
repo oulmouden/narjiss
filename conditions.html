@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss - Conditions</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+.legal-hero {
+  padding: 4rem 1.5rem 3rem;
+  background: var(--sand);
+  text-align: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.legal-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--charcoal);
+  font-weight: 700;
+}
+.legal-hero p { color: var(--muted); max-width: 680px; margin: .7rem auto 0; }
+.legal-content {
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+}
+.legal-content h2 {
+  color: var(--charcoal);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 2.2rem 0 .75rem;
+  border-left: 3px solid var(--ocean);
+  padding-left: 1rem;
+}
+html[dir=rtl] .legal-content h2 {
+  border-left: none;
+  border-right: 3px solid var(--ocean);
+  padding-left: 0;
+  padding-right: 1rem;
+}
+.legal-content h2:first-child { margin-top: 0; }
+.legal-content p, .legal-content li { color: var(--text); line-height: 1.9; margin-bottom: .75rem; }
+.legal-content ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+html[dir=rtl] .legal-content ul { padding-left: 0; padding-right: 1.2rem; }
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+<main>
+  <section class="legal-hero"><h1 id="pageTitle"></h1><p id="pageSubtitle"></p></section>
+  <section class="legal-content" id="legalContent"></section>
+</main>
+<div id="mainFooter"></div>
+<script src="shared/menu.js"></script>
+<script>
+var PAGE_UI = {
+  fr: {
+    title: "Conditions d'utilisation",
+    subtitle: "Règles générales d'utilisation du site Narjiss.",
+    sections: [
+      { h: "Acceptation", p: "En consultant le site Narjiss, vous acceptez les présentes conditions d'utilisation. Si vous ne les acceptez pas, vous pouvez cesser d'utiliser le site." },
+      { h: "Informations immobilières", p: "Les informations relatives aux projets, biens, localisations, points d'intérêt, temps de trajet, plans et visuels sont fournies à titre indicatif. Elles ne constituent pas une offre contractuelle." },
+      { h: "Disponibilité et prix", p: "Les disponibilités, prix, surfaces, caractéristiques et conditions commerciales peuvent évoluer. Ils doivent être confirmés directement avec Narjiss avant tout engagement." },
+      { h: "Utilisation du site", p: "Vous vous engagez à utiliser le site de manière normale, sans tenter de perturber son fonctionnement, copier massivement ses contenus ou porter atteinte aux droits de Narjiss." },
+      { h: "Modification des conditions", p: "Narjiss peut modifier ces conditions à tout moment afin de les adapter à l'évolution du site ou de ses services." }
+    ]
+  },
+  en: {
+    title: "Terms of use",
+    subtitle: "General rules for using the Narjiss website.",
+    sections: [
+      { h: "Acceptance", p: "By browsing the Narjiss website, you accept these terms of use. If you do not accept them, you may stop using the site." },
+      { h: "Real estate information", p: "Information about projects, properties, locations, points of interest, travel times, plans and visuals is provided for guidance only. It does not constitute a contractual offer." },
+      { h: "Availability and prices", p: "Availability, prices, areas, features and commercial conditions may change. They must be confirmed directly with Narjiss before any commitment." },
+      { h: "Website use", p: "You agree to use the site normally, without attempting to disrupt its operation, massively copy its content or infringe Narjiss rights." },
+      { h: "Changes to terms", p: "Narjiss may modify these terms at any time to adapt them to changes in the site or services." }
+    ]
+  },
+  ar: {
+    title: "شروط الاستخدام",
+    subtitle: "القواعد العامة لاستعمال موقع نرجس.",
+    sections: [
+      { h: "القبول", p: "باستخدام موقع نرجس فإنك تقبل شروط الاستخدام هذه. إذا لم تقبلها يمكنك التوقف عن استعمال الموقع." },
+      { h: "المعلومات العقارية", p: "المعلومات المتعلقة بالمشاريع والعقارات والمواقع ونقاط الاهتمام وأوقات التنقل والمخططات والصور تقدم للإرشاد فقط ولا تشكل عرضا تعاقديا." },
+      { h: "التوفر والأسعار", p: "يمكن أن تتغير التوفرات والأسعار والمساحات والخصائص والشروط التجارية. يجب تأكيدها مباشرة مع نرجس قبل أي التزام." },
+      { h: "استعمال الموقع", p: "تلتزم باستعمال الموقع بشكل عادي دون محاولة تعطيل عمله أو نسخ محتوياته بكثافة أو المساس بحقوق نرجس." },
+      { h: "تعديل الشروط", p: "يمكن لنرجس تعديل هذه الشروط في أي وقت لتكييفها مع تطور الموقع أو خدماته." }
+    ]
+  },
+  es: {
+    title: "Condiciones de uso",
+    subtitle: "Reglas generales de uso del sitio Narjiss.",
+    sections: [
+      { h: "Aceptación", p: "Al consultar el sitio Narjiss, aceptas estas condiciones de uso. Si no las aceptas, puedes dejar de utilizar el sitio." },
+      { h: "Información inmobiliaria", p: "La información sobre proyectos, bienes, ubicaciones, puntos de interés, tiempos de trayecto, planos e imágenes se ofrece solo a título orientativo. No constituye una oferta contractual." },
+      { h: "Disponibilidad y precios", p: "La disponibilidad, precios, superficies, características y condiciones comerciales pueden cambiar. Deben confirmarse directamente con Narjiss antes de cualquier compromiso." },
+      { h: "Uso del sitio", p: "Te comprometes a usar el sitio normalmente, sin intentar perturbar su funcionamiento, copiar masivamente sus contenidos o vulnerar los derechos de Narjiss." },
+      { h: "Modificación de condiciones", p: "Narjiss puede modificar estas condiciones en cualquier momento para adaptarlas a la evolución del sitio o de sus servicios." }
+    ]
+  }
+};
+window.onLanguageChange = function(lang) {
+  var t = PAGE_UI[lang];
+  document.getElementById("pageTitle").textContent = t.title;
+  document.getElementById("pageSubtitle").textContent = t.subtitle;
+  document.getElementById("legalContent").innerHTML = t.sections.map(function(s) {
+    return "<h2>" + s.h + "</h2><p>" + s.p + "</p>";
+  }).join("");
+};
+document.addEventListener("DOMContentLoaded", function() { initPage("", ""); });
+</script>
+</body>
+</html>
