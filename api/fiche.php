@@ -18,6 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   nj_fail(405, 'Méthode non autorisée.');
 }
 
+// Le formulaire est atteignable depuis une page publique : on borne le débit.
+if (!nj_rate_ok()) {
+  nj_fail(429, 'Trop de fiches envoyées depuis cet appareil. Réessayez plus tard.');
+}
+
 /* ── Projet ───────────────────────────────────────────────────────────── */
 $projet = preg_replace('/[^a-z0-9_]/', '', strtolower($_POST['projet'] ?? ''));
 if ($projet === '' || !isset(nj_projects()[$projet])) {

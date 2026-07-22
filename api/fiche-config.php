@@ -118,6 +118,46 @@ function nj_log_access(string $action, string $ref, string $detail = ''): void {
   @file_put_contents(NJ_ACCESS_LOG, $line, FILE_APPEND | LOCK_EX);
 }
 
+/**
+ * Limite de débit : la fiche est atteignable depuis une page publique, donc
+ * exposée aux envois automatisés. Sans ce garde-fou, n'importe qui pourrait
+ * remplir le stockage privé d'images arbitraires.
+ *
+ * Retourne false si le quota horaire est dépassé pour cette adresse.
+ */
+function nj_rate_ok(int $max_per_hour = 6): bool {
+  nj_ensure_storage();
+  $ip = $_SERVER['REMOTE_ADDR'] ?? 'cli';
+  if ($ip === 'cli') return true;
+
+  // L'IP n'est pas stockée en clair : un hachage suffit à compter.
+  $key  = substr(hash('sha256', $ip . '|' . date('YmdH')), 0, 16);
+  $file = NJ_FICHES_DIR . DIRECTORY_SEPARATOR . 'debit.json';
+
+  $fp = fopen($file, 'c+');
+  if (!$fp) return true;                 // en cas de souci, on ne bloque pas
+  if (!flock($fp, LOCK_EX)) { fclose($fp); return true; }
+
+  $data = json_decode((string)stream_get_contents($fp), true);
+  if (!is_array($data)) $data = [];
+
+  // Purge des créneaux passés : ce fichier ne doit pas grossir indéfiniment.
+  $currentHour = date('YmdH');
+  $data = array_filter($data, fn($v) => ($v['h'] ?? '') === $currentHour);
+
+  $count = ($data[$key]['n'] ?? 0) + 1;
+  $data[$key] = ['h' => $currentHour, 'n' => $count];
+
+  ftruncate($fp, 0);
+  rewind($fp);
+  fwrite($fp, json_encode($data));
+  fflush($fp);
+  flock($fp, LOCK_UN);
+  fclose($fp);
+
+  return $count <= $max_per_hour;
+}
+
 /** Référence de fiche : NJ-AAAAMMJJ-XXXX (lisible, non devinable). */
 function nj_new_reference(): string {
   return 'NJ-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(2)));

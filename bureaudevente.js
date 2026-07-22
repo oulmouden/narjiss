@@ -32,6 +32,7 @@
       heroSubtitle: "Poussez la porte de nos bureaux de vente et découvrez-les en visite virtuelle, avant même de vous déplacer.",
       listTitle: "Nos bureaux",
       contact: "Prendre rendez-vous",
+      fiche: "Fiche de renseignement",
       soonTitle: "Visite virtuelle en préparation",
       soonText: "La visite 360° de ce bureau de vente est en cours de réalisation. En attendant, notre équipe vous accueille sur place et répond à vos questions.",
       ready: "Visite disponible",
@@ -43,6 +44,7 @@
       heroSubtitle: "Step inside our sales offices with a virtual tour, before you even travel.",
       listTitle: "Our offices",
       contact: "Book an appointment",
+      fiche: "Information form",
       soonTitle: "Virtual tour in preparation",
       soonText: "The 360° tour of this sales office is being produced. In the meantime, our team welcomes you on site and answers your questions.",
       ready: "Tour available",
@@ -54,6 +56,7 @@
       heroSubtitle: "ادخل إلى مكاتب البيع لدينا عبر جولة افتراضية، قبل أن تتنقل.",
       listTitle: "مكاتبنا",
       contact: "حجز موعد",
+      fiche: "بطاقة معلومات",
       soonTitle: "الجولة الافتراضية قيد الإعداد",
       soonText: "جولة 360° لهذا المكتب قيد الإنجاز. في انتظار ذلك، يستقبلكم فريقنا في عين المكان ويجيب عن أسئلتكم.",
       ready: "الجولة متاحة",
@@ -65,6 +68,7 @@
       heroSubtitle: "Entre en nuestras oficinas de venta con una visita virtual, antes incluso de desplazarse.",
       listTitle: "Nuestras oficinas",
       contact: "Pedir cita",
+      fiche: "Ficha de información",
       soonTitle: "Visita virtual en preparación",
       soonText: "La visita 360° de esta oficina está en producción. Mientras tanto, nuestro equipo le recibe en el lugar y responde a sus preguntas.",
       ready: "Visita disponible",
@@ -178,6 +182,10 @@
     var locEl = document.getElementById("officeLocation");
     if (nameEl) nameEl.textContent = tr(project.name, lang);
     if (locEl) locEl.textContent = "📍 " + tr(project.location, lang);
+
+    // Le formulaire s'ouvre pre-rempli sur le projet consulte.
+    var ficheEl = document.getElementById("officeFiche");
+    if (ficheEl) ficheEl.href = "fiche.html?projet=" + encodeURIComponent(project.id);
 
     if (pushUrl && window.history && window.history.replaceState) {
       window.history.replaceState(null, "",
@@ -452,6 +460,9 @@
     var contact = document.getElementById("officeContact");
     contact.textContent = t.contact;
     contact.href = "contact.html#" + lang;
+
+    var fiche = document.getElementById("officeFiche");
+    if (fiche) fiche.textContent = t.fiche;
 
     selectOffice(activeId || requestedId(), lang, false);
     refreshFsButton();

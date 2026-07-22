@@ -101,6 +101,7 @@ html[dir=rtl] .office-caption h2 { font-family: 'Noto Sans Arabic', serif; }
   white-space: nowrap;
   transition: transform var(--duration-fast), box-shadow var(--duration-fast);
 }
+.caption-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 .office-btn.ghost { background: transparent; color: var(--ocean); }
 @media (hover: hover) {
   .office-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
@@ -366,8 +367,9 @@ html[dir=rtl] .agent-menu button { text-align: right; }
         <h2 id="officeName"></h2>
         <div class="loc" id="officeLocation"></div>
       </div>
-      <div>
+      <div class="caption-actions">
         <a class="office-btn" id="officeContact" href="contact.html">Prendre rendez-vous</a>
+        <a class="office-btn ghost" id="officeFiche" href="fiche.html">Fiche de renseignement</a>
       </div>
     </div>
   </section>
