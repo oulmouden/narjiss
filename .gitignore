@@ -22,3 +22,8 @@ Desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Hôtesse IA — secrets et données locales (jamais versionnés)
+api/.env
+api/config.local.php
+data/rendezvous.json

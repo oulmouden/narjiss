@@ -10,6 +10,7 @@
       heroCopySoon: "Une adresse en preparation dans la collection Narjiss, deja positionnee pour offrir une lecture claire du quartier et du potentiel.",
       openExperience: "Ouvrir l'experience",
       contactAdvisor: "Contacter un conseiller",
+      visitSalesOffice: "Visiter notre bureau de vente",
       overviewKicker: "Vision",
       overviewTitle: "Une adresse presentee avec la precision d'une agence de luxe.",
       overviewLive: "Chaque projet Narjiss rassemble les informations essentielles, les points d'interet et les supports immersifs dans une page fluide, elegantement lisible et directement exploitable.",
@@ -77,6 +78,7 @@
       heroCopySoon: "An upcoming address in the Narjiss collection, already positioned to offer a clear reading of its neighborhood and potential.",
       openExperience: "Open experience",
       contactAdvisor: "Contact an advisor",
+      visitSalesOffice: "Visit our sales office",
       overviewKicker: "Vision",
       overviewTitle: "An address presented with luxury-agency precision.",
       overviewLive: "Each Narjiss project brings essential information, points of interest and immersive assets into one fluid, elegant and actionable page.",
@@ -144,6 +146,7 @@
       heroCopySoon: "عنوان قيد التحضير ضمن مجموعة نرجس، مع موقع واضح يساعد على فهم الحي والإمكانات.",
       openExperience: "فتح التجربة",
       contactAdvisor: "اتصل بمستشار",
+      visitSalesOffice: "زيارة مكتب البيع",
       overviewKicker: "الرؤية",
       overviewTitle: "عنوان يقدم بدقة وكالة فاخرة.",
       overviewLive: "يجمع كل مشروع من نرجس المعلومات الأساسية ونقاط الاهتمام والوسائط الغامرة في صفحة أنيقة وسهلة الاستخدام.",
@@ -211,6 +214,7 @@
       heroCopySoon: "Una direccion en preparacion dentro de la coleccion Narjiss, ya posicionada para leer con claridad su barrio y potencial.",
       openExperience: "Abrir experiencia",
       contactAdvisor: "Contactar asesor",
+      visitSalesOffice: "Visitar nuestra oficina de venta",
       overviewKicker: "Vision",
       overviewTitle: "Una direccion presentada con precision de agencia de lujo.",
       overviewLive: "Cada proyecto Narjiss reune informacion esencial, puntos de interes y recursos inmersivos en una pagina fluida, elegante y accionable.",
@@ -1530,12 +1534,27 @@
     var location = text(project.location, lang);
     var gradient = gradients[PROJECTS.indexOf(project) % gradients.length];
     var topActions = '<a class="btn-luxe btn-gold" href="contact.html#' + lang + '">' + t.contactAdvisor + '</a>' +
+      '<a class="btn-luxe btn-glass" href="bureaudevente.html?id=' + encodeURIComponent(project.id) + '#' + lang + '">🏢 ' + t.visitSalesOffice + '</a>' +
       '<button class="btn-luxe btn-glass projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
       '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>';
 
     document.title = name + " - Narjiss";
     document.documentElement.style.setProperty("--project-gradient", gradient);
     document.getElementById("projectApp").innerHTML =
+      '<section class="section" id="projectMapSection">' +
+        '<div class="map-composition">' +
+          '<aside class="map-aside">' +
+            '<div class="map-intro"><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><p>' + t.mapText + '</p><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
+            '<div class="poi-summary" id="poiSummary"></div>' +
+            '<div class="map-actions">' +
+              '<button class="btn-luxe btn-gold projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
+              '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>' +
+              '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
+            '</div>' +
+          '</aside>' +
+          '<div id="projectMap"></div>' +
+        '</div>' +
+      '</section>' +
       renderProjectMedia(project, lang, t, name, location, topActions) +
       '<section class="signature-strip"><div class="signature-grid">' + renderStats(project, lang, t) + '</div></section>' +
       '<section class="section">' +
@@ -1564,20 +1583,6 @@
         '<div class="section-kicker">' + t.majorKicker + '</div>' +
         '<h2>' + t.majorTitle + ' ' + name + '</h2>' +
         '<div class="major-grid" id="majorGrid"></div>' +
-      '</section>' +
-      '<section class="section" id="projectMapSection">' +
-        '<div class="map-composition">' +
-          '<aside class="map-aside">' +
-            '<div class="map-intro"><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><p>' + t.mapText + '</p><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
-            '<div class="poi-summary" id="poiSummary"></div>' +
-            '<div class="map-actions">' +
-              '<button class="btn-luxe btn-gold projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
-              '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>' +
-              '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
-            '</div>' +
-          '</aside>' +
-          '<div id="projectMap"></div>' +
-        '</div>' +
       '</section>' +
       '<section class="section" style="padding-top:0">' +
         '<div class="section-kicker">' + t.relatedKicker + '</div>' +

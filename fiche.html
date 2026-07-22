@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Narjiss — Fiche de renseignement</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0c2340;
+  --ocean: #006aff;
+  --orange: #c15a00;
+  --line: #d7dee8;
+  --muted: #6b7280;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: #eef2f7;
+  color: #1f2430;
+  font-size: 16px;
+}
+html[dir=rtl] body { font-family: 'Noto Sans Arabic', 'Outfit', sans-serif; }
+
+.sheet { max-width: 900px; margin: 0 auto; padding: 0 0 4rem; }
+
+.sheet-head {
+  background: var(--navy);
+  color: white;
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.sheet-head .brand { font-weight: 800; font-size: 1.15rem; letter-spacing: .04em; }
+.sheet-head .sub { color: #f0a860; font-weight: 600; font-size: .85rem; }
+.lang-switch { display: flex; gap: .4rem; }
+.lang-switch button {
+  border: 1.5px solid rgba(255,255,255,.35);
+  background: transparent;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  padding: .4rem .8rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.lang-switch button.on { background: white; color: var(--navy); border-color: white; }
+
+fieldset {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  margin: 1.1rem 1rem 0;
+  padding: 1rem 1.1rem 1.2rem;
+}
+legend {
+  font-weight: 800;
+  font-size: .95rem;
+  color: var(--navy);
+  padding: 0 .5rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.grid .full { grid-column: 1 / -1; }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+label.field { display: block; }
+label.field > span {
+  display: block;
+  font-size: .82rem;
+  font-weight: 700;
+  color: #46506a;
+  margin-bottom: .28rem;
+}
+input[type=text], input[type=tel], input[type=email], input[type=date],
+input[type=number], select, textarea {
+  width: 100%;
+  min-height: 46px;                    /* confortable au doigt */
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: .55rem .7rem;
+  font: inherit;
+  font-size: .95rem;
+  background: #fbfcfe;
+  color: #1f2430;
+}
+textarea { min-height: 84px; resize: vertical; }
+input:focus, select:focus, textarea:focus {
+  outline: 0;
+  border-color: var(--ocean);
+  box-shadow: 0 0 0 3px rgba(0,106,255,.14);
+}
+.req { color: var(--orange); }
+
+.choices { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .1rem; }
+.choices label {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .45rem .8rem;
+  background: #fbfcfe;
+  font-size: .88rem;
+  cursor: pointer;
+  min-height: 42px;
+}
+.choices input { width: 18px; height: 18px; accent-color: var(--ocean); }
+.choices label:has(input:checked) {
+  border-color: var(--ocean);
+  background: rgba(0,106,255,.08);
+  font-weight: 650;
+}
+.group-title {
+  font-size: .82rem;
+  font-weight: 700;
+  color: #46506a;
+  margin: .8rem 0 .3rem;
+}
+
+/* Pièces : capture par la caméra de la tablette */
+.piece {
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  padding: .8rem;
+  background: #fbfcfe;
+  text-align: center;
+}
+.piece b { display: block; font-size: .86rem; margin-bottom: .5rem; }
+.piece input[type=file] { display: none; }
+.piece .pick {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 9px;
+  background: var(--navy);
+  color: white;
+  font-weight: 650;
+  font-size: .88rem;
+  cursor: pointer;
+}
+.piece img { display: none; max-width: 100%; max-height: 170px; margin-top: .6rem; border-radius: 8px; }
+.piece img.show { display: inline-block; }
+.piece .status { display: block; margin-top: .45rem; font-size: .8rem; color: var(--muted); }
+
+#sigPad {
+  width: 100%;
+  height: 190px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfe;
+  touch-action: none;                  /* sinon le doigt fait défiler la page */
+  display: block;
+}
+.sig-actions { display: flex; justify-content: flex-end; margin-top: .5rem; }
+.btn-ghost {
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 9px;
+  min-height: 42px;
+  padding: 0 1rem;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.legal {
+  font-size: .82rem;
+  line-height: 1.6;
+  color: #46506a;
+  background: #f7f9fc;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .8rem .9rem;
+  margin-bottom: .8rem;
+}
+.consent { display: flex; gap: .6rem; align-items: flex-start; margin-top: .6rem; font-size: .9rem; }
+.consent input { width: 22px; height: 22px; flex: 0 0 auto; margin-top: .1rem; accent-color: var(--ocean); }
+
+.submit-bar { margin: 1.3rem 1rem 0; display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
+.btn-send {
+  flex: 1;
+  min-height: 56px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--ocean);
+  color: white;
+  font: inherit;
+  font-weight: 800;
+  font-size: 1.02rem;
+  cursor: pointer;
+}
+.btn-send:disabled { background: #9db4d4; cursor: not-allowed; }
+
+.result { margin: 1rem; padding: 1rem; border-radius: 11px; display: none; font-weight: 600; }
+.result.show { display: block; }
+.result.ok { background: #e6f6ec; border: 1px solid #9ad4b0; color: #14603a; }
+.result.ko { background: #fdecec; border: 1px solid #efb3b3; color: #8d1f1f; }
+.result .ref { display: block; font-size: 1.3rem; font-weight: 800; margin-top: .4rem; letter-spacing: .06em; }
+</style>
+</head>
+<body>
+<form class="sheet" id="ficheForm" autocomplete="off">
+
+  <header class="sheet-head">
+    <div>
+      <div class="brand">NARJISS IMMOBILIÈRE</div>
+      <div class="sub" data-i18n="subtitle">Fiche de renseignement — bureau de vente</div>
+    </div>
+    <div class="lang-switch">
+      <button type="button" data-lang="fr" class="on">Français</button>
+      <button type="button" data-lang="ar">العربية</button>
+    </div>
+  </header>
+
+  <fieldset>
+    <legend data-i18n="s0">Visite</legend>
+    <div class="grid">
+      <label class="field"><span data-i18n="projet">Projet visité <b class="req">*</b></span>
+        <select name="projet" id="projetSelect" required></select></label>
+      <label class="field"><span data-i18n="conseiller">Conseiller</span>
+        <input type="text" name="conseiller"></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="s1">1. Identité</legend>
+    <div class="grid">
+      <label class="field"><span data-i18n="nom">Nom <b class="req">*</b></span>
+        <input type="text" name="nom" required></label>
+      <label class="field"><span data-i18n="prenom">Prénom <b class="req">*</b></span>
+        <input type="text" name="prenom" required></label>
+      <label class="field"><span data-i18n="naissance">Date de naissance</span>
+        <input type="date" name="date_naissance"></label>
+      <label class="field"><span data-i18n="nationalite">Nationalité</span>
+        <input type="text" name="nationalite" value="Marocaine"></label>
+      <label class="field"><span data-i18n="cnie">N° CNIE</span>
+        <input type="text" name="cnie"></label>
+      <label class="field"><span data-i18n="cnieval">CNIE valable jusqu'au</span>
+        <input type="date" name="cnie_validite"></label>
+      <label class="field"><span data-i18n="passeport">N° Passeport (non-résident)</span>
+        <input type="text" name="passeport"></label>
+      <label class="field"><span data-i18n="situation">Situation familiale</span>
+        <select name="situation">
+          <option value="" data-i18n="choose">— Choisir —</option>
+          <option value="celibataire" data-i18n="celib">Célibataire</option>
+          <option value="marie" data-i18n="marie">Marié(e)</option>
+          <option value="autre" data-i18n="autre">Autre</option>
+        </select></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="s2">2. Coordonnées</legend>
+    <div class="grid">
+      <label class="field full"><span data-i18n="adresse">Adresse</span>
+        <input type="text" name="adresse"></label>
+      <label class="field"><span data-i18n="ville">Ville</span>
+        <input type="text" name="ville"></label>
+      <label class="field"><span data-i18n="pays">Pays de résidence</span>
+        <input type="text" name="pays" value="Maroc"></label>
+      <label class="field"><span data-i18n="tel">Téléphone <b class="req">*</b></span>
+        <input type="tel" name="telephone"></label>
+      <label class="field"><span data-i18n="email">E-mail</span>
+        <input type="email" name="email"></label>
+    </div>
+    <div class="choices" style="margin-top:.7rem">
+      <label><input type="checkbox" name="mre" value="1"> <span data-i18n="mre">Marocain résidant à l'étranger (MRE)</span></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="s3">3. Situation professionnelle</legend>
+    <div class="grid">
+      <label class="field"><span data-i18n="profession">Profession</span>
+        <input type="text" name="profession"></label>
+      <label class="field"><span data-i18n="employeur">Employeur</span>
+        <input type="text" name="employeur"></label>
+    </div>
+    <div class="group-title" data-i18n="revenu">Revenu mensuel net</div>
+    <div class="choices" id="revenuChoices"></div>
+    <div class="group-title" data-i18n="fonds">Origine des fonds</div>
+    <div class="choices" id="fondsChoices"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="s4">4. Projet d'acquisition</legend>
+    <div class="group-title" data-i18n="typebien">Type de bien recherché</div>
+    <div class="choices" id="typeChoices"></div>
+    <div class="group-title" data-i18n="usage">Usage prévu</div>
+    <div class="choices" id="usageChoices"></div>
+    <div class="group-title" data-i18n="financement">Mode de financement</div>
+    <div class="choices" id="finChoices"></div>
+    <div class="group-title" data-i18n="echeance">Échéance envisagée</div>
+    <div class="choices" id="echChoices"></div>
+    <div class="grid" style="margin-top:.9rem">
+      <label class="field"><span data-i18n="budget">Budget envisagé</span>
+        <input type="text" name="budget"></label>
+      <label class="field"><span data-i18n="superficie">Superficie souhaitée</span>
+        <input type="text" name="superficie"></label>
+      <label class="field full"><span data-i18n="observations">Observations</span>
+        <textarea name="observations"></textarea></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="s5">5. Origine du contact</legend>
+    <div class="choices" id="contactChoices"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="s6">6. Pièces justificatives</legend>
+    <div class="grid" id="piecesGrid"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="s7">7. Consentement</legend>
+    <div class="legal" id="legalText"></div>
+    <label class="consent">
+      <input type="checkbox" name="consentement" value="1" id="consentBox" required>
+      <span data-i18n="consent1">Je reconnais avoir été informé(e) de ce qui précède et je consens au traitement de mes données pour les finalités indiquées.</span>
+    </label>
+    <label class="consent">
+      <input type="checkbox" name="marketing" value="1">
+      <span data-i18n="consent2">J'accepte de recevoir des offres commerciales de Narjiss Immobilière (facultatif, sans effet sur ma demande).</span>
+    </label>
+
+    <div class="group-title" style="margin-top:1rem" data-i18n="signature">Signature du client</div>
+    <canvas id="sigPad"></canvas>
+    <div class="sig-actions">
+      <button type="button" class="btn-ghost" id="sigClear" data-i18n="effacer">Effacer</button>
+    </div>
+  </fieldset>
+
+  <div class="submit-bar">
+    <button type="submit" class="btn-send" id="sendBtn" data-i18n="envoyer">Enregistrer la fiche</button>
+  </div>
+  <div class="result" id="result"></div>
+</form>
+
+<script src="shared/menu.js"></script>
+<script src="fiche.js"></script>
+</body>
+</html>

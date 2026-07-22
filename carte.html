@@ -24,7 +24,85 @@
   margin-bottom: .2rem;
 }
 .page-hero p { color: var(--muted); max-width: 600px; margin: 0 auto; }
-.map-section { max-width: 1200px; margin: .75rem auto 1.5rem; padding: 0 1.5rem; }
+.map-section { max-width: 1200px; margin: .75rem auto 1.5rem; padding: 0 1.5rem; position: relative; }
+
+/* ── Recherche de projet (en surimpression sur la carte) ───────────────── */
+.map-search {
+  position: absolute;
+  z-index: 900;                /* au-dessus des tuiles, sous les popups Leaflet */
+  top: .85rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(380px, calc(100% - 5.5rem));
+}
+.map-search-box {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  height: 44px;
+  padding: 0 .85rem;
+  background: white;
+  border: 1px solid rgba(17, 24, 39, .16);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(17, 24, 39, .16);
+}
+.map-search-box span { color: var(--ocean); font-size: 1.1rem; font-weight: 900; }
+.map-search-box input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: .95rem;
+  color: #1f2430;
+  background: transparent;
+}
+.map-search-clear {
+  border: 0;
+  background: transparent;
+  color: #7a858c;
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: .1rem .25rem;
+  display: none;
+}
+.map-search-clear.show { display: block; }
+.map-search-clear:hover { color: #1f2430; }
+
+.map-search-results {
+  margin-top: .4rem;
+  background: white;
+  border: 1px solid rgba(17, 24, 39, .12);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(17, 24, 39, .2);
+  overflow: hidden;
+  display: none;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.map-search-results.show { display: block; }
+.map-search-item {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  padding: .6rem .8rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(17, 24, 39, .07);
+}
+html[dir=rtl] .map-search-item { text-align: right; }
+.map-search-item:last-child { border-bottom: 0; }
+.map-search-item:hover,
+.map-search-item.active { background: rgba(0, 106, 255, .09); }
+.map-search-item b { display: block; font-size: .93rem; font-weight: 750; line-height: 1.25; }
+.map-search-item small { color: #7a858c; font-size: .8rem; }
+.map-search-empty { padding: .8rem; color: #7a858c; font-size: .88rem; text-align: center; }
+
+@media (max-width: 560px) {
+  .map-search { width: calc(100% - 4.5rem); left: auto; right: .85rem; transform: none; }
+}
 #globalMap { width: 100%; height: 70vh; min-height: 500px; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
 .map-section.map-compact #globalMap { height: 42vh; min-height: 320px; }
 .map-tool-btn { cursor:pointer; width:30px; height:30px; display:flex; align-items:center; justify-content:center; text-decoration:none; background:white; color:#222; font-size:16px; font-weight:800; }
@@ -96,6 +174,15 @@
     <p id="pageSubtitle">Tous nos projets immobiliers au Maroc</p>
   </section>
   <section class="map-section" id="globalMapSection">
+    <div class="map-search" id="mapSearch">
+      <label class="map-search-box">
+        <span aria-hidden="true">⌕</span>
+        <input id="mapSearchInput" type="search" autocomplete="off"
+               placeholder="Rechercher un projet" aria-label="Rechercher un projet">
+        <button class="map-search-clear" type="button" id="mapSearchClear" aria-label="Effacer">✕</button>
+      </label>
+      <div class="map-search-results" id="mapSearchResults" role="listbox"></div>
+    </div>
     <div id="globalMap"></div>
   </section>
 </main>
@@ -104,10 +191,10 @@
 <script src="shared/menu.js"></script>
 <script>
 var PAGE_UI = {
-  fr: { title: "Carte globale de nos projets", subtitle: "Tous nos projets immobiliers au Maroc", viewProject: "Voir le projet →", comingSoon: "Bientôt disponible" },
-  en: { title: "Global map of our projects", subtitle: "All our real estate projects in Morocco", viewProject: "View project →", comingSoon: "Coming soon" },
-  ar: { title: "الخريطة الشاملة لمشاريعنا", subtitle: "جميع مشاريعنا العقارية بالمغرب", viewProject: "عرض المشروع ←", comingSoon: "قريبا" },
-  es: { title: "Mapa global de nuestros proyectos", subtitle: "Todos nuestros proyectos inmobiliarios en Marruecos", viewProject: "Ver proyecto →", comingSoon: "Próximamente" }
+  fr: { title: "Carte globale de nos projets", subtitle: "Tous nos projets immobiliers au Maroc", viewProject: "Voir le projet →", comingSoon: "Bientôt disponible", searchPlaceholder: "Rechercher un projet", noResult: "Aucun projet ne correspond." },
+  en: { title: "Global map of our projects", subtitle: "All our real estate projects in Morocco", viewProject: "View project →", comingSoon: "Coming soon", searchPlaceholder: "Search for a project", noResult: "No matching project." },
+  ar: { title: "الخريطة الشاملة لمشاريعنا", subtitle: "جميع مشاريعنا العقارية بالمغرب", viewProject: "عرض المشروع ←", comingSoon: "قريبا", searchPlaceholder: "البحث عن مشروع", noResult: "لا يوجد مشروع مطابق." },
+  es: { title: "Mapa global de nuestros proyectos", subtitle: "Todos nuestros proyectos inmobiliarios en Marruecos", viewProject: "Ver proyecto →", comingSoon: "Próximamente", searchPlaceholder: "Buscar un proyecto", noResult: "Ningún proyecto coincide." }
 };
 
 var globalMap = L.map('globalMap', { maxZoom: 22 }).setView([31.5, -8], 6);
@@ -158,14 +245,126 @@ var ViewControls = L.Control.extend({
 globalMap.addControl(new ViewControls());
 
 var allMarkers = [];
+var markersById = {};
+var mapLang = 'fr';
+
+/* ── Recherche de projet ────────────────────────────────────────────────── */
+
+// Ignore les accents et la casse : « Résidence » trouve « residence ».
+function normalize(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function searchProjects(query) {
+  var q = normalize(query).trim();
+  if (!q) return [];
+  var out = [];
+  for (var i = 0; i < PROJECTS.length; i++) {
+    var p = PROJECTS[i];
+    var hay = normalize([
+      p.id,
+      p.name && (p.name[mapLang] || p.name.fr),
+      p.location && (p.location[mapLang] || p.location.fr)
+    ].join(' '));
+    if (hay.indexOf(q) >= 0) out.push(p);
+  }
+  return out;
+}
+
+function hideResults() {
+  document.getElementById('mapSearchResults').classList.remove('show');
+}
+
+function renderResults(items) {
+  var host = document.getElementById('mapSearchResults');
+  var t = PAGE_UI[mapLang];
+
+  if (!items.length) {
+    host.innerHTML = '<div class="map-search-empty">' + t.noResult + '</div>';
+    host.classList.add('show');
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    var p = items[i];
+    html += '<button class="map-search-item" type="button" role="option" data-id="' + p.id + '">' +
+        '<b>' + (p.name[mapLang] || p.name.fr) + '</b>' +
+        '<small>📍 ' + (p.location[mapLang] || p.location.fr) + '</small>' +
+      '</button>';
+  }
+  host.innerHTML = html;
+  host.classList.add('show');
+
+  var buttons = host.querySelectorAll('.map-search-item');
+  for (var b = 0; b < buttons.length; b++) {
+    buttons[b].onclick = function() { gotoProject(this.getAttribute('data-id')); };
+  }
+}
+
+function gotoProject(id) {
+  var marker = markersById[id];
+  if (!marker) return;
+  hideResults();
+  globalMap.flyTo(marker.getLatLng(), 15, { duration: 1.1 });
+  // On attend la fin du vol : ouvrir la bulle avant la replacerait mal.
+  globalMap.once('moveend', function() { marker.openPopup(); });
+}
+
+function resetSearch() {
+  var input = document.getElementById('mapSearchInput');
+  input.value = '';
+  document.getElementById('mapSearchClear').classList.remove('show');
+  hideResults();
+  if (allMarkers.length > 1) {
+    globalMap.flyToBounds(L.featureGroup(allMarkers).getBounds().pad(0.3), { duration: .9 });
+  }
+}
+
+function setupSearch() {
+  var input = document.getElementById('mapSearchInput');
+  var clear = document.getElementById('mapSearchClear');
+
+  input.oninput = function() {
+    clear.classList.toggle('show', !!this.value);
+    if (!this.value.trim()) { hideResults(); return; }
+    renderResults(searchProjects(this.value));
+  };
+
+  input.onkeydown = function(e) {
+    if (e.key === 'Escape') { resetSearch(); this.blur(); return; }
+    if (e.key !== 'Enter') return;
+    var first = searchProjects(this.value)[0];
+    if (first) gotoProject(first.id);
+  };
+
+  clear.onclick = resetSearch;
+
+  // Un clic hors du bloc referme la liste.
+  document.addEventListener('click', function(e) {
+    if (!document.getElementById('mapSearch').contains(e.target)) hideResults();
+  });
+
+  // La carte ne doit pas se déplacer quand on interagit avec la recherche.
+  L.DomEvent.disableClickPropagation(document.getElementById('mapSearch'));
+  L.DomEvent.disableScrollPropagation(document.getElementById('mapSearch'));
+}
 
 window.onLanguageChange = function(lang) {
   var t = PAGE_UI[lang];
+  mapLang = lang;
+  document.getElementById('mapSearchInput').placeholder = t.searchPlaceholder;
+  document.getElementById('mapSearchInput').setAttribute('aria-label', t.searchPlaceholder);
+  hideResults();
   document.getElementById('pageTitle').textContent = t.title;
   document.getElementById('pageSubtitle').textContent = t.subtitle;
 
   for (var i = 0; i < allMarkers.length; i++) globalMap.removeLayer(allMarkers[i]);
   allMarkers = [];
+  markersById = {};
 
   for (var i = 0; i < PROJECTS.length; i++) {
     var p = PROJECTS[i];
@@ -188,6 +387,7 @@ window.onLanguageChange = function(lang) {
     marker.on('click', function() { this.openPopup(); });
     marker.addTo(globalMap);
     allMarkers.push(marker);
+    markersById[p.id] = marker;
   }
 
   if (allMarkers.length > 1) {
@@ -196,6 +396,7 @@ window.onLanguageChange = function(lang) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+  setupSearch();
   initPage('map', '');
 });
 </script>

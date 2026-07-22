@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Bureaux de vente</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+.page-hero { padding: 3.2rem 1.5rem 2.6rem; background: linear-gradient(160deg, var(--ocean-deep), var(--ocean), var(--sun)); color: white; text-align: center; }
+.page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4vw, 3rem); margin-bottom: .5rem; }
+html[dir=rtl] .page-hero h1 { font-family: 'Noto Sans Arabic', serif; }
+.page-hero p { max-width: 640px; margin: 0 auto; opacity: .92; font-size: 1.02rem; }
+
+.office-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1.6rem;
+  align-items: start;
+}
+
+.stage-wrap { position: relative; }
+.office-stage {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #0c2340;
+  box-shadow: var(--shadow-lg);
+  aspect-ratio: 16 / 10;
+  min-height: 420px;
+}
+.office-stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Etat affiche tant que la visite 360 n'est pas produite */
+.office-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .9rem;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: white;
+  background-size: cover;
+  background-position: center;
+}
+.office-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12, 35, 64, .78), rgba(12, 35, 64, .92));
+}
+.office-placeholder > * { position: relative; z-index: 1; }
+.office-placeholder .ph-icon { font-size: 2.6rem; line-height: 1; }
+.office-placeholder h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 2.4vw, 1.8rem); margin: 0; }
+html[dir=rtl] .office-placeholder h2 { font-family: 'Noto Sans Arabic', serif; }
+.office-placeholder p { margin: 0; max-width: 460px; opacity: .9; line-height: 1.55; }
+
+.office-caption {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.office-caption h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+  margin: 0 0 .25rem;
+}
+html[dir=rtl] .office-caption h2 { font-family: 'Noto Sans Arabic', serif; }
+.office-caption .loc { color: #596273; font-weight: 600; }
+
+.office-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 46px;
+  padding: .76rem 1.22rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--ocean);
+  background: var(--ocean);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+}
+.office-btn.ghost { background: transparent; color: var(--ocean); }
+@media (hover: hover) {
+  .office-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+}
+
+.office-list {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  background: white;
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 84px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+}
+.office-list h3 {
+  margin: 0 0 .8rem;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #7a858c;
+}
+.office-item {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  padding: .55rem .6rem;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+html[dir=rtl] .office-item { text-align: right; }
+.office-item:hover { background: rgba(0, 106, 255, .06); }
+.office-item.active {
+  background: rgba(0, 106, 255, .1);
+  border-color: rgba(0, 106, 255, .3);
+}
+.office-item img {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #e9eef5;
+  flex: 0 0 auto;
+}
+.office-item .oi-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.office-item .oi-name {
+  display: block;
+  font-weight: 750;
+  font-size: .95rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.office-item .oi-state {
+  display: block;
+  font-size: .78rem;
+  line-height: 1.2;
+  color: #7a858c;
+}
+.office-item .oi-state.ready { color: oklch(55% 0.17 152); font-weight: 700; }
+
+/* ── Bouton plein écran ───────────────────────────────────────────────── */
+.stage-fs {
+  position: absolute;
+  z-index: 11;
+  top: .75rem;
+  right: .75rem;
+  display: none;               /* affiché par le JS si le navigateur le permet */
+  align-items: center;
+  gap: .4rem;
+  min-height: 38px;
+  padding: 0 .7rem;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(12, 35, 64, .72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  font: inherit;
+  font-weight: 650;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+html[dir=rtl] .stage-fs { right: auto; left: .75rem; }
+.stage-fs.show { display: inline-flex; }
+.stage-fs:hover { background: rgba(12, 35, 64, .92); }
+.stage-fs .fs-icon { font-size: 1rem; line-height: 1; }
+
+/* En plein écran, la scène occupe tout l'espace : plus de ratio ni d'arrondi. */
+.stage-wrap:fullscreen { background: #0c2340; }
+.stage-wrap:fullscreen .office-stage {
+  aspect-ratio: auto;
+  height: 100vh;
+  min-height: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.stage-wrap:-webkit-full-screen .office-stage {
+  aspect-ratio: auto;
+  height: 100vh;
+  min-height: 0;
+  border-radius: 0;
+}
+
+/* ── Hôtesse d'accueil IA ─────────────────────────────────────────────── */
+.agent-panel {
+  position: absolute;
+  z-index: 12;
+  left: 1rem;
+  bottom: 1rem;
+  width: min(360px, calc(100% - 2rem));
+  border-radius: 14px;
+  background: rgba(12, 35, 64, .93);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: white;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .42);
+  padding: .9rem;
+  display: none;
+}
+html[dir=rtl] .agent-panel { left: auto; right: 1rem; }
+.agent-panel.show { display: block; }
+
+.agent-head { display: flex; align-items: center; gap: .65rem; }
+.agent-avatar {
+  width: 42px; height: 42px; flex: 0 0 auto;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  background: linear-gradient(140deg, var(--ocean), var(--sun));
+}
+.agent-who { min-width: 0; flex: 1; }
+.agent-who b { display: block; font-size: .95rem; line-height: 1.2; }
+.agent-who span { font-size: .78rem; opacity: .75; }
+.agent-close {
+  border: 0; background: transparent; color: white;
+  font-size: 1.2rem; cursor: pointer; opacity: .7; padding: .2rem .35rem;
+}
+.agent-close:hover { opacity: 1; }
+
+.agent-bubble {
+  margin: .75rem 0 .6rem;
+  background: rgba(255, 255, 255, .1);
+  border-radius: 10px;
+  padding: .7rem .8rem;
+  font-size: .92rem;
+  line-height: 1.5;
+  min-height: 3.2rem;
+}
+.agent-menu { display: flex; flex-direction: column; gap: .4rem; }
+.agent-menu button {
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, .07);
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  font-size: .88rem;
+  text-align: left;
+  padding: .55rem .7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+html[dir=rtl] .agent-menu button { text-align: right; }
+.agent-menu button:hover { background: rgba(255, 255, 255, .16); }
+.agent-menu button.primary {
+  background: var(--ocean);
+  border-color: var(--ocean);
+  font-weight: 750;
+}
+.agent-menu button.danger { background: rgba(220, 60, 60, .85); border-color: transparent; }
+
+/* Pastille "micro actif" pendant la conversation vocale */
+.agent-live {
+  display: none;
+  align-items: center;
+  gap: .45rem;
+  margin-top: .55rem;
+  font-size: .8rem;
+  opacity: .9;
+}
+.agent-live.show { display: flex; }
+.agent-live .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: oklch(62% 0.19 145);
+  animation: agentPulse 1.4s ease-in-out infinite;
+}
+@keyframes agentPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .35; transform: scale(.75); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agent-live .dot { animation: none; }
+}
+
+@media (max-width: 560px) {
+  .agent-panel { left: .6rem; right: .6rem; bottom: .6rem; width: auto; }
+  html[dir=rtl] .agent-panel { left: .6rem; right: .6rem; }
+}
+
+@media (max-width: 1024px) {
+  .office-shell { grid-template-columns: minmax(0, 1fr); }
+  .office-list { position: static; max-height: none; order: 2; }
+  .office-stage { min-height: 340px; aspect-ratio: 16 / 11; }
+}
+@media (max-width: 560px) {
+  .office-shell { padding: 1.4rem .9rem 2.5rem; }
+  .office-stage { min-height: 280px; aspect-ratio: 4 / 3; }
+  .office-caption { display: block; }
+  .office-caption .office-btn { margin-top: .9rem; }
+}
+</style>
+</head>
+<body>
+<div id="mainMenu"></div>
+
+<section class="page-hero">
+  <h1 id="heroTitle">Nos bureaux de vente</h1>
+  <p id="heroSubtitle">Poussez la porte de nos bureaux de vente et découvrez-les en visite virtuelle, avant même de vous déplacer.</p>
+</section>
+
+<main class="office-shell">
+  <section>
+    <div class="stage-wrap">
+      <div class="office-stage" id="officeStage"></div>
+
+      <button class="stage-fs" type="button" id="stageFsBtn">
+        <span class="fs-icon" id="stageFsIcon" aria-hidden="true">⛶</span>
+        <span id="stageFsLabel">Plein écran</span>
+      </button>
+
+      <div class="agent-panel" id="agentPanel" role="dialog" aria-live="polite" aria-label="Hôtesse d'accueil">
+        <div class="agent-head">
+          <div class="agent-avatar" aria-hidden="true">👩‍💼</div>
+          <div class="agent-who">
+            <b id="agentName">Hôtesse d'accueil</b>
+            <span id="agentRole">Narjiss Immobilière</span>
+          </div>
+          <button class="agent-close" type="button" id="agentClose" aria-label="Fermer">✕</button>
+        </div>
+        <div class="agent-bubble" id="agentBubble"></div>
+        <div class="agent-menu" id="agentMenu"></div>
+        <div class="agent-live" id="agentLive"><span class="dot"></span><span id="agentLiveText"></span></div>
+      </div>
+    </div>
+    <div class="office-caption">
+      <div>
+        <h2 id="officeName"></h2>
+        <div class="loc" id="officeLocation"></div>
+      </div>
+      <div>
+        <a class="office-btn" id="officeContact" href="contact.html">Prendre rendez-vous</a>
+      </div>
+    </div>
+  </section>
+
+  <aside class="office-list">
+    <h3 id="officeListTitle">Nos bureaux</h3>
+    <div id="officeItems"></div>
+  </aside>
+</main>
+
+<div id="mainFooter"></div>
+<script src="assets/vendor/livekit/livekit-client.umd.js"></script>
+<script src="shared/menu.js"></script>
+<script src="bureaudevente.js"></script>
+</body>
+</html>

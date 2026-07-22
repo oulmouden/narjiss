@@ -18,6 +18,7 @@ function admin_header(string $title): void
         <a class="brand" href="index.php">Narjiss Admin</a>
         <nav>
             <a href="projects.php">Projets</a>
+            <a href="fiches.php">Fiches clients</a>
             <a href="audit.php">Audit</a>
             <a href="../index.html" target="_blank">Site</a>
             <a href="logout.php">Sortir</a>

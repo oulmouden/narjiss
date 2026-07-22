@@ -32,7 +32,7 @@ body {
 }
 .searchbar-inner {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) repeat(4, auto);
+  grid-template-columns: minmax(260px, 1fr) repeat(2, auto);
   gap: .6rem;
   align-items: center;
   max-width: 1540px;
@@ -97,10 +97,91 @@ body {
   background: var(--ocean);
   color: white;
 }
+.view-select {
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 0 .85rem;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 8px;
+  background: white;
+  white-space: nowrap;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.view-select:focus-within {
+  border-color: var(--ocean);
+  box-shadow: 0 0 0 3px rgba(0, 106, 255, .14);
+}
+.view-select-label {
+  color: #596273;
+  font-weight: 700;
+  font-size: .9rem;
+}
+.view-select select {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 800;
+  color: var(--ocean);
+  cursor: pointer;
+  padding: 0;
+}
 .explorer-layout {
   display: grid;
-  grid-template-columns: clamp(340px, 40vw, 460px) minmax(0, 1fr);
+  grid-template-columns: var(--map-w, clamp(340px, 40vw, 460px)) 11px minmax(0, 1fr);
   min-height: calc(100vh - 132px);
+}
+.split-handle {
+  position: sticky;
+  top: 132px;
+  height: calc(100vh - 132px);
+  cursor: col-resize;
+  background: #eef2f7;
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  transition: background var(--duration-fast);
+}
+.split-handle::before {
+  content: "";
+  width: 3px;
+  height: 42px;
+  border-radius: 999px;
+  background: #b9c4d2;
+  transition: background var(--duration-fast);
+}
+.split-handle:hover,
+.split-handle:focus-visible,
+.split-handle.is-dragging {
+  background: rgba(0, 106, 255, .12);
+  outline: 0;
+}
+.split-handle:hover::before,
+.split-handle:focus-visible::before,
+.split-handle.is-dragging::before {
+  background: var(--ocean);
+}
+body.is-splitting {
+  user-select: none;
+  cursor: col-resize;
+}
+.explorer-layout.view-map,
+.explorer-layout.view-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+.explorer-layout.view-map .results-pane,
+.explorer-layout.view-list .map-pane,
+.explorer-layout.view-map .split-handle,
+.explorer-layout.view-list .split-handle {
+  display: none;
+}
+.explorer-layout.view-map .map-pane {
+  border-right: 0;
 }
 .map-pane {
   position: sticky;
@@ -140,17 +221,6 @@ body {
   color: #596273;
   font-weight: 700;
   font-size: .96rem;
-}
-.sort-control {
-  border: 1px solid rgba(0, 106, 255, .2);
-  border-radius: 999px;
-  background: rgba(0, 106, 255, .07);
-  color: var(--ocean);
-  font: inherit;
-  font-weight: 800;
-  padding: .55rem .85rem;
-  cursor: pointer;
-  white-space: nowrap;
 }
 .listing-grid {
   display: grid;
@@ -389,8 +459,12 @@ html[dir=rtl] .listing-badges {
   }
   .search-box { flex: 1 1 100%; }
   .filter-btn, .save-btn { flex: 0 0 auto; }
+  .view-select { flex: 1 1 auto; justify-content: center; }
   .explorer-layout {
     grid-template-columns: 1fr;
+  }
+  .split-handle {
+    display: none;
   }
   .map-pane {
     position: relative;
@@ -399,6 +473,10 @@ html[dir=rtl] .listing-badges {
     min-height: 340px;
     border-right: 0;
     border-bottom: 1px solid var(--border-subtle);
+  }
+  .explorer-layout.view-map .map-pane {
+    height: calc(100vh - 132px);
+    border-bottom: 0;
   }
 }
 @media (max-width: 560px) {
@@ -417,9 +495,6 @@ html[dir=rtl] .listing-badges {
   .results-head {
     display: block;
   }
-  .sort-control {
-    margin-top: .75rem;
-  }
 }
 </style>
 </head>
@@ -432,23 +507,30 @@ html[dir=rtl] .listing-badges {
         <span>⌕</span>
         <input id="searchInput" type="search" placeholder="Adresse, quartier, ville">
       </label>
-      <button class="filter-btn active" type="button" data-filter="all" id="filterAll">Tous</button>
-      <button class="filter-btn" type="button" data-filter="tour" id="filterTour">Visite 360</button>
-      <button class="filter-btn" type="button" data-filter="poi" id="filterPoi">+50 POI</button>
       <button class="save-btn" type="button" id="resetBtn">Réinitialiser</button>
+      <div class="view-select">
+        <span class="view-select-label" id="viewSelectLabel">Affichage</span>
+        <select id="viewSelect" aria-label="Affichage carte ou liste">
+          <option value="map">Carte</option>
+          <option value="list">Liste</option>
+          <option value="both" selected>Les deux</option>
+        </select>
+      </div>
     </div>
   </section>
-  <section class="explorer-layout">
+  <section class="explorer-layout" id="explorerLayout">
     <aside class="map-pane">
       <div id="explorerMap"></div>
     </aside>
+    <div class="split-handle" id="splitHandle" role="separator" tabindex="0"
+         aria-orientation="vertical" aria-label="Redimensionner la carte"
+         title="Glisser pour redimensionner — double-clic pour réinitialiser"></div>
     <section class="results-pane">
       <div class="results-head">
         <div class="results-title">
           <h1 id="resultsTitle">Projets immobiliers Narjiss</h1>
           <p id="resultsCount"></p>
         </div>
-        <button class="sort-control" type="button" id="sortBtn">Tri: Plus de POI ↓</button>
       </div>
       <div class="listing-grid" id="listingGrid"></div>
     </section>

@@ -16,7 +16,11 @@
       noVisit: "Carte du quartier",
       provider: "NARJISS IMMOBILIERE",
       open: "Voir le projet",
-      empty: "Aucun projet ne correspond à votre recherche."
+      empty: "Aucun projet ne correspond à votre recherche.",
+      viewMap: "Carte",
+      viewBoth: "Les deux",
+      viewList: "Liste",
+      viewLabel: "Affichage"
     },
     en: {
       placeholder: "Address, neighborhood, city",
@@ -34,7 +38,11 @@
       noVisit: "Neighborhood map",
       provider: "NARJISS REAL ESTATE",
       open: "View project",
-      empty: "No project matches your search."
+      empty: "No project matches your search.",
+      viewMap: "Map",
+      viewBoth: "Both",
+      viewList: "List",
+      viewLabel: "View"
     },
     ar: {
       placeholder: "العنوان، الحي، المدينة",
@@ -52,7 +60,11 @@
       noVisit: "خريطة الحي",
       provider: "نرجس العقارية",
       open: "عرض المشروع",
-      empty: "لا يوجد مشروع مطابق للبحث."
+      empty: "لا يوجد مشروع مطابق للبحث.",
+      viewMap: "الخريطة",
+      viewBoth: "الاثنان",
+      viewList: "القائمة",
+      viewLabel: "العرض"
     },
     es: {
       placeholder: "Dirección, barrio, ciudad",
@@ -70,7 +82,11 @@
       noVisit: "Mapa del barrio",
       provider: "NARJISS INMOBILIARIA",
       open: "Ver proyecto",
-      empty: "Ningún proyecto coincide con tu búsqueda."
+      empty: "Ningún proyecto coincide con tu búsqueda.",
+      viewMap: "Mapa",
+      viewBoth: "Ambos",
+      viewList: "Lista",
+      viewLabel: "Vista"
     }
   };
 
@@ -79,6 +95,127 @@
   var filter = "all";
   var sortMode = "poi";
   var currentProjects = [];
+  var viewMode = "both";
+
+  try {
+    var savedView = window.localStorage.getItem("narjissExplorerView");
+    if (savedView === "map" || savedView === "both" || savedView === "list") viewMode = savedView;
+  } catch (e) {}
+
+  function applyViewMode() {
+    var layout = document.getElementById("explorerLayout");
+    if (layout) {
+      layout.classList.toggle("view-map", viewMode === "map");
+      layout.classList.toggle("view-list", viewMode === "list");
+    }
+    var select = document.getElementById("viewSelect");
+    if (select) select.value = viewMode;
+    if (map && viewMode !== "list") {
+      window.setTimeout(function() { map.invalidateSize(); }, 220);
+    }
+  }
+
+  var MIN_MAP = 280;
+  var MIN_LIST = 380;
+  var HANDLE_W = 11;
+  var resizePending = false;
+
+  function scheduleMapResize() {
+    if (!map || resizePending) return;
+    resizePending = true;
+    window.requestAnimationFrame(function() {
+      resizePending = false;
+      map.invalidateSize();
+    });
+  }
+
+  function setMapWidth(px, persist) {
+    var layout = document.getElementById("explorerLayout");
+    if (!layout) return;
+    var max = layout.getBoundingClientRect().width - MIN_LIST - HANDLE_W;
+    if (max < MIN_MAP) return;
+    px = Math.max(MIN_MAP, Math.min(px, max));
+    layout.style.setProperty("--map-w", px + "px");
+    if (persist) {
+      try { window.localStorage.setItem("narjissExplorerSplit", String(Math.round(px))); } catch (e) {}
+    }
+    scheduleMapResize();
+  }
+
+  function resetMapWidth() {
+    var layout = document.getElementById("explorerLayout");
+    if (layout) layout.style.removeProperty("--map-w");
+    try { window.localStorage.removeItem("narjissExplorerSplit"); } catch (e) {}
+    scheduleMapResize();
+  }
+
+  function currentMapWidth() {
+    var pane = document.querySelector(".map-pane");
+    return pane ? pane.getBoundingClientRect().width : MIN_MAP;
+  }
+
+  function setupSplitter() {
+    var handle = document.getElementById("splitHandle");
+    var layout = document.getElementById("explorerLayout");
+    if (!handle || !layout) return;
+
+    var saved = null;
+    try { saved = window.localStorage.getItem("narjissExplorerSplit"); } catch (e) {}
+    if (saved) setMapWidth(parseFloat(saved), false);
+
+    var dragging = false;
+    var lastWidth = null;
+
+    handle.addEventListener("pointerdown", function(e) {
+      dragging = true;
+      lastWidth = null;
+      handle.setPointerCapture(e.pointerId);
+      handle.classList.add("is-dragging");
+      document.body.classList.add("is-splitting");
+      e.preventDefault();
+    });
+
+    handle.addEventListener("pointermove", function(e) {
+      if (!dragging) return;
+      var rect = layout.getBoundingClientRect();
+      var rtl = document.documentElement.getAttribute("dir") === "rtl";
+      lastWidth = rtl ? rect.right - e.clientX : e.clientX - rect.left;
+      setMapWidth(lastWidth, false);
+    });
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove("is-dragging");
+      document.body.classList.remove("is-splitting");
+      if (lastWidth !== null) setMapWidth(lastWidth, true);
+    }
+    handle.addEventListener("pointerup", endDrag);
+    handle.addEventListener("pointercancel", endDrag);
+
+    handle.addEventListener("dblclick", function() {
+      resetMapWidth();
+    });
+
+    handle.addEventListener("keydown", function(e) {
+      var rtl = document.documentElement.getAttribute("dir") === "rtl";
+      var step = e.shiftKey ? 64 : 24;
+      if (e.key === "ArrowLeft") {
+        setMapWidth(currentMapWidth() + (rtl ? step : -step), true);
+      } else if (e.key === "ArrowRight") {
+        setMapWidth(currentMapWidth() + (rtl ? -step : step), true);
+      } else if (e.key === "Home" || e.key === "Escape") {
+        resetMapWidth();
+      } else {
+        return;
+      }
+      e.preventDefault();
+    });
+
+    window.addEventListener("resize", function() {
+      if (layout.style.getPropertyValue("--map-w")) setMapWidth(currentMapWidth(), false);
+    });
+  }
 
   function tr(value, lang) {
     return value && (value[lang] || value.fr || value.en) || "";
@@ -154,7 +291,6 @@
     currentProjects = getFiltered(lang);
     document.getElementById("resultsTitle").textContent = t.title;
     document.getElementById("resultsCount").textContent = currentProjects.length + " " + t.count;
-    document.getElementById("sortBtn").textContent = sortMode === "poi" ? t.sortPoi : t.sortName;
 
     if (!currentProjects.length) {
       grid.innerHTML = '<div class="empty-state">' + t.empty + '</div>';
@@ -244,34 +380,27 @@
   function setupControls(lang) {
     var t = UI[lang];
     document.getElementById("searchInput").placeholder = t.placeholder;
-    document.getElementById("filterAll").textContent = t.all;
-    document.getElementById("filterTour").textContent = t.tour;
-    document.getElementById("filterPoi").textContent = t.poi;
     document.getElementById("resetBtn").textContent = t.reset;
 
     document.getElementById("searchInput").oninput = function() {
       renderListings(lang);
     };
-    var buttons = document.querySelectorAll(".filter-btn");
-    for (var i = 0; i < buttons.length; i++) {
-      buttons[i].onclick = function() {
-        filter = this.getAttribute("data-filter");
-        for (var j = 0; j < buttons.length; j++) buttons[j].classList.remove("active");
-        this.classList.add("active");
-        renderListings(lang);
-      };
-    }
     document.getElementById("resetBtn").onclick = function() {
-      filter = "all";
-      sortMode = "poi";
       document.getElementById("searchInput").value = "";
-      for (var j = 0; j < buttons.length; j++) buttons[j].classList.toggle("active", buttons[j].getAttribute("data-filter") === "all");
       renderListings(lang);
     };
-    document.getElementById("sortBtn").onclick = function() {
-      sortMode = sortMode === "poi" ? "name" : "poi";
-      renderListings(lang);
+
+    document.getElementById("viewSelectLabel").textContent = t.viewLabel;
+    var viewSelect = document.getElementById("viewSelect");
+    viewSelect.querySelector('option[value="map"]').textContent = t.viewMap;
+    viewSelect.querySelector('option[value="list"]').textContent = t.viewList;
+    viewSelect.querySelector('option[value="both"]').textContent = t.viewBoth;
+    viewSelect.onchange = function() {
+      viewMode = this.value;
+      try { window.localStorage.setItem("narjissExplorerView", viewMode); } catch (e) {}
+      applyViewMode();
     };
+    applyViewMode();
   }
 
   window.onLanguageChange = function(lang) {
@@ -356,6 +485,7 @@
       }
     });
     map.addControl(new ExplorerViewControls());
+    setupSplitter();
     initPage("projects", "");
   });
 })();

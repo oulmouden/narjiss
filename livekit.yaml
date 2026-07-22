@@ -1,0 +1,21 @@
+# LiveKit — config de développement local pour Narjiss Immobilière.
+#
+# Volontairement identique à celle de Domiciliation (mêmes ports, même clé) :
+# les deux sites partagent une seule instance de serveur. Le cloisonnement se
+# fait par préfixe de room — « bureau-* » pour narjiss, « accueil-* » pour
+# Domiciliation — et chaque agent Python ne traite que le sien.
+#
+# ⚠️ Clés de DEV uniquement. En production : vraies clés hors-git + wss/HTTPS.
+port: 7880
+bind_addresses:
+  - ""
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  use_external_ip: false
+  node_ip: 127.0.0.1
+keys:
+  # Secret de DEV (≥32 car. requis par LiveKit). À remplacer hors-git en prod.
+  devkey: twinburo-dev-secret-change-me-0123456789
+logging:
+  level: info
