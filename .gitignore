@@ -27,3 +27,6 @@ Desktop.ini
 api/.env
 api/config.local.php
 data/rendezvous.json
+
+# Boîte d'envoi e-mail locale (données de prospects)
+data/mail-outbox/

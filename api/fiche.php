@@ -183,7 +183,59 @@ if (!nj_fiches_append($fiche)) {
 }
 nj_log_access('creation', $reference, $nom . ' ' . $prenom . ' / ' . $projet);
 
+/* ── Notification interne ─────────────────────────────────────────────── */
+// L'e-mail transporte les infos de contact et un lien vers l'admin, mais
+// JAMAIS la copie de CNIE : la pièce d'identité reste dans le coffre privé,
+// consultable sous session. C'est le sens de tout le dispositif.
+nj_notify_new_fiche($fiche);
+
 echo json_encode([
   'ok'        => true,
   'reference' => $reference,
 ], JSON_UNESCAPED_UNICODE);
+
+
+/** Envoie la notification interne de nouvelle fiche (sans pièce d'identité). */
+function nj_notify_new_fiche(array $fiche): void {
+  require_once __DIR__ . '/config.php';
+  require_once __DIR__ . '/mail.php';
+
+  $to = nj_config('FICHE_NOTIFY_TO', '');
+  if ($to === '') return;                       // notification désactivée
+
+  $id = $fiche['identite'] ?? [];
+  $co = $fiche['coordonnees'] ?? [];
+  $pa = $fiche['projet_acquisition'] ?? [];
+  $e  = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+
+  $nbPieces = count($fiche['pieces'] ?? []);
+  $link = nj_base_url() . '/admin/fiches.php?ref=' . rawurlencode($fiche['reference']);
+
+  $rows = [
+    ['Référence',  $fiche['reference']],
+    ['Projet',     $fiche['projet_nom'] ?? $fiche['projet']],
+    ['Client',     trim(($id['prenom'] ?? '') . ' ' . ($id['nom'] ?? ''))],
+    ['Téléphone',  $co['telephone'] ?? ''],
+    ['E-mail',     $co['email'] ?? ''],
+    ['Budget',     $pa['budget'] ?? ''],
+    ['Conseiller', $fiche['conseiller'] ?? ''],
+    ['Pièces jointes', $nbPieces . ' (consultables dans l\'admin)'],
+  ];
+
+  $body = '<p>Une nouvelle fiche de renseignement a été enregistrée au bureau de vente.</p>'
+        . '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:6px 0 4px">';
+  foreach ($rows as [$k, $v]) {
+    if ($v === '' || $v === null) continue;
+    $body .= '<tr>'
+           . '<td style="padding:4px 14px 4px 0;color:#8a96ad;vertical-align:top">' . $e($k) . '</td>'
+           . '<td style="padding:4px 0;font-weight:600;color:#0c2340">' . $e($v) . '</td>'
+           . '</tr>';
+  }
+  $body .= '</table>'
+         . '<p style="font-size:12.5px;color:#8a96ad">La copie de la pièce d\'identité n\'est pas jointe à cet e-mail : ouvrez la fiche dans l\'espace d\'administration pour la consulter.</p>';
+
+  $html = nj_mail_template('Nouvelle fiche — ' . ($fiche['projet_nom'] ?? ''), $body, 'Ouvrir la fiche', $link);
+
+  [$ok, $info] = nj_mail($to, 'Nouvelle fiche client — ' . $fiche['reference'], $html);
+  nj_log_access('notification', $fiche['reference'], ($ok ? 'ok ' : 'echec ') . $info);
+}

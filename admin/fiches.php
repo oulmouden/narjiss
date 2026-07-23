@@ -236,6 +236,9 @@ if ($msg = flash_message()) {
 <?php else: ?>
 
   <h1>Fiches clients</h1>
+  <p class="no-print">
+    <a href="fiche-qr.php">🔳 Affichettes QR à imprimer</a>
+  </p>
   <p><?= count($fiches) ?> fiche(s). Stockage privé : <code><?= h(NJ_FICHES_DIR) ?></code></p>
 
   <?php if (!$fiches): ?>

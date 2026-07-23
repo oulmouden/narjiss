@@ -152,6 +152,39 @@ input:focus, select:focus, textarea:focus {
 .piece img.show { display: inline-block; }
 .piece .status { display: block; margin-top: .45rem; font-size: .8rem; color: var(--muted); }
 
+/* Remplissage automatique par lecture de la MRZ */
+.mrz-scan {
+  border: 1.5px solid var(--ocean);
+  border-radius: 10px;
+  background: rgba(0, 106, 255, .05);
+  padding: .8rem .9rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .7rem;
+}
+.mrz-head { flex: 1 1 200px; min-width: 0; }
+.mrz-head b { display: block; font-size: .92rem; color: var(--navy); }
+.mrz-head span { display: block; font-size: .8rem; color: #46506a; margin-top: .15rem; }
+.mrz-scan .pick {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 9px;
+  background: var(--ocean);
+  color: white;
+  font-weight: 650;
+  font-size: .88rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mrz-scan .pick input { display: none; }
+.mrz-status { flex-basis: 100%; font-size: .82rem; color: #46506a; min-height: 1.1rem; }
+.mrz-status.ok { color: #14603a; font-weight: 650; }
+.mrz-status.ko { color: #8d1f1f; }
+
 #sigPad {
   width: 100%;
   height: 190px;
@@ -234,6 +267,19 @@ input:focus, select:focus, textarea:focus {
 
   <fieldset>
     <legend data-i18n="s1">1. Identité</legend>
+
+    <div class="mrz-scan" id="mrzScan">
+      <div class="mrz-head">
+        <b data-i18n="mrzTitle">Remplissage automatique</b>
+        <span data-i18n="mrzHint">Photographiez le dos de votre carte nationale : les champs se remplissent seuls.</span>
+      </div>
+      <label class="pick" id="mrzPick">
+        <span data-i18n="mrzScanBtn">📷 Scanner ou importer le dos de la CIN</span>
+        <input type="file" accept="image/*" id="mrzInput">
+      </label>
+      <span class="mrz-status" id="mrzStatus"></span>
+    </div>
+
     <div class="grid">
       <label class="field"><span data-i18n="nom">Nom <b class="req">*</b></span>
         <input type="text" name="nom" required></label>
@@ -347,6 +393,8 @@ input:focus, select:focus, textarea:focus {
   <div class="result" id="result"></div>
 </form>
 
+<script src="assets/vendor/tesseract/tesseract.min.js"></script>
+<script src="assets/vendor/mrz/mrz-td1.js"></script>
 <script src="shared/menu.js"></script>
 <script src="fiche.js"></script>
 </body>

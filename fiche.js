@@ -25,9 +25,15 @@
       financement: "Mode de financement", echeance: "Échéance envisagée",
       budget: "Budget envisagé", superficie: "Superficie souhaitée", observations: "Observations",
       signature: "Signature du client", effacer: "Effacer", envoyer: "Enregistrer la fiche",
+      mrzTitle: "Remplissage automatique",
+      mrzHint: "Photographiez le dos de votre carte nationale : les champs se remplissent seuls.",
+      mrzScanBtn: "📷 Scanner ou importer le dos de la CIN",
+      mrzReading: "Lecture en cours… gardez la carte bien à plat et nette.",
+      mrzOk: "Carte lue avec succès. Vérifiez les champs remplis.",
+      mrzKo: "Lecture impossible. Reprenez la photo (bien nette, MRZ visible) ou remplissez à la main.",
       consent1: "Je reconnais avoir été informé(e) de ce qui précède et je consens au traitement de mes données pour les finalités indiquées.",
       consent2: "J'accepte de recevoir des offres commerciales de Narjiss Immobilière (facultatif, sans effet sur ma demande).",
-      photographier: "📷 Photographier", reprendre: "Reprendre la photo",
+      photographier: "📷 Photo ou fichier", reprendre: "Remplacer l'image",
       envoiEnCours: "Enregistrement…",
       okTitre: "Fiche enregistrée. Merci !",
       okRef: "Référence de votre fiche :",
@@ -54,9 +60,15 @@
       financement: "طريقة التمويل", echeance: "الأجل المتوقع",
       budget: "الميزانية", superficie: "المساحة المطلوبة", observations: "ملاحظات",
       signature: "توقيع الزبون", effacer: "مسح", envoyer: "تسجيل البطاقة",
+      mrzTitle: "التعبئة التلقائية",
+      mrzHint: "صوّروا ظهر البطاقة الوطنية: تُملأ الحقول تلقائياً.",
+      mrzScanBtn: "📷 مسح أو استيراد ظهر البطاقة",
+      mrzReading: "جاري القراءة… أبقوا البطاقة مسطحة وواضحة.",
+      mrzOk: "تمت قراءة البطاقة بنجاح. تحققوا من الحقول.",
+      mrzKo: "تعذرت القراءة. أعيدوا التصوير (بوضوح) أو املؤوا يدوياً.",
       consent1: "أقر بأنني اطلعت على ما سبق وأوافق على معالجة بياناتي للأغراض المذكورة.",
       consent2: "أوافق على تلقي العروض التجارية من نرجس العقارية (اختياري، دون أثر على طلبي).",
-      photographier: "📷 التقاط صورة", reprendre: "إعادة التقاط الصورة",
+      photographier: "📷 صورة أو ملف", reprendre: "تغيير الصورة",
       envoiEnCours: "جاري التسجيل…",
       okTitre: "تم تسجيل البطاقة. شكراً لكم!",
       okRef: "مرجع بطاقتكم:",
@@ -178,7 +190,7 @@
       html += '<div class="piece" data-piece="' + esc(p[0]) + '">' +
                 '<b>' + esc(label(p)) + '</b>' +
                 '<label class="pick">' + esc(t('photographier')) +
-                  '<input type="file" name="' + esc(p[0]) + '" accept="image/*" capture="environment">' +
+                  '<input type="file" name="' + esc(p[0]) + '" accept="image/*">' +
                 '</label>' +
                 '<img alt="">' +
                 '<span class="status"></span>' +
@@ -357,11 +369,90 @@
       });
   }
 
+  /* ── Lecture MRZ de la CIN (dos) → remplissage automatique ──────────────
+     L'image est traitée entièrement dans le navigateur (OCR Tesseract local).
+     Le remplissage n'a lieu QUE si les chiffres de contrôle de la MRZ valident
+     — sinon on ne touche à rien : jamais de donnée fausse injectée. */
+  var mrzWorker = null;
+
+  function mrzSetStatus(kind, msg) {
+    var el = document.getElementById('mrzStatus');
+    if (!el) return;
+    el.className = 'mrz-status' + (kind ? ' ' + kind : '');
+    el.textContent = msg || '';
+  }
+
+  function setIfEmpty(name, value) {
+    if (!value) return;
+    var el = document.querySelector('[name="' + name + '"]');
+    if (el && !el.value) el.value = value;
+  }
+
+  async function getMrzWorker() {
+    if (mrzWorker) return mrzWorker;
+    // Assets vendorisés : aucun appel à un CDN, tout est servi localement.
+    mrzWorker = await Tesseract.createWorker('eng', 1, {
+      workerPath: 'assets/vendor/tesseract/worker.min.js',
+      corePath: 'assets/vendor/tesseract/tesseract-core-simd-lstm.wasm.js',
+      langPath: 'assets/vendor/tesseract/lang',
+      gzip: true
+    });
+    // La MRZ n'utilise qu'un jeu de caractères restreint : on le contraint,
+    // ce qui réduit fortement les erreurs d'OCR.
+    await mrzWorker.setParameters({
+      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
+      tessedit_pageseg_mode: '6'          // bloc de texte uniforme
+    });
+    return mrzWorker;
+  }
+
+  function setupMrz() {
+    var input = document.getElementById('mrzInput');
+    if (!input) return;
+
+    // Sans support (très vieux navigateur), on masque la fonction : la saisie
+    // manuelle reste toujours possible.
+    if (typeof Tesseract === 'undefined' || typeof window.MRZ === 'undefined') {
+      var box = document.getElementById('mrzScan');
+      if (box) box.style.display = 'none';
+      return;
+    }
+
+    input.addEventListener('change', async function () {
+      var file = this.files && this.files[0];
+      if (!file) return;
+      mrzSetStatus('', t('mrzReading'));
+
+      try {
+        var worker = await getMrzWorker();
+        var res = await worker.recognize(file);
+        var parsed = window.MRZ.fromOcrText(res.data.text);
+
+        if (!parsed) { mrzSetStatus('ko', t('mrzKo')); return; }
+
+        // Remplissage — uniquement les champs présents dans la MRZ, et sans
+        // écraser ce que le client aurait déjà saisi.
+        setIfEmpty('nom', parsed.nom);
+        setIfEmpty('prenom', parsed.prenom);
+        setIfEmpty('date_naissance', parsed.birthDate);
+        setIfEmpty('cnie', parsed.documentNumber);
+        setIfEmpty('cnie_validite', parsed.expiryDate);
+        var sit = document.querySelector('[name="situation"]');   // laissé au client
+        mrzSetStatus('ok', t('mrzOk'));
+      } catch (e) {
+        mrzSetStatus('ko', t('mrzKo'));
+      } finally {
+        this.value = '';                  // permet une reprise immédiate
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.lang-switch button').forEach(function(b) {
       b.onclick = function() { applyLang(this.getAttribute('data-lang')); };
     });
     setupSignature();
+    setupMrz();
     applyLang('fr');
     document.getElementById('ficheForm').addEventListener('submit', submitForm);
 
