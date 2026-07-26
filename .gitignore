@@ -35,3 +35,6 @@ data/mail-outbox/
 CIN actionnaires/
 cnie-test*
 *.imported
+
+# Originaux 360 avant optimisation (lourds, conservés en local seulement)
+_orig-360/
