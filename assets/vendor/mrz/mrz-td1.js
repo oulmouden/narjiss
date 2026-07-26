@@ -201,8 +201,7 @@
       if (c.length >= 20 && (c.indexOf('<') >= 0 || c.length >= 28)) lines.push(c);
     }
     // Fenêtre glissante de 3 lignes consécutives.
-    for (var j = 0; j + 2 < lines.length + 1 && j + 2 < lines.length + 0 + 1; j++) {
-      if (j + 2 >= lines.length) break;
+    for (var j = 0; j + 2 < lines.length; j++) {
       var r = parseTD1(lines[j], lines[j + 1], lines[j + 2]);
       if (r.valid) return r;
     }

@@ -440,13 +440,21 @@
     // échoue avec « The URL '…/worker.min.js' is invalid » et l'OCR ne démarre
     // jamais. On résout donc sur document.baseURI.
     var vbase = new URL('assets/vendor/tesseract/', document.baseURI).href;
-    // Assets vendorisés : aucun appel à un CDN, tout est servi localement.
-    mrzWorker = await Tesseract.createWorker('eng', 1, {
+    // Modèle OCR-B dédié MRZ (vendorisé, aucun appel à un CDN). Entraîné sur la
+    // police OCR-B et les 37 caractères de la MRZ : il lit correctement les
+    // chevrons « < » là où le modèle « eng » générique les confondait avec des
+    // lettres. Repli sur « eng » si le modèle dédié manque.
+    var opts = {
       workerPath: vbase + 'worker.min.js',
       corePath: vbase + 'tesseract-core-simd-lstm.wasm.js',
       langPath: vbase + 'lang',
       gzip: true
-    });
+    };
+    try {
+      mrzWorker = await Tesseract.createWorker('ocrb_int', 1, opts);
+    } catch (e) {
+      mrzWorker = await Tesseract.createWorker('eng', 1, opts);   // repli si le modèle dédié manque
+    }
     // La MRZ n'utilise qu'un jeu de caractères restreint : on le contraint,
     // ce qui réduit fortement les erreurs d'OCR.
     await mrzWorker.setParameters({
