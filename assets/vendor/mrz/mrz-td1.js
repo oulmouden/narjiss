@@ -65,12 +65,30 @@
       .replace(/[^A-Z0-9<]/g, '');
   }
 
-  // Sépare « NOM<<PRENOM<AUTRE » en { nom, prenom }.
+  // Un identifiant (nom ou prénoms) : ses composants sont séparés par un '<'
+  // simple. On les réunit MAIS on s'arrête au premier composant sans voyelle —
+  // c'est là que commence le remplissage mal lu (les '<' de bourrage que l'OCR
+  // rend en K/L/C…). Les noms translittérés ont toujours au moins une voyelle.
+  function cleanNameField(segment) {
+    var toks = String(segment || '').split('<');
+    var kept = [];
+    for (var i = 0; i < toks.length; i++) {
+      var tok = toks[i];
+      if (!tok) continue;
+      if (/[AEIOU]/.test(tok)) kept.push(tok);
+      else break;
+    }
+    return kept.join(' ').trim();
+  }
+
+  // Sépare « NOM<<PRENOMS<<bourrage » : le double '<' marque la frontière
+  // nom / prénoms ; tout ce qui suit les prénoms est du remplissage, ignoré.
   function parseNames(line) {
-    var parts = line.split('<<');
-    var primary = (parts[0] || '').replace(/</g, ' ').trim();
-    var secondary = (parts.slice(1).join('<<') || '').replace(/</g, ' ').replace(/\s+/g, ' ').trim();
-    return { nom: primary, prenom: secondary };
+    var parts = String(line || '').split('<<');
+    return {
+      nom: cleanNameField(parts[0] || ''),
+      prenom: cleanNameField(parts[1] || '')
+    };
   }
 
   /**
@@ -88,8 +106,11 @@
     l1 = (l1 + '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<').slice(0, 30);
     l2 = (l2 + '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<').slice(0, 30);
 
-    var docNumber = l1.slice(5, 14);
-    var docNumberCk = l1[14];
+    var country = l1.slice(2, 5).replace(/</g, '');
+
+    var docField = l1.slice(5, 14);       // zone « n° de document » (9 car.)
+    var docFieldCk = l1[14];
+    var optional1 = l1.slice(15, 30);     // données optionnelles de la ligne 1
 
     var birth = l2.slice(0, 6);
     var birthCk = l2[6];
@@ -99,14 +120,22 @@
     var nationality = l2.slice(15, 18);
     var compositeCk = l2[29];
 
-    // Contrôles individuels : chacun doit valider.
-    if (!digitOk(docNumber, docNumberCk)) return { valid: false, reason: 'n° document' };
-    if (!digitOk(birth, birthCk))         return { valid: false, reason: 'date de naissance' };
-    if (!digitOk(expiry, expiryCk))       return { valid: false, reason: 'date de validité' };
+    // Les deux contrôles de dates sont fiables sur tous les documents, Maroc
+    // compris : on les exige toujours. Deux chiffres de contrôle ICAO qui
+    // valident = très forte garantie que l'OCR a lu correctement.
+    if (!digitOk(birth, birthCk))   return { valid: false, reason: 'date de naissance' };
+    if (!digitOk(expiry, expiryCk)) return { valid: false, reason: 'date de validité' };
 
-    // Contrôle composite : couvre l'ensemble des zones sensibles.
-    var composite = l1.slice(5, 30) + l2.slice(0, 7) + l2.slice(8, 15) + l2.slice(18, 29);
-    if (!digitOk(composite, compositeCk)) return { valid: false, reason: 'contrôle global' };
+    // La CNIE biométrique marocaine NE suit PAS l'ICAO pour le chiffre de
+    // contrôle du n° de document ni pour le contrôle composite (constaté sur
+    // spécimen : « OPIBFOAY<5 » → attendu 5, ICAO donne 9). On n'exige donc ces
+    // deux contrôles qu'en dehors du Maroc, où ils restent standards.
+    var isMorocco = country === 'MAR';
+    if (!isMorocco) {
+      if (!digitOk(docField, docFieldCk)) return { valid: false, reason: 'n° document' };
+      var composite = l1.slice(5, 30) + l2.slice(0, 7) + l2.slice(8, 15) + l2.slice(18, 29);
+      if (!digitOk(composite, compositeCk)) return { valid: false, reason: 'contrôle global' };
+    }
 
     var birthDate = parseDate(birth, false);
     var expiryDate = parseDate(expiry, true);
@@ -114,9 +143,22 @@
 
     var names = parseNames(l3);
 
+    // N° de la CIN : au Maroc, le champ « n° de document » contient un
+    // identifiant de gestion (ex. OPIBFOAY) et le VRAI numéro (ex. E569509) est
+    // placé dans les données optionnelles de la ligne 1. Ailleurs, on garde le
+    // champ standard.
+    var idNumber = docField.replace(/</g, '');
+    if (isMorocco) {
+      // Le n° s'écrit « 1-2 lettres + chiffres » (ex. E569509) : on l'isole du
+      // remplissage résiduel que l'OCR aurait pu laisser autour.
+      var optId = optional1.replace(/</g, '');
+      var m = optId.match(/[A-Z]{0,2}\d{4,8}/);
+      idNumber = m ? m[0] : (optId || idNumber);
+    }
+
     return {
       valid: true,
-      documentNumber: docNumber.replace(/</g, ''),
+      documentNumber: idNumber,
       nom: names.nom,
       prenom: names.prenom,
       birthDate: birthDate.iso,

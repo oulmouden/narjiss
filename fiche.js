@@ -390,11 +390,16 @@
 
   async function getMrzWorker() {
     if (mrzWorker) return mrzWorker;
+    // Tesseract crée un Web Worker en blob (sa base d'URL devient « blob:… ») :
+    // les chemins passés ici DOIVENT être absolus, sinon l'importScripts interne
+    // échoue avec « The URL '…/worker.min.js' is invalid » et l'OCR ne démarre
+    // jamais. On résout donc sur document.baseURI.
+    var vbase = new URL('assets/vendor/tesseract/', document.baseURI).href;
     // Assets vendorisés : aucun appel à un CDN, tout est servi localement.
     mrzWorker = await Tesseract.createWorker('eng', 1, {
-      workerPath: 'assets/vendor/tesseract/worker.min.js',
-      corePath: 'assets/vendor/tesseract/tesseract-core-simd-lstm.wasm.js',
-      langPath: 'assets/vendor/tesseract/lang',
+      workerPath: vbase + 'worker.min.js',
+      corePath: vbase + 'tesseract-core-simd-lstm.wasm.js',
+      langPath: vbase + 'lang',
       gzip: true
     });
     // La MRZ n'utilise qu'un jeu de caractères restreint : on le contraint,
@@ -404,6 +409,61 @@
       tessedit_pageseg_mode: '6'          // bloc de texte uniforme
     });
     return mrzWorker;
+  }
+
+  function loadImageFromFile(file) {
+    return new Promise(function(resolve, reject) {
+      var img = new Image();
+      img.onload = function() { resolve(img); };
+      img.onerror = function() { reject(new Error('image illisible')); };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  /* Prépare un canvas optimisé pour l'OCR de la MRZ à partir d'une photo :
+     recadrage vertical optionnel (la MRZ est en bas d'une carte à plat),
+     agrandissement à ~1600 px de large, niveaux de gris et renforcement de
+     contraste. Une photo brute de carte entière lit mal ; ce nettoyage change
+     tout. */
+  function mrzCanvas(img, cropTopFrac, contrast) {
+    var sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+    if (cropTopFrac) { sy = Math.round(sh * cropTopFrac); sh = sh - sy; }
+    var targetW = 1600;
+    var scale = sw < targetW ? (targetW / sw) : 1;
+    var w = Math.round(sw * scale), h = Math.round(sh * scale);
+    var cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    var ctx = cv.getContext('2d');
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+    var data = ctx.getImageData(0, 0, w, h);
+    var p = data.data;
+    for (var i = 0; i < p.length; i += 4) {
+      var g = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2];
+      // Un contraste trop agressif épaissit les chevrons « < » et casse la
+      // séparation « << » nom/prénom : par défaut on reste en simples niveaux
+      // de gris, le contraste n'est appliqué qu'en dernier recours.
+      if (contrast) g = g < 128 ? Math.max(0, g - 45) : Math.min(255, g + 45);
+      p[i] = p[i + 1] = p[i + 2] = g;
+    }
+    ctx.putImageData(data, 0, 0);
+    return cv;
+  }
+
+  // Affiche le texte OCR brut directement sous le bouton (mode ?mrzdebug=1),
+  // pour diagnostiquer sur mobile sans ouvrir la console du navigateur.
+  function mrzShowDebug(text) {
+    var el = document.getElementById('mrzDebugOut');
+    if (!el) {
+      el = document.createElement('pre');
+      el.id = 'mrzDebugOut';
+      el.style.cssText = 'white-space:pre-wrap;font-size:11px;line-height:1.35;' +
+        'background:#0b1021;color:#7CFC98;padding:10px;margin-top:10px;max-height:240px;' +
+        'overflow:auto;border-radius:8px;user-select:all';
+      var host = document.getElementById('mrzStatus');
+      if (host && host.parentNode) host.parentNode.appendChild(el);
+      else document.body.appendChild(el);
+    }
+    el.textContent = text;
   }
 
   function setupMrz() {
@@ -418,6 +478,10 @@
       return;
     }
 
+    // ?mrzdebug=1 dans l'URL : journalise le texte OCR brut dans la console,
+    // pour diagnostiquer une photo qui ne se lit pas.
+    var MRZ_DEBUG = /[?&]mrzdebug=1/.test(location.search);
+
     input.addEventListener('change', async function () {
       var file = this.files && this.files[0];
       if (!file) return;
@@ -425,8 +489,30 @@
 
       try {
         var worker = await getMrzWorker();
-        var res = await worker.recognize(file);
-        var parsed = window.MRZ.fromOcrText(res.data.text);
+        var img = await loadImageFromFile(file);
+        // Plusieurs prétraitements successifs : image entière en niveaux de
+        // gris, puis bande basse (MRZ d'une carte à plat), puis contraste
+        // renforcé en dernier recours. On conserve la MEILLEURE lecture (nom ET
+        // prénom) plutôt que la première simplement valide.
+        var attempts = [
+          mrzCanvas(img, 0, false),
+          mrzCanvas(img, 0.5, false),
+          mrzCanvas(img, 0, true)
+        ];
+        var parsed = null, dump = '';
+        for (var a = 0; a < attempts.length; a++) {
+          var res = await worker.recognize(attempts[a]);
+          if (MRZ_DEBUG) dump += '=== essai ' + (a + 1) + ' ===\n' + res.data.text + '\n';
+          var p = window.MRZ.fromOcrText(res.data.text);
+          if (p) {
+            if (!parsed) parsed = p;                         // 1re lecture valide = repli
+            if (p.nom && p.prenom) { parsed = p; break; }    // lecture complète : on garde
+          }
+        }
+        if (MRZ_DEBUG) {
+          console.log('[MRZ debug]\n' + dump);
+          mrzShowDebug(dump + '\n>> résultat: ' + JSON.stringify(parsed));
+        }
 
         if (!parsed) { mrzSetStatus('ko', t('mrzKo')); return; }
 
@@ -437,9 +523,12 @@
         setIfEmpty('date_naissance', parsed.birthDate);
         setIfEmpty('cnie', parsed.documentNumber);
         setIfEmpty('cnie_validite', parsed.expiryDate);
-        var sit = document.querySelector('[name="situation"]');   // laissé au client
         mrzSetStatus('ok', t('mrzOk'));
       } catch (e) {
+        if (MRZ_DEBUG) {
+          console.log('[MRZ debug] erreur', e);
+          mrzShowDebug('ERREUR: ' + (e && (e.name + ': ' + e.message) || String(e)));
+        }
         mrzSetStatus('ko', t('mrzKo'));
       } finally {
         this.value = '';                  // permet une reprise immédiate
