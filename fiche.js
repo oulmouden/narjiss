@@ -25,6 +25,8 @@
       financement: "Mode de financement", echeance: "Échéance envisagée",
       budget: "Budget envisagé", superficie: "Superficie souhaitée", observations: "Observations",
       signature: "Signature du client", effacer: "Effacer", envoyer: "Enregistrer la fiche",
+      nouveauClient: "Nouveau client",
+      resetConfirm: "Effacer toute la fiche et démarrer un nouveau client ?",
       mrzTitle: "Remplissage automatique",
       mrzHint: "Photographiez le dos de votre carte nationale : les champs se remplissent seuls.",
       mrzScanBtn: "📷 Scanner ou importer le dos de la CIN",
@@ -60,6 +62,8 @@
       financement: "طريقة التمويل", echeance: "الأجل المتوقع",
       budget: "الميزانية", superficie: "المساحة المطلوبة", observations: "ملاحظات",
       signature: "توقيع الزبون", effacer: "مسح", envoyer: "تسجيل البطاقة",
+      nouveauClient: "زبون جديد",
+      resetConfirm: "مسح كل البطاقة والبدء بزبون جديد؟",
       mrzTitle: "التعبئة التلقائية",
       mrzHint: "صوّروا ظهر البطاقة الوطنية: تُملأ الحقول تلقائياً.",
       mrzScanBtn: "📷 مسح أو استيراد ظهر البطاقة",
@@ -369,6 +373,23 @@
       });
   }
 
+  /* ── Réinitialisation complète (changement de client) ──────────────────── */
+  function resetForm() {
+    var form = document.getElementById('ficheForm');
+    if (!form) return;
+    form.reset();                                   // champs, choix, consentement
+    var sc = document.getElementById('sigClear');
+    if (sc) sc.click();                             // signature
+    buildPieces();                                  // pièces / photos
+    mrzResetFields();
+    mrzSetStatus('', '');                           // statut de lecture MRZ
+    var dbg = document.getElementById('mrzDebugOut');
+    if (dbg) dbg.textContent = '';
+    var result = document.getElementById('result');
+    if (result) { result.className = 'result'; result.innerHTML = ''; }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   /* ── Lecture MRZ de la CIN (dos) → remplissage automatique ──────────────
      L'image est traitée entièrement dans le navigateur (OCR Tesseract local).
      Le remplissage n'a lieu QUE si les chiffres de contrôle de la MRZ valident
@@ -560,6 +581,11 @@
     setupMrz();
     applyLang('fr');
     document.getElementById('ficheForm').addEventListener('submit', submitForm);
+
+    var resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) resetBtn.onclick = function() {
+      if (window.confirm(t('resetConfirm'))) resetForm();
+    };
 
     // menu.js charge data/projects.json de façon asynchrone : on repeuple
     // la liste quand elle arrive, sinon seuls les projets par défaut sortent.
