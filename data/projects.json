@@ -8,7 +8,7 @@
         "lng": -9.5372,
         "poi_count": 41,
         "has_tour": true,
-        "detail_url": "jawhara/jawhara.html",
+        "detail_url": "",
         "tour_url": "jawhara/Tour/index.htm",
         "brochure_pdf": "images/projects/jawhara/PLAN DE MASSE.pdf",
         "name": {
@@ -33,7 +33,20 @@
             "logo": "images/projects/jawhara/jawhara_logo.png",
             "hero": "images/projects/jawhara/concept-hero.png",
             "floorplan": "images/projects/jawhara/floorplan.png"
-        }
+        },
+        "commercialization": "on-sale",
+        "delivery": { "date": "2026-Q4", "state": "en-construction" },
+        "price_mode": "on-request",
+        "standing": "moyen-standing",
+        "promoteur": "Narjiss Immobilière",
+        "legal": { "titre": true },
+        "typologies": [
+            { "label": "F2", "rooms": 2, "surface_min": 62, "surface_max": 68, "units_total": 20, "units_available": 6, "floorplan": "images/projects/jawhara/floorplan.png" },
+            { "label": "F3", "rooms": 3, "surface_min": 78, "surface_max": 92, "units_total": 30, "units_available": 12, "floorplan": "images/projects/jawhara/floorplan.png" },
+            { "label": "F4", "rooms": 4, "surface_min": 104, "surface_max": 118, "units_total": 14, "units_available": 3, "floorplan": "images/projects/jawhara/floorplan.png" }
+        ],
+        "features": ["piscine", "securite-24-7", "parking-sous-sol", "espaces-verts", "ascenseur", "syndic"],
+        "gallery": ["images/projects/jawhara/concept-hero.png"]
     },
     {
         "id": "tazroute",

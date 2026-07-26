@@ -430,9 +430,10 @@
   }
 
   function mediaImage(project, index) {
-    var media = project.media || {};
-    var gallery = media.gallery || [];
-    return gallery[index] || gallery[0] || (project.images && (project.images.triptych || project.images.logo)) || "";
+    var gallery = (project.gallery && project.gallery.length) ? project.gallery : ((project.media && project.media.gallery) || []);
+    var imgs = project.images || {};
+    var fallbacks = [imgs.hero, imgs.floorplan, imgs.logo, imgs.hero];
+    return gallery[index] || fallbacks[index] || gallery[0] || imgs.hero || imgs.logo || "";
   }
 
   function projectFloorPlan(project) {
@@ -528,7 +529,7 @@
     var modal = document.getElementById("mediaTourModal");
     var mount = document.getElementById("mediaTourMount");
     if (!openBtn || !closeBtn || !modal || !mount) return;
-    var tourUrl = project.media && project.media.tour360 ? project.media.tour360 : "tours/" + project.id + "/index.html";
+    var tourUrl = project.tour_url ? project.tour_url : (project.media && project.media.tour360 ? project.media.tour360 : "");
 
     function showMissingTour() {
       mount.innerHTML = '<div class="media-tour-missing"><div><strong>Export 3dVista non trouve pour le moment.</strong><p>Copie ton export dans <code>C:/xampp/htdocs/narjiss/tours/' + project.id + '/</code> avec un fichier <code>index.html</code>, puis recharge cette page.</p></div></div>';
@@ -1522,6 +1523,232 @@
     });
   }
 
+  /* ─── Fiche projet enrichie : données commerciales, typologies, équipements,
+     disponibilité, simulateur. i18n auto-contenu (UIX + tables de libellés). ─── */
+
+  var UIX = {
+    fr: {
+      priceOnRequest: "Prix sur demande", typologiesKicker: "Biens", typologiesTitle: "Typologies disponibles",
+      typologiesWord: "typologies", surfaceWord: "surfaces", rooms: "pièces", available: "disponibles",
+      soldOut: "Complet", enquire: "Se renseigner", fillForm: "Remplir la fiche", brochure: "Brochure PDF",
+      deliveryLabel: "Livraison", titled: "Titre foncier", featuresKicker: "Standing",
+      featuresTitle: "Équipements & caractéristiques", availabilityKicker: "Stock",
+      availabilityTitle: "Disponibilité", lotsAvailable: "lots disponibles", lastUnits: "Derniers lots",
+      simKicker: "Financement", simTitle: "Simulateur de mensualité",
+      simNote: "Estimation indicative — saisissez le montant du bien, aucun prix n'est communiqué en ligne.",
+      simAmount: "Montant du bien (DH)", simDown: "Apport (DH)", simRate: "Taux annuel (%)",
+      simYears: "Durée (années)", simMonthly: "Mensualité estimée", perMonth: "DH/mois"
+    },
+    en: {
+      priceOnRequest: "Price on request", typologiesKicker: "Homes", typologiesTitle: "Available layouts",
+      typologiesWord: "layouts", surfaceWord: "areas", rooms: "rooms", available: "available",
+      soldOut: "Sold out", enquire: "Enquire", fillForm: "Fill the form", brochure: "PDF brochure",
+      deliveryLabel: "Delivery", titled: "Land title", featuresKicker: "Standing",
+      featuresTitle: "Amenities & features", availabilityKicker: "Stock",
+      availabilityTitle: "Availability", lotsAvailable: "units available", lastUnits: "Last units",
+      simKicker: "Financing", simTitle: "Monthly payment simulator",
+      simNote: "Indicative estimate — enter the property amount; no price is shown online.",
+      simAmount: "Property amount (DH)", simDown: "Down payment (DH)", simRate: "Annual rate (%)",
+      simYears: "Term (years)", simMonthly: "Estimated monthly", perMonth: "DH/mo"
+    },
+    ar: {
+      priceOnRequest: "السعر عند الطلب", typologiesKicker: "الوحدات", typologiesTitle: "الأنماط المتوفرة",
+      typologiesWord: "أنماط", surfaceWord: "مساحات", rooms: "غرف", available: "متوفرة",
+      soldOut: "مكتمل", enquire: "الاستفسار", fillForm: "ملء الاستمارة", brochure: "الكتيب PDF",
+      deliveryLabel: "التسليم", titled: "محفّظ", featuresKicker: "التجهيزات",
+      featuresTitle: "المرافق والمميزات", availabilityKicker: "المخزون",
+      availabilityTitle: "التوفر", lotsAvailable: "وحدة متوفرة", lastUnits: "آخر الوحدات",
+      simKicker: "التمويل", simTitle: "محاكي القسط الشهري",
+      simNote: "تقدير إرشادي — أدخل مبلغ العقار، لا يُعرض أي سعر عبر الإنترنت.",
+      simAmount: "مبلغ العقار (درهم)", simDown: "الدفعة الأولى (درهم)", simRate: "الفائدة السنوية (%)",
+      simYears: "المدة (سنوات)", simMonthly: "القسط الشهري المقدّر", perMonth: "درهم/شهر"
+    },
+    es: {
+      priceOnRequest: "Precio a consultar", typologiesKicker: "Viviendas", typologiesTitle: "Tipologías disponibles",
+      typologiesWord: "tipologías", surfaceWord: "superficies", rooms: "habitaciones", available: "disponibles",
+      soldOut: "Completo", enquire: "Informarse", fillForm: "Rellenar la ficha", brochure: "Folleto PDF",
+      deliveryLabel: "Entrega", titled: "Título de propiedad", featuresKicker: "Categoría",
+      featuresTitle: "Equipamiento y características", availabilityKicker: "Stock",
+      availabilityTitle: "Disponibilidad", lotsAvailable: "lotes disponibles", lastUnits: "Últimos lotes",
+      simKicker: "Financiación", simTitle: "Simulador de cuota",
+      simNote: "Estimación indicativa — introduzca el importe del bien; no se muestra ningún precio en línea.",
+      simAmount: "Importe del bien (DH)", simDown: "Entrada (DH)", simRate: "Tasa anual (%)",
+      simYears: "Plazo (años)", simMonthly: "Cuota mensual estimada", perMonth: "DH/mes"
+    }
+  };
+
+  var STATUT_LABELS = {
+    fr: { "pre-sale": "Pré-vente", "on-sale": "En vente", "last-units": "Derniers lots", "delivered": "Livré", "sold-out": "Vendu" },
+    en: { "pre-sale": "Pre-sale", "on-sale": "On sale", "last-units": "Last units", "delivered": "Delivered", "sold-out": "Sold out" },
+    ar: { "pre-sale": "بيع مسبق", "on-sale": "معروض للبيع", "last-units": "آخر الوحدات", "delivered": "تم التسليم", "sold-out": "مُباع" },
+    es: { "pre-sale": "Preventa", "on-sale": "En venta", "last-units": "Últimos lotes", "delivered": "Entregado", "sold-out": "Vendido" }
+  };
+  var STANDING_LABELS = {
+    fr: { "economique": "Économique", "moyen-standing": "Moyen standing", "haut-standing": "Haut standing" },
+    en: { "economique": "Economy", "moyen-standing": "Mid-range", "haut-standing": "High-end" },
+    ar: { "economique": "اقتصادي", "moyen-standing": "متوسط", "haut-standing": "راقٍ" },
+    es: { "economique": "Económico", "moyen-standing": "Gama media", "haut-standing": "Alta gama" }
+  };
+  var FEATURE_LABELS = {
+    fr: { "piscine": "Piscine", "securite-24-7": "Sécurité 24/7", "parking-sous-sol": "Parking sous-sol", "espaces-verts": "Espaces verts", "ascenseur": "Ascenseur", "syndic": "Syndic" },
+    en: { "piscine": "Swimming pool", "securite-24-7": "24/7 security", "parking-sous-sol": "Underground parking", "espaces-verts": "Green spaces", "ascenseur": "Elevator", "syndic": "Building management" },
+    ar: { "piscine": "مسبح", "securite-24-7": "أمن 24/7", "parking-sous-sol": "موقف تحت أرضي", "espaces-verts": "مساحات خضراء", "ascenseur": "مصعد", "syndic": "إدارة العقار" },
+    es: { "piscine": "Piscina", "securite-24-7": "Seguridad 24/7", "parking-sous-sol": "Parking subterráneo", "espaces-verts": "Zonas verdes", "ascenseur": "Ascensor", "syndic": "Administración" }
+  };
+  var FEATURE_ICONS = { "piscine": "🏊", "securite-24-7": "🛡️", "parking-sous-sol": "🅿️", "espaces-verts": "🌳", "ascenseur": "🛗", "syndic": "🏢" };
+
+  function projectTypologies(project) {
+    return (project.typologies && project.typologies.length) ? project.typologies : [];
+  }
+  function typoSurfaceRange(typos) {
+    var mn = Infinity, mx = 0;
+    for (var i = 0; i < typos.length; i++) {
+      if (typos[i].surface_min) mn = Math.min(mn, typos[i].surface_min);
+      if (typos[i].surface_max) mx = Math.max(mx, typos[i].surface_max);
+      else if (typos[i].surface_min) mx = Math.max(mx, typos[i].surface_min);
+    }
+    return mn === Infinity ? null : { min: mn, max: mx };
+  }
+  function availabilityTotals(typos) {
+    var avail = 0, total = 0;
+    for (var i = 0; i < typos.length; i++) { avail += (typos[i].units_available || 0); total += (typos[i].units_total || 0); }
+    return { avail: avail, total: total };
+  }
+  function nf(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  function computeMonthly(price, down, ratePct, years) {
+    var principal = Math.max(0, price - down);
+    var n = Math.max(1, years * 12);
+    var r = (ratePct / 100) / 12;
+    if (r <= 0) return principal / n;
+    return principal * r / (1 - Math.pow(1 + r, -n));
+  }
+
+  function renderCommercialHeader(project, lang) {
+    var x = UIX[lang];
+    var typos = projectTypologies(project);
+    var range = typoSurfaceRange(typos);
+    var tot = availabilityTotals(typos);
+
+    var badges = "";
+    if (project.commercialization) badges += '<span class="cbadge cbadge-status">' + (STATUT_LABELS[lang][project.commercialization] || project.commercialization) + '</span>';
+    if (project.standing) badges += '<span class="cbadge">' + (STANDING_LABELS[lang][project.standing] || project.standing) + '</span>';
+    if (project.delivery && project.delivery.date) badges += '<span class="cbadge">🗝 ' + x.deliveryLabel + ' ' + project.delivery.date + '</span>';
+    if (project.legal && project.legal.titre) badges += '<span class="cbadge">📄 ' + x.titled + '</span>';
+
+    function fact(v, l) { return '<div class="fact"><strong>' + v + '</strong><span>' + l + '</span></div>'; }
+    var facts = "";
+    if (typos.length) facts += fact(typos.length, x.typologiesWord);
+    if (range) facts += fact(range.min + (range.max > range.min ? "–" + range.max : "") + " m²", x.surfaceWord);
+    if (tot.total) facts += fact(tot.avail, x.lotsAvailable);
+    if (project.delivery && project.delivery.date) facts += fact(project.delivery.date, x.deliveryLabel);
+
+    var fiche = '<a class="btn-luxe btn-dark" href="fiche.html?projet=' + encodeURIComponent(project.id) + '#' + lang + '">📝 ' + x.fillForm + '</a>';
+    var brochure = project.brochure_pdf ? '<a class="btn-luxe btn-glass" href="' + project.brochure_pdf + '" target="_blank" rel="noopener">📄 ' + x.brochure + '</a>' : "";
+
+    return '<section class="section commercial-header">' +
+      '<div class="commercial-top">' +
+        '<div class="commercial-price">' + x.priceOnRequest + '</div>' +
+        '<div class="commercial-badges">' + badges + '</div>' +
+      '</div>' +
+      (facts ? '<div class="quick-facts">' + facts + '</div>' : "") +
+      '<div class="commercial-actions">' + fiche + brochure + '</div>' +
+    '</section>';
+  }
+
+  function renderTypologies(project, lang) {
+    var typos = projectTypologies(project);
+    if (!typos.length) return "";
+    var x = UIX[lang];
+    var cards = "";
+    for (var i = 0; i < typos.length; i++) {
+      var ty = typos[i];
+      var surf = ty.surface_min ? (ty.surface_min + (ty.surface_max && ty.surface_max > ty.surface_min ? "–" + ty.surface_max : "") + " m²") : "";
+      var avail = ty.units_available || 0, total = ty.units_total || 0;
+      var low = total && avail > 0 && (avail / total) < 0.25;
+      var availHtml = avail > 0
+        ? '<span class="typo-avail' + (low ? " low" : "") + '">' + avail + "/" + total + " " + x.available + '</span>'
+        : '<span class="typo-avail sold">' + x.soldOut + '</span>';
+      var plan = ty.floorplan ? '<div class="typo-plan"><img src="' + ty.floorplan + '" alt="' + ty.label + '" loading="lazy"></div>' : "";
+      cards += '<article class="typo-card">' + plan +
+        '<div class="typo-body">' +
+          '<div class="typo-label">' + ty.label + '</div>' +
+          '<div class="typo-meta">' + (ty.rooms ? ty.rooms + " " + x.rooms : "") + (surf ? " · " + surf : "") + '</div>' +
+          availHtml +
+          '<div class="typo-price">' + x.priceOnRequest + '</div>' +
+          '<a class="btn-luxe btn-gold" href="fiche.html?projet=' + encodeURIComponent(project.id) + '#' + lang + '">' + x.enquire + '</a>' +
+        '</div>' +
+      '</article>';
+    }
+    return '<section class="section"><div class="section-kicker">' + x.typologiesKicker + '</div><h2>' + x.typologiesTitle + '</h2><div class="typo-grid">' + cards + '</div></section>';
+  }
+
+  function renderFeatures(project, lang) {
+    var fs = project.features || [];
+    if (!fs.length) return "";
+    var x = UIX[lang];
+    var items = "";
+    for (var i = 0; i < fs.length; i++) {
+      var key = fs[i];
+      var label = (FEATURE_LABELS[lang] && FEATURE_LABELS[lang][key]) || key;
+      items += '<div class="feature-item"><span class="feature-ico">' + (FEATURE_ICONS[key] || "•") + '</span><span>' + label + '</span></div>';
+    }
+    return '<section class="section"><div class="section-kicker">' + x.featuresKicker + '</div><h2>' + x.featuresTitle + '</h2><div class="features-grid">' + items + '</div></section>';
+  }
+
+  function renderAvailability(project, lang) {
+    var typos = projectTypologies(project);
+    var tot = availabilityTotals(typos);
+    if (!tot.total) return "";
+    var x = UIX[lang];
+    var pct = Math.round(tot.avail / tot.total * 100);
+    var badge = (pct > 0 && pct < 25) ? '<span class="cbadge cbadge-hot">' + x.lastUnits + '</span>' : "";
+    var rows = "";
+    for (var i = 0; i < typos.length; i++) {
+      var ty = typos[i], a = ty.units_available || 0, tt = ty.units_total || 0;
+      if (!tt) continue;
+      rows += '<div class="avail-row"><span class="avail-name">' + ty.label + '</span>' +
+        '<div class="avail-bar"><span style="width:' + Math.round(a / tt * 100) + '%"></span></div>' +
+        '<span class="avail-num">' + a + "/" + tt + '</span></div>';
+    }
+    return '<section class="section availability"><div class="section-kicker">' + x.availabilityKicker + '</div><h2>' + x.availabilityTitle + " " + badge + '</h2>' +
+      '<div class="avail-headline"><strong>' + tot.avail + '</strong> ' + x.lotsAvailable + " / " + tot.total + '</div>' +
+      '<div class="avail-rows">' + rows + '</div></section>';
+  }
+
+  function renderSimulator(lang) {
+    var x = UIX[lang];
+    function field(id, label, val, step) {
+      return '<label class="sim-field"><span>' + label + '</span><input id="' + id + '" type="number" inputmode="numeric" value="' + val + '"' + (step ? ' step="' + step + '"' : "") + '></label>';
+    }
+    return '<section class="section simulator"><div class="section-kicker">' + x.simKicker + '</div><h2>' + x.simTitle + '</h2>' +
+      '<p class="sim-note">' + x.simNote + '</p>' +
+      '<div class="sim-grid">' +
+        field("simPrice", x.simAmount, 800000) +
+        field("simDown", x.simDown, 150000) +
+        field("simRate", x.simRate, 4.5, "0.1") +
+        field("simYears", x.simYears, 20) +
+      '</div>' +
+      '<div class="sim-result"><span>' + x.simMonthly + '</span><strong id="simMonthly">—</strong></div>' +
+    '</section>';
+  }
+
+  function setupSimulator(lang) {
+    var out = document.getElementById("simMonthly");
+    if (!out) return;
+    function recompute() {
+      var p = +document.getElementById("simPrice").value || 0;
+      var d = +document.getElementById("simDown").value || 0;
+      var r = +document.getElementById("simRate").value || 0;
+      var y = +document.getElementById("simYears").value || 0;
+      out.textContent = nf(computeMonthly(p, d, r, y)) + " " + UIX[lang].perMonth;
+    }
+    ["simPrice", "simDown", "simRate", "simYears"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener("input", recompute);
+    });
+    recompute();
+  }
+
   function renderProject(lang) {
     var project = findProject();
     if (!project) {
@@ -1541,6 +1768,27 @@
     document.title = name + " - Narjiss";
     document.documentElement.style.setProperty("--project-gradient", gradient);
     document.getElementById("projectApp").innerHTML =
+      renderProjectMedia(project, lang, t, name, location, topActions) +
+      renderCommercialHeader(project, lang) +
+      '<section class="section">' +
+          '<div class="editorial-grid">' +
+          '<div>' +
+            '<div class="section-kicker">' + t.overviewKicker + '</div>' +
+            '<h2>' + t.overviewTitle + '</h2>' +
+            '<p class="lead-copy">' + text(project.description, lang) + '</p>' +
+          '</div>' +
+          '<div class="atelier-card">' +
+            '<div class="atelier-content">' +
+              '<h3>' + t.atelierTitle + '</h3>' +
+              '<p>' + location + '</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+      renderTypologies(project, lang) +
+      renderAvailability(project, lang) +
+      renderFeatures(project, lang) +
+      renderSimulator(lang) +
       '<section class="section" id="projectMapSection">' +
         '<div class="map-composition">' +
           '<aside class="map-aside">' +
@@ -1555,30 +1803,6 @@
           '<div id="projectMap"></div>' +
         '</div>' +
       '</section>' +
-      renderProjectMedia(project, lang, t, name, location, topActions) +
-      '<section class="signature-strip"><div class="signature-grid">' + renderStats(project, lang, t) + '</div></section>' +
-      '<section class="section">' +
-          '<div class="editorial-grid">' +
-          '<div>' +
-            '<div class="section-kicker">' + t.overviewKicker + '</div>' +
-            '<h2>' + t.overviewTitle + '</h2>' +
-            '<p class="lead-copy">' + (project.status === "live" ? t.overviewLive : t.overviewSoon) + '</p>' +
-          '</div>' +
-          '<div class="atelier-card">' +
-            '<div class="atelier-content">' +
-              '<div class="atelier-icon">' + project.icon + '</div>' +
-              '<h3>' + t.atelierTitle + '</h3>' +
-              '<p>' + location + '</p>' +
-            '</div>' +
-          '</div>' +
-          renderProjectVisual(project, lang, t) +
-        '</div>' +
-      '</section>' +
-      '<section class="experience-band"><div class="section">' +
-        '<div class="section-kicker">' + t.pillarsKicker + '</div>' +
-        '<h2>' + t.pillarsTitle + '</h2>' +
-        '<div class="experience-grid" style="margin-top:1rem">' + renderPillars(t) + '</div>' +
-      '</div></section>' +
       '<section class="section">' +
         '<div class="section-kicker">' + t.majorKicker + '</div>' +
         '<h2>' + t.majorTitle + ' ' + name + '</h2>' +
@@ -1594,6 +1818,7 @@
     renderMajorPois(project, lang);
     setupProjectMedia(project, lang);
     setupRouteButtons(project, lang);
+    setupSimulator(lang);
   }
 
   window.onLanguageChange = function(lang) {
