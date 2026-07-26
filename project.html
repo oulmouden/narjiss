@@ -1038,6 +1038,8 @@ html[dir=rtl] .major-card { text-align: right; }
 .sim-result { display:flex; align-items:baseline; gap:.7rem; background:#fff; border:1px solid rgba(17,24,39,.1); border-radius:12px; padding:1rem 1.2rem; max-width:760px; }
 .sim-result span { color:var(--muted,#596273); font-weight:700; }
 .sim-result strong { font-family:var(--font-serif,'Playfair Display',serif); font-size:clamp(1.6rem,3.5vw,2.4rem); color:var(--ocean-deep,#008CC8); }
+/* Le montant (chiffres + espace des milliers) ne doit pas être réordonné en RTL. */
+html[dir=rtl] .sim-result strong { direction:ltr; unicode-bidi:isolate; }
 html[dir=rtl] .avail-row { grid-template-columns:62px 1fr 72px; }
 html[dir=rtl] .avail-num { text-align:left; }
 
