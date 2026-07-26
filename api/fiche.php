@@ -178,7 +178,15 @@ if (preg_match('#^data:image/png;base64,([A-Za-z0-9+/=]+)$#', $sig, $m)) {
 }
 
 /* ── Enregistrement ───────────────────────────────────────────────────── */
-if (!nj_fiches_append($fiche)) {
+// L'endpoint est public : une base indisponible ne doit pas exposer de trace
+// PHP. On échoue proprement en JSON et on journalise le détail côté serveur.
+try {
+  $enregistre = nj_fiche_insert($fiche);
+} catch (Throwable $e) {
+  $enregistre = false;
+  error_log('fiche insert: ' . $e->getMessage());
+}
+if (!$enregistre) {
   nj_fail(500, 'Enregistrement impossible.');
 }
 nj_log_access('creation', $reference, $nom . ' ' . $prenom . ' / ' . $projet);

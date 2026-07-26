@@ -12,6 +12,7 @@
  *   C:\xampp\narjiss-prive\    ← fiches + pièces d'identité (hors web)
  */
 require_once __DIR__ . '/data.php';
+require_once __DIR__ . '/db.php';
 
 /** Racine privée : C:\xampp\narjiss-prive (frère de htdocs). */
 define('NJ_PRIVATE_DIR', dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'narjiss-prive');
@@ -58,46 +59,195 @@ function nj_ensure_storage(): void {
   if (!is_file($ht)) {
     @file_put_contents($ht, "Require all denied\n<IfModule !mod_authz_core.c>\n  Deny from all\n</IfModule>\n");
   }
-  if (!is_file(NJ_FICHES_FILE)) @file_put_contents(NJ_FICHES_FILE, "[]\n");
+  // fiches.json n'est plus le stockage principal (voir MySQL, api/db.php) ;
+  // NJ_FICHES_FILE n'est conservé que pour la migration one-shot, s'il existe.
 }
 
-/** Lit l'index des fiches. */
-function nj_fiches_read(): array {
-  nj_ensure_storage();
-  $raw = @file_get_contents(NJ_FICHES_FILE);
-  $list = json_decode((string)$raw, true);
-  return is_array($list) ? $list : [];
+/* ─────────────────────────────────────────────────────────────────────────
+ * Stockage des enregistrements : MySQL (voir api/db.php).
+ *
+ * Une fiche est manipulée partout sous la forme d'un tableau imbriqué
+ * (identite, coordonnees, …). Les deux mappers ci-dessous convertissent cette
+ * forme vers/depuis une ligne SQL : les champs qu'on filtre et trie sont
+ * extraits en colonnes plates, les groupes restent stockés en JSON.
+ * Les copies de pièces d'identité ne sont JAMAIS en base : elles restent des
+ * fichiers dans le coffre privé (NJ_PIECES_DIR).
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/** ISO 8601 (« c ») → DATETIME MySQL, ou null si vide/illisible. */
+function nj_iso_to_sql(string $iso): ?string {
+  if ($iso === '') return null;
+  try { return (new DateTimeImmutable($iso))->format('Y-m-d H:i:s'); }
+  catch (Throwable $e) { return null; }
+}
+
+/** DATETIME MySQL → ISO 8601 (« c »), ou chaîne vide. */
+function nj_sql_to_iso(?string $sql): string {
+  if ($sql === null || $sql === '') return '';
+  try { return (new DateTimeImmutable($sql))->format('c'); }
+  catch (Throwable $e) { return ''; }
+}
+
+/** Encode un groupe en colonne JSON (null reste null). */
+function nj_json_col($value): ?string {
+  if ($value === null) return null;
+  return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
+
+/** Décode une colonne JSON en tableau (repli sur []). */
+function nj_json_val($raw): array {
+  $d = json_decode((string)$raw, true);
+  return is_array($d) ? $d : [];
+}
+
+/** Fiche imbriquée → ligne SQL (colonnes plates + groupes JSON). */
+function nj_fiche_to_row(array $f): array {
+  $id = $f['identite'] ?? [];
+  $co = $f['coordonnees'] ?? [];
+  $pa = $f['projet_acquisition'] ?? [];
+  return [
+    'reference'  => (string)($f['reference'] ?? ''),
+    'created_at' => nj_iso_to_sql((string)($f['date'] ?? '')) ?? date('Y-m-d H:i:s'),
+    'projet'     => (string)($f['projet'] ?? ''),
+    'projet_nom' => (string)($f['projet_nom'] ?? ''),
+    'conseiller' => (string)($f['conseiller'] ?? ''),
+    'statut'     => (($f['statut'] ?? 'prospect') === 'client') ? 'client' : 'prospect',
+    'expiration' => nj_iso_to_sql((string)($f['expiration'] ?? '')),
+    'nom'        => (string)($id['nom'] ?? ''),
+    'prenom'     => (string)($id['prenom'] ?? ''),
+    'telephone'  => (string)($co['telephone'] ?? ''),
+    'email'      => (string)($co['email'] ?? ''),
+    'ville'      => (string)($co['ville'] ?? ''),
+    'budget'     => (string)($pa['budget'] ?? ''),
+    'identite'           => nj_json_col($f['identite'] ?? null),
+    'coordonnees'        => nj_json_col($f['coordonnees'] ?? null),
+    'situation_pro'      => nj_json_col($f['situation_pro'] ?? null),
+    'projet_acquisition' => nj_json_col($f['projet_acquisition'] ?? null),
+    'origine_contact'    => nj_json_col($f['origine_contact'] ?? null),
+    'consentement'       => nj_json_col($f['consentement'] ?? null),
+    'pieces'             => nj_json_col($f['pieces'] ?? null),
+  ];
+}
+
+/** Ligne SQL → fiche imbriquée (forme attendue par l'admin et la purge). */
+function nj_row_to_fiche(array $r): array {
+  return [
+    'reference'  => (string)($r['reference'] ?? ''),
+    'date'       => nj_sql_to_iso($r['created_at'] ?? null),
+    'projet'     => (string)($r['projet'] ?? ''),
+    'projet_nom' => (string)($r['projet_nom'] ?? ''),
+    'conseiller' => (string)($r['conseiller'] ?? ''),
+    'statut'     => (string)($r['statut'] ?? 'prospect'),
+    'expiration' => nj_sql_to_iso($r['expiration'] ?? null),
+    'identite'           => nj_json_val($r['identite'] ?? null),
+    'coordonnees'        => nj_json_val($r['coordonnees'] ?? null),
+    'situation_pro'      => nj_json_val($r['situation_pro'] ?? null),
+    'projet_acquisition' => nj_json_val($r['projet_acquisition'] ?? null),
+    'origine_contact'    => nj_json_val($r['origine_contact'] ?? null),
+    'consentement'       => nj_json_val($r['consentement'] ?? null),
+    'pieces'             => nj_json_val($r['pieces'] ?? null),
+  ];
+}
+
+/** Insère une nouvelle fiche. Remplace l'ancien append JSON. */
+function nj_fiche_insert(array $fiche): bool {
+  $row  = nj_fiche_to_row($fiche);
+  $cols = array_keys($row);
+  $ph   = array_map(fn($c) => ':' . $c, $cols);
+  $sql  = 'INSERT INTO fiches (' . implode(', ', $cols) . ') VALUES (' . implode(', ', $ph) . ')';
+  return nj_db()->prepare($sql)->execute($row);
+}
+
+/** Une fiche par référence, sous forme imbriquée, ou null. */
+function nj_fiche_get(string $ref): ?array {
+  $st = nj_db()->prepare('SELECT * FROM fiches WHERE reference = ?');
+  $st->execute([$ref]);
+  $row = $st->fetch();
+  return $row ? nj_row_to_fiche($row) : null;
 }
 
 /**
- * Ajoute une fiche à l'index, sous verrou exclusif.
- * Le verrou évite qu'une tablette écrase la fiche d'une autre : deux
- * conseillers peuvent valider à la même seconde.
+ * Liste filtrée / paginée. Filtres reconnus :
+ *   q (recherche nom/prénom/téléphone/e-mail/référence), statut, projet,
+ *   expire (bool → uniquement les fiches à purger), page, per_page.
+ * Retourne ['rows' => fiches[], 'total' => int, 'page' => int, 'per_page' => int].
  */
-function nj_fiches_append(array $entry): bool {
-  nj_ensure_storage();
-  $fp = fopen(NJ_FICHES_FILE, 'c+');
-  if (!$fp) return false;
-  if (!flock($fp, LOCK_EX)) { fclose($fp); return false; }
+function nj_fiches_query(array $f = []): array {
+  $where = [];
+  $args  = [];
 
-  $list = json_decode((string)stream_get_contents($fp), true);
-  if (!is_array($list)) $list = [];
-  $list[] = $entry;
+  $q = trim((string)($f['q'] ?? ''));
+  if ($q !== '') {
+    $where[] = '(nom LIKE ? OR prenom LIKE ? OR telephone LIKE ? OR email LIKE ? OR reference LIKE ?)';
+    $like = '%' . $q . '%';
+    array_push($args, $like, $like, $like, $like, $like);
+  }
 
-  ftruncate($fp, 0);
-  rewind($fp);
-  fwrite($fp, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n");
-  fflush($fp);
-  flock($fp, LOCK_UN);
-  fclose($fp);
-  return true;
+  $statut = (string)($f['statut'] ?? '');
+  if ($statut === 'prospect' || $statut === 'client') {
+    $where[] = 'statut = ?';
+    $args[]  = $statut;
+  }
+
+  $projet = (string)($f['projet'] ?? '');
+  if ($projet !== '') {
+    $where[] = 'projet = ?';
+    $args[]  = $projet;
+  }
+
+  if (!empty($f['expire'])) {
+    $where[] = 'expiration IS NOT NULL AND expiration < NOW()';
+  }
+
+  $clause = $where ? (' WHERE ' . implode(' AND ', $where)) : '';
+
+  $stc = nj_db()->prepare('SELECT COUNT(*) FROM fiches' . $clause);
+  $stc->execute($args);
+  $total = (int)$stc->fetchColumn();
+
+  $perPage = min(200, max(1, (int)($f['per_page'] ?? 25)));
+  $page    = max(1, (int)($f['page'] ?? 1));
+  $offset  = ($page - 1) * $perPage;
+
+  // perPage/offset sont des entiers validés : sûrs en interpolation directe
+  // (LIMIT/OFFSET liés par placeholder posent problème hors mode émulé).
+  $sql = 'SELECT * FROM fiches' . $clause
+       . ' ORDER BY created_at DESC LIMIT ' . $perPage . ' OFFSET ' . $offset;
+  $st = nj_db()->prepare($sql);
+  $st->execute($args);
+  $rows = array_map('nj_row_to_fiche', $st->fetchAll());
+
+  return ['rows' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
 }
 
-/** Réécrit l'index en entier (utilisé par la purge et le changement de statut). */
-function nj_fiches_write(array $list): bool {
-  nj_ensure_storage();
-  $json = json_encode(array_values($list), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-  return (bool)@file_put_contents(NJ_FICHES_FILE, $json . "\n", LOCK_EX);
+/**
+ * Change le statut et recalcule la date d'expiration en conséquence
+ * (la conservation dépend du statut : prospect 3 ans / client 10 ans).
+ */
+function nj_fiche_set_statut(string $ref, string $statut): bool {
+  $statut = ($statut === 'client') ? 'client' : 'prospect';
+
+  $st = nj_db()->prepare('SELECT created_at FROM fiches WHERE reference = ?');
+  $st->execute([$ref]);
+  $created = $st->fetchColumn();
+  if ($created === false) return false;
+
+  $exp = nj_iso_to_sql(nj_expiry_date(nj_sql_to_iso((string)$created), $statut));
+  $up  = nj_db()->prepare('UPDATE fiches SET statut = ?, expiration = ? WHERE reference = ?');
+  return $up->execute([$statut, $exp, $ref]);
+}
+
+/** Supprime la ligne. La suppression des pièces sur disque incombe à l'appelant. */
+function nj_fiche_delete(string $ref): bool {
+  return nj_db()->prepare('DELETE FROM fiches WHERE reference = ?')->execute([$ref]);
+}
+
+/** Fiches dont la conservation est écoulée (pour la purge planifiée). */
+function nj_fiches_expired(): array {
+  $st = nj_db()->query(
+    'SELECT * FROM fiches WHERE expiration IS NOT NULL AND expiration < NOW() ORDER BY expiration ASC'
+  );
+  return array_map('nj_row_to_fiche', $st->fetchAll());
 }
 
 /**

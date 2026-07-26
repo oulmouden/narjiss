@@ -23,25 +23,14 @@ if (PHP_SAPI !== 'cli') {
 require __DIR__ . '/fiche-config.php';
 
 $apply = in_array('--appliquer', $argv, true);
-$now   = time();
 
-$fiches = nj_fiches_read();
-$garde  = [];
-$purges = 0;
+// La base ne renvoie que les fiches dont l'expiration est passée (SQL NOW()).
+$expirees = nj_fiches_expired();
+$purges   = 0;
 
-foreach ($fiches as $f) {
+foreach ($expirees as $f) {
     $ref = (string)($f['reference'] ?? '');
     $exp = (string)($f['expiration'] ?? '');
-
-    // Une fiche sans date d'expiration lisible est conservée : mieux vaut
-    // un signalement qu'une suppression accidentelle.
-    $expired = false;
-    if ($exp !== '') {
-        try { $expired = (new DateTimeImmutable($exp))->getTimestamp() < $now; }
-        catch (Throwable $e) { $expired = false; }
-    }
-
-    if (!$expired) { $garde[] = $f; continue; }
 
     $purges++;
     printf("%s  %s  (expirée le %s)%s\n",
@@ -51,22 +40,23 @@ foreach ($fiches as $f) {
         $apply ? '' : '  [simulation]'
     );
 
-    if (!$apply) { $garde[] = $f; continue; }
+    if (!$apply) continue;
 
+    // Les octets des pièces sont sur disque : on efface le dossier privé…
     $dir = NJ_PIECES_DIR . DIRECTORY_SEPARATOR . $ref;
     if (is_dir($dir)) {
         foreach ((glob($dir . DIRECTORY_SEPARATOR . '*') ?: []) as $file) @unlink($file);
         @rmdir($dir);
     }
+    // …puis la ligne en base.
+    nj_fiche_delete($ref);
     nj_log_access('purge', $ref, 'expiration ' . $exp);
 }
 
-if ($apply && $purges > 0) {
-    nj_fiches_write($garde);
-}
+$total = (int)nj_db()->query('SELECT COUNT(*) FROM fiches')->fetchColumn();
 
 printf("\n%d fiche(s) au total, %d %s.\n",
-    count($fiches),
+    $total,
     $purges,
     $apply ? 'supprimée(s)' : 'à purger (relancer avec --appliquer)'
 );
