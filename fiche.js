@@ -388,6 +388,16 @@
     if (el && !el.value) el.value = value;
   }
 
+  // Champs alimentés par la lecture MRZ. On les réinitialise au début de chaque
+  // scan pour qu'une NOUVELLE carte remplace bien les valeurs de la précédente.
+  var MRZ_FIELDS = ['nom', 'prenom', 'date_naissance', 'cnie', 'cnie_validite'];
+  function mrzResetFields() {
+    MRZ_FIELDS.forEach(function(name) {
+      var el = document.querySelector('[name="' + name + '"]');
+      if (el) el.value = '';
+    });
+  }
+
   async function getMrzWorker() {
     if (mrzWorker) return mrzWorker;
     // Tesseract crée un Web Worker en blob (sa base d'URL devient « blob:… ») :
@@ -488,6 +498,7 @@
     input.addEventListener('change', async function () {
       var file = this.files && this.files[0];
       if (!file) return;
+      mrzResetFields();                 // nouvelle carte : on repart de zéro
       mrzSetStatus('', t('mrzReading'));
 
       try {
