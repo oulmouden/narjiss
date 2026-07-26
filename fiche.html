@@ -52,6 +52,23 @@ html[dir=rtl] body { font-family: 'Noto Sans Arabic', 'Outfit', sans-serif; }
 }
 .lang-switch button.on { background: white; color: var(--navy); border-color: white; }
 
+.head-actions { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+.head-reset {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid rgba(255,255,255,.5);
+  background: rgba(255,255,255,.12);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  font-size: .85rem;
+  padding: .4rem .8rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.head-reset::before { content: "↻"; margin-inline-end: .35rem; font-size: 1rem; }
+.head-reset:hover { background: rgba(255,255,255,.22); }
+
 fieldset {
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -253,9 +270,12 @@ input:focus, select:focus, textarea:focus {
       <div class="brand">NARJISS IMMOBILIÈRE</div>
       <div class="sub" data-i18n="subtitle">Fiche de renseignement — bureau de vente</div>
     </div>
-    <div class="lang-switch">
-      <button type="button" data-lang="fr" class="on">Français</button>
-      <button type="button" data-lang="ar">العربية</button>
+    <div class="head-actions">
+      <button type="button" class="head-reset" id="resetBtn" data-i18n="nouveauClient">Nouveau client</button>
+      <div class="lang-switch">
+        <button type="button" data-lang="fr" class="on">Français</button>
+        <button type="button" data-lang="ar">العربية</button>
+      </div>
     </div>
   </header>
 
@@ -393,7 +413,6 @@ input:focus, select:focus, textarea:focus {
 
   <div class="submit-bar">
     <button type="submit" class="btn-send" id="sendBtn" data-i18n="envoyer">Enregistrer la fiche</button>
-    <button type="button" class="btn-ghost" id="resetBtn" data-i18n="nouveauClient">Nouveau client</button>
   </div>
   <div class="result" id="result"></div>
 </form>
