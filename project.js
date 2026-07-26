@@ -1749,6 +1749,121 @@
     recompute();
   }
 
+  /* ─── Hero média façon Zillow : grand visualiseur (360° Pannellum / visite 3D /
+     plan) + barre d'onglets + vignettes de pièces. Remplace le media-wall. ─── */
+
+  var MEDIA_UI = {
+    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tourMissing: "Visite 3D bientôt disponible." },
+    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tourMissing: "3D tour coming soon." },
+    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tourMissing: "الجولة ثلاثية الأبعاد قريبًا." },
+    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tourMissing: "Tour 3D próximamente." }
+  };
+
+  function renderHeroMedia(project, lang, t, name, location, topActions) {
+    var m = MEDIA_UI[lang];
+    var panos = project.panoramas || [];
+    var floor = projectFloorPlan(project);
+    var saveLabel = lang === "en" ? "Save" : lang === "es" ? "Guardar" : lang === "ar" ? "حفظ" : "Sauvegarder";
+    var shareLabel = lang === "en" ? "Share" : lang === "es" ? "Compartir" : lang === "ar" ? "مشاركة" : "Partager";
+
+    var tabs = "";
+    if (panos.length) tabs += '<button type="button" class="hero-tab" data-tab="p360">🌐 ' + m.tab360 + '</button>';
+    if (project.tour_url) tabs += '<button type="button" class="hero-tab" data-tab="tour">🎥 ' + m.tabTour + '</button>';
+    if (floor) tabs += '<button type="button" class="hero-tab" data-tab="plan">⌗ ' + m.tabPlan + '</button>';
+
+    var thumbs = "";
+    for (var i = 0; i < panos.length; i++) {
+      var room = text(panos[i].room, lang) || ("360° " + (i + 1));
+      thumbs += '<button type="button" class="hero-thumb" data-index="' + i + '"><img src="' + panos[i].src + '" alt="' + room + '" loading="lazy"><span>' + room + '</span></button>';
+    }
+
+    return '<section class="hero-media">' +
+      '<div class="property-toolbar">' +
+        '<a href="explorer.html#' + lang + '">← ' + t.backProjects + '</a>' +
+        '<div class="property-toolbar-actions"><button type="button">♡ ' + saveLabel + '</button><button type="button">⇧ ' + shareLabel + '</button></div>' +
+      '</div>' +
+      '<div class="property-summary"><div><h1>' + name + '</h1><p>📍 ' + location + '</p></div><div class="hero-actions">' + topActions + '</div></div>' +
+      '<div class="hero-stage-wrap">' +
+        '<div id="heroStage" class="hero-stage"></div>' +
+        (tabs ? '<div class="hero-tabs">' + tabs + '</div>' : "") +
+        (thumbs ? '<div class="hero-thumbs" id="heroThumbs">' + thumbs + '</div>' : "") +
+      '</div>' +
+    '</section>';
+  }
+
+  function setupHeroMedia(project, lang) {
+    var stage = document.getElementById("heroStage");
+    if (!stage) return;
+    var m = MEDIA_UI[lang];
+    var panos = project.panoramas || [];
+    var viewer = null;
+
+    function destroyViewer() { if (viewer) { try { viewer.destroy(); } catch (e) {} viewer = null; } }
+
+    function markThumb(index) {
+      var thumbs = document.querySelectorAll(".hero-thumb");
+      for (var i = 0; i < thumbs.length; i++) thumbs[i].classList.toggle("active", +thumbs[i].getAttribute("data-index") === index);
+    }
+    function markTab(tab) {
+      var tabs = document.querySelectorAll(".hero-tab");
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle("active", tabs[i].getAttribute("data-tab") === tab);
+      var box = document.getElementById("heroThumbs");
+      if (box) box.style.display = (tab === "p360") ? "" : "none";
+    }
+
+    function show360(index) {
+      destroyViewer();
+      stage.innerHTML = "";
+      if (!panos.length || typeof pannellum === "undefined") {
+        stage.innerHTML = '<img class="hero-flat" src="' + (panos[0] ? panos[0].src : mediaImage(project, 0)) + '" alt="">';
+        return;
+      }
+      viewer = pannellum.viewer("heroStage", {
+        type: "equirectangular",
+        panorama: panos[index].src,
+        autoLoad: true,
+        autoRotate: -2,
+        showZoomCtrl: true,
+        showFullscreenCtrl: true,
+        compass: false,
+        hfov: 105
+      });
+      markThumb(index);
+    }
+    function showTour() {
+      destroyViewer();
+      if (!project.tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
+      stage.innerHTML = '<iframe class="hero-frame" src="' + project.tour_url + '" allowfullscreen></iframe>';
+    }
+    function showPlan() {
+      destroyViewer();
+      stage.innerHTML = '<a class="hero-plan" href="' + projectMassPlanPdf(project) + '" target="_blank" rel="noopener"><img src="' + projectFloorPlan(project) + '" alt="plan"></a>';
+    }
+
+    var tabEls = document.querySelectorAll(".hero-tab");
+    for (var i = 0; i < tabEls.length; i++) {
+      (function(el) {
+        el.addEventListener("click", function() {
+          var tab = el.getAttribute("data-tab");
+          markTab(tab);
+          if (tab === "p360") show360(0);
+          else if (tab === "tour") showTour();
+          else if (tab === "plan") showPlan();
+        });
+      })(tabEls[i]);
+    }
+    var thumbEls = document.querySelectorAll(".hero-thumb");
+    for (var j = 0; j < thumbEls.length; j++) {
+      (function(el) {
+        el.addEventListener("click", function() { show360(+el.getAttribute("data-index")); });
+      })(thumbEls[j]);
+    }
+
+    if (panos.length) { markTab("p360"); show360(0); }
+    else if (project.tour_url) { markTab("tour"); showTour(); }
+    else { markTab("plan"); showPlan(); }
+  }
+
   function renderProject(lang) {
     var project = findProject();
     if (!project) {
@@ -1768,7 +1883,7 @@
     document.title = name + " - Narjiss";
     document.documentElement.style.setProperty("--project-gradient", gradient);
     document.getElementById("projectApp").innerHTML =
-      renderProjectMedia(project, lang, t, name, location, topActions) +
+      renderHeroMedia(project, lang, t, name, location, topActions) +
       renderCommercialHeader(project, lang) +
       '<section class="section">' +
           '<div class="editorial-grid">' +
@@ -1816,7 +1931,7 @@
 
     renderMap(project, lang);
     renderMajorPois(project, lang);
-    setupProjectMedia(project, lang);
+    setupHeroMedia(project, lang);
     setupRouteButtons(project, lang);
     setupSimulator(lang);
   }

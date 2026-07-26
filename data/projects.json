@@ -46,7 +46,13 @@
             { "label": "F4", "rooms": 4, "surface_min": 104, "surface_max": 118, "units_total": 14, "units_available": 3, "floorplan": "images/projects/jawhara/floorplan.png" }
         ],
         "features": ["piscine", "securite-24-7", "parking-sous-sol", "espaces-verts", "ascenseur", "syndic"],
-        "gallery": ["images/projects/jawhara/concept-hero.png"]
+        "gallery": ["images/projects/jawhara/concept-hero.png"],
+        "panoramas": [
+            { "src": "images/projects/jawhara/salon_19.jpeg", "room": { "fr": "Salon", "en": "Living room", "ar": "صالون", "es": "Salón" } },
+            { "src": "images/projects/jawhara/cuisine.jpeg", "room": { "fr": "Cuisine", "en": "Kitchen", "ar": "مطبخ", "es": "Cocina" } },
+            { "src": "images/projects/jawhara/chambre1_17.jpeg", "room": { "fr": "Chambre", "en": "Bedroom", "ar": "غرفة نوم", "es": "Dormitorio" } },
+            { "src": "images/projects/jawhara/couloir_18.jpeg", "room": { "fr": "Couloir", "en": "Hallway", "ar": "ممر", "es": "Pasillo" } }
+        ]
     },
     {
         "id": "tazroute",
