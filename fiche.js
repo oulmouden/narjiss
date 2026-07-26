@@ -387,6 +387,7 @@
     if (dbg) dbg.textContent = '';
     var result = document.getElementById('result');
     if (result) { result.className = 'result'; result.innerHTML = ''; }
+    refreshRequired();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -416,6 +417,19 @@
     MRZ_FIELDS.forEach(function(name) {
       var el = document.querySelector('[name="' + name + '"]');
       if (el) el.value = '';
+    });
+  }
+
+  // Surlignage des champs OBLIGATOIRES encore vides (fond rouge) : quand le scan
+  // ne remplit pas tout (ex. nom/prénom illisibles), le conseiller voit d'un
+  // coup d'œil ce qu'il reste à saisir. Le rouge disparaît dès que le champ est
+  // renseigné.
+  var REQUIRED_FIELDS = ['projet', 'nom', 'prenom', 'telephone'];
+  function refreshRequired() {
+    REQUIRED_FIELDS.forEach(function(name) {
+      var el = document.querySelector('[name="' + name + '"]');
+      if (!el) return;
+      el.classList.toggle('field-required-empty', !String(el.value || '').trim());
     });
   }
 
@@ -560,6 +574,7 @@
         setIfEmpty('date_naissance', parsed.birthDate);
         setIfEmpty('cnie', parsed.documentNumber);
         setIfEmpty('cnie_validite', parsed.expiryDate);
+        refreshRequired();               // met à jour les repères rouges
         mrzSetStatus('ok', t('mrzOk'));
       } catch (e) {
         if (MRZ_DEBUG) {
@@ -586,6 +601,12 @@
     if (resetBtn) resetBtn.onclick = function() {
       if (window.confirm(t('resetConfirm'))) resetForm();
     };
+
+    // Le rouge des champs obligatoires se met à jour dès qu'on saisit.
+    var formEl = document.getElementById('ficheForm');
+    formEl.addEventListener('input', refreshRequired);
+    formEl.addEventListener('change', refreshRequired);
+    refreshRequired();
 
     // menu.js charge data/projects.json de façon asynchrone : on repeuple
     // la liste quand elle arrive, sinon seuls les projets par défaut sortent.

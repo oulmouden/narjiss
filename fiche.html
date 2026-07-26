@@ -99,6 +99,10 @@ input:focus, select:focus, textarea:focus {
 }
 .req { color: var(--orange); }
 
+/* Champ obligatoire encore vide : fond rouge pâle qui disparaît au remplissage */
+.field-required-empty { background: #fdecec !important; border-color: #e2a0a0 !important; }
+.field-required-empty:focus { border-color: var(--ocean) !important; }
+
 .choices { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .1rem; }
 .choices label {
   display: inline-flex;
@@ -395,8 +399,8 @@ input:focus, select:focus, textarea:focus {
 </form>
 
 <script src="assets/vendor/tesseract/tesseract.min.js"></script>
-<script src="assets/vendor/mrz/mrz-td1.js?v=20260724e"></script>
+<script src="assets/vendor/mrz/mrz-td1.js?v=20260724f"></script>
 <script src="shared/menu.js"></script>
-<script src="fiche.js?v=20260724e"></script>
+<script src="fiche.js?v=20260724f"></script>
 </body>
 </html>
