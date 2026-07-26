@@ -1046,9 +1046,12 @@ html[dir=rtl] .avail-num { text-align:left; }
 /* ─── Hero média (visualiseur 360 / visite 3D / plan) ─── */
 .hero-media { max-width:1600px; margin:0 auto; padding:0 1.25rem; }
 .hero-stage-wrap { position:relative; }
-.hero-stage { width:100%; height:clamp(360px,60vh,620px); border-radius:16px; overflow:hidden; background:#0b1220; }
+.hero-stage { position:relative; width:100%; height:clamp(360px,60vh,620px); border-radius:16px; overflow:hidden; background:#0b1220; }
 .hero-stage .pnlm-container { border-radius:16px; background:#0b1220; }
 .hero-frame { width:100%; height:100%; border:0; display:block; }
+.hero-pan { width:100%; height:100%; overflow-x:auto; overflow-y:hidden; background:#0b1220; }
+.hero-pan img { height:100%; width:auto; max-width:none; display:block; }
+.hero-pan-note { position:absolute; left:0; right:0; bottom:0; background:rgba(11,18,32,.72); color:#fff; font-size:.8rem; padding:.45rem .7rem; text-align:center; }
 .hero-plan { display:block; width:100%; height:100%; background:#eef2f7; }
 .hero-plan img { width:100%; height:100%; object-fit:contain; display:block; }
 .hero-flat { width:100%; height:100%; object-fit:cover; display:block; }
@@ -1069,6 +1072,6 @@ html[dir=rtl] .avail-num { text-align:left; }
 <div id="mainFooter"></div>
 <script src="shared/menu.js"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260726a"></script>
+<script src="project.js?v=20260726b"></script>
 </body>
 </html>

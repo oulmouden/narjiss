@@ -1753,10 +1753,10 @@
      plan) + barre d'onglets + vignettes de pièces. Remplace le media-wall. ─── */
 
   var MEDIA_UI = {
-    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tourMissing: "Visite 3D bientôt disponible." },
-    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tourMissing: "3D tour coming soon." },
-    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tourMissing: "الجولة ثلاثية الأبعاد قريبًا." },
-    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tourMissing: "Tour 3D próximamente." }
+    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tourMissing: "Visite 3D bientôt disponible.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
+    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tourMissing: "3D tour coming soon.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
+    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
+    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tourMissing: "Tour 3D próximamente.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
   };
 
   function renderHeroMedia(project, lang, t, name, location, topActions) {
@@ -1811,24 +1811,33 @@
       if (box) box.style.display = (tab === "p360") ? "" : "none";
     }
 
+    function flatFallback(src) {
+      destroyViewer();
+      stage.innerHTML = '<div class="hero-pan"><img src="' + src + '" alt=""></div><div class="hero-pan-note">' + m.flatNote + '</div>';
+    }
+
     function show360(index) {
       destroyViewer();
       stage.innerHTML = "";
-      if (!panos.length || typeof pannellum === "undefined") {
-        stage.innerHTML = '<img class="hero-flat" src="' + (panos[0] ? panos[0].src : mediaImage(project, 0)) + '" alt="">';
-        return;
-      }
-      viewer = pannellum.viewer("heroStage", {
-        type: "equirectangular",
-        panorama: panos[index].src,
-        autoLoad: true,
-        autoRotate: -2,
-        showZoomCtrl: true,
-        showFullscreenCtrl: true,
-        compass: false,
-        hfov: 105
-      });
+      var src = panos[index] ? panos[index].src : mediaImage(project, 0);
       markThumb(index);
+      // Sans WebGL (accélération GPU désactivée), on retombe sur une vue plate défilable.
+      if (!panos.length || typeof pannellum === "undefined") { flatFallback(src); return; }
+      try {
+        viewer = pannellum.viewer("heroStage", {
+          type: "equirectangular",
+          panorama: src,
+          autoLoad: true,
+          autoRotate: -2,
+          showZoomCtrl: true,
+          showFullscreenCtrl: true,
+          compass: false,
+          hfov: 105
+        });
+        viewer.on("error", function() { flatFallback(src); });
+      } catch (e) {
+        flatFallback(src);
+      }
     }
     function showTour() {
       destroyViewer();
