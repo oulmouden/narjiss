@@ -421,27 +421,30 @@
   }
 
   /* Prépare un canvas optimisé pour l'OCR de la MRZ à partir d'une photo :
-     recadrage vertical optionnel (la MRZ est en bas d'une carte à plat),
-     agrandissement à ~1600 px de large, niveaux de gris et renforcement de
-     contraste. Une photo brute de carte entière lit mal ; ce nettoyage change
-     tout. */
-  function mrzCanvas(img, cropTopFrac, contrast) {
-    var sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
-    if (cropTopFrac) { sy = Math.round(sh * cropTopFrac); sh = sh - sy; }
-    var targetW = 1600;
-    var scale = sw < targetW ? (targetW / sw) : 1;
-    var w = Math.round(sw * scale), h = Math.round(sh * scale);
+     ROTATION (0/90/180/270 — les clients photographient la carte dans tous les
+     sens), agrandissement à ~2200 px de large et niveaux de gris. Le contraste
+     n'est appliqué qu'en dernier recours (un contraste trop fort épaissit les
+     chevrons « < » et casse la séparation « << » nom/prénom). */
+  function mrzCanvas(img, rotate, contrast) {
+    rotate = rotate || 0;
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    var swap = (rotate === 90 || rotate === 270);
+    var rw = swap ? ih : iw, rh = swap ? iw : ih;   // dimensions après rotation
+    var targetW = 2200;
+    var scale = rw < targetW ? (targetW / rw) : 1;
+    var w = Math.round(rw * scale), h = Math.round(rh * scale);
     var cv = document.createElement('canvas');
     cv.width = w; cv.height = h;
     var ctx = cv.getContext('2d');
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate(rotate * Math.PI / 180);
+    ctx.drawImage(img, -iw * scale / 2, -ih * scale / 2, iw * scale, ih * scale);
+    ctx.restore();
     var data = ctx.getImageData(0, 0, w, h);
     var p = data.data;
     for (var i = 0; i < p.length; i += 4) {
       var g = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2];
-      // Un contraste trop agressif épaissit les chevrons « < » et casse la
-      // séparation « << » nom/prénom : par défaut on reste en simples niveaux
-      // de gris, le contraste n'est appliqué qu'en dernier recours.
       if (contrast) g = g < 128 ? Math.max(0, g - 45) : Math.min(255, g + 45);
       p[i] = p[i + 1] = p[i + 2] = g;
     }
@@ -490,13 +493,15 @@
       try {
         var worker = await getMrzWorker();
         var img = await loadImageFromFile(file);
-        // Plusieurs prétraitements successifs : image entière en niveaux de
-        // gris, puis bande basse (MRZ d'une carte à plat), puis contraste
-        // renforcé en dernier recours. On conserve la MEILLEURE lecture (nom ET
-        // prénom) plutôt que la première simplement valide.
+        // On essaie les 4 orientations (la photo peut être tournée), puis un
+        // renforcement de contraste en dernier recours. On conserve la MEILLEURE
+        // lecture (nom ET prénom) plutôt que la première simplement valide, et on
+        // s'arrête dès qu'une lecture est complète.
         var attempts = [
           mrzCanvas(img, 0, false),
-          mrzCanvas(img, 0.5, false),
+          mrzCanvas(img, 270, false),
+          mrzCanvas(img, 90, false),
+          mrzCanvas(img, 180, false),
           mrzCanvas(img, 0, true)
         ];
         var parsed = null, dump = '';

@@ -91,12 +91,29 @@
     };
   }
 
+  // Recalage : l'OCR ajoute parfois des caractères parasites en TÊTE de ligne
+  // (ex. « BIDMAR… », « BE58… »), ce qui décalerait le découpage à positions
+  // fixes. On réancre la ligne 1 sur le code pays (positions 3-5) et la ligne 2
+  // sur le premier chiffre (début de la date de naissance).
+  function alignLine1(l) {
+    var i = l.indexOf('MAR');
+    if (i >= 2 && i <= 5) return l.slice(i - 2);
+    var j = l.indexOf('ID');            // repli : type de document
+    return (j > 0 && j <= 3) ? l.slice(j) : l;
+  }
+  function alignLine2(l) {
+    var m = /[0-9]/.exec(l);
+    return (m && m.index > 0 && m.index <= 3) ? l.slice(m.index) : l;
+  }
+
   /**
    * Analyse 3 lignes TD1. Retourne un objet complet si TOUS les contrôles
    * passent, sinon { valid:false, reason }.
    */
   function parseTD1(l1, l2, l3) {
-    l1 = cleanLine(l1); l2 = cleanLine(l2); l3 = cleanLine(l3);
+    l1 = alignLine1(cleanLine(l1));
+    l2 = alignLine2(cleanLine(l2));
+    l3 = cleanLine(l3);
 
     // Chaque ligne TD1 fait 30 caractères. On tolère une longueur légèrement
     // différente due à l'OCR, mais on cale sur 30.
@@ -137,9 +154,12 @@
       if (!digitOk(composite, compositeCk)) return { valid: false, reason: 'contrôle global' };
     }
 
+    // Dates : la CNIE marocaine encode parfois une naissance PARTIELLE (année
+    // connue, mois/jour en « < » — ex. 58<<<< pour un natif de 1958 sans état
+    // civil précis). Le chiffre de contrôle, déjà validé, garantit l'intégrité :
+    // on ne rejette donc plus une date incomplète, on laisse le champ vide.
     var birthDate = parseDate(birth, false);
     var expiryDate = parseDate(expiry, true);
-    if (!birthDate || !expiryDate) return { valid: false, reason: 'dates illisibles' };
 
     var names = parseNames(l3);
 
@@ -161,8 +181,8 @@
       documentNumber: idNumber,
       nom: names.nom,
       prenom: names.prenom,
-      birthDate: birthDate.iso,
-      expiryDate: expiryDate.iso,
+      birthDate: birthDate ? birthDate.iso : '',
+      expiryDate: expiryDate ? expiryDate.iso : '',
       sex: sex === 'M' ? 'M' : (sex === 'F' ? 'F' : ''),
       nationality: nationality.replace(/</g, '')
     };
