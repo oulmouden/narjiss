@@ -22,3 +22,6 @@ Desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Secrets — visite guidée en direct (Pusher)
+api/liveguide-config.php
