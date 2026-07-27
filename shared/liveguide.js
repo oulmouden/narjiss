@@ -129,6 +129,18 @@
     window.addEventListener('hashchange', function () { publishState(channel); });
     var beat = setInterval(function () { publishState(channel); }, 4000);
 
+    // Diffusion des clics (vignettes, onglets, boutons…) que la sync URL/scroll
+    // ne couvre pas. On ignore notre propre UI et les vrais liens (déjà gérés
+    // par la synchronisation d'URL). Capture pour voir le clic même si un
+    // handler appelle stopPropagation.
+    document.addEventListener('click', function (ev) {
+      var t = ev.target;
+      if (!(t instanceof Element)) return;
+      if (t.closest('.lg-hostbar') || t.closest('.lg-viewerbar') || t.closest('a[href]')) return;
+      var sel = cssPath(t);
+      if (sel) channel.trigger('client-action', { kind: 'click', selector: sel });
+    }, true);
+
     // --- Voix : réception des réponses / ICE des visiteurs ---
     channel.bind('client-webrtc', function (msg) {
       if (!msg || msg.to !== userId) return;
@@ -226,6 +238,14 @@
 
     channel.bind('pusher:subscription_error', function () {
       banner.status.textContent = 'Reconnexion…';
+    });
+
+    // --- Rejoue les clics de l'hôte (panorama, onglets, boutons…) ---
+    channel.bind('client-action', function (msg) {
+      if (!msg || msg.kind !== 'click' || !msg.selector) return;
+      var elt;
+      try { elt = document.querySelector(msg.selector); } catch (e) { return; }
+      if (elt) elt.click();
     });
 
     // --- Voix : réception de l'offre de l'hôte ---
@@ -426,6 +446,30 @@
 
   function sanitize(v) {
     return String(v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
+  }
+
+  // Sélecteur CSS unique pour un élément (les DOM hôte/visiteur sont identiques).
+  function cssPath(el) {
+    if (!(el instanceof Element)) return null;
+    if (el.id) return '#' + cssEscape(el.id);
+    var parts = [];
+    while (el && el.nodeType === 1 && el !== document.body && parts.length < 8) {
+      var sel = el.nodeName.toLowerCase();
+      if (el.id) { parts.unshift('#' + cssEscape(el.id)); break; }
+      var parent = el.parentNode;
+      if (parent && parent.children) {
+        var same = Array.prototype.filter.call(parent.children, function (c) { return c.nodeName === el.nodeName; });
+        if (same.length > 1) sel += ':nth-of-type(' + (Array.prototype.indexOf.call(same, el) + 1) + ')';
+      }
+      parts.unshift(sel);
+      el = parent;
+    }
+    return parts.join(' > ');
+  }
+
+  function cssEscape(s) {
+    if (window.CSS && CSS.escape) return CSS.escape(s);
+    return String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
   }
 
   function keyCount(o) { return Object.keys(o).length; }
