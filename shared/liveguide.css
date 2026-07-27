@@ -1,0 +1,120 @@
+/* ============================================================
+   VISITE GUIDÉE EN DIRECT — barre hôte & bannière visiteur
+   ============================================================ */
+
+.lg-hostbar,
+.lg-viewerbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 10px 18px;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 14px;
+  color: #fff;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.lg-hostbar {
+  background: linear-gradient(90deg, #0f5132, #157347);
+}
+
+.lg-viewerbar {
+  background: #1c1c1e;
+  justify-content: center;
+}
+
+/* Laisse la place à la barre fixe pour ne pas masquer le bas de page. */
+body.lg-has-bar {
+  padding-bottom: 64px;
+}
+
+.lg-status {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lg-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.95;
+}
+
+.lg-count b { font-weight: 700; }
+
+.lg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4ade80;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  animation: lg-pulse 1.8s infinite;
+}
+
+.lg-viewerbar .lg-dot { background: #f87171; box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); }
+
+@keyframes lg-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+.lg-btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s ease, opacity 0.15s ease;
+}
+
+.lg-btn:active { transform: translateY(1px); }
+
+.lg-btn-primary {
+  background: #fff;
+  color: #0f5132;
+}
+
+.lg-btn-ghost {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.lg-btn-ghost:hover { background: rgba(255, 255, 255, 0.26); }
+
+/* Micro actif : accent visible. */
+.lg-btn-on {
+  background: #f59e0b;
+  color: #1c1c1e;
+  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  animation: lg-pulse-amber 1.8s infinite;
+}
+
+@keyframes lg-pulse-amber {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+/* Barre hôte : bouton "Terminer" poussé à droite. */
+.lg-hostbar .lg-btn-end { margin-left: auto; }
+
+@media (max-width: 560px) {
+  .lg-hostbar, .lg-viewerbar { font-size: 13px; gap: 10px; padding: 9px 12px; }
+  .lg-hostbar .lg-btn-end { margin-left: 0; }
+  body.lg-has-bar { padding-bottom: 116px; }
+}
+
+/* En RTL (arabe), la barre reste lisible. */
+[dir="rtl"] .lg-hostbar .lg-btn-end { margin-left: 0; margin-right: auto; }

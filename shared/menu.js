@@ -759,9 +759,36 @@ function switchLang(lang, activePage, basePath) {
   });
 }
 
+// ===== VISITE GUIDÉE EN DIRECT (chargée sur toutes les pages) =====
+var LIVEGUIDE_VERSION = '6'; // bump à chaque modif de liveguide.* pour casser le cache
+
+function installLiveGuide(basePath) {
+  basePath = basePath || '';
+  if (document.getElementById('lg-script')) return; // déjà chargé
+  var v = '?v=' + LIVEGUIDE_VERSION;
+  // Config publique
+  var cfg = document.createElement('script');
+  cfg.src = basePath + 'shared/liveguide-config.js' + v;
+  cfg.onload = function () {
+    // Feuille de style
+    var css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = basePath + 'shared/liveguide.css' + v;
+    document.head.appendChild(css);
+    // Cœur (reçoit basePath pour résoudre l'endpoint d'auth et le lien visiteur)
+    var js = document.createElement('script');
+    js.id = 'lg-script';
+    js.src = basePath + 'shared/liveguide.js' + v;
+    js.setAttribute('data-base', basePath);
+    document.body.appendChild(js);
+  };
+  document.head.appendChild(cfg);
+}
+
 // ===== INITIALISATION =====
 function initPage(activePage, basePath) {
   basePath = basePath || '';
+  installLiveGuide(basePath);
   // Detect language from hash
   var hash = window.location.hash.replace('#', '');
   var initialLang = ['fr', 'en', 'ar', 'es'].indexOf(hash) >= 0 ? hash : 'fr';
