@@ -86,8 +86,33 @@
     var channelName = 'presence-lg-' + session;
     var channel = pusher.subscribe(channelName);
 
+    hookPannellum(); // capture le visualiseur 360° pour synchroniser la vue
+
     if (role === 'host') initHost(channel);
     else initViewer(channel);
+  }
+
+  // Intercepte la création des visualiseurs Pannellum pour les récupérer
+  // (window.LG_PANO). Côté visiteur, on désactive l'interaction (il ne fait
+  // que suivre) et l'auto-rotation pour ne pas entrer en conflit avec la sync.
+  function hookPannellum() {
+    var P = window.pannellum;
+    if (!P || typeof P.viewer !== 'function' || P.__lgWrapped) return;
+    var orig = P.viewer;
+    P.viewer = function (container, config) {
+      config = config || {};
+      if (role === 'viewer') {
+        config.autoRotate = false;
+        config.draggable = false;
+        config.mouseZoom = false;
+        config.showZoomCtrl = false;
+        config.keyboardZoom = false;
+      }
+      var v = orig.call(this, container, config);
+      window.LG_PANO = v;
+      return v;
+    };
+    P.__lgWrapped = true;
   }
 
   /* ======================================================================
@@ -140,6 +165,26 @@
       var sel = cssPath(t);
       if (sel) channel.trigger('client-action', { kind: 'click', selector: sel });
     }, true);
+
+    // Diffusion de la vue panoramique Pannellum (angle + zoom) tant qu'un
+    // panorama 360° est affiché. Envoi immédiat au changement + réémission
+    // périodique (~1 s) : les client events Pusher étant best-effort, cette
+    // réémission auto-répare un événement perdu (sinon désync permanente).
+    var lastPano = '';
+    var panoTicks = 0;
+    var panoBeat = setInterval(function () {
+      var v = window.LG_PANO;
+      if (!v || typeof v.getYaw !== 'function') return;
+      if (!document.querySelector('.pnlm-container')) return; // 360° pas à l'écran
+      var y = Math.round(v.getYaw() * 10) / 10;
+      var p = Math.round(v.getPitch() * 10) / 10;
+      var h = Math.round(v.getHfov() * 10) / 10;
+      var key = y + '|' + p + '|' + h;
+      panoTicks++;
+      if (key === lastPano && panoTicks % 3 !== 0) return; // inchangé : resync ~600ms
+      lastPano = key;
+      channel.trigger('client-action', { kind: 'pano', yaw: y, pitch: p, hfov: h });
+    }, 200);
 
     // --- Voix : réception des réponses / ICE des visiteurs ---
     channel.bind('client-webrtc', function (msg) {
@@ -200,6 +245,7 @@
     // Fin de session : nettoyage complet.
     ui.end.addEventListener('click', function () {
       clearInterval(beat);
+      clearInterval(panoBeat);
       window.removeEventListener('scroll', onScroll);
       stopVoice();
       endSession();
@@ -240,12 +286,25 @@
       banner.status.textContent = 'Reconnexion…';
     });
 
-    // --- Rejoue les clics de l'hôte (panorama, onglets, boutons…) ---
+    // --- Rejoue les actions de l'hôte : clics + vue panoramique 360° ---
     channel.bind('client-action', function (msg) {
-      if (!msg || msg.kind !== 'click' || !msg.selector) return;
-      var elt;
-      try { elt = document.querySelector(msg.selector); } catch (e) { return; }
-      if (elt) elt.click();
+      if (!msg) return;
+      if (msg.kind === 'click' && msg.selector) {
+        var elt;
+        try { elt = document.querySelector(msg.selector); } catch (e) { return; }
+        if (elt) elt.click();
+        return;
+      }
+      if (msg.kind === 'pano') {
+        var v = window.LG_PANO;
+        if (!v || typeof v.setYaw !== 'function') return;
+        try {
+          if (v.stopAutoRotate) v.stopAutoRotate();
+          v.setYaw(msg.yaw, false);
+          v.setPitch(msg.pitch, false);
+          v.setHfov(msg.hfov, false);
+        } catch (e) {}
+      }
     });
 
     // --- Voix : réception de l'offre de l'hôte ---
