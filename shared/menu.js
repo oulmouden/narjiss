@@ -760,7 +760,7 @@ function switchLang(lang, activePage, basePath) {
 }
 
 // ===== VISITE GUIDÉE EN DIRECT (chargée sur toutes les pages) =====
-var LIVEGUIDE_VERSION = '6'; // bump à chaque modif de liveguide.* pour casser le cache
+var LIVEGUIDE_VERSION = '7'; // bump à chaque modif de liveguide.* pour casser le cache
 
 function installLiveGuide(basePath) {
   basePath = basePath || '';
