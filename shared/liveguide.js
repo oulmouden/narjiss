@@ -166,6 +166,22 @@
       if (sel) channel.trigger('client-action', { kind: 'click', selector: sel });
     }, true);
 
+    // Diffusion des changements de valeur (<select>, cases à cocher, radios).
+    // Un <select> natif ne déclenche pas de 'click' exploitable sur ses options
+    // (menu géré par l'OS) — seul un 'change' final est observable.
+    document.addEventListener('change', function (ev) {
+      var t = ev.target;
+      if (!(t instanceof Element)) return;
+      if (t.closest('.lg-hostbar') || t.closest('.lg-viewerbar')) return;
+      var isSelect = t.tagName === 'SELECT';
+      var isCheckable = t.tagName === 'INPUT' && (t.type === 'checkbox' || t.type === 'radio');
+      if (!isSelect && !isCheckable) return;
+      var sel2 = cssPath(t);
+      if (!sel2) return;
+      var value = t.type === 'checkbox' ? t.checked : t.value;
+      channel.trigger('client-action', { kind: 'value', selector: sel2, value: value });
+    }, true);
+
     // Diffusion de la vue panoramique Pannellum (angle + zoom) tant qu'un
     // panorama 360° est affiché. Envoi immédiat au changement + réémission
     // périodique (~1 s) : les client events Pusher étant best-effort, cette
@@ -286,13 +302,23 @@
       banner.status.textContent = 'Reconnexion…';
     });
 
-    // --- Rejoue les actions de l'hôte : clics + vue panoramique 360° ---
+    // --- Rejoue les actions de l'hôte : clics, <select>/cases à cocher, vue 360° ---
     channel.bind('client-action', function (msg) {
       if (!msg) return;
       if (msg.kind === 'click' && msg.selector) {
         var elt;
         try { elt = document.querySelector(msg.selector); } catch (e) { return; }
         if (elt) elt.click();
+        return;
+      }
+      if (msg.kind === 'value' && msg.selector) {
+        var elt2;
+        try { elt2 = document.querySelector(msg.selector); } catch (e) { return; }
+        if (!elt2) return;
+        if (elt2.tagName === 'INPUT' && elt2.type === 'checkbox') elt2.checked = !!msg.value;
+        else if (elt2.tagName === 'INPUT' && elt2.type === 'radio') elt2.checked = true;
+        else elt2.value = msg.value;
+        elt2.dispatchEvent(new Event('change', { bubbles: true }));
         return;
       }
       if (msg.kind === 'pano') {
