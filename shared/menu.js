@@ -760,6 +760,11 @@ function switchLang(lang, activePage, basePath) {
 }
 
 // ===== VISITE GUIDÉE EN DIRECT (chargée sur toutes les pages) =====
+// ATTENTION : menu.js lui-même est mis en cache très longtemps par le serveur
+// (10 ans côté CloudPanel/Nginx). À chaque modif de menu.js OU de liveguide.*,
+// bumper LIVEGUIDE_VERSION ICI **et** le "?v=" de <script src="shared/menu.js?v=...">
+// dans TOUTES les pages HTML — sinon les navigateurs gardent l'ancien menu.js
+// indéfiniment et ne rechargeront jamais le nouveau code (même après F5/Ctrl+F5).
 var LIVEGUIDE_VERSION = '7'; // bump à chaque modif de liveguide.* pour casser le cache
 
 function installLiveGuide(basePath) {
