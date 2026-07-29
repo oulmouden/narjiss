@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr" dir="ltr">
 <head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Narjiss — Bureaux de vente</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css">
+<link rel="stylesheet" href="shared/menu.css?v=8">
 <style>
 .page-hero { padding: 3.2rem 1.5rem 2.6rem; background: linear-gradient(160deg, var(--ocean-deep), var(--ocean), var(--sun)); color: white; text-align: center; }
 .page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4vw, 3rem); margin-bottom: .5rem; }
@@ -82,7 +83,7 @@ html[dir=rtl] .office-placeholder h2 { font-family: 'Noto Sans Arabic', serif; }
   margin: 0 0 .25rem;
 }
 html[dir=rtl] .office-caption h2 { font-family: 'Noto Sans Arabic', serif; }
-.office-caption .loc { color: #596273; font-weight: 600; }
+.office-caption .loc { color: var(--muted); font-weight: 600; }
 
 /* ── Présence des conseillers ─────────────────────────────────────────── */
 .office-agents { margin-top: .7rem; display: flex; flex-wrap: wrap; gap: .5rem; }
@@ -90,13 +91,13 @@ html[dir=rtl] .office-caption h2 { font-family: 'Noto Sans Arabic', serif; }
 .agent-chip {
   display: inline-flex; align-items: center; gap: .45rem;
   padding: .32rem .7rem; border-radius: 999px;
-  border: 1px solid var(--border-subtle); background: #f6f9fc;
-  font-size: .86rem; font-weight: 650; color: #2c3b4d;
+  border: 1px solid var(--border-subtle); background: var(--surface-raised);
+  font-size: .86rem; font-weight: 650; color: var(--text);
 }
 .agent-chip .pdot { width: 9px; height: 9px; border-radius: 50%; background: #9aa4ad; flex: 0 0 auto; }
 .agent-chip.on .pdot { background: oklch(58% 0.15 152); box-shadow: 0 0 0 3px color-mix(in oklab, oklch(58% 0.15 152) 22%, transparent); }
 .agent-chip.busy .pdot { background: oklch(72% 0.16 75); }
-.agent-chip .pstate-lbl { font-weight: 500; color: #6b7889; font-size: .8rem; }
+.agent-chip .pstate-lbl { font-weight: 500; color: var(--muted); font-size: .8rem; }
 html[dir=rtl] .office-agents { justify-content: flex-end; }
 
 .office-btn {
@@ -125,7 +126,7 @@ html[dir=rtl] .office-agents { justify-content: flex-end; }
 .office-list {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  background: white;
+  background: var(--surface);
   padding: 1rem;
   box-shadow: var(--shadow);
   position: sticky;
@@ -138,7 +139,7 @@ html[dir=rtl] .office-agents { justify-content: flex-end; }
   font-size: .82rem;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: #7a858c;
+  color: var(--muted);
 }
 .office-item {
   display: flex;
@@ -166,7 +167,7 @@ html[dir=rtl] .office-item { text-align: right; }
   height: 46px;
   border-radius: 8px;
   object-fit: cover;
-  background: #e9eef5;
+  background: var(--surface-raised);
   flex: 0 0 auto;
 }
 .office-item .oi-text {
@@ -188,7 +189,7 @@ html[dir=rtl] .office-item { text-align: right; }
   display: block;
   font-size: .78rem;
   line-height: 1.2;
-  color: #7a858c;
+  color: var(--muted);
 }
 .office-item .oi-state.ready { color: oklch(55% 0.17 152); font-weight: 700; }
 
@@ -398,7 +399,7 @@ html[dir=rtl] .agent-menu button { text-align: right; }
 
 <div id="mainFooter"></div>
 <script src="assets/vendor/livekit/livekit-client.umd.js"></script>
-<script src="shared/menu.js?v=7"></script>
+<script src="shared/menu.js?v=8"></script>
 <script src="bureaudevente.js"></script>
 </body>
 </html>

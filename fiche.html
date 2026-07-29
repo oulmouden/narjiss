@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr" dir="ltr">
 <head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
@@ -14,13 +15,35 @@
   --orange: #c15a00;
   --line: #d7dee8;
   --muted: #6b7280;
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --surface-2: #fbfcfe;
+  --text: #1f2430;
+  --text-muted: #46506a;
+}
+/* Thème nocturne (page autonome : suit le système, forçable via data-theme) */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --navy: #10233b; --ocean: #4d94ff; --orange: #ff9a3d;
+  --line: rgba(255,255,255,.14); --muted: #9aa4b8;
+  --bg: #0f131a; --surface: #171c26; --surface-2: #1f2632;
+  --text: #e4e8f0; --text-muted: #aeb6c6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --navy: #10233b; --ocean: #4d94ff; --orange: #ff9a3d;
+    --line: rgba(255,255,255,.14); --muted: #9aa4b8;
+    --bg: #0f131a; --surface: #171c26; --surface-2: #1f2632;
+    --text: #e4e8f0; --text-muted: #aeb6c6;
+  }
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: 'Outfit', system-ui, sans-serif;
-  background: #eef2f7;
-  color: #1f2430;
+  background: var(--bg);
+  color: var(--text);
   font-size: 16px;
 }
 html[dir=rtl] body { font-family: 'Noto Sans Arabic', 'Outfit', sans-serif; }
@@ -50,7 +73,7 @@ html[dir=rtl] body { font-family: 'Noto Sans Arabic', 'Outfit', sans-serif; }
   border-radius: 8px;
   cursor: pointer;
 }
-.lang-switch button.on { background: white; color: var(--navy); border-color: white; }
+.lang-switch button.on { background: var(--surface); color: var(--navy); border-color: white; }
 
 .head-actions { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
 .head-reset {
@@ -72,7 +95,7 @@ html[dir=rtl] body { font-family: 'Noto Sans Arabic', 'Outfit', sans-serif; }
 fieldset {
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: white;
+  background: var(--surface);
   margin: 1.1rem 1rem 0;
   padding: 1rem 1.1rem 1.2rem;
 }
@@ -93,7 +116,7 @@ label.field > span {
   display: block;
   font-size: .82rem;
   font-weight: 700;
-  color: #46506a;
+  color: var(--text-muted);
   margin-bottom: .28rem;
 }
 input[type=text], input[type=tel], input[type=email], input[type=date],
@@ -105,8 +128,8 @@ input[type=number], select, textarea {
   padding: .55rem .7rem;
   font: inherit;
   font-size: .95rem;
-  background: #fbfcfe;
-  color: #1f2430;
+  background: var(--surface-2);
+  color: var(--text);
 }
 textarea { min-height: 84px; resize: vertical; }
 input:focus, select:focus, textarea:focus {
@@ -128,7 +151,7 @@ input:focus, select:focus, textarea:focus {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: .45rem .8rem;
-  background: #fbfcfe;
+  background: var(--surface-2);
   font-size: .88rem;
   cursor: pointer;
   min-height: 42px;
@@ -142,7 +165,7 @@ input:focus, select:focus, textarea:focus {
 .group-title {
   font-size: .82rem;
   font-weight: 700;
-  color: #46506a;
+  color: var(--text-muted);
   margin: .8rem 0 .3rem;
 }
 
@@ -151,7 +174,7 @@ input:focus, select:focus, textarea:focus {
   border: 1.5px dashed var(--line);
   border-radius: 10px;
   padding: .8rem;
-  background: #fbfcfe;
+  background: var(--surface-2);
   text-align: center;
 }
 .piece b { display: block; font-size: .86rem; margin-bottom: .5rem; }
@@ -187,7 +210,7 @@ input:focus, select:focus, textarea:focus {
 }
 .mrz-head { flex: 1 1 200px; min-width: 0; }
 .mrz-head b { display: block; font-size: .92rem; color: var(--navy); }
-.mrz-head span { display: block; font-size: .8rem; color: #46506a; margin-top: .15rem; }
+.mrz-head span { display: block; font-size: .8rem; color: var(--text-muted); margin-top: .15rem; }
 .mrz-scan .pick {
   display: inline-flex;
   align-items: center;
@@ -202,7 +225,7 @@ input:focus, select:focus, textarea:focus {
   white-space: nowrap;
 }
 .mrz-scan .pick input { display: none; }
-.mrz-status { flex-basis: 100%; font-size: .82rem; color: #46506a; min-height: 1.1rem; }
+.mrz-status { flex-basis: 100%; font-size: .82rem; color: var(--text-muted); min-height: 1.1rem; }
 .mrz-status.ok { color: #14603a; font-weight: 650; }
 .mrz-status.ko { color: #8d1f1f; }
 
@@ -211,14 +234,14 @@ input:focus, select:focus, textarea:focus {
   height: 190px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fbfcfe;
+  background: var(--surface-2);
   touch-action: none;                  /* sinon le doigt fait défiler la page */
   display: block;
 }
 .sig-actions { display: flex; justify-content: flex-end; margin-top: .5rem; }
 .btn-ghost {
   border: 1px solid var(--line);
-  background: white;
+  background: var(--surface);
   border-radius: 9px;
   min-height: 42px;
   padding: 0 1rem;
@@ -230,8 +253,8 @@ input:focus, select:focus, textarea:focus {
 .legal {
   font-size: .82rem;
   line-height: 1.6;
-  color: #46506a;
-  background: #f7f9fc;
+  color: var(--text-muted);
+  background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: .8rem .9rem;
@@ -253,7 +276,7 @@ input:focus, select:focus, textarea:focus {
   font-size: 1.02rem;
   cursor: pointer;
 }
-.btn-send:disabled { background: #9db4d4; cursor: not-allowed; }
+.btn-send:disabled { background: var(--muted); cursor: not-allowed; }
 
 .result { margin: 1rem; padding: 1rem; border-radius: 11px; display: none; font-weight: 600; }
 .result.show { display: block; }
@@ -271,6 +294,7 @@ input:focus, select:focus, textarea:focus {
       <div class="sub" data-i18n="subtitle">Fiche de renseignement — bureau de vente</div>
     </div>
     <div class="head-actions">
+      <button type="button" id="themeBtn" aria-label="Thème clair / nocturne" title="Thème clair / nocturne" style="min-height:40px;padding:0 .7rem;border:1.5px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:white;border-radius:8px;cursor:pointer;font-size:1.05rem">🌙</button>
       <button type="button" class="head-reset" id="resetBtn" data-i18n="nouveauClient">Nouveau client</button>
       <div class="lang-switch">
         <button type="button" data-lang="fr" class="on">Français</button>
@@ -419,7 +443,8 @@ input:focus, select:focus, textarea:focus {
 
 <script src="assets/vendor/tesseract/tesseract.min.js"></script>
 <script src="assets/vendor/mrz/mrz-td1.js?v=20260724g"></script>
-<script src="shared/menu.js?v=7"></script>
+<script src="shared/menu.js?v=8"></script>
 <script src="fiche.js?v=20260724g"></script>
+<script>(function(){var b=document.getElementById('themeBtn');if(!b)return;function eff(){try{var t=localStorage.getItem('nj-theme');if(t==='dark'||t==='light')return t;}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}function upd(){b.textContent=eff()==='dark'?'☀️':'🌙';}upd();b.addEventListener('click',function(){var n=eff()==='dark'?'light':'dark';try{localStorage.setItem('nj-theme',n);}catch(e){}document.documentElement.setAttribute('data-theme',n);upd();});})();</script>
 </body>
 </html>

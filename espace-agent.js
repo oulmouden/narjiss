@@ -273,8 +273,29 @@
     return { bureau: 'Au bureau', en_ligne: 'En ligne', occupe: 'Occupé', absent: 'Absent' }[p] || 'En ligne';
   }
 
+  /* ── Thème clair / nocturne (page autonome, sans menu.js) ──────────────── */
+  function themeStored() {
+    try { var t = localStorage.getItem('nj-theme'); return (t === 'dark' || t === 'light') ? t : null; }
+    catch (e) { return null; }
+  }
+  function themeEffective() {
+    return themeStored() || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+  function themeUpdateBtn() {
+    var b = $('themeBtn'); if (!b) return;
+    b.textContent = themeEffective() === 'dark' ? '☀️' : '🌙';
+  }
+  function themeToggle() {
+    var next = themeEffective() === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('nj-theme', next); } catch (e) {}
+    document.documentElement.setAttribute('data-theme', next);
+    themeUpdateBtn();
+  }
+
   /* ── Câblage ───────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
+    var themeBtn = $('themeBtn');
+    if (themeBtn) { themeUpdateBtn(); themeBtn.addEventListener('click', themeToggle); }
     loadProjects();
     $('tabLogin').onclick = function () { setTab('login'); };
     $('tabReg').onclick = function () { setTab('reg'); };

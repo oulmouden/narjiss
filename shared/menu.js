@@ -606,6 +606,46 @@ function getProjectMenuLabel() {
   return project ? menuText(project.name, currentLang) : '';
 }
 
+// ===== THÈME CLAIR / NOCTURNE =====
+// L'application initiale du thème (avant le rendu) se fait via un petit script
+// inline dans le <head> de chaque page — voir le snippet « nj-theme ». Ici, on
+// ne gère que l'état du bouton et la bascule manuelle mémorisée.
+var NJ_THEME_KEY = 'nj-theme';
+
+function njStoredTheme() {
+  try { var t = localStorage.getItem(NJ_THEME_KEY); return (t === 'dark' || t === 'light') ? t : null; }
+  catch (e) { return null; }
+}
+function njSystemPrefersDark() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+function njEffectiveTheme() {
+  return njStoredTheme() || (njSystemPrefersDark() ? 'dark' : 'light');
+}
+function njUpdateThemeButton() {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  var dark = njEffectiveTheme() === 'dark';
+  btn.textContent = dark ? '☀️' : '🌙';
+  var label = dark ? 'Passer en mode clair' : 'Passer en mode nocturne';
+  btn.setAttribute('aria-label', label);
+  btn.title = label;
+}
+function njToggleTheme() {
+  var next = njEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem(NJ_THEME_KEY, next); } catch (e) {}
+  document.documentElement.setAttribute('data-theme', next);
+  njUpdateThemeButton();
+}
+// Suit le système en direct tant que l'utilisateur n'a pas fait de choix explicite.
+if (window.matchMedia) {
+  try {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+      if (!njStoredTheme()) njUpdateThemeButton();
+    });
+  } catch (e) {}
+}
+
 // ===== MENU HTML BUILDER =====
 function buildMenuHTML(activePage, basePath) {
   basePath = basePath || '';
@@ -636,6 +676,7 @@ function buildMenuHTML(activePage, basePath) {
             '<button class="lang-btn' + (currentLang === 'en' ? ' active' : '') + '" data-lang="en">EN</button>' +
             '<button class="lang-btn' + (currentLang === 'ar' ? ' active' : '') + '" data-lang="ar">عربي</button>' +
             '<button class="lang-btn' + (currentLang === 'es' ? ' active' : '') + '" data-lang="es">ES</button>' +
+            '<button class="theme-toggle" id="themeToggle" type="button" aria-label="Basculer le thème clair / nocturne" title="Thème clair / nocturne">🌙</button>' +
           '</div>' +
         '</ul>' +
       '</div>' +
@@ -718,6 +759,13 @@ function installMenuAndFooter(activePage, basePath) {
     langBtns[i].addEventListener('click', function() {
       switchLang(this.getAttribute('data-lang'), activePage, basePath);
     });
+  }
+
+  // Bouton de thème clair / nocturne
+  var themeBtn = document.getElementById('themeToggle');
+  if (themeBtn) {
+    njUpdateThemeButton();
+    themeBtn.addEventListener('click', njToggleTheme);
   }
 
   // Mobile nav toggle
