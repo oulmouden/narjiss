@@ -432,6 +432,8 @@
   function closeAgent() {
     var panel = agentEl("agentPanel");
     if (panel) panel.classList.remove("show");
+    var sab = document.getElementById("stageAgentBtn");
+    if (sab) sab.classList.remove("hidden");
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     hangUp();
   }
@@ -576,6 +578,8 @@
     agentEl("agentName").textContent = a.name;
     agentEl("agentRole").textContent = a.role;
     panel.classList.add("show");
+    var sab = document.getElementById("stageAgentBtn");
+    if (sab) sab.classList.add("hidden");
     agentSay(a.welcome, speak);
     mainMenu();
   }
@@ -658,6 +662,9 @@
     var fiche = document.getElementById("officeFiche");
     if (fiche) fiche.textContent = t.fiche;
 
+    var agentLabel = document.getElementById("stageAgentLabel");
+    if (agentLabel) agentLabel.textContent = (AGENT_UI[lang] || AGENT_UI.fr).talk;
+
     selectOffice(activeId || requestedId(), lang, false);
     refreshFsButton();
   };
@@ -665,6 +672,8 @@
   document.addEventListener("DOMContentLoaded", function() {
     var close = document.getElementById("agentClose");
     if (close) close.onclick = closeAgent;
+    var stageAgentBtn = document.getElementById("stageAgentBtn");
+    if (stageAgentBtn) stageAgentBtn.onclick = function() { openAgent(false); };
     setupFullscreen();
     initPage("projects", "");
   });

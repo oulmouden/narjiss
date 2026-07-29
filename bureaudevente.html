@@ -221,6 +221,34 @@ html[dir=rtl] .stage-fs { right: auto; left: .75rem; }
 .stage-fs:hover { background: rgba(12, 35, 64, .92); }
 .stage-fs .fs-icon { font-size: 1rem; line-height: 1; }
 
+/* ── Bouton « Parler à l'hôtesse » (déclencheur hors 3DVista) ──────────── */
+.stage-agent {
+  position: absolute;
+  z-index: 11;
+  top: .75rem;
+  left: .75rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ocean);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  font-size: .88rem;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
+  transition: transform var(--duration-fast), box-shadow var(--duration-fast), opacity var(--duration-fast);
+}
+html[dir=rtl] .stage-agent { left: auto; right: .75rem; }
+@media (hover: hover) {
+  .stage-agent:hover { transform: translateY(-1px); box-shadow: 0 9px 24px rgba(0, 0, 0, .34); }
+}
+/* Masqué quand le panneau de l'hôtesse est déjà ouvert. */
+.stage-agent.hidden { opacity: 0; pointer-events: none; }
+
 /* En plein écran, la scène occupe tout l'espace : plus de ratio ni d'arrondi. */
 .stage-wrap:fullscreen { background: #0c2340; }
 .stage-wrap:fullscreen .office-stage {
@@ -362,6 +390,10 @@ html[dir=rtl] .agent-menu button { text-align: right; }
       <button class="stage-fs" type="button" id="stageFsBtn">
         <span class="fs-icon" id="stageFsIcon" aria-hidden="true">⛶</span>
         <span id="stageFsLabel">Plein écran</span>
+      </button>
+
+      <button class="stage-agent" type="button" id="stageAgentBtn">
+        <span id="stageAgentLabel">🎙️ Parler à l'hôtesse</span>
       </button>
 
       <div class="agent-panel" id="agentPanel" role="dialog" aria-live="polite" aria-label="Hôtesse d'accueil">
