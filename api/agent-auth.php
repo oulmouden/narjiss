@@ -44,7 +44,9 @@ try {
       $name   = trim($_POST['name'] ?? '');
       $email  = trim($_POST['email'] ?? '');
       $pass   = (string)($_POST['password'] ?? '');
-      $role   = $_POST['role'] ?? 'commercial';
+      // Auto-inscription limitée à commercial / gestionnaire : le rôle superviseur
+      // (accès tous bureaux) est attribué par l'admin ou un superviseur existant.
+      $role   = in_array(($_POST['role'] ?? ''), ['commercial', 'gestionnaire'], true) ? $_POST['role'] : 'commercial';
       $projet = $_POST['projet'] ?? '';
       $tel    = trim($_POST['telephone'] ?? '');
       $wa     = trim($_POST['whatsapp'] ?? '');
@@ -101,27 +103,37 @@ try {
     case 'pending':
     case 'team':
       $me = nj_agent_require_json();
-      if ($me['role'] !== 'gestionnaire') nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires.'], 403);
-      // Un gestionnaire rattaché à un projet ne voit que son bureau ; sinon tout.
-      $scopeProjet = $me['projet'] ?? '';
+      if (!in_array($me['role'], ['gestionnaire', 'superviseur'], true)) {
+        nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires et superviseurs.'], 403);
+      }
+      // Superviseur : tous les bureaux. Gestionnaire : son bureau (ou tout si non rattaché).
+      $scopeProjet = $me['role'] === 'superviseur' ? '' : ($me['projet'] ?? '');
       $statut = $action === 'pending' ? 'pending' : '';
       nj_json(['ok' => true, 'agents' => nj_agents_list($scopeProjet, $statut)]);
 
     case 'validate':
       if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.'], 405);
       $me = nj_agent_require_json();
-      if ($me['role'] !== 'gestionnaire') nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires.'], 403);
+      if (!in_array($me['role'], ['gestionnaire', 'superviseur'], true)) {
+        nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires et superviseurs.'], 403);
+      }
       $targetId = (int)($_POST['agent_id'] ?? 0);
       $statut   = $_POST['statut'] ?? 'active';
       $target = nj_agent_by_id($targetId);
       if (!$target) nj_json(['ok' => false, 'error' => 'Agent introuvable.'], 404);
-      // Un gestionnaire de projet ne valide que les agents de son propre bureau.
-      if (($me['projet'] ?? '') !== '' && $target['projet'] !== $me['projet']) {
+      $isSuper = $me['role'] === 'superviseur';
+      // Un gestionnaire de projet ne valide que les agents de son propre bureau ;
+      // un superviseur valide dans tous les bureaux.
+      if (!$isSuper && ($me['projet'] ?? '') !== '' && $target['projet'] !== $me['projet']) {
         nj_json(['ok' => false, 'error' => 'Cet agent dépend d\'un autre bureau.'], 403);
       }
-      if ($target['role'] === 'gestionnaire' && $targetId !== (int)$me['id']) {
-        // Un gestionnaire ne valide pas un autre gestionnaire (réservé à l'admin).
-        nj_json(['ok' => false, 'error' => 'La validation d\'un gestionnaire relève de l\'administrateur.'], 403);
+      // Un gestionnaire ne valide pas un gestionnaire ; personne (hors admin) ne
+      // valide un superviseur — l'élévation en superviseur reste réservée à l'admin.
+      if ($target['role'] === 'superviseur' && $targetId !== (int)$me['id']) {
+        nj_json(['ok' => false, 'error' => 'La gestion d\'un superviseur relève de l\'administrateur.'], 403);
+      }
+      if (!$isSuper && $target['role'] === 'gestionnaire' && $targetId !== (int)$me['id']) {
+        nj_json(['ok' => false, 'error' => 'La validation d\'un gestionnaire relève d\'un superviseur ou de l\'administrateur.'], 403);
       }
       nj_agent_set_status($targetId, $statut);
       nj_json(['ok' => true, 'agent_id' => $targetId, 'statut' => $statut]);

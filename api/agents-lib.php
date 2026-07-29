@@ -83,6 +83,13 @@ CREATE TABLE IF NOT EXISTS access_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL);
 
+  // Évolution du schéma : rôle « superviseur » (accès à tous les bureaux).
+  // MODIFY est idempotent — sûr même si la colonne a déjà la bonne définition.
+  try {
+    $pdo->exec("ALTER TABLE agents MODIFY COLUMN role "
+             . "ENUM('commercial','gestionnaire','superviseur') NOT NULL DEFAULT 'commercial'");
+  } catch (Throwable $e) { /* déjà à jour */ }
+
   $ready = true;
   return $pdo;
 }
@@ -126,7 +133,7 @@ function nj_agent_create(string $name, string $email, string $password,
                          string $role, string $projet,
                          string $telephone = '', string $whatsapp = ''): int {
   $email = strtolower(trim($email));
-  $role  = in_array($role, ['commercial', 'gestionnaire'], true) ? $role : 'commercial';
+  $role  = in_array($role, ['commercial', 'gestionnaire', 'superviseur'], true) ? $role : 'commercial';
   if (nj_agent_by_email($email)) {
     throw new RuntimeException('Un compte existe déjà avec cet e-mail.');
   }
@@ -160,6 +167,22 @@ function nj_agent_set_status(int $id, string $statut): bool {
   if (!in_array($statut, ['pending', 'active', 'suspended'], true)) return false;
   $st = nj_adb()->prepare('UPDATE agents SET statut = ? WHERE id = ?');
   $st->execute([$statut, $id]);
+  return $st->rowCount() > 0;
+}
+
+/**
+ * Change le rôle d'un compte. Un superviseur n'est rattaché à aucun bureau
+ * (projet = '') : il couvre tous les projets ; on remet donc projet à vide.
+ */
+function nj_agent_set_role(int $id, string $role): bool {
+  if (!in_array($role, ['commercial', 'gestionnaire', 'superviseur'], true)) return false;
+  if ($role === 'superviseur') {
+    $st = nj_adb()->prepare('UPDATE agents SET role = ?, projet = "" WHERE id = ?');
+    $st->execute([$role, $id]);
+  } else {
+    $st = nj_adb()->prepare('UPDATE agents SET role = ? WHERE id = ?');
+    $st->execute([$role, $id]);
+  }
   return $st->rowCount() > 0;
 }
 
@@ -214,13 +237,15 @@ function nj_agent_is_online(int $agentId): bool {
  */
 function nj_presence_roster(string $projet): array {
   $projet = preg_replace('/[^a-z0-9_]/', '', strtolower($projet));
+  // Les commerciaux du bureau + tous les superviseurs (couvrent tous les bureaux).
   $st = nj_adb()->prepare(
     'SELECT a.id, a.name, a.role, a.projet, a.telephone, a.whatsapp,
             p.last_seen, p.presence
        FROM agents a
        LEFT JOIN agent_presence p ON p.agent_id = a.id
-      WHERE a.statut = "active" AND a.projet = ? AND a.role = "commercial"
-      ORDER BY a.name'
+      WHERE a.statut = "active"
+        AND ( (a.role = "commercial" AND a.projet = ?) OR a.role = "superviseur" )
+      ORDER BY a.role = "superviseur" DESC, a.name'
   );
   $st->execute([$projet]);
   $out = [];
@@ -229,6 +254,7 @@ function nj_presence_roster(string $projet): array {
     $out[] = [
       'id'        => (int)$r['id'],
       'name'      => $r['name'],
+      'role'      => $r['role'],
       'online'    => $online,
       // Hors ligne : le statut manuel n'a plus de sens, on force « absent ».
       'presence'  => $online ? ($r['presence'] ?: 'en_ligne') : 'absent',
@@ -247,10 +273,13 @@ function nj_presence_roster(string $projet): array {
  */
 function nj_resolve_commercial(string $projet, string $name = ''): ?array {
   $projet = preg_replace('/[^a-z0-9_]/', '', strtolower($projet));
+  // Commerciaux du bureau + superviseurs (joignables partout). Superviseurs en
+  // dernier : un commercial dédié au bureau est prioritaire à nom égal.
   $st = nj_adb()->prepare(
     'SELECT * FROM agents
-      WHERE statut = "active" AND role = "commercial" AND projet = ?
-      ORDER BY name'
+      WHERE statut = "active"
+        AND ( (role = "commercial" AND projet = ?) OR role = "superviseur" )
+      ORDER BY role = "superviseur", name'
   );
   $st->execute([$projet]);
   $agents = $st->fetchAll();

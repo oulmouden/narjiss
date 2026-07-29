@@ -29,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($do === 'suspend') {
             nj_agent_set_status($id, 'suspended');
             set_flash('Compte de ' . $target['name'] . ' suspendu.');
+        } elseif ($do === 'setrole') {
+            $role = $_POST['role'] ?? '';
+            if (nj_agent_set_role($id, $role)) {
+                set_flash('Rôle de ' . $target['name'] . ' défini sur ' . $role . '.');
+            }
         }
     }
     header('Location: agents.php');
@@ -42,7 +47,7 @@ $others  = array_filter($agents, fn($a) => $a['statut'] !== 'pending');
 /** Rendu d'une ligne de tableau agent. */
 function nj_agent_row(array $a): void
 {
-    $roleLbl = $a['role'] === 'gestionnaire' ? 'Gestionnaire' : 'Commercial';
+    $roleLbl = ['commercial' => 'Commercial', 'gestionnaire' => 'Gestionnaire', 'superviseur' => 'Superviseur'][$a['role']] ?? $a['role'];
     $pill = ['pending' => 'En attente', 'active' => 'Actif', 'suspended' => 'Suspendu'][$a['statut']] ?? $a['statut'];
     ?>
     <tr>
@@ -65,6 +70,16 @@ function nj_agent_row(array $a): void
                     <button class="button secondary" type="submit">Suspendre</button>
                 </form>
             <?php endif; ?>
+            <form method="post" style="display:inline-flex;gap:.3rem;align-items:center;margin-left:.4rem">
+                <input type="hidden" name="agent_id" value="<?= (int)$a['id'] ?>">
+                <input type="hidden" name="do" value="setrole">
+                <select name="role">
+                    <?php foreach (['commercial' => 'Commercial', 'gestionnaire' => 'Gestionnaire', 'superviseur' => 'Superviseur'] as $rv => $rl): ?>
+                        <option value="<?= $rv ?>"<?= $a['role'] === $rv ? ' selected' : '' ?>><?= $rl ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button class="button secondary" type="submit">Rôle</button>
+            </form>
         </td>
     </tr>
     <?php

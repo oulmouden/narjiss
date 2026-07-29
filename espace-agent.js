@@ -63,21 +63,20 @@
     if (!authed) { setTab('login'); return; }
 
     $('whoName').textContent = agent.name;
-    var roleLabel = agent.role === 'gestionnaire' ? 'Gestionnaire' : 'Commercial';
-    $('whoMeta').textContent = roleLabel + (agent.projet ? ' · ' + agent.projet : '');
+    var roleLabel = agent.role === 'superviseur' ? 'Superviseur'
+                  : (agent.role === 'gestionnaire' ? 'Gestionnaire' : 'Commercial');
+    $('whoMeta').textContent = roleLabel + (agent.projet ? ' · ' + agent.projet
+                  : (agent.role === 'superviseur' ? ' · tous les bureaux' : ''));
 
-    // Commercial : présence + demandes. Gestionnaire : équipe (+ présence si rattaché).
-    var isCommercial = agent.role === 'commercial';
-    show($('reqCard'), isCommercial);
-    show($('teamCard'), agent.role === 'gestionnaire');
+    // Commercial + superviseur : présence + demandes de visiteurs.
+    // Gestionnaire + superviseur : gestion d'équipe. Le superviseur cumule les deux.
+    var canReceive = agent.role === 'commercial' || agent.role === 'superviseur';
+    var canManage  = agent.role === 'gestionnaire' || agent.role === 'superviseur';
+    show($('reqCard'), canReceive);
+    show($('teamCard'), canManage);
 
-    if (isCommercial) {
-      setPresence('en_ligne', true);
-      startLoops();
-    } else {
-      loadTeam();
-      teamTimer = setInterval(loadTeam, 8000);
-    }
+    if (canReceive) { setPresence('en_ligne', true); startLoops(); }
+    if (canManage) { loadTeam(); teamTimer = setInterval(loadTeam, 8000); }
   }
 
   function stopLoops() {
@@ -104,7 +103,7 @@
   }
 
   function heartbeat() {
-    if (!me || me.role !== 'commercial') return;
+    if (!me || (me.role !== 'commercial' && me.role !== 'superviseur')) return;
     post('agent-presence.php', { presence: curPresence }).then(function (r) {
       var dot = $('onlineDot'), txt = $('onlineText');
       if (r && r.ok) {
