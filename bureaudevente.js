@@ -268,7 +268,8 @@
       connected: "Je vous écoute ! Parlez normalement, je vous réponds de vive voix.",
       live: "Micro actif", bye: "À bientôt ! N'hésitez pas à me rappeler.",
       offline: "L'hôtesse vocale n'est pas disponible pour le moment. Vous pouvez tout de même prendre rendez-vous.",
-      micDenied: "Je n'ai pas accès à votre micro. Autorisez-le dans votre navigateur, puis réessayez."
+      micDenied: "Je n'ai pas accès à votre micro. Autorisez-le dans votre navigateur, puis réessayez.",
+      chooseLang: "Dans quelle langue souhaitez-vous discuter ?", back: "↩︎ Retour"
     },
     en: {
       name: "Receptionist", role: "Narjiss Real Estate",
@@ -279,7 +280,8 @@
       connected: "I'm listening! Just speak normally and I'll answer out loud.",
       live: "Mic on", bye: "See you soon! Call me back any time.",
       offline: "The voice receptionist is unavailable right now. You can still book an appointment.",
-      micDenied: "I can't access your microphone. Allow it in your browser, then try again."
+      micDenied: "I can't access your microphone. Allow it in your browser, then try again.",
+      chooseLang: "Which language would you like to speak?", back: "↩︎ Back"
     },
     ar: {
       name: "موظفة الاستقبال", role: "نرجس العقارية",
@@ -290,7 +292,8 @@
       connected: "أنا أسمعكم! تحدثوا بشكل عادي وسأجيبكم صوتياً.",
       live: "الميكروفون مفعّل", bye: "إلى اللقاء! لا تترددوا في مناداتي.",
       offline: "موظفة الاستقبال الصوتية غير متاحة حالياً. يمكنكم مع ذلك حجز موعد.",
-      micDenied: "لا أستطيع الوصول إلى الميكروفون. اسمحوا به في المتصفح ثم أعيدوا المحاولة."
+      micDenied: "لا أستطيع الوصول إلى الميكروفون. اسمحوا به في المتصفح ثم أعيدوا المحاولة.",
+      chooseLang: "بأي لغة تودون التحدث؟", back: "↩︎ رجوع"
     },
     es: {
       name: "Recepcionista", role: "Narjiss Inmobiliaria",
@@ -301,11 +304,23 @@
       connected: "¡Le escucho! Hable con normalidad y le respondo de viva voz.",
       live: "Micro activo", bye: "¡Hasta pronto! No dude en volver a llamarme.",
       offline: "La recepcionista vocal no está disponible ahora. Aun así puede pedir cita.",
-      micDenied: "No tengo acceso a su micrófono. Autorícelo en el navegador y reinténtelo."
+      micDenied: "No tengo acceso a su micrófono. Autorícelo en el navegador y reinténtelo.",
+      chooseLang: "¿En qué idioma desea hablar?", back: "↩︎ Volver"
     }
   };
 
   var SPEECH_LOCALE = { fr: "fr-FR", en: "en-US", ar: "ar-MA", es: "es-ES" };
+
+  /* Langues proposées pour la conversation vocale (indépendantes de la langue
+     du site). La Darija marocaine est mise en avant. Les codes correspondent à
+     ceux acceptés par api/accueil-token.php et api/agent.py. */
+  var CONV_LANGS = [
+    { code: "darija", label: "الدارجة المغربية" },
+    { code: "ar",     label: "العربية الفصحى" },
+    { code: "fr",     label: "Français" },
+    { code: "en",     label: "English" },
+    { code: "es",     label: "Español" }
+  ];
 
   var FS_UI = {
     fr: { open: "Plein écran", close: "Quitter le plein écran" },
@@ -450,7 +465,7 @@
     var a = AGENT_UI[currentLang] || AGENT_UI.fr;
     var c = CODE_UI[currentLang] || CODE_UI.fr;
     agentMenu([
-      [a.talk, connectVoice, "primary"],
+      [a.talk, showConvLangs, "primary"],
       [c.haveCode, showCodeEntry],
       [a.tour, closeAgent],
       [a.book, function() { window.location.href = "contact.html#" + currentLang; }],
@@ -458,6 +473,18 @@
         window.location.href = "project.html?id=" + encodeURIComponent(activeId || "") + "#" + currentLang;
       }]
     ]);
+  }
+
+  /* Choix de la langue de conversation avant de lancer la voix. */
+  function showConvLangs() {
+    var a = AGENT_UI[currentLang] || AGENT_UI.fr;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    agentSay(a.chooseLang, false);
+    var entries = CONV_LANGS.map(function(l) {
+      return [l.label, function() { connectVoice(l.code); }, "primary"];
+    });
+    entries.push([a.back, mainMenu]);
+    agentMenu(entries);
   }
 
   /* Saisie du code d'accès communiqué par le commercial. */
@@ -585,9 +612,12 @@
   }
 
   /* Connexion à l'agent vocal : jeton PHP → room LiveKit → micro. */
-  async function connectVoice() {
+  async function connectVoice(convLang) {
     var a = AGENT_UI[currentLang] || AGENT_UI.fr;
     var LK = window.LivekitClient;
+    // Langue de la CONVERSATION (choisie par le visiteur) ; le texte à l'écran
+    // reste dans la langue du site (currentLang).
+    var talkLang = convLang || currentLang;
 
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     if (!LK) { agentSay(a.offline, false); return; }
@@ -598,7 +628,7 @@
     var data = null;
     try {
       var res = await fetch("api/accueil-token.php?project=" + encodeURIComponent(activeId) +
-                            "&lang=" + encodeURIComponent(currentLang));
+                            "&lang=" + encodeURIComponent(talkLang));
       data = await res.json();
     } catch (e) {}
 

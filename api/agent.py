@@ -210,6 +210,22 @@ async def entrypoint(ctx: agents.JobContext):
     project, city = project_info(project_id)
 
     instructions = INSTRUCTIONS.format(project=project, city=city, lang=LANG_LABEL[lang_code])
+
+    # Renforcement spécifique DARIJA : le visiteur a explicitement choisi de parler
+    # en darija marocaine. On demande une darija naturelle et chaleureuse.
+    if lang_code == "darija":
+        instructions += (
+            " TRÈS IMPORTANT — LANGUE : le visiteur veut discuter en DARIJA marocaine. "
+            "Parle UNIQUEMENT en darija marocaine authentique (écrite en caractères arabes), "
+            "comme une vraie hôtesse d'Agadir/Casablanca : phrases courtes, ton chaleureux et "
+            "familier, expressions courantes (مرحبا بيك، أهلا، واخا، دابا، مزيان، بزاف، إيوا، "
+            "بصّح، صافي، إن شاء الله). Intègre naturellement les mots français que les Marocains "
+            "emploient au quotidien (rendez-vous، bureau، appartement، étage، prix). "
+            "N'utilise NI l'arabe classique/littéraire (فصحى) NI le français seul. "
+            "Si le visiteur passe au français ou à un autre parler, suis-le, mais reviens à la "
+            "darija dès qu'il y revient."
+        )
+
     greeting = GREETINGS.get(lang_code, GREETINGS["fr"]).format(project=project)
     print(f"[Agent] Hôtesse dans '{room}' — {project} / {city} / {lang_code}")
 
