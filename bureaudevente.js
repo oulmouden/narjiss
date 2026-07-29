@@ -191,11 +191,56 @@
       window.history.replaceState(null, "",
         "bureaudevente.html?id=" + encodeURIComponent(project.id) + "#" + lang);
     }
+
+    startPresence(project.id);
   }
 
   function requestedId() {
     var params = new URLSearchParams(window.location.search);
     return params.get("id") || "";
+  }
+
+  /* =========================================================================
+     PRÉSENCE DES CONSEILLERS
+     Sonde api/agent-presence.php pour le bureau affiché et rend des puces
+     « nom + état » (en ligne / au bureau / occupé / hors ligne).
+     ========================================================================= */
+  var presenceTimer = null;
+  var presenceProject = null;
+
+  function renderAgents(list, lang) {
+    var host = document.getElementById("officeAgents");
+    if (!host) return;
+    var L = PRESENCE_UI[lang] || PRESENCE_UI.fr;
+    if (!list || !list.length) { host.hidden = true; host.innerHTML = ""; return; }
+    var html = "";
+    for (var i = 0; i < list.length; i++) {
+      var ag = list[i];
+      var cls = ag.online ? (ag.presence === "occupe" ? "busy" : "on") : "";
+      var stateLbl = ag.online ? (L[ag.presence] || L.en_ligne) : L.offline;
+      html += '<span class="agent-chip ' + cls + '">' +
+          '<span class="pdot"></span>' +
+          '<span>' + escapeHtml(ag.name) + '</span>' +
+          '<span class="pstate-lbl">' + escapeHtml(stateLbl) + '</span>' +
+        '</span>';
+    }
+    host.innerHTML = html;
+    host.hidden = false;
+  }
+
+  function fetchPresence() {
+    if (!presenceProject) return;
+    fetch("api/agent-presence.php?projet=" + encodeURIComponent(presenceProject))
+      .then(function(r) { return r.json(); })
+      .then(function(r) { renderAgents(r && r.ok ? (r.agents || []) : [], currentLang); })
+      .catch(function() {});
+  }
+
+  function startPresence(projectId) {
+    if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+    presenceProject = projectId;
+    fetchPresence();
+    presenceTimer = setInterval(fetchPresence, 8000);
   }
 
   /* =========================================================================
@@ -267,6 +312,42 @@
     en: { open: "Fullscreen", close: "Exit fullscreen" },
     ar: { open: "ملء الشاشة", close: "الخروج من ملء الشاشة" },
     es: { open: "Pantalla completa", close: "Salir de pantalla completa" }
+  };
+
+  /* Libellés de présence des conseillers (puces sous le nom du bureau). */
+  var PRESENCE_UI = {
+    fr: { bureau: "Au bureau", en_ligne: "En ligne", occupe: "Occupé", absent: "Absent", offline: "Hors ligne" },
+    en: { bureau: "At the office", en_ligne: "Online", occupe: "Busy", absent: "Away", offline: "Offline" },
+    ar: { bureau: "في المكتب", en_ligne: "متصل", occupe: "مشغول", absent: "غائب", offline: "غير متصل" },
+    es: { bureau: "En la oficina", en_ligne: "En línea", occupe: "Ocupado", absent: "Ausente", offline: "Desconectado" }
+  };
+
+  /* Flux « J'ai un code d'accès » (mise en relation directe avec le commercial). */
+  var CODE_UI = {
+    fr: {
+      haveCode: "🔑 J'ai un code d'accès", prompt: "Saisissez le code à 4 chiffres communiqué par le commercial :",
+      check: "Valider", back: "Retour", invalid: "Code invalide ou expiré. Vérifiez auprès du commercial.",
+      connecting: "Un instant, je vous mets en relation…", connected: "Vous êtes en relation avec {name}. Parlez, on vous entend.",
+      micDenied: "Je n'ai pas accès à votre micro. Autorisez-le puis réessayez.", offline: "Mise en relation indisponible pour le moment."
+    },
+    en: {
+      haveCode: "🔑 I have an access code", prompt: "Enter the 4-digit code the advisor gave you:",
+      check: "Confirm", back: "Back", invalid: "Invalid or expired code. Please check with the advisor.",
+      connecting: "One moment, connecting you…", connected: "You're connected with {name}. Go ahead, they can hear you.",
+      micDenied: "I can't access your microphone. Allow it, then try again.", offline: "Connection unavailable right now."
+    },
+    ar: {
+      haveCode: "🔑 لدي رمز دخول", prompt: "أدخل الرمز المكون من 4 أرقام الذي أعطاك إياه المستشار:",
+      check: "تأكيد", back: "رجوع", invalid: "رمز غير صالح أو منتهٍ. تحقق مع المستشار.",
+      connecting: "لحظة من فضلك، جاري الربط…", connected: "أنت الآن على اتصال مع {name}. تفضل بالحديث، يسمعونك.",
+      micDenied: "لا أستطيع الوصول إلى الميكروفون. اسمح به ثم أعد المحاولة.", offline: "الربط غير متاح حالياً."
+    },
+    es: {
+      haveCode: "🔑 Tengo un código de acceso", prompt: "Introduzca el código de 4 dígitos que le dio el comercial:",
+      check: "Confirmar", back: "Volver", invalid: "Código no válido o caducado. Verifíquelo con el comercial.",
+      connecting: "Un momento, le pongo en contacto…", connected: "Está en contacto con {name}. Hable, le escuchan.",
+      micDenied: "No tengo acceso a su micrófono. Autorícelo y reinténtelo.", offline: "Puesta en contacto no disponible ahora."
+    }
   };
 
   function isFullscreen() {
@@ -365,14 +446,127 @@
 
   function mainMenu() {
     var a = AGENT_UI[currentLang] || AGENT_UI.fr;
+    var c = CODE_UI[currentLang] || CODE_UI.fr;
     agentMenu([
       [a.talk, connectVoice, "primary"],
+      [c.haveCode, showCodeEntry],
       [a.tour, closeAgent],
       [a.book, function() { window.location.href = "contact.html#" + currentLang; }],
       [a.project, function() {
         window.location.href = "project.html?id=" + encodeURIComponent(activeId || "") + "#" + currentLang;
       }]
     ]);
+  }
+
+  /* Saisie du code d'accès communiqué par le commercial. */
+  function showCodeEntry() {
+    var c = CODE_UI[currentLang] || CODE_UI.fr;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    agentSay(c.prompt, false);
+    var host = agentEl("agentMenu");
+    if (!host) return;
+    host.innerHTML = "";
+
+    var input = document.createElement("input");
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.maxLength = 4;
+    input.placeholder = "1234";
+    input.style.cssText = "width:100%;box-sizing:border-box;min-height:44px;padding:.55rem .7rem;" +
+      "border:1.5px solid rgba(255,255,255,.3);border-radius:8px;background:rgba(255,255,255,.1);" +
+      "color:#fff;font:inherit;font-size:1.2rem;letter-spacing:.3em;text-align:center;margin-bottom:.5rem;";
+
+    function submit() {
+      var code = (input.value || "").replace(/\D/g, "");
+      if (code.length !== 4) { input.focus(); return; }
+      verifyAccessCode(code);
+    }
+    input.addEventListener("keydown", function(e) { if (e.key === "Enter") submit(); });
+
+    var btnCheck = document.createElement("button");
+    btnCheck.type = "button"; btnCheck.className = "primary"; btnCheck.textContent = c.check;
+    btnCheck.onclick = submit;
+    var btnBack = document.createElement("button");
+    btnBack.type = "button"; btnBack.textContent = c.back;
+    btnBack.onclick = mainMenu;
+
+    host.appendChild(input);
+    host.appendChild(btnCheck);
+    host.appendChild(btnBack);
+    input.focus();
+  }
+
+  async function verifyAccessCode(code) {
+    var c = CODE_UI[currentLang] || CODE_UI.fr;
+    agentSay(c.connecting, false);
+    agentMenu([]);
+    var data = null;
+    try {
+      var body = new URLSearchParams({ action: "verify", code: code });
+      var res = await fetch("api/agent-access.php", {
+        method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      });
+      data = await res.json();
+    } catch (e) {}
+
+    if (!data || !data.valid) { agentSay(c.invalid, false); mainMenu(); return; }
+    if (!data.token) {
+      // Code valide mais pas de canal voix : on affiche au moins le contact direct.
+      agentSay(c.connected.replace("{name}", data.agent_name || ""), false);
+      showAdvisorContact(data);
+      return;
+    }
+    connectDirect(data.url, data.token, data.agent_name || "", data);
+  }
+
+  function showAdvisorContact(data) {
+    var entries = [];
+    if (data.whatsapp) entries.push(["WhatsApp", function() {
+      window.open("https://wa.me/" + encodeURIComponent(data.whatsapp.replace(/[^0-9]/g, "")), "_blank");
+    }]);
+    if (data.telephone) entries.push(["📞 " + data.telephone, function() {
+      window.location.href = "tel:" + data.telephone;
+    }]);
+    var c = CODE_UI[currentLang] || CODE_UI.fr;
+    entries.push([c.back, mainMenu]);
+    agentMenu(entries);
+  }
+
+  /* Connexion vocale directe visiteur ↔ commercial (room LiveKit dédiée). */
+  async function connectDirect(url, token, name, data) {
+    var c = CODE_UI[currentLang] || CODE_UI.fr;
+    var a = AGENT_UI[currentLang] || AGENT_UI.fr;
+    var LK = window.LivekitClient;
+    if (!LK) { agentSay(c.offline, false); showAdvisorContact(data || {}); return; }
+
+    hangUp();
+    agentRoom = new LK.Room();
+    agentRoom
+      .on(LK.RoomEvent.TrackSubscribed, function(track) {
+        if (track.kind !== "audio") return;
+        var el = track.attach(); el.autoplay = true; el.style.display = "none";
+        document.body.appendChild(el);
+      })
+      .on(LK.RoomEvent.TrackUnsubscribed, function(track) {
+        track.detach().forEach(function(el) { el.remove(); });
+      })
+      .on(LK.RoomEvent.Disconnected, function() {
+        agentRoom = null; agentLive(false, ""); mainMenu();
+      });
+
+    try {
+      await agentRoom.connect(url, token);
+      await agentRoom.localParticipant.setMicrophoneEnabled(true);
+    } catch (e) {
+      var denied = e && /permission|denied|NotAllowed/i.test(e.name + " " + e.message);
+      agentSay(denied ? c.micDenied : c.offline, false);
+      hangUp(); showAdvisorContact(data || {});
+      return;
+    }
+    agentSay(c.connected.replace("{name}", name), false);
+    agentLive(true, a.live);
+    agentMenu([[a.hangup, hangUp, "danger"]]);
   }
 
   function openAgent(speak) {

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Espace agent — Narjiss Immobilière</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css">
+<style>
+  :root { --ok: oklch(58% 0.15 152); --warn: oklch(72% 0.16 75); --busy: oklch(62% 0.2 25); --off: #9aa4ad; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Outfit', system-ui, sans-serif; color: #12283f;
+    background: linear-gradient(170deg, #eef3f9, #e3ecf5 40%, #dbe6f2);
+    min-height: 100vh;
+  }
+  .ea-top {
+    display: flex; align-items: center; gap: .8rem;
+    padding: .9rem 1.4rem; background: var(--ocean-deep, #0c2340); color: #fff;
+    box-shadow: 0 2px 14px rgba(0,0,0,.18);
+  }
+  .ea-top img { height: 34px; border-radius: 6px; }
+  .ea-top b { font-weight: 700; letter-spacing: .01em; }
+  .ea-top .sp { flex: 1; }
+  .ea-top .who { font-size: .9rem; opacity: .92; text-align: right; line-height: 1.25; }
+  .ea-top .who small { opacity: .7; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+    min-height: 42px; padding: .55rem 1.05rem; border-radius: 9px; border: 1.5px solid var(--ocean, #006aff);
+    background: var(--ocean, #006aff); color: #fff; font: inherit; font-weight: 650; cursor: pointer;
+    text-decoration: none; transition: transform .12s, box-shadow .12s, opacity .12s;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.16); }
+  .btn:disabled { opacity: .55; cursor: default; transform: none; box-shadow: none; }
+  .btn.ghost { background: transparent; color: var(--ocean, #006aff); }
+  .btn.sm { min-height: 36px; padding: .4rem .8rem; font-size: .88rem; }
+  .btn.ok { background: var(--ok); border-color: var(--ok); }
+  .btn.danger { background: var(--busy); border-color: var(--busy); }
+
+  .ea-wrap { max-width: 960px; margin: 0 auto; padding: 1.8rem 1.1rem 3rem; }
+  .card {
+    background: #fff; border: 1px solid #dde5ef; border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(20,40,70,.07); padding: 1.4rem 1.5rem; margin-bottom: 1.3rem;
+  }
+  .card h2 { font-family: 'Playfair Display', serif; font-size: 1.35rem; margin: 0 0 1rem; }
+  .card h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .09em; color: #7a879a; margin: 0 0 .8rem; }
+
+  /* ── Auth ── */
+  .auth-shell { max-width: 460px; margin: 3.5rem auto 0; }
+  .tabs { display: flex; gap: .4rem; margin-bottom: 1.2rem; }
+  .tabs button {
+    flex: 1; border: 0; background: #e7eef7; color: #46586e; font: inherit; font-weight: 650;
+    padding: .6rem; border-radius: 9px; cursor: pointer;
+  }
+  .tabs button.active { background: var(--ocean, #006aff); color: #fff; }
+  .field { margin-bottom: .85rem; }
+  .field label { display: block; font-size: .82rem; font-weight: 600; color: #48586c; margin-bottom: .3rem; }
+  .field input, .field select {
+    width: 100%; min-height: 44px; padding: .55rem .7rem; border: 1.5px solid #cfdae6;
+    border-radius: 9px; font: inherit; background: #fff;
+  }
+  .field input:focus, .field select:focus { outline: 0; border-color: var(--ocean, #006aff); }
+  .msg { font-size: .9rem; margin: .6rem 0 0; min-height: 1.2em; }
+  .msg.err { color: var(--busy); }
+  .msg.good { color: var(--ok); font-weight: 600; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+  .hide { display: none !important; }
+
+  /* ── Présence ── */
+  .presence-bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .presence-bar .lbl { font-weight: 600; margin-right: .3rem; }
+  .pstate {
+    border: 1.5px solid #cfdae6; background: #fff; color: #3a4a5e; font: inherit; font-weight: 600;
+    padding: .45rem .8rem; border-radius: 999px; cursor: pointer; font-size: .9rem;
+  }
+  .pstate.active { color: #fff; }
+  .pstate.active[data-state=bureau]   { background: var(--ok); border-color: var(--ok); }
+  .pstate.active[data-state=en_ligne] { background: var(--ocean, #006aff); border-color: var(--ocean, #006aff); }
+  .pstate.active[data-state=occupe]   { background: var(--warn); border-color: var(--warn); }
+  .pstate.active[data-state=absent]   { background: var(--off); border-color: var(--off); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--off); }
+  .dot.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ok) 25%, transparent); }
+
+  /* ── Demandes / notifications ── */
+  #reqEmpty { color: #7a879a; font-size: .95rem; }
+  .req {
+    border: 1px solid #e0e8f1; border-left: 4px solid var(--ocean, #006aff);
+    border-radius: 11px; padding: .85rem 1rem; margin-bottom: .7rem; background: #f8fbff;
+  }
+  .req .vis { font-weight: 650; }
+  .req .acts { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+  .req .code {
+    font-size: 1.6rem; font-weight: 800; letter-spacing: .35em; color: #0c2340;
+    background: #fff; border: 1.5px dashed var(--ocean, #006aff); border-radius: 10px;
+    padding: .4rem .7rem; display: inline-block; margin-top: .5rem;
+  }
+  .req .hint { font-size: .82rem; color: #6b7889; margin-top: .35rem; }
+
+  /* ── Équipe (gestionnaire) ── */
+  table.team { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.team th, table.team td { text-align: left; padding: .55rem .5rem; border-bottom: 1px solid #eef2f7; }
+  table.team th { font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; color: #8592a3; }
+  .pill { font-size: .78rem; font-weight: 700; padding: .15rem .55rem; border-radius: 999px; }
+  .pill.pending { background: #fff2d6; color: #7a5900; }
+  .pill.active { background: #d9f5e4; color: #10633a; }
+  .pill.suspended { background: #f6dede; color: #7a1f1f; }
+
+  @media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } .ea-top .who { font-size: .8rem; } }
+</style>
+</head>
+<body>
+
+<header class="ea-top">
+  <img src="images/logo-narjiss.jpg" alt="Narjiss">
+  <b>Espace agent</b>
+  <span class="sp"></span>
+  <div class="who hide" id="whoBox">
+    <div id="whoName"></div>
+    <small id="whoMeta"></small>
+  </div>
+  <button class="btn ghost sm hide" id="logoutBtn" style="border-color:rgba(255,255,255,.5);color:#fff">Déconnexion</button>
+</header>
+
+<main class="ea-wrap">
+
+  <!-- ══ Non connecté : connexion / inscription ══ -->
+  <section id="authSection" class="auth-shell hide">
+    <div class="card">
+      <div class="tabs">
+        <button id="tabLogin" class="active" type="button">Connexion</button>
+        <button id="tabReg" type="button">Inscription</button>
+      </div>
+
+      <!-- Connexion -->
+      <form id="formLogin">
+        <div class="field">
+          <label for="liEmail">E-mail</label>
+          <input id="liEmail" type="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="liPass">Mot de passe</label>
+          <input id="liPass" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn" type="submit" style="width:100%">Se connecter</button>
+        <p class="msg" id="loginMsg"></p>
+      </form>
+
+      <!-- Inscription -->
+      <form id="formReg" class="hide">
+        <div class="field">
+          <label for="rgName">Nom complet</label>
+          <input id="rgName" type="text" autocomplete="name" required>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="rgRole">Rôle</label>
+            <select id="rgRole">
+              <option value="commercial">Agent commercial</option>
+              <option value="gestionnaire">Gestionnaire de bureau</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="rgProjet">Bureau de vente</label>
+            <select id="rgProjet"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rgEmail">E-mail</label>
+          <input id="rgEmail" type="email" autocomplete="email" required>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="rgTel">Téléphone</label>
+            <input id="rgTel" type="tel" autocomplete="tel">
+          </div>
+          <div class="field">
+            <label for="rgWa">WhatsApp</label>
+            <input id="rgWa" type="tel">
+          </div>
+        </div>
+        <div class="field">
+          <label for="rgPass">Mot de passe (6 caractères min.)</label>
+          <input id="rgPass" type="password" autocomplete="new-password" required minlength="6">
+        </div>
+        <button class="btn" type="submit" style="width:100%">Créer mon compte</button>
+        <p class="msg" id="regMsg"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══ Connecté ══ -->
+  <section id="appSection" class="hide">
+
+    <!-- Présence -->
+    <div class="card">
+      <h2>Ma présence</h2>
+      <p style="margin:.2rem 0 1rem;color:#54627a;font-size:.94rem">
+        <span class="dot" id="onlineDot"></span>
+        <span id="onlineText">…</span>
+        — les visiteurs de votre bureau voient votre disponibilité en temps réel.
+      </p>
+      <div class="presence-bar">
+        <span class="lbl">Statut :</span>
+        <button class="pstate" data-state="bureau" type="button">🏢 Présent au bureau</button>
+        <button class="pstate" data-state="en_ligne" type="button">💻 En ligne</button>
+        <button class="pstate" data-state="occupe" type="button">⏳ Occupé</button>
+        <button class="pstate" data-state="absent" type="button">🚪 Absent</button>
+      </div>
+    </div>
+
+    <!-- Demandes d'accès (commercial) -->
+    <div class="card" id="reqCard">
+      <h2>Visiteurs en attente</h2>
+      <p style="margin:-.4rem 0 1rem;color:#54627a;font-size:.92rem">
+        Quand l'hôtesse IA oriente un visiteur vers vous, sa demande apparaît ici.
+        En autorisant, un code à 4 chiffres est généré : communiquez-le (l'hôtesse le donne aussi au visiteur).
+      </p>
+      <div id="reqEmpty">Aucune demande pour le moment.</div>
+      <div id="reqList"></div>
+      <!-- Zone d'appel direct (LiveKit) -->
+      <div id="callBox" class="hide" style="margin-top:.9rem;padding:.8rem 1rem;border-radius:11px;background:#0c2340;color:#fff">
+        <span class="dot on"></span> <b id="callText">En relation avec le visiteur…</b>
+        <button class="btn danger sm" id="callHangup" style="margin-left:.6rem">Raccrocher</button>
+      </div>
+    </div>
+
+    <!-- Équipe (gestionnaire) -->
+    <div class="card hide" id="teamCard">
+      <h2>Mon équipe</h2>
+      <p style="margin:-.4rem 0 1rem;color:#54627a;font-size:.92rem">
+        Validez les nouveaux comptes de votre bureau, ou suspendez un accès.
+      </p>
+      <table class="team">
+        <thead><tr><th>Nom</th><th>Rôle</th><th>Statut</th><th>Présence</th><th></th></tr></thead>
+        <tbody id="teamBody"></tbody>
+      </table>
+    </div>
+
+  </section>
+</main>
+
+<script src="assets/vendor/livekit/livekit-client.umd.js"></script>
+<script src="espace-agent.js"></script>
+</body>
+</html>

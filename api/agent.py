@@ -43,7 +43,14 @@ INSTRUCTIONS = (
     "proposés ; parler du quartier et des commodités alentour (écoles, commerces, "
     "santé, transports) ; inviter à poursuivre la visite virtuelle, à consulter la "
     "brochure, ou à venir sur place. "
-    "Si le visiteur veut un rendez-vous, être rappelé, ou parler à un conseiller, "
+    "Si le visiteur veut parler MAINTENANT à un commercial (par ex. « je veux parler "
+    "à Rachid » ou « un conseiller est-il là ? »), demande-lui son prénom, puis appelle "
+    "l'outil demander_conseiller (avec le nom du commercial s'il en cite un). "
+    "Selon la réponse : si le commercial est prévenu, dis au visiteur de patienter un "
+    "instant puis de te redemander son code d'accès — que tu obtiens avec l'outil "
+    "obtenir_code_acces et que tu lui dictes chiffre par chiffre. S'il n'y a personne "
+    "de disponible, propose plutôt un rappel via demander_rendezvous. "
+    "Si le visiteur veut seulement un rendez-vous ou être rappelé plus tard, "
     "demande-lui son nom et son téléphone (ou son e-mail), puis appelle l'outil "
     "demander_rendezvous. "
     "Ne cite JAMAIS de prix, de surface, de disponibilité ou de délai de livraison : "
@@ -113,6 +120,80 @@ class ReceptionAgent(Agent):
             print("[demander_rendezvous] err:", e)
             return ("Désolée, la transmission a échoué. Le bouton « Prendre rendez-vous » "
                     "à l'écran reste disponible.")
+
+    @function_tool()
+    async def demander_conseiller(self, context: RunContext, nom_visiteur: str,
+                                  conseiller: str = ""):
+        """Prévient un commercial du bureau qu'un visiteur souhaite lui parler en direct.
+
+        Vérifie d'abord que le commercial est bien connecté / présent. Ne crée la
+        demande que dans ce cas ; sinon, invite à laisser un rendez-vous.
+
+        Args:
+            nom_visiteur: le prénom du visiteur présent dans la visite
+            conseiller: le nom du commercial demandé (optionnel ; vide = n'importe lequel)
+        """
+        try:
+            payload = urllib.parse.urlencode({
+                "action": "create",
+                "projet": self.project_id,
+                "visitor": nom_visiteur or "Visiteur",
+                "conseiller": conseiller or "",
+            }).encode()
+            req = urllib.request.Request(f"{APP_URL}/api/agent-access.php", data=payload)
+            with urllib.request.urlopen(req, timeout=8) as r:
+                res = json.loads(r.read().decode())
+        except Exception as e:
+            print("[demander_conseiller] err:", e)
+            return ("Je n'arrive pas à joindre l'équipe commerciale pour l'instant. "
+                    "Souhaitez-vous que je note une demande de rappel ?")
+
+        if not res.get("found"):
+            if conseiller:
+                return (f"Je ne trouve pas de commercial au nom de « {conseiller} » pour ce "
+                        "bureau. Voulez-vous parler à un autre conseiller, ou être rappelé ?")
+            return ("Aucun commercial n'est rattaché à ce bureau pour le moment. "
+                    "Je peux noter une demande de rappel si vous le souhaitez.")
+
+        who = res.get("agent_name") or "le commercial"
+        if not res.get("online"):
+            return (f"{who} n'est pas connecté(e) là, tout de suite. Voulez-vous que je "
+                    "prenne vos coordonnées pour qu'il/elle vous rappelle ?")
+        return (f"C'est noté, je préviens {who} qui est en ligne. Patientez un petit "
+                "instant, puis redemandez-moi votre code d'accès pour être mis en relation.")
+
+    @function_tool()
+    async def obtenir_code_acces(self, context: RunContext, nom_visiteur: str):
+        """Donne le code d'accès si le commercial a autorisé le visiteur.
+
+        Args:
+            nom_visiteur: le prénom du visiteur qui a fait la demande
+        """
+        try:
+            payload = urllib.parse.urlencode({
+                "action": "code-for-visitor",
+                "projet": self.project_id,
+                "visitor": nom_visiteur or "",
+            }).encode()
+            req = urllib.request.Request(f"{APP_URL}/api/agent-access.php", data=payload)
+            with urllib.request.urlopen(req, timeout=8) as r:
+                res = json.loads(r.read().decode())
+        except Exception as e:
+            print("[obtenir_code_acces] err:", e)
+            return "Je n'arrive pas à récupérer votre code à l'instant, réessayez dans un moment."
+
+        if not res.get("found"):
+            return ("Je n'ai pas encore de demande enregistrée à votre nom. Dites-moi qui "
+                    "vous souhaitez voir et je préviens le commercial.")
+        statut = res.get("statut")
+        if statut == "approved" and res.get("code"):
+            digits = " ".join(str(res["code"]))
+            return (f"C'est bon, {res.get('agent_name','le commercial')} vous attend ! "
+                    f"Votre code est le {digits}. Saisissez-le dans l'encadré à l'écran "
+                    "pour être mis en relation.")
+        if statut == "denied":
+            return "Le commercial n'est pas disponible pour le moment. Souhaitez-vous être rappelé ?"
+        return f"{res.get('agent_name','Le commercial')} n'a pas encore répondu, patientez un petit instant."
 
 
 async def entrypoint(ctx: agents.JobContext):
