@@ -240,4 +240,13 @@ async def entrypoint(ctx: agents.JobContext):
 if __name__ == "__main__":
     # Pas d'agent_name → dispatch automatique sur les nouvelles rooms ; le filtre
     # sur « bureau-* » est fait dans entrypoint.
-    agents.cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint))
+    #
+    # job_executor_type=THREAD : sous Windows, l'exécuteur PROCESS par défaut
+    # relance un python.exe enfant par visiteur, et ce process enfant échoue à
+    # charger livekit_ffi.dll (« Image incorrecte », erreur SxS 0xc0e90002) alors
+    # que le process parent la charge sans problème. En exécutant les jobs dans un
+    # thread du process principal — qui a déjà chargé la DLL — on évite ce crash.
+    agents.cli.run_app(agents.WorkerOptions(
+        entrypoint_fnc=entrypoint,
+        job_executor_type=agents.JobExecutorType.THREAD,
+    ))
