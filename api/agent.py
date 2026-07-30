@@ -42,14 +42,17 @@ INSTRUCTIONS = (
     "Ton projet d'accueil est « {project} », mais tu connais TOUTE l'offre de Narjiss "
     "Immobilière : la section « CATALOGUE » ci-dessous liste l'ensemble des projets avec "
     "leur ville, leur type de bien, leur avancement, leurs typologies (surfaces, nombre de "
-    "pièces, unités encore disponibles), leur date de livraison et leurs équipements. "
+    "pièces, unités encore disponibles), leur date de livraison, leurs équipements et les "
+    "POINTS D'INTÉRÊT proches (repères marquants comme l'aéroport, la plage ou l'hôpital, et "
+    "le décompte des commodités du quartier : écoles, pharmacies, banques, transports…). "
     "Appuie-toi UNIQUEMENT sur ces données ; n'invente jamais un projet, une surface ou une "
     "disponibilité qui n'y figure pas. "
     "Tu peux : présenter « {project} » et son emplacement ; citer et comparer les AUTRES "
     "projets Narjiss quand on te le demande (« quels projets avez-vous ? », « avez-vous des "
     "terrains ? », « un autre projet à Agadir ? ») ; détailler les types de biens, les "
     "surfaces, les typologies, la disponibilité, la date de livraison et les équipements ; "
-    "parler du quartier et des commodités alentour (écoles, commerces, santé, transports) ; "
+    "décrire le quartier et les commodités alentour de N'IMPORTE lequel des projets à partir "
+    "des points d'intérêt du CATALOGUE (repères marquants et décompte des commodités) ; "
     "inviter à poursuivre la visite virtuelle, à consulter la brochure, ou à venir sur place. "
     "Quand on te demande la liste des projets, donne-la à l'oral de façon fluide et brève "
     "(les noms, éventuellement regroupés par ville ou par type) plutôt qu'une longue "
@@ -154,6 +157,16 @@ def _catalog_line(p: dict) -> str:
 
     if p.get("has_tour"):
         bits.append("visite 360° disponible")
+
+    # POI proches : repères marquants + commodités du quartier (décompte).
+    pois = p.get("pois") or {}
+    landmarks = pois.get("landmarks") or []
+    if landmarks:
+        bits.append("à proximité : " + " ; ".join(landmarks[:6]))
+    counts = pois.get("counts") or {}
+    if counts:
+        top = list(counts.items())[:6]
+        bits.append("commodités du quartier : " + ", ".join(f"{n} {label}" for label, n in top))
 
     return "- " + " — ".join(bits) + "."
 
