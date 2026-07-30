@@ -321,6 +321,14 @@
     sport: { fr: "Sport", en: "Sport", ar: "رياضة", es: "Deporte" },
     marche: { fr: "Marche", en: "Market", ar: "سوق", es: "Mercado" },
     market: { fr: "Marche", en: "Market", ar: "سوق", es: "Mercado" },
+    aeroport: { fr: "Aeroport", en: "Airport", ar: "مطار", es: "Aeropuerto" },
+    plage: { fr: "Plage", en: "Beach", ar: "شاطئ", es: "Playa" },
+    medina: { fr: "Medina / Souk", en: "Medina / Souk", ar: "مدينة / سوق", es: "Medina / Zoco" },
+    hopital: { fr: "Hopital", en: "Hospital", ar: "مستشفى", es: "Hospital" },
+    monument: { fr: "Monument", en: "Landmark", ar: "معلمة", es: "Monumento" },
+    marina: { fr: "Marina", en: "Marina", ar: "مارينا", es: "Marina" },
+    musee: { fr: "Musee", en: "Museum", ar: "متحف", es: "Museo" },
+    stade: { fr: "Stade", en: "Stadium", ar: "ملعب", es: "Estadio" },
     home: { fr: "Residence", en: "Residence", ar: "الإقامة", es: "Residencia" }
   };
 
@@ -704,7 +712,15 @@
     sport: { color: "#6ab04c", icon: "sport" },
     marche: { color: "#9b59b6", icon: "shop" },
     market: { color: "#9b59b6", icon: "shop" },
-    loisir: { color: "#6ab04c", icon: "leaf" }
+    loisir: { color: "#6ab04c", icon: "leaf" },
+    aeroport: { color: "#2980b9", icon: "plane" },
+    plage: { color: "#e1b12c", icon: "beach" },
+    medina: { color: "#c0392b", icon: "landmark" },
+    hopital: { color: "#e74c3c", icon: "medical" },
+    monument: { color: "#8d6e63", icon: "castle" },
+    marina: { color: "#0097e6", icon: "anchor" },
+    musee: { color: "#6c5ce7", icon: "museum" },
+    stade: { color: "#d35400", icon: "stadium" }
   };
 
   function poiMarkerStyle(cat) {
@@ -725,6 +741,13 @@
       waves: '<path d="M4 9c2 2 4 2 6 0s4-2 6 0 3 2 4 1"/><path d="M4 15c2 2 4 2 6 0s4-2 6 0 3 2 4 1"/>',
       leaf: '<path d="M5 19c8-1 13-6 14-14C11 5 6 10 5 19z"/><path d="M5 19c3-4 6-7 10-9"/>',
       sport: '<circle cx="12" cy="12" r="7"/><path d="M5 12h14"/><path d="M12 5c2 2 3 4 3 7s-1 5-3 7"/><path d="M12 5c-2 2-3 4-3 7s1 5 3 7"/>',
+      plane: '<path d="M21 15l-8-3.5V6a1.5 1.5 0 0 0-3 0v5.5L2 15v2l8-2v3l-2 1.5V21l3.5-1 3.5 1v-1.5L13 18v-3l8 2z"/>',
+      beach: '<path d="M12 4a8 5 0 0 1 8 5H4a8 5 0 0 1 8-5z"/><path d="M12 4v16"/><path d="M4 20h6"/>',
+      landmark: '<path d="M4 21h16"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/>',
+      castle: '<path d="M4 21V8l2 1V7h2v2h2V7h2v2h2V7h2v2l2-1v13z"/><path d="M10 21v-4h4v4"/>',
+      anchor: '<circle cx="12" cy="5" r="2"/><path d="M12 7v13"/><path d="M5 13a7 7 0 0 0 14 0"/><path d="M6 12H4v1M18 12h2v1"/>',
+      museum: '<path d="M4 9l8-5 8 5"/><path d="M5 9h14"/><path d="M6 9v8M10 9v8M14 9v8M18 9v8"/><path d="M4 20h16"/>',
+      stadium: '<ellipse cx="12" cy="12" rx="9" ry="6"/><ellipse cx="12" cy="12" rx="4" ry="2.6"/>',
       pin: '<path d="M12 20s6-5 6-10a6 6 0 0 0-12 0c0 5 6 10 6 10z"/><circle cx="12" cy="10" r="2"/>'
     };
     return '<svg class="poi-google-svg" viewBox="0 0 24 24" aria-hidden="true">' + (paths[icon] || paths.pin) + '</svg>';
