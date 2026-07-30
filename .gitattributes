@@ -1,6 +1,10 @@
 # Normalisation automatique des fins de ligne
 * text=auto
 
+# Scripts shell : TOUJOURS en LF (exécutés côté VPS Linux / envoyés par SSH ;
+# un CRLF ferait planter bash avec « $'\r': command not found »).
+*.sh text eol=lf
+
 # Fichiers binaires (pas de conversion)
 *.png binary
 *.jpg binary
