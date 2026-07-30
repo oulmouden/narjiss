@@ -1,6 +1,13 @@
 Catégorie;Emoji;Nom;Adresse;Note;Latitude;Longitude;Nb Avis;Téléphone;Horaires / Notes
-home;🏠;Tazroute Al Yassamine;Agadir;;30.3616466330063;-9.455007371697246;;;
+home;🏠;Tazroute Al Yassamine;Agadir;;30.361647;-9.455007;;;
 aeroport;✈️;Aéroport Al Massira;Agadir;4.0;30.3811;-9.5462;;+212 5 28 83 91 22;Aéroport international
 plage;🏖️;Plage d'Agadir;Corniche d'Agadir;4.5;30.4278;-9.6189;;;Plage principale
 medina;🏛️;Souk El Had;Agadir;4.4;30.4198;-9.5897;;;Plus grand souk d'Agadir
 hopital;🏥;Hôpital Hassan II;Av. Hassan II Agadir;3.5;30.4042;-9.5811;;+212 5 28 84 13 51;CHU régional
+monument;🏰;Kasbah Agadir Oufella;;;30.4297;-9.6248;;;Forteresse historique, vue panoramique
+marina;⚓;Marina d'Agadir;;;30.4224;-9.6177;;;Port de plaisance & restaurants
+parc;🐦;Vallée des Oiseaux;;;30.4196;-9.6021;;;Parc animalier gratuit
+musee;🖼️;Musée du Patrimoine Amazigh;;;30.4160;-9.5971;;;Culture amazighe
+medina;🏛️;Médina d'Agadir;;;30.3785;-9.5725;;;Médina artisanale (Coco Polizzi)
+stade;🏟️;Stade Adrar;;;30.4274;-9.5403;;;Grand stade d'Agadir
+parc;🌳;Jardin d'Olhão;;;30.4247;-9.5971;;;Jardin public paysager

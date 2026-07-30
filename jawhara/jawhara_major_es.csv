@@ -1,17 +1,13 @@
 Catégorie;Emoji;Nom;Adresse;Note;Latitude;Longitude;Nb Avis;Téléphone;Horaires / Notes
-home;🏠;Residencia Al Jawhara;Dcheira El Jihadia;;30.3732;-9.5372;;;
+home;🏠;Residencia Al Jawhara;Dcheira El Jihadia, Agadir;;30.373200;-9.537200;;;
 aeroport;✈️;Aeropuerto Al Massira;Agadir;4.0;30.3811;-9.5462;;+212 5 28 83 91 22;Aeropuerto internacional
 plage;🏖️;Playa de Agadir;Corniche de Agadir;4.5;30.4278;-9.6189;;;Playa principal
-plage;🏖️;Playa de Aghroud;Aghroud;4.6;30.5119;-9.7139;;;Playa a 25 min
-medina;🏛️;Souk El Had;Agadir;4.4;30.4198;-9.5897;;;Mayor zoco de Agadir
+medina;🏛️;Souk El Had;Agadir;4.4;30.4198;-9.5897;;;El zoco más grande de Agadir
 hopital;🏥;Hospital Hassan II;Av. Hassan II Agadir;3.5;30.4042;-9.5811;;+212 5 28 84 13 51;Hospital regional
-hopital;🏥;Policlínica del Sur;Av. Mohammed V Agadir;4.2;30.4153;-9.5828;;+212 5 28 22 78 78;Clínica privada
-police;👮;Comisaría Inezgane;Inezgane;3.0;30.3589;-9.5314;;+212 5 28 33 09 30;Comisaría principal
-admin;⚖️;Tribunal de Primera Instancia;Inezgane;;30.3617;-9.5333;;+212 5 28 83 24 50;Tribunal
-admin;📬;Oficina de Correos Inezgane;Inezgane;;30.3611;-9.5325;;+212 5 28 83 12 75;Correos
-ecole_int;🏫;Escuela Francesa de Agadir;Agadir;4.5;30.4214;-9.5836;;+212 5 28 82 26 74;Liceo Lyautey
-stade;🏟️;Estadio Adrar;Agadir;4.5;30.4256;-9.5378;;;28.000 plazas
-autoroute;🛣️;Salida Autopista A7 Agadir;A7;;30.3669;-9.4786;;;A Casablanca/Marrakech
-gare;🚌;Estación de Autobuses Inezgane;Inezgane;3.8;30.3550;-9.5350;;;Autobuses larga distancia
-restos;🍴;Barrio Founty (restaurantes);Agadir;;30.4036;-9.6011;;;Marina y restaurantes
-mall;🛍️;Marina Mall Agadir;Marina;4.4;30.4153;-9.6189;;;Centro comercial Marina
+monument;🏰;Kasbah Agadir Oufella;;;30.4297;-9.6248;;;Fortaleza histórica, vistas
+marina;⚓;Marina de Agadir;;;30.4224;-9.6177;;;Puerto deportivo y restaurantes
+parc;🐦;Valle de los Pájaros;;;30.4196;-9.6021;;;Parque de aves gratuito
+musee;🖼️;Museo del Patrimonio Amazigh;;;30.4160;-9.5971;;;Cultura amazigh
+medina;🏛️;Medina de Agadir;;;30.3785;-9.5725;;;Medina artesanal (Coco Polizzi)
+stade;🏟️;Estadio Adrar;;;30.4274;-9.5403;;;Gran estadio de Agadir
+parc;🌳;Jardín de Olhão;;;30.4247;-9.5971;;;Jardín público

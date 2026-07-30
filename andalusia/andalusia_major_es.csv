@@ -1,6 +1,13 @@
 Catégorie;Emoji;Nom;Adresse;Note;Latitude;Longitude;Nb Avis;Téléphone;Horaires / Notes
-home;🏠;Andalusia;;;30.371616;-9.523501;;;
+home;🏠;Andalusia;Agadir;;30.371616;-9.523501;;;
 aeroport;✈️;Aeropuerto Al Massira;Agadir;4.0;30.3811;-9.5462;;+212 5 28 83 91 22;Aeropuerto internacional
 plage;🏖️;Playa de Agadir;Corniche de Agadir;4.5;30.4278;-9.6189;;;Playa principal
 medina;🏛️;Souk El Had;Agadir;4.4;30.4198;-9.5897;;;El zoco más grande de Agadir
 hopital;🏥;Hospital Hassan II;Av. Hassan II Agadir;3.5;30.4042;-9.5811;;+212 5 28 84 13 51;Hospital regional
+monument;🏰;Kasbah Agadir Oufella;;;30.4297;-9.6248;;;Fortaleza histórica, vistas
+marina;⚓;Marina de Agadir;;;30.4224;-9.6177;;;Puerto deportivo y restaurantes
+parc;🐦;Valle de los Pájaros;;;30.4196;-9.6021;;;Parque de aves gratuito
+musee;🖼️;Museo del Patrimonio Amazigh;;;30.4160;-9.5971;;;Cultura amazigh
+medina;🏛️;Medina de Agadir;;;30.3785;-9.5725;;;Medina artesanal (Coco Polizzi)
+stade;🏟️;Estadio Adrar;;;30.4274;-9.5403;;;Gran estadio de Agadir
+parc;🌳;Jardín de Olhão;;;30.4247;-9.5971;;;Jardín público
