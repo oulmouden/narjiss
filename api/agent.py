@@ -11,7 +11,12 @@ LiveKit sans se voler les visiteurs.
 
 Prérequis : LiveKit local en marche + OPENAI_API_KEY dans api/.env.
 Lancer :   python agent.py dev      (mode auto-dispatch : rejoint les nouvelles rooms)
-           python agent.py console  (test micro/haut-parleur en terminal)
+           python agent.py console  (test micro/casque en terminal, sans navigateur)
+
+Le mode console force un projet de test (défaut jawhara / fr) car sa room ne
+porte pas le préfixe « bureau- » ; surcharger via NARJISS_TEST_PROJECT /
+NARJISS_TEST_LANG. On peut aussi forcer ce comportement ailleurs avec
+NARJISS_TEST=1. Nécessite XAMPP en marche (APP_URL) pour le catalogue et les POI.
 """
 import os, sys, json, urllib.request, urllib.parse
 # Console Windows en UTF-8 : évite les « Logging error » quand on journalise
@@ -30,6 +35,18 @@ load_dotenv()
 APP_URL = os.environ.get("APP_URL", "http://localhost/narjiss")
 
 ROOM_PREFIX = "bureau-"
+
+# ── Mode test (dev uniquement) ───────────────────────────────────────────────
+# En production, l'hôtesse ne traite QUE les rooms « bureau-* » (voir
+# entrypoint). Mais « python agent.py console » crée une room locale dont le nom
+# ne commence pas par « bureau- » : la contrainte la ferait se retirer aussitôt,
+# sans un mot. Pour pouvoir dialoguer au casque en terminal, on lève ce filtre
+# quand on est en mode console — ou quand NARJISS_TEST=1 est défini — et on
+# force alors un projet (défaut jawhara / fr, surchargeables par variables
+# d'environnement). Aucun effet en prod : « python agent.py dev » n'active rien.
+TEST_MODE    = ("console" in sys.argv) or (os.environ.get("NARJISS_TEST") == "1")
+TEST_PROJECT = os.environ.get("NARJISS_TEST_PROJECT", "jawhara")
+TEST_LANG    = os.environ.get("NARJISS_TEST_LANG", "fr")
 
 INSTRUCTIONS = (
     "Tu es l'hôtesse d'accueil virtuelle du bureau de vente du projet immobilier "
@@ -309,15 +326,22 @@ class ReceptionAgent(Agent):
 
 async def entrypoint(ctx: agents.JobContext):
     room = ctx.room.name or ""
-    # L'agent ne prend en charge QUE l'accueil des bureaux de vente narjiss.
-    if not room.startswith(ROOM_PREFIX):
+    # En prod l'agent ne prend en charge QUE l'accueil des bureaux de vente narjiss.
+    if room.startswith(ROOM_PREFIX):
+        # bureau-<projet>-<lang>-<rand> ; les ids de projet ne contiennent pas de tiret.
+        parts = room.split("-")
+        project_id = parts[1] if len(parts) > 1 else ""
+        lang_code  = parts[2] if len(parts) > 2 and parts[2] in LANG_LABEL else "fr"
+    elif TEST_MODE:
+        # Test terminal (console / NARJISS_TEST=1) : pas de room « bureau- »,
+        # on force un projet pour pouvoir discuter au casque sans passer par le web.
+        project_id = TEST_PROJECT
+        lang_code  = TEST_LANG if TEST_LANG in LANG_LABEL else "fr"
+        print(f"[Agent] MODE TEST — projet forcé « {project_id} » / {lang_code} (room '{room}').")
+    else:
         print(f"[Agent] room '{room}' ignorée (hors bureau de vente narjiss).")
         return
 
-    # bureau-<projet>-<lang>-<rand> ; les ids de projet ne contiennent pas de tiret.
-    parts = room.split("-")
-    project_id = parts[1] if len(parts) > 1 else ""
-    lang_code  = parts[2] if len(parts) > 2 and parts[2] in LANG_LABEL else "fr"
     project, city = project_info(project_id)
 
     instructions = INSTRUCTIONS.format(project=project, city=city, lang=LANG_LABEL[lang_code])
