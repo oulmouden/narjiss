@@ -39,10 +39,21 @@ INSTRUCTIONS = (
     "en changeant en cours de conversation s'il en change. S'il mélange le français et l'arabe "
     "marocain — usage courant au Maroc — fais de même, naturellement. "
     "Réponds avec chaleur et concision (2 à 3 phrases maximum). "
-    "Tu peux : présenter le projet et son emplacement ; expliquer les types de biens "
-    "proposés ; parler du quartier et des commodités alentour (écoles, commerces, "
-    "santé, transports) ; inviter à poursuivre la visite virtuelle, à consulter la "
-    "brochure, ou à venir sur place. "
+    "Ton projet d'accueil est « {project} », mais tu connais TOUTE l'offre de Narjiss "
+    "Immobilière : la section « CATALOGUE » ci-dessous liste l'ensemble des projets avec "
+    "leur ville, leur type de bien, leur avancement, leurs typologies (surfaces, nombre de "
+    "pièces, unités encore disponibles), leur date de livraison et leurs équipements. "
+    "Appuie-toi UNIQUEMENT sur ces données ; n'invente jamais un projet, une surface ou une "
+    "disponibilité qui n'y figure pas. "
+    "Tu peux : présenter « {project} » et son emplacement ; citer et comparer les AUTRES "
+    "projets Narjiss quand on te le demande (« quels projets avez-vous ? », « avez-vous des "
+    "terrains ? », « un autre projet à Agadir ? ») ; détailler les types de biens, les "
+    "surfaces, les typologies, la disponibilité, la date de livraison et les équipements ; "
+    "parler du quartier et des commodités alentour (écoles, commerces, santé, transports) ; "
+    "inviter à poursuivre la visite virtuelle, à consulter la brochure, ou à venir sur place. "
+    "Quand on te demande la liste des projets, donne-la à l'oral de façon fluide et brève "
+    "(les noms, éventuellement regroupés par ville ou par type) plutôt qu'une longue "
+    "énumération de fiches ; propose ensuite d'en détailler un. "
     "Si le visiteur veut parler MAINTENANT à un commercial (par ex. « je veux parler "
     "à Rachid » ou « un conseiller est-il là ? »), demande-lui son prénom, puis appelle "
     "l'outil demander_conseiller (avec le nom du commercial s'il en cite un). "
@@ -53,9 +64,9 @@ INSTRUCTIONS = (
     "Si le visiteur veut seulement un rendez-vous ou être rappelé plus tard, "
     "demande-lui son nom et son téléphone (ou son e-mail), puis appelle l'outil "
     "demander_rendezvous. "
-    "Ne cite JAMAIS de prix, de surface, de disponibilité ou de délai de livraison : "
-    "tu ne les connais pas. Sur ces sujets, propose de faire rappeler par un conseiller. "
-    "Ne promets rien d'autre. Reste naturelle, ne récite pas de longues listes."
+    "SEULE EXCEPTION à ce que tu peux dire : les PRIX. Ne cite JAMAIS de prix ni "
+    "d'estimation de tarif — ils sont communiqués sur demande par un conseiller. Sur les "
+    "prix, propose un rappel via demander_rendezvous. Ne promets rien d'autre. Reste naturelle."
 )
 
 GREETINGS = {
@@ -82,6 +93,93 @@ def project_info(project_id: str):
     except Exception as e:
         print("[project-info] err:", e)
         return "notre projet", "Agadir"
+
+
+# Types de biens et statuts d'avancement rendus en clair pour l'hôtesse.
+_TYPE_LABEL = {
+    "appartements": "appartements", "appartement": "appartements",
+    "villas": "villas", "villa": "villas",
+    "terrains": "terrains", "terrain": "terrains",
+    "commerces": "commerces", "bureaux": "bureaux",
+}
+_STATE_LABEL = {
+    "en-construction": "en construction", "livre": "livré", "livré": "livré",
+    "termine": "terminé", "a-venir": "à venir", "planifie": "planifié",
+}
+
+
+def _catalog_line(p: dict) -> str:
+    """Une ligne compacte, lisible à l'oral, décrivant un projet du catalogue."""
+    name = (p.get("name") or {}).get("fr") or p.get("id") or "Projet"
+    bits = [name]
+
+    city = p.get("city") or p.get("location") or ""
+    if city:
+        bits.append(f"à {city}")
+
+    typ = _TYPE_LABEL.get((p.get("type") or "").lower(), p.get("type") or "")
+    if typ:
+        bits.append(typ)
+
+    if p.get("standing"):
+        bits.append(str(p["standing"]).replace("-", " "))
+
+    deliv = p.get("delivery") or {}
+    if deliv.get("date") or deliv.get("state"):
+        state = _STATE_LABEL.get((deliv.get("state") or "").lower(), deliv.get("state") or "")
+        when = " ".join(x for x in [state, f"livraison {deliv['date']}" if deliv.get("date") else ""] if x).strip()
+        if when:
+            bits.append(when)
+
+    # Typologies : label (surfaces m², disponibilité)
+    typos = []
+    for t in (p.get("typologies") or []):
+        seg = t.get("label") or ""
+        smin, smax = t.get("surface_min"), t.get("surface_max")
+        if smin and smax:
+            seg += f" {smin}-{smax} m²"
+        elif smin:
+            seg += f" {smin} m²"
+        avail = t.get("units_available")
+        if avail is not None:
+            seg += f", {avail} dispo" if avail else ", complet"
+        if seg.strip():
+            typos.append(seg.strip())
+    if typos:
+        bits.append("typologies : " + " ; ".join(typos))
+
+    feats = p.get("features") or []
+    if feats:
+        bits.append("équipements : " + ", ".join(str(f).replace("-", " ") for f in feats[:8]))
+
+    if p.get("has_tour"):
+        bits.append("visite 360° disponible")
+
+    return "- " + " — ".join(bits) + "."
+
+
+def projects_catalog() -> str:
+    """Catalogue complet (tous les projets Narjiss) formaté pour le prompt.
+
+    Renvoie une chaîne vide en cas d'échec : l'hôtesse retombe alors sur son
+    seul projet d'accueil, sans planter.
+    """
+    try:
+        url = f"{APP_URL}/api/projects-list.php"
+        with urllib.request.urlopen(url, timeout=8) as r:
+            raw = r.read().decode()
+        # Tolère un éventuel préambule (avertissement PHP) avant le JSON.
+        projects = json.loads(raw[raw.index("["):])
+    except Exception as e:
+        print("[projects-list] err:", e)
+        return ""
+    if not isinstance(projects, list) or not projects:
+        return ""
+    lines = [_catalog_line(p) for p in projects]
+    return (
+        "\n\nCATALOGUE — projets actuellement commercialisés par Narjiss Immobilière "
+        f"({len(lines)} projets) :\n" + "\n".join(lines)
+    )
 
 
 class ReceptionAgent(Agent):
@@ -210,6 +308,10 @@ async def entrypoint(ctx: agents.JobContext):
     project, city = project_info(project_id)
 
     instructions = INSTRUCTIONS.format(project=project, city=city, lang=LANG_LABEL[lang_code])
+
+    # Catalogue complet injecté une fois : l'hôtesse peut citer et comparer
+    # TOUS les projets Narjiss, pas seulement son bureau d'accueil.
+    instructions += projects_catalog()
 
     # Renforcement spécifique DARIJA : le visiteur a explicitement choisi de parler
     # en darija marocaine. On demande une darija naturelle et chaleureuse.
