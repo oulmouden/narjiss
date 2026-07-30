@@ -1,0 +1,27 @@
+# ============================================================================
+#  MODE MAINTENANCE — Narjiss (Apache)
+#  À copier en « .htaccess » à la racine web du VPS pour ACTIVER la maintenance,
+#  à supprimer (ou renommer) pour la DÉSACTIVER.
+#
+#  - Renvoie un vrai HTTP 503 (préserve le référencement, pas de désindexation).
+#  - Sert maintenance.html à tous les visiteurs.
+#  - SAUF votre IP publique : remplacez 0.0.0.0 par la vôtre pour continuer à
+#    voir/tester le site normalement. (Trouvez-la : curl -s https://ifconfig.me)
+#  - Si un .htaccess existe déjà sur le VPS, FUSIONNEZ ce bloc au début plutôt
+#    que d'écraser le fichier.
+# ============================================================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Votre IP passe (site normal) — mettez votre IP publique ici :
+  RewriteCond %{REMOTE_ADDR}  !=0.0.0.0
+  # Ne pas boucler sur la page de maintenance elle-même :
+  RewriteCond %{REQUEST_URI}  !^/maintenance\.html$
+  RewriteRule ^ - [R=503,L]
+</IfModule>
+
+ErrorDocument 503 /maintenance.html
+
+<IfModule mod_headers.c>
+  Header always set Retry-After "3600"
+  Header always set Cache-Control "no-store, must-revalidate"
+</IfModule>
