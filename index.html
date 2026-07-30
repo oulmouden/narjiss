@@ -67,7 +67,7 @@
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=8"></script>
+<script src="shared/menu.js?v=9"></script>
 <script>
 var PAGE_UI = {
   fr: {
@@ -313,7 +313,7 @@ function startProjectCardSliders() {
 }
 
 function loadProjectSliders() {
-  return fetch('data/project-sliders.json')
+  return fetch('data/project-sliders.json?v=2')
     .then(function(res) {
       if (!res.ok) return {};
       return res.json();
@@ -365,7 +365,7 @@ function sliderAltFromPath(path) {
 }
 
 function loadHomeSliderImages() {
-  return fetch('data/home-slider-images.json')
+  return fetch('data/home-slider-images.json?v=2')
     .then(function(res) {
       if (!res.ok) return [];
       return res.json();

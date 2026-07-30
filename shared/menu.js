@@ -107,19 +107,19 @@ var DEFAULT_PROJECTS = [
 	status: 'live',
     detail_url: 'jawhara/jawhara.html',
     images: {
-    logo: 'images/projects/jawhara/jawhara_logo.png',
-      triptych: 'images/projects/jawhara/concept-hero.png'
+    logo: 'images/projects/jawhara/jawhara_logo.jpg',
+      triptych: 'images/projects/jawhara/concept-hero.jpg'
     },
     media: {
       status_label: { fr: 'En ligne', en: 'Live', ar: 'متاح', es: 'En línea' },
       tour360: 'jawhara/Tour/index.htm',
-      cover360: 'images/projects/jawhara/concept-hero.png',
+      cover360: 'images/projects/jawhara/concept-hero.jpg',
       floorPlans: ['images/projects/jawhara/floor-plan-demo.svg'],
       gallery: [
-        'images/projects/jawhara/concept-hero.png',
-        'images/projects/jawhara/concept-hero.png',
-        'images/projects/jawhara/jawhara_logo.png',
-        'images/projects/jawhara/concept-hero.png'
+        'images/projects/jawhara/concept-hero.jpg',
+        'images/projects/jawhara/concept-hero.jpg',
+        'images/projects/jawhara/jawhara_logo.jpg',
+        'images/projects/jawhara/concept-hero.jpg'
       ]
     },
     poi_count: 41,
@@ -141,8 +141,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
   images: {
-    logo: 'images/projects/tazroute/tazroute_logo.png',
-    triptych: 'images/projects/tazroute/concept-triptych.png'
+    logo: 'images/projects/tazroute/tazroute_logo.jpg',
+    triptych: 'images/projects/tazroute/concept-triptych.jpg'
   },
   poi_count: 27,
   has_tour: false,
@@ -163,8 +163,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
   images: {
-    logo: 'images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.png',
-    triptych: 'images/projects/dar_ben_cheikh/concept-hero.png'
+    logo: 'images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.jpg',
+    triptych: 'images/projects/dar_ben_cheikh/concept-hero.jpg'
   },
   poi_count: 8,
   has_tour: false,
@@ -185,8 +185,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
   images: {
-    logo: 'images/projects/tazroute_yassamine/tazroute_yassamine_logo.png',
-    triptych: 'images/projects/tazroute_yassamine/concept-hero.png'
+    logo: 'images/projects/tazroute_yassamine/tazroute_yassamine_logo.jpg',
+    triptych: 'images/projects/tazroute_yassamine/concept-hero.jpg'
   },
   poi_count: 21,
   has_tour: false,
@@ -207,8 +207,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
   images: {
-    logo: 'images/projects/farah/farah_logo.png',
-    triptych: 'images/projects/farah/concept-hero.png'
+    logo: 'images/projects/farah/farah_logo.jpg',
+    triptych: 'images/projects/farah/concept-hero.jpg'
   },
   poi_count: 108,
   has_tour: false,
@@ -229,8 +229,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
  images: {
-    logo: 'images/projects/amical/amical_logo.png',
-    triptych: 'images/projects/amical/concept-hero.png'
+    logo: 'images/projects/amical/amical_logo.jpg',
+    triptych: 'images/projects/amical/concept-hero.jpg'
   },
   poi_count: 74,
   has_tour: false,
@@ -251,8 +251,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
   images: {
-    logo: 'images/projects/azrou/azrou_logo.png',
-    triptych: 'images/projects/azrou/concept-hero.png'
+    logo: 'images/projects/azrou/azrou_logo.jpg',
+    triptych: 'images/projects/azrou/concept-hero.jpg'
   },
   poi_count: 27,
   has_tour: false,
@@ -273,8 +273,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
   images: {
-    logo: 'images/projects/bayt_mawada/bayt_mawada_logo.png',
-    triptych: 'images/projects/bayt_mawada/concept-hero.png'
+    logo: 'images/projects/bayt_mawada/bayt_mawada_logo.jpg',
+    triptych: 'images/projects/bayt_mawada/concept-hero.jpg'
   },
   poi_count: 24,
   has_tour: false,
@@ -295,8 +295,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
   images: {
-    logo: 'images/projects/founty/founty_logo.png',
-    triptych: 'images/projects/founty/concept-hero.png'
+    logo: 'images/projects/founty/founty_logo.jpg',
+    triptych: 'images/projects/founty/concept-hero.jpg'
   },
   poi_count: 122,
   has_tour: false,
@@ -317,8 +317,8 @@ var DEFAULT_PROJECTS = [
   icon: '📍',
   status: 'live',
  images: {
-    logo: 'images/projects/nahda2/nahda2_logo.png',
-    triptych: 'images/projects/nahda2/concept-hero.png'
+    logo: 'images/projects/nahda2/nahda2_logo.jpg',
+    triptych: 'images/projects/nahda2/concept-hero.jpg'
   },
   poi_count: 45,
   has_tour: false,
@@ -340,8 +340,8 @@ var DEFAULT_PROJECTS = [
   status: 'live',
   detail_url: 'andaloussia/andaloussia.html',
   images: {
-    logo: 'images/projects/andalusia/andalusia_logo.png',
-    triptych: 'images/projects/andalusia/concept-hero.png'
+    logo: 'images/projects/andalusia/andalusia_logo.jpg',
+    triptych: 'images/projects/andalusia/concept-hero.jpg'
   },
   poi_count: 106,
   has_tour: true,
@@ -362,8 +362,8 @@ var DEFAULT_PROJECTS = [
   icon: '🏢',
   status: 'live',
   images: {
-    logo: 'images/projects/kb/kb_logo.png',
-    triptych: 'images/projects/kb/concept-hero.png'
+    logo: 'images/projects/kb/kb_logo.jpg',
+    triptych: 'images/projects/kb/concept-hero.jpg'
   },
   poi_count: 78,
   has_tour: false,

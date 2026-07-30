@@ -30,9 +30,9 @@
             "es": "Proyecto residencial Narjiss en Dcheira El Jihadia, cerca de Agadir."
         },
         "images": {
-            "logo": "images/projects/jawhara/jawhara_logo.png",
-            "hero": "images/projects/jawhara/concept-hero.png",
-            "floorplan": "images/projects/jawhara/floorplan.png"
+            "logo": "images/projects/jawhara/jawhara_logo.jpg",
+            "hero": "images/projects/jawhara/concept-hero.jpg",
+            "floorplan": "images/projects/jawhara/floorplan.jpg"
         },
         "commercialization": "on-sale",
         "delivery": { "date": "2026-Q4", "state": "en-construction" },
@@ -41,12 +41,12 @@
         "promoteur": "Narjiss Immobilière",
         "legal": { "titre": true },
         "typologies": [
-            { "label": "F2", "rooms": 2, "surface_min": 62, "surface_max": 68, "units_total": 20, "units_available": 6, "floorplan": "images/projects/jawhara/floorplan.png" },
-            { "label": "F3", "rooms": 3, "surface_min": 78, "surface_max": 92, "units_total": 30, "units_available": 12, "floorplan": "images/projects/jawhara/floorplan.png" },
-            { "label": "F4", "rooms": 4, "surface_min": 104, "surface_max": 118, "units_total": 14, "units_available": 3, "floorplan": "images/projects/jawhara/floorplan.png" }
+            { "label": "F2", "rooms": 2, "surface_min": 62, "surface_max": 68, "units_total": 20, "units_available": 6, "floorplan": "images/projects/jawhara/floorplan.jpg" },
+            { "label": "F3", "rooms": 3, "surface_min": 78, "surface_max": 92, "units_total": 30, "units_available": 12, "floorplan": "images/projects/jawhara/floorplan.jpg" },
+            { "label": "F4", "rooms": 4, "surface_min": 104, "surface_max": 118, "units_total": 14, "units_available": 3, "floorplan": "images/projects/jawhara/floorplan.jpg" }
         ],
         "features": ["piscine", "securite-24-7", "parking-sous-sol", "espaces-verts", "ascenseur", "syndic"],
-        "gallery": ["images/projects/jawhara/concept-hero.png"],
+        "gallery": ["images/projects/jawhara/concept-hero.jpg"],
         "panoramas": [
             { "src": "images/projects/jawhara/salon_19.jpeg", "room": { "fr": "Salon", "en": "Living room", "ar": "صالون", "es": "Salón" } },
             { "src": "images/projects/jawhara/cuisine.jpeg", "room": { "fr": "Cuisine", "en": "Kitchen", "ar": "مطبخ", "es": "Cocina" } },
@@ -85,9 +85,9 @@
             "es": "Proyecto de terrenos Narjiss con ubicacion precisa y mapa interactivo."
         },
         "images": {
-            "logo": "images/projects/tazroute/tazroute_logo.png",
-            "hero": "images/projects/tazroute/concept-triptych.png",
-            "floorplan": "images/projects/tazroute/floorplan.png"
+            "logo": "images/projects/tazroute/tazroute_logo.jpg",
+            "hero": "images/projects/tazroute/concept-triptych.jpg",
+            "floorplan": "images/projects/tazroute/floorplan.jpg"
         }
     },
     {
@@ -121,9 +121,9 @@
             "es": "Proyecto de terrenos Narjiss con contexto cercano claro."
         },
         "images": {
-            "logo": "images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.png",
-            "hero": "images/projects/dar_ben_cheikh/concept-hero.png",
-            "floorplan": "images/projects/dar_ben_cheikh/floorplan.png"
+            "logo": "images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.jpg",
+            "hero": "images/projects/dar_ben_cheikh/concept-hero.jpg",
+            "floorplan": "images/projects/dar_ben_cheikh/floorplan.jpg"
         }
     },
     {
@@ -157,9 +157,9 @@
             "es": "Proyecto de terrenos Narjiss con contexto cartografico."
         },
         "images": {
-            "logo": "images/projects/tazroute_yassamine/tazroute_yassamine_logo.png",
-            "hero": "images/projects/tazroute_yassamine/concept-hero.png",
-            "floorplan": "images/projects/tazroute_yassamine/floorplan.png"
+            "logo": "images/projects/tazroute_yassamine/tazroute_yassamine_logo.jpg",
+            "hero": "images/projects/tazroute_yassamine/concept-hero.jpg",
+            "floorplan": "images/projects/tazroute_yassamine/floorplan.jpg"
         }
     },
     {
@@ -193,9 +193,9 @@
             "es": "Proyecto de terrenos con muchos puntos utiles cartografiados."
         },
         "images": {
-            "logo": "images/projects/farah/farah_logo.png",
-            "hero": "images/projects/farah/concept-hero.png",
-            "floorplan": "images/projects/farah/floorplan.png"
+            "logo": "images/projects/farah/farah_logo.jpg",
+            "hero": "images/projects/farah/concept-hero.jpg",
+            "floorplan": "images/projects/farah/floorplan.jpg"
         }
     },
     {
@@ -229,9 +229,9 @@
             "es": "Proyecto con posicion, puntos utiles y contexto local."
         },
         "images": {
-            "logo": "images/projects/amical/amical_logo.png",
-            "hero": "images/projects/amical/concept-hero.png",
-            "floorplan": "images/projects/amical/floorplan.png"
+            "logo": "images/projects/amical/amical_logo.jpg",
+            "hero": "images/projects/amical/concept-hero.jpg",
+            "floorplan": "images/projects/amical/floorplan.jpg"
         }
     },
     {
@@ -265,9 +265,9 @@
             "es": "Proyecto de terrenos Narjiss cerca de otros desarrollos Tazroute."
         },
         "images": {
-            "logo": "images/projects/azrou/azrou_logo.png",
-            "hero": "images/projects/azrou/concept-hero.png",
-            "floorplan": "images/projects/azrou/floorplan.png"
+            "logo": "images/projects/azrou/azrou_logo.jpg",
+            "hero": "images/projects/azrou/concept-hero.jpg",
+            "floorplan": "images/projects/azrou/floorplan.jpg"
         }
     },
     {
@@ -301,9 +301,9 @@
             "es": "Proyecto residencial Narjiss con mapa multilingue."
         },
         "images": {
-            "logo": "images/projects/bayt_mawada/bayt_mawada_logo.png",
-            "hero": "images/projects/bayt_mawada/concept-hero.png",
-            "floorplan": "images/projects/bayt_mawada/floorplan.png"
+            "logo": "images/projects/bayt_mawada/bayt_mawada_logo.jpg",
+            "hero": "images/projects/bayt_mawada/concept-hero.jpg",
+            "floorplan": "images/projects/bayt_mawada/floorplan.jpg"
         }
     },
     {
@@ -337,9 +337,9 @@
             "es": "Proyecto de terrenos con mapa rico en puntos utiles."
         },
         "images": {
-            "logo": "images/projects/founty/founty_logo.png",
-            "hero": "images/projects/founty/concept-hero.png",
-            "floorplan": "images/projects/founty/floorplan.png"
+            "logo": "images/projects/founty/founty_logo.jpg",
+            "hero": "images/projects/founty/concept-hero.jpg",
+            "floorplan": "images/projects/founty/floorplan.jpg"
         }
     },
     {
@@ -373,9 +373,9 @@
             "es": "Proyecto Narjiss con ubicacion y entorno."
         },
         "images": {
-            "logo": "images/projects/nahda2/nahda2_logo.png",
-            "hero": "images/projects/nahda2/concept-hero.png",
-            "floorplan": "images/projects/nahda2/floorplan.png"
+            "logo": "images/projects/nahda2/nahda2_logo.jpg",
+            "hero": "images/projects/nahda2/concept-hero.jpg",
+            "floorplan": "images/projects/nahda2/floorplan.jpg"
         }
     },
     {
@@ -409,9 +409,9 @@
             "es": "Proyecto de apartamentos con mapa interactivo y presentacion avanzada."
         },
         "images": {
-            "logo": "images/projects/andalusia/andalusia_logo.png",
-            "hero": "images/projects/andalusia/concept-hero.png",
-            "floorplan": "images/projects/andalusia/floorplan.png"
+            "logo": "images/projects/andalusia/andalusia_logo.jpg",
+            "hero": "images/projects/andalusia/concept-hero.jpg",
+            "floorplan": "images/projects/andalusia/floorplan.jpg"
         }
     },
     {
@@ -445,9 +445,9 @@
             "es": "Proyecto de apartamentos con mapa y datos de proximidad."
         },
         "images": {
-            "logo": "images/projects/kb/kb_logo.png",
-            "hero": "images/projects/kb/concept-hero.png",
-            "floorplan": "images/projects/kb/floorplan.png"
+            "logo": "images/projects/kb/kb_logo.jpg",
+            "hero": "images/projects/kb/concept-hero.jpg",
+            "floorplan": "images/projects/kb/floorplan.jpg"
         }
     }
 ]
