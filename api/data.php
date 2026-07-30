@@ -136,5 +136,21 @@ function nj_project_pois_named(string $id): ?array {
     $groups[] = ['slug' => $slug, 'label' => nj_poi_label($slug), 'items' => $items];
   }
 
-  return ['total' => count($full), 'groups' => $groups];
+  // Attractions & repères touristiques régionaux (fichier _major_) en tête,
+  // pour que l'hôtesse puisse aussi les énumérer via lister_pois (« quelles
+  // attractions ? », « la Kasbah, la Marina… »). La catégorie « home » est exclue.
+  $major = nj_read_poi_csv("{$base}_major_fr.csv");
+  $attractions = [];
+  foreach ($major as $r) {
+    if ($r['name'] !== '') $attractions[] = ['name' => $r['name'], 'address' => $r['address'], 'note' => $r['note']];
+  }
+  if ($attractions) {
+    array_unshift($groups, [
+      'slug'  => 'attractions',
+      'label' => 'attractions & repères touristiques',
+      'items' => $attractions,
+    ]);
+  }
+
+  return ['total' => count($full) + count($attractions), 'groups' => $groups];
 }

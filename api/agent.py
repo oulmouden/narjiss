@@ -80,7 +80,10 @@ INSTRUCTIONS = (
     "terrains ? », « un autre projet à Agadir ? ») ; détailler les types de biens, les "
     "surfaces, les typologies, la disponibilité, la date de livraison et les équipements ; "
     "décrire le quartier et les commodités alentour de N'IMPORTE lequel des projets à partir "
-    "des points d'intérêt du CATALOGUE (repères marquants et décompte des commodités) ; "
+    "des points d'intérêt du CATALOGUE (décompte des commodités) ; évoquer les ATTRACTIONS "
+    "et repères de la région d'Agadir listés en bas du catalogue (Kasbah Oufella, Marina, "
+    "Vallée des Oiseaux, Musée du Patrimoine Amazigh, Médina, Stade Adrar, plage, aéroport…) "
+    "pour situer et valoriser l'emplacement ; "
     "Le CATALOGUE ne donne que des NOMBRES de commodités (ex. « 5 pharmacies ») ; dès que le "
     "visiteur veut la LISTE ou les NOMS (« quelles écoles ? », « cite-moi les pharmacies », "
     "« il y a des cafés ? »), appelle l'outil lister_pois (avec la catégorie, et le nom du "
@@ -211,12 +214,10 @@ def _catalog_line(p: dict) -> str:
     if p.get("has_tour"):
         bits.append("visite 360° disponible")
 
-    # POI proches : repères marquants + commodités du quartier (décompte).
-    pois = p.get("pois") or {}
-    landmarks = pois.get("landmarks") or []
-    if landmarks:
-        bits.append("à proximité : " + " ; ".join(landmarks[:6]))
-    counts = pois.get("counts") or {}
+    # Commodités du quartier (décompte) — propres à CHAQUE projet.
+    # Les repères/attractions régionaux sont injectés une seule fois par
+    # projects_catalog() (identiques pour tous les projets).
+    counts = (p.get("pois") or {}).get("counts") or {}
     if counts:
         top = list(counts.items())[:6]
         bits.append("commodités du quartier : " + ", ".join(f"{n} {label}" for label, n in top))
@@ -239,13 +240,31 @@ def projects_catalog() -> str:
             "vas faire rappeler par un conseiller qui présentera toute l'offre."
         )
     lines = [_catalog_line(p) for p in projects]
-    return (
+
+    # Attractions & repères régionaux : identiques pour tous les projets
+    # (aéroport, plage, souk, hôpital + Kasbah Oufella, Marina, Vallée des
+    # Oiseaux, Musée Amazigh, Médina, Stade Adrar, Jardin d'Olhão…). On les
+    # dédoublonne et on les injecte UNE fois plutôt que dans chaque projet.
+    seen, regional = set(), []
+    for p in projects:
+        for lm in (p.get("pois") or {}).get("landmarks") or []:
+            if lm not in seen:
+                seen.add(lm); regional.append(lm)
+
+    out = (
         "\n\nCATALOGUE — liste EXHAUSTIVE des projets Narjiss Immobilière "
         f"({len(lines)} projets, tous dans la région d'Agadir). Ce sont les SEULS "
         "projets existants : n'en invente aucun autre, et ne mentionne aucune ville "
         "hors de cette liste (il n'y a PAS de projet à Marrakech, Essaouira, etc.) :\n"
         + "\n".join(lines)
     )
+    if regional:
+        out += (
+            "\n\nATTRACTIONS & REPÈRES DE LA RÉGION D'AGADIR (à proximité de TOUS les "
+            "projets ci-dessus, tu peux les citer pour situer le quartier) : "
+            + " ; ".join(regional)
+        )
+    return out
 
 
 class ReceptionAgent(Agent):
