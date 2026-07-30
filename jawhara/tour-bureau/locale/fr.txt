@@ -2,30 +2,27 @@
 
 ## Hotspot
 
-### Text
-HotspotPanoramaOverlayTextImage_92EDEC75_8A94_92FF_41C7_279758435D6B.text = Bureau Commercial 1
-HotspotPanoramaOverlayTextImage_9D9190C1_8A8B_F213_41D2_87E43E390DEB.text = Bureau Commercial 2
-HotspotPanoramaOverlayTextImage_9D557524_8AB4_F20F_41CF_A1409FAA85D3.text = Bureaux NARJISS
-HotspotPanoramaOverlayTextImage_9D1F87BC_8A8C_9E7C_41D6_C53D0CA45F36.text = Bureaux Narjiss-Jawhara
+### Tooltip
+overlay_BB633C09_B5DD_CEC5_41CE_33594F643F40.toolTip = Welcome
 
 ## Media
 
-### Image
-imlevel_9DBF8DC1_8A94_921A_41C7_9282D73188D8.url = media/panorama_848445FD_899C_92B1_41CE_7DC8E36F0F8A_HS_ahv9mryo_fr.webp
-imlevel_9DBACDAC_8A94_9269_41B5_E2A3956F95F0.url = media/panorama_848445FD_899C_92B1_41CE_7DC8E36F0F8A_HS_bczae8hw_fr.webp
-imlevel_9D9AA8F8_8AB4_73FE_41CA_C98945B68D0D.url = media/panorama_87BABDBD_8AF5_9219_41DD_9DE05C6BEAB2_HS_coyphopy_fr.webp
-imlevel_9CAB237E_8ABC_B6F6_41B9_FCE6955F3BBB.url = media/panorama_87BABDBD_8AF5_9219_41DD_9DE05C6BEAB2_HS_xz23re9k_fr.webp
-
 ### Title
-panorama_848445FD_899C_92B1_41CE_7DC8E36F0F8A.label = narjiss-bureau-accueil-2
-panorama_849A994F_899C_93D0_41B1_D76D0F692A58.label = narjiss-bureau-commercial-1
-panorama_84854CA2_899C_9150_41C6_668F10547556.label = narjiss-bureau-commercial-2
-panorama_87BABDBD_8AF5_9219_41DD_9DE05C6BEAB2.label = narjiss-bureau-entree-avec-arbres
+video_B8118CDF_B5DD_CF7D_41DD_420EDF8F5FB2.label = message-accueil-jawhara
+panorama_B8DC8F3C_B5BB_493C_41D7_876488BEB442.label = narjiss-bureau-accueil-avec-hotesse
+panorama_BA7E24BB_B5BB_7FC5_41D3_3A3350E7BB0D.label = narjiss-bureau-commercial-1
+panorama_BA09B82D_B5BB_76DD_41E3_DBD39950358C.label = narjiss-bureau-commercial-2
+panorama_BA098F14_B5BB_4AC3_41DA_D7AEE23BB08A.label = narjiss-bureau-entree-avec-arbres
+
+### Video
+videolevel_B8CED7C8_B5D7_F943_41D6_F57D299ED536.url = media/video_B8118CDF_B5DD_CF7D_41DD_420EDF8F5FB2_fr.mp4
+videolevel_B8CED7C8_B5D7_F943_41D6_F57D299ED536.posterURL = media/video_B8118CDF_B5DD_CF7D_41DD_420EDF8F5FB2_poster_fr.jpg
+
+### Video Subtitles
 
 ## Tour
 
 ### Description
-tour.description = jawhara-tour
 
 ### Title
-tour.name = jawhara-tour
+tour.name = bureau-jawhara

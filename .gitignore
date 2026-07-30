@@ -41,3 +41,7 @@ _orig-360/
 
 # Secrets — visite guidée en direct (Pusher)
 api/liveguide-config.php
+
+# Sauvegardes d'optimisation d'images (copies locales)
+_originaux/
+*.bak-optim
