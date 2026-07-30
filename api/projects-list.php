@@ -16,20 +16,7 @@
 require __DIR__ . '/data.php';
 header('Content-Type: application/json; charset=utf-8');
 
-// Libellés lisibles (pluriel) des catégories de POI, pour l'hôtesse.
-$POI_LABEL = [
-  'ecole' => 'écoles', 'ecole_int' => 'écoles internationales',
-  'pharmacie' => 'pharmacies', 'banque' => 'banques',
-  'transport' => 'arrêts de transport', 'gare' => 'gares',
-  'cafe' => 'cafés', 'restos' => 'restaurants',
-  'magasin' => 'commerces', 'mall' => 'centres commerciaux',
-  'sante' => 'centres de santé', 'hopital' => 'hôpitaux',
-  'mosquee' => 'mosquées', 'loisir' => 'espaces de loisir',
-  'admin' => 'services administratifs', 'police' => 'postes de police',
-  'stade' => 'stades', 'plage' => 'plages', 'aeroport' => 'aéroport',
-  'medina' => 'souks / médina', 'hammam' => 'hammams',
-  'autoroute' => 'accès autoroute',
-];
+// Libellés lisibles des catégories de POI : nj_poi_label() (partagé, data.php).
 
 $out = [];
 foreach (nj_projects() as $id => $p) {
@@ -56,7 +43,7 @@ foreach (nj_projects() as $id => $p) {
   if ($raw_pois) {
     $counts = [];
     foreach ($raw_pois['counts'] as $slug => $n) {
-      $counts[$POI_LABEL[$slug] ?? $slug] = $n;
+      $counts[nj_poi_label($slug)] = $n;
     }
     $landmarks = [];
     foreach ($raw_pois['landmarks'] as $lm) {

@@ -19,7 +19,7 @@ NARJISS_TEST_LANG. On peut aussi forcer ce comportement ailleurs avec
 NARJISS_TEST=1. Nécessite XAMPP en marche (Apache, via API_BASE) pour charger
 le catalogue et les POI.
 """
-import os, sys, json, urllib.request, urllib.parse
+import os, sys, json, unicodedata, urllib.request, urllib.parse
 # Console Windows en UTF-8 : évite les « Logging error » quand on journalise
 # de l'arabe / darija (cp1252 ne peut pas les encoder).
 try:
@@ -81,6 +81,10 @@ INSTRUCTIONS = (
     "surfaces, les typologies, la disponibilité, la date de livraison et les équipements ; "
     "décrire le quartier et les commodités alentour de N'IMPORTE lequel des projets à partir "
     "des points d'intérêt du CATALOGUE (repères marquants et décompte des commodités) ; "
+    "Le CATALOGUE ne donne que des NOMBRES de commodités (ex. « 5 pharmacies ») ; dès que le "
+    "visiteur veut la LISTE ou les NOMS (« quelles écoles ? », « cite-moi les pharmacies », "
+    "« il y a des cafés ? »), appelle l'outil lister_pois (avec la catégorie, et le nom du "
+    "projet s'il diffère de celui du bureau) — n'invente jamais ces noms. "
     "inviter à poursuivre la visite virtuelle, à consulter la brochure, ou à venir sur place. "
     "Quand on te demande la liste des projets, donne-la à l'oral de façon fluide et brève "
     "(les noms, éventuellement regroupés par ville ou par type) plutôt qu'une longue "
@@ -131,6 +135,12 @@ def _get_json(url: str, timeout: float = 8, attempts: int = 3):
             print(f"[fetch] {url} essai {i+1}/{attempts} : {e}")
     print(f"[fetch] échec définitif {url} : {last}")
     return None
+
+
+def _norm(s: str) -> str:
+    """Minuscule + sans accents, pour comparer une catégorie dite à l'oral."""
+    s = unicodedata.normalize("NFD", str(s).lower())
+    return "".join(c for c in s if unicodedata.category(c) != "Mn").strip()
 
 
 def project_info(project_id: str):
@@ -348,6 +358,57 @@ class ReceptionAgent(Agent):
         if statut == "denied":
             return "Le commercial n'est pas disponible pour le moment. Souhaitez-vous être rappelé ?"
         return f"{res.get('agent_name','Le commercial')} n'a pas encore répondu, patientez un petit instant."
+
+    @function_tool()
+    async def lister_pois(self, context: RunContext, categorie: str = "", projet: str = ""):
+        """Liste les points d'intérêt RÉELS et NOMMÉS autour d'un projet (écoles,
+        pharmacies, banques, commerces, cafés, mosquées, santé, transports…).
+
+        À appeler dès que le visiteur veut une énumération de commodités (« quelles
+        écoles autour ? », « liste-moi les pharmacies », « il y a des cafés ? »).
+
+        Args:
+            categorie: catégorie demandée (ex. « écoles », « pharmacies »). Vide =
+                       aperçu de toutes les catégories du quartier.
+            projet: nom ou id d'un autre projet Narjiss (ex. « Tazroute »). Vide =
+                    le projet du bureau où se trouve le visiteur.
+        """
+        target = (projet or "").strip() or self.project_id
+        data = _get_json(f"{API_BASE}/api/project-pois.php?project={urllib.parse.quote(target)}")
+        if not isinstance(data, dict) or not data.get("groups"):
+            return ("Je n'ai pas la liste détaillée des points d'intérêt de ce projet à "
+                    "l'instant. Je peux faire rappeler par un conseiller si vous voulez.")
+
+        name   = data.get("name") or "ce projet"
+        groups = data["groups"]
+
+        if categorie.strip():
+            key = _norm(categorie)
+            match = [g for g in groups
+                     if key and (key in _norm(g["label"]) or _norm(g["label"]) in key
+                                 or key in _norm(g["slug"]))]
+            if not match:
+                dispo = ", ".join(g["label"] for g in groups)
+                return (f"Je n'ai pas de « {categorie} » répertoriés autour de {name}. "
+                        f"En revanche j'ai : {dispo}.")
+            parts = []
+            for g in match:
+                names = [it["name"] for it in g["items"] if it.get("name")]
+                shown = names[:12]
+                line = f"{g['label']} autour de {name} ({len(names)}) : " + ", ".join(shown)
+                if len(names) > len(shown):
+                    line += f"… (+{len(names) - len(shown)} autres)"
+                parts.append(line)
+            return (" ; ".join(parts) + ". Cite-en quelques-uns à l'oral et propose la "
+                    "liste complète ou l'envoi par message si le visiteur veut tout.")
+
+        # Aperçu toutes catégories (nombre + 3 exemples chacune).
+        parts = []
+        for g in groups:
+            ex = ", ".join(it["name"] for it in g["items"][:3] if it.get("name"))
+            parts.append(f"{g['label']} : {len(g['items'])}" + (f" (ex. {ex})" if ex else ""))
+        return (f"Commodités répertoriées autour de {name} — " + " ; ".join(parts) +
+                ". Demande au visiteur la catégorie qui l'intéresse pour détailler.")
 
 
 async def entrypoint(ctx: agents.JobContext):
