@@ -16,7 +16,8 @@ Lancer :   python agent.py dev      (mode auto-dispatch : rejoint les nouvelles 
 Le mode console force un projet de test (défaut jawhara / fr) car sa room ne
 porte pas le préfixe « bureau- » ; surcharger via NARJISS_TEST_PROJECT /
 NARJISS_TEST_LANG. On peut aussi forcer ce comportement ailleurs avec
-NARJISS_TEST=1. Nécessite XAMPP en marche (APP_URL) pour le catalogue et les POI.
+NARJISS_TEST=1. Nécessite XAMPP en marche (Apache, via API_BASE) pour charger
+le catalogue et les POI.
 """
 import os, sys, json, urllib.request, urllib.parse
 # Console Windows en UTF-8 : évite les « Logging error » quand on journalise
@@ -32,7 +33,17 @@ from livekit.agents import Agent, AgentSession, RoomInputOptions, function_tool,
 from livekit.plugins import openai, silero
 
 load_dotenv()
-APP_URL = os.environ.get("APP_URL", "http://localhost/narjiss")
+# Base des appels internes de l'agent vers l'API PHP. L'agent tourne TOUJOURS
+# sur la même machine qu'Apache : on passe par le LOOPBACK.
+#
+# ⚠️ On n'utilise PAS APP_URL ici : dans .env, APP_URL peut valoir l'IP LAN
+# (ex. http://192.168.x.x/narjiss, pour des liens/QR joignables depuis un
+# téléphone). Or, depuis cette même machine, le pare-feu bloque souvent le
+# port 80 sur l'interface réseau → urllib timeoute, le catalogue ne se charge
+# pas, et l'hôtesse se met à inventer des projets. Le loopback, lui, passe.
+# Surcharge possible via NARJISS_API_BASE. 127.0.0.1 plutôt que « localhost »
+# pour éviter une résolution IPv6 ::1 qui traîne sous Windows.
+API_BASE = (os.environ.get("NARJISS_API_BASE") or "http://127.0.0.1/narjiss").rstrip("/")
 
 ROOM_PREFIX = "bureau-"
 
@@ -103,16 +114,31 @@ LANG_LABEL = {
 }
 
 
+def _get_json(url: str, timeout: float = 8, attempts: int = 3):
+    """GET JSON depuis l'API PHP, avec quelques essais (le 1er appel « à froid »
+    peut traîner). Tolère un préambule avant le JSON. Renvoie None si échec."""
+    last = None
+    for i in range(attempts):
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as r:
+                raw = r.read().decode()
+            start = min([p for p in (raw.find("["), raw.find("{")) if p != -1], default=-1)
+            if start == -1:
+                raise ValueError("réponse sans JSON")
+            return json.loads(raw[start:])
+        except Exception as e:
+            last = e
+            print(f"[fetch] {url} essai {i+1}/{attempts} : {e}")
+    print(f"[fetch] échec définitif {url} : {last}")
+    return None
+
+
 def project_info(project_id: str):
     """Récupère (nom du projet, ville) depuis l'API PHP."""
-    try:
-        url = f"{APP_URL}/api/project-info.php?id={urllib.parse.quote(project_id)}"
-        with urllib.request.urlopen(url, timeout=6) as r:
-            d = json.loads(r.read().decode())
-        return d.get("name") or "notre projet", d.get("city") or "Agadir"
-    except Exception as e:
-        print("[project-info] err:", e)
+    d = _get_json(f"{API_BASE}/api/project-info.php?id={urllib.parse.quote(project_id)}")
+    if not isinstance(d, dict):
         return "notre projet", "Agadir"
+    return d.get("name") or "notre projet", d.get("city") or "Agadir"
 
 
 # Types de biens et statuts d'avancement rendus en clair pour l'hôtesse.
@@ -191,24 +217,24 @@ def _catalog_line(p: dict) -> str:
 def projects_catalog() -> str:
     """Catalogue complet (tous les projets Narjiss) formaté pour le prompt.
 
-    Renvoie une chaîne vide en cas d'échec : l'hôtesse retombe alors sur son
-    seul projet d'accueil, sans planter.
+    En cas d'échec de chargement, renvoie une consigne EXPLICITE de repli au lieu
+    d'une chaîne vide : sans liste, gpt-4o-mini inventerait des projets (villes
+    plausibles comme Marrakech/Essaouira). On lui interdit donc d'en citer.
     """
-    try:
-        url = f"{APP_URL}/api/projects-list.php"
-        with urllib.request.urlopen(url, timeout=8) as r:
-            raw = r.read().decode()
-        # Tolère un éventuel préambule (avertissement PHP) avant le JSON.
-        projects = json.loads(raw[raw.index("["):])
-    except Exception as e:
-        print("[projects-list] err:", e)
-        return ""
+    projects = _get_json(f"{API_BASE}/api/projects-list.php")
     if not isinstance(projects, list) or not projects:
-        return ""
+        return (
+            "\n\nCATALOGUE INDISPONIBLE : tu n'as PAS pu charger la liste des projets. "
+            "Ne cite alors AUCUN autre projet et n'invente RIEN ; dis simplement que tu "
+            "vas faire rappeler par un conseiller qui présentera toute l'offre."
+        )
     lines = [_catalog_line(p) for p in projects]
     return (
-        "\n\nCATALOGUE — projets actuellement commercialisés par Narjiss Immobilière "
-        f"({len(lines)} projets) :\n" + "\n".join(lines)
+        "\n\nCATALOGUE — liste EXHAUSTIVE des projets Narjiss Immobilière "
+        f"({len(lines)} projets, tous dans la région d'Agadir). Ce sont les SEULS "
+        "projets existants : n'en invente aucun autre, et ne mentionne aucune ville "
+        "hors de cette liste (il n'y a PAS de projet à Marrakech, Essaouira, etc.) :\n"
+        + "\n".join(lines)
     )
 
 
@@ -236,7 +262,7 @@ class ReceptionAgent(Agent):
                 "email": email or "",
                 "sujet": sujet or "",
             }).encode()
-            req = urllib.request.Request(f"{APP_URL}/api/rendezvous.php", data=payload)
+            req = urllib.request.Request(f"{API_BASE}/api/rendezvous.php", data=payload)
             with urllib.request.urlopen(req, timeout=8) as r:
                 res = json.loads(r.read().decode())
             if res.get("ok"):
@@ -268,7 +294,7 @@ class ReceptionAgent(Agent):
                 "visitor": nom_visiteur or "Visiteur",
                 "conseiller": conseiller or "",
             }).encode()
-            req = urllib.request.Request(f"{APP_URL}/api/agent-access.php", data=payload)
+            req = urllib.request.Request(f"{API_BASE}/api/agent-access.php", data=payload)
             with urllib.request.urlopen(req, timeout=8) as r:
                 res = json.loads(r.read().decode())
         except Exception as e:
@@ -303,7 +329,7 @@ class ReceptionAgent(Agent):
                 "projet": self.project_id,
                 "visitor": nom_visiteur or "",
             }).encode()
-            req = urllib.request.Request(f"{APP_URL}/api/agent-access.php", data=payload)
+            req = urllib.request.Request(f"{API_BASE}/api/agent-access.php", data=payload)
             with urllib.request.urlopen(req, timeout=8) as r:
                 res = json.loads(r.read().decode())
         except Exception as e:
