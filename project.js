@@ -1776,10 +1776,10 @@
      plan) + barre d'onglets + vignettes de pièces. Remplace le media-wall. ─── */
 
   var MEDIA_UI = {
-    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tourMissing: "Visite 3D bientôt disponible.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
-    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tourMissing: "3D tour coming soon.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
-    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
-    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tourMissing: "Tour 3D próximamente.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
+    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tabApartment: "Visiter un appartement", tabPlanArch: "Plan architecte", tabPlanVis: "Plan visuel", tourMissing: "Visite 3D bientôt disponible.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
+    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tabApartment: "Visit an apartment", tabPlanArch: "Architect plan", tabPlanVis: "Visual plan", tourMissing: "3D tour coming soon.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
+    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tabApartment: "زيارة شقة", tabPlanArch: "مخطط معماري", tabPlanVis: "مخطط مرئي", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
+    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tabApartment: "Visitar un apartamento", tabPlanArch: "Plano arquitecto", tabPlanVis: "Plano visual", tourMissing: "Tour 3D próximamente.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
   };
 
   function renderHeroMedia(project, lang, t, name, location, topActions) {
@@ -1791,8 +1791,10 @@
 
     var tabs = "";
     if (panos.length) tabs += '<button type="button" class="hero-tab" data-tab="p360">🌐 ' + m.tab360 + '</button>';
-    if (project.tour_url) tabs += '<button type="button" class="hero-tab" data-tab="tour">🎥 ' + m.tabTour + '</button>';
-    if (floor) tabs += '<button type="button" class="hero-tab" data-tab="plan">⌗ ' + m.tabPlan + '</button>';
+    if (project.apartment_tour_url) tabs += '<button type="button" class="hero-tab" data-tab="apartment">🏠 ' + m.tabApartment + '</button>';
+    if (project.plan_architecte_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-arch">📐 ' + m.tabPlanArch + '</button>';
+    if (project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-vis">🖼️ ' + m.tabPlanVis + '</button>';
+    if (floor && !project.plan_architecte_url && !project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan">⌗ ' + m.tabPlan + '</button>';
 
     var thumbs = "";
     for (var i = 0; i < panos.length; i++) {
@@ -1867,6 +1869,16 @@
       if (!project.tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
       stage.innerHTML = '<iframe class="hero-frame" src="' + project.tour_url + '" allowfullscreen></iframe>';
     }
+    function showApartment() {
+      destroyViewer();
+      if (!project.apartment_tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
+      stage.innerHTML = '<iframe class="hero-frame" src="' + project.apartment_tour_url + '" allowfullscreen></iframe>';
+    }
+    function showPlanImage(url) {
+      destroyViewer();
+      if (!url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
+      stage.innerHTML = '<a class="hero-plan" href="' + url + '" target="_blank" rel="noopener"><img src="' + url + '" alt="plan"></a>';
+    }
     function showPlan() {
       destroyViewer();
       stage.innerHTML = '<a class="hero-plan" href="' + projectMassPlanPdf(project) + '" target="_blank" rel="noopener"><img src="' + projectFloorPlan(project) + '" alt="plan"></a>';
@@ -1880,6 +1892,9 @@
           markTab(tab);
           if (tab === "p360") show360(0);
           else if (tab === "tour") showTour();
+          else if (tab === "apartment") showApartment();
+          else if (tab === "plan-arch") showPlanImage(project.plan_architecte_url);
+          else if (tab === "plan-vis") showPlanImage(project.plan_visuel_url);
           else if (tab === "plan") showPlan();
         });
       })(tabEls[i]);

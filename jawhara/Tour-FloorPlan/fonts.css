@@ -1,18 +1,18 @@
 @font-face {
-   font-family: "Poppins Regular";
-   src: url("fonts/Poppins Regular.woff2") format("woff2");
+   font-family: "Montserrat";
+   src: url("fonts/Montserrat-Regular.woff2") format("woff2");
    font-weight: normal;
    font-style: normal;
 }
 @font-face {
-   font-family: "Poppins SemiBold";
-   src: url("fonts/Poppins SemiBold Italic.woff2") format("woff2");
+   font-family: "Montserrat";
+   src: url("fonts/Montserrat-Bold.woff2") format("woff2");
    font-weight: bold;
-   font-style: italic;
+   font-style: normal;
 }
 @font-face {
-   font-family: "Poppins SemiBold";
-   src: url("fonts/Poppins SemiBold.woff2") format("woff2");
-   font-weight: bold;
+   font-family: "Montserrat Black";
+   src: url("fonts/Montserrat Black.woff2") format("woff2");
+   font-weight: normal;
    font-style: normal;
 }

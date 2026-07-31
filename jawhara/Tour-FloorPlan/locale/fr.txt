@@ -1,38 +1,93 @@
 #: locale=fr
 
+## Hotspot
+
+### Tooltip
+HotspotPanoramaOverlayArea_A617EA52_BCD7_BDE4_41BB_E3D5FA46ADDB.toolTip = Balcon aménagé par l'IA
+HotspotPanoramaOverlayArea_A348A587_BBD3_F76C_41DA_D25EB5CCD515.toolTip = Pour se projeter virtuellement
+HotspotPanoramaOverlayArea_A4669C17_BCF2_F56C_4178_5410681CC2AE.toolTip = Vers chambre d'enfants
+HotspotPanoramaOverlayArea_A5C1F8D3_BCFE_5EE4_41E6_BA0ADB8CDD91.toolTip = Vers la cuisine
+HotspotPanoramaOverlayArea_A6A7D5E4_BCD1_B6AC_41DB_900FE3D80FD8.toolTip = Vers la ve réelle
+HotspotPanoramaOverlayArea_A5F06244_BCF1_ADEC_41DF_72D6C5A1E94D.toolTip = Vers le salon
+HotspotPanoramaOverlayArea_A6C734ED_BCEE_D6BC_41E2_FEF432390280.toolTip = vers le couloir extérieur
+HotspotPanoramaOverlayArea_A6033A4F_BCF3_BDFC_41E1_9CFEAB4850E1.toolTip = vers le couloir extérieur
+
 ## Media
 
+### Floorplan
+
+### Image
+imlevel_9B29682B_BC31_DDA4_41CF_F6770C172650.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_0.webp
+imlevel_9B29982B_BC31_DDA4_41E2_0F0A259CD457.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_1.webp
+imlevel_9B29882B_BC31_DDA4_41E2_A268856789E2.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_2.webp
+imlevel_9B29B82B_BC31_DDA4_41A3_77879190E36E.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_3.webp
+
+### Subtitle
+panorama_ADD719FA_B42E_5EA7_41CF_D147AB6A037B.subtitle = Image actuelle
+panorama_ACA7E447_B42E_55ED_4192_44DC8206DE2B.subtitle = Image actuelle
+panorama_ADD7E00A_B42E_AD64_41C1_F0C2ADA23274.subtitle = Image actuelle
+panorama_ADD61332_B42E_D3A4_41E3_D0FD08D7E0EF.subtitle = Image actuelle
+panorama_ADD77715_B42E_D36C_41E2_0B5BEED73A87.subtitle = Image améliorée par IA
+panorama_ADD68A6D_B42E_DDBC_41E3_19BF2469FE67.subtitle = Image améliorée par IA
+panorama_ADD73CA4_B42E_D6AC_41A9_B0910205AEF3.subtitle = Image améliorée par l'IA
+panorama_ADD63DF7_B42E_B6AC_41D7_A4B7E0991C8F.subtitle = Image améliorée par l'IA
+panorama_ADD66724_B42E_53AC_41CE_AFF665694BD0.subtitle = Image améliorée par l'IA
+panorama_ADD7ECCE_B42E_56FC_41D4_5C2624427F2E.subtitle = Image améliorée par l'IA
+panorama_ADD72339_B42E_B3A4_41D5_20B72B17A2BE.subtitle = Image améliorée par l'IA
+panorama_ADD7383C_B42E_BD9C_41CD_FB31ED7A367C.subtitle = Image réelle
+panorama_ADD7160C_B42E_B57C_41AF_717D2275EC5B.subtitle = Image réelle
+
 ### Title
-panorama_BBAC8AE4_B457_BD09_41DE_6D8680C40C58.label = Generated Image April 22, 2026 - 11_29PM
-panorama_BBACF229_B457_AD18_41D1_3A87F606B5F7.label = Generated Image April 23, 2026 - 10_37AM
-panorama_BBAC2025_B457_AD0B_41DE_02606180D742.label = Generated Image April 23, 2026 - 10_37AM (1)
-panorama_BBAC2445_B456_5508_41D2_7BDA13FA4EC7.label = Generated Image April 23, 2026 - 10_40AM
-panorama_BBACE65C_B456_5538_41DB_75240B7B786F.label = Generated Image April 23, 2026 - 12_05PM
-panorama_BBACFB6E_B456_5319_41E2_CCF56A7C87C8.label = Generated Image April 23, 2026 - 12_05PM
-panorama_BBAC90D5_B456_6D0B_41E3_A80243599C1A.label = Generated Image April 23, 2026 - 12_11PM
-panorama_A444EA56_B457_DD09_41DF_D0D959688EF2.label = chambre1_17
-panorama_BBACEFBD_B457_D37B_41CE_78371E8A360D.label = couloir_18
-panorama_BBAC04C7_B457_B517_41CA_AAB5D83E5A3D.label = cuisine
-panorama_BBACB646_B456_7509_41E6_823E40C2BEBD.label = photo_13_2026-04-22_19-43-35
-panorama_BBAC883B_B456_7D7F_41BE_56F0285FB79D.label = photo_15
-panorama_BBACBE0D_B456_751B_41D8_6A7AA1BFE69C.label = photo_16
-panorama_BBB370B8_B456_6D79_4169_A2AF53B40BEA.label = photo_19
-panorama_BBACA2E0_B456_6D08_41B9_A9816430E2CF.label = photo_28_2026-04-22_19-43-35
-panorama_BBB354BB_B456_557F_41DE_FC1D2DB01413.label = salon_19
+panorama_ACA7E447_B42E_55ED_4192_44DC8206DE2B.label = Balcon
+panorama_ADD66724_B42E_53AC_41CE_AFF665694BD0.label = Balcon virtuel
+panorama_ADD7160C_B42E_B57C_41AF_717D2275EC5B.label = Couloir
+panorama_ADD7383C_B42E_BD9C_41CD_FB31ED7A367C.label = Cuisine
+panorama_ADD63DF7_B42E_B6AC_41D7_A4B7E0991C8F.label = Cuisine Virtuelle
+panorama_ADD61332_B42E_D3A4_41E3_D0FD08D7E0EF.label = Entrée réelle
+panorama_ADD77715_B42E_D36C_41E2_0B5BEED73A87.label = Entrée virtuelle
+panorama_ADD68A6D_B42E_DDBC_41E3_19BF2469FE67.label = Salon
+panorama_ADD73CA4_B42E_D6AC_41A9_B0910205AEF3.label = Salon virtuel
+panorama_ADD719FA_B42E_5EA7_41CF_D147AB6A037B.label = chambre enfants
+panorama_ADD7ECCE_B42E_56FC_41D4_5C2624427F2E.label = chambre enfants-virtuelle
+panorama_ADD7E00A_B42E_AD64_41C1_F0C2ADA23274.label = chambre parentale
+panorama_ADD72339_B42E_B3A4_41D5_20B72B17A2BE.label = chambre parentale virtuelle
+map_AC9F1D02_B472_D764_41DC_E68869294782.label = plan3_jawhara
 
 ## Skin
 
-### Image
-Image_5E30FEE3_49C3_172D_41BA_0CAC6EB4CC45.url = skin/Image_5E30FEE3_49C3_172D_41BA_0CAC6EB4CC45_fr.png
-Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826.url = skin/Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826_fr.png
-Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826_mobile.url = skin/Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826_mobile_fr.png
+### Button
+Button_9E60A789_BF74_CC54_4195_FDD694FEA581_mobile.label = Amenities
+Button_9E60A789_BF74_CC54_4195_FDD694FEA581.pressedLabel = Amenities
+Button_9E60A789_BF74_CC54_4195_FDD694FEA581_mobile.pressedLabel = Amenities
+Button_9E60A789_BF74_CC54_4195_FDD694FEA581.label = Amenities
+Button_F01877F7_C7BF_4BBD_41BB_741602CF73DC.label = BACK
+Button_F01877F7_C7BF_4BBD_41BB_741602CF73DC_mobile.label = BACK
+Button_9E61C78C_BF74_CC6C_41D5_5413C0B6EFC7_mobile.label = Exterior Area
+Button_9E61C78C_BF74_CC6C_41D5_5413C0B6EFC7.label = Exterior Area
+Button_9E61578A_BF74_CC54_41D0_C54E5933CA42_mobile.label = Extra Rooms
+Button_9E61578A_BF74_CC54_41D0_C54E5933CA42.label = Extra Rooms
+Button_9E61D78D_BF74_CC6C_41CD_0C36B72D93B2_mobile.label = Others
+Button_9E61D78D_BF74_CC6C_41CD_0C36B72D93B2.label = Others
+Button_7DBCA382_7065_343F_41DB_48D975E3D9EC.label = PANORAMA LIST
+Button_7DBCA382_7065_343F_41DB_48D975E3D9EC_mobile.label = PANORAMA LIST
+Button_9E674786_BF74_CC5C_41BB_6474239E3CB2_mobile.pressedLabel = Reception
+Button_9E674786_BF74_CC5C_41BB_6474239E3CB2_mobile.label = Reception
+Button_9E67E788_BF74_CC54_41D0_56F2C1A46A69.label = Rooms
+Button_9E67E788_BF74_CC54_41D0_56F2C1A46A69_mobile.label = Rooms
 
 ### Multiline Text
-HTMLText_4918E763_63C3_6A95_41D7_5B3B4CEF046A_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:20px;font-family:'Poppins SemiBold';">Floorplan Pro</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:16px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:16px;font-family:'Poppins SemiBold';">Auto-Sync Current &amp; Visited Pins to Panoramas</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">No more duplicating pins for every panorama. Simply add your hotspot pins to the floorplan, connect them to panoramas with the "Open Panorama" action, and add two extra hotspots labeled "current_pin" and "visited_pin" - that's it.</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">The script automatically syncs the current pin to your active location and shows visited pins on panoramas you've already explored. Want to change the pin styles? Just edit one pin and it updates everywhere.</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">Works with unlimited floorplans, each with its own unique pin designs and sizes. Easy to set up, easy to manage.</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:16px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:16px;font-family:'Poppins SemiBold';">Bonus: Zoomable Floorplan</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">Easily resize your floorplan with a click. Just set the initial size and the final size - the script toggles between them. Perfect for simple zoom in/out functionality, or combine it with other actions like changing backgrounds, showing/hiding buttons, or any other skin behaviors to create more complex interactions. Inspect the two examples in this tour to see both simple and advanced setups. Works with any skin element, not just floorplans.</SPAN></SPAN></DIV></div>
+HTMLText_DC319146_C473_208B_41B4_BDAD25BF866B.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:1.97vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="font-size:1.97vmin;font-family:'Montserrat Black';">{{subtitle}}</SPAN></SPAN></DIV></div>
+HTMLText_DA3037D7_C45D_24A9_41C6_11069F8D7AF4.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:2.62vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="font-size:2.62vmin;font-family:'Montserrat Black';">{{subtitle}}</SPAN></SPAN></DIV></div>
+HTMLText_DA3037D7_C45D_24A9_41C6_11069F8D7AF4_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:3.609999999999999vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="font-size:3.61vmin;font-family:'Montserrat Black';">{{subtitle}}</SPAN></SPAN></DIV></div>
+HTMLText_7DB2E382_7065_343F_41C2_951F708170F1.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;font-family:'Montserrat';">NARJISS Company<BR/>Agadir-Maroc<BR/>www.Narjiss.company<BR/></SPAN></SPAN></DIV></div>
+HTMLText_7DB2E382_7065_343F_41C2_951F708170F1_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:24px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:24px;font-family:'Montserrat';">COMPANY NAME</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:20px;font-family:'Montserrat';">www.loremipsum.com</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:20px;font-family:'Montserrat';">info@loremipsum.com</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:20px;font-family:'Montserrat';">Tlf.: +11 111 111 111</SPAN></SPAN></DIV></div>
+HTMLText_D9F0B796_C45D_64AB_41C2_9F9C8C6BB833_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-shadow:0px 0px 4.5px rgba(0,0,0,1);text-align:left;font-size:10.28vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:10.28vmin;font-family:'Montserrat';">{{title}}</SPAN></SPAN></DIV></div>
+HTMLText_DC317147_C473_2089_41E1_A2A60EF4B565.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-shadow:0px 0px 9px rgba(0,0,0,1);text-align:left;font-size:4.370000000000001vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:4.37vmin;font-family:'Montserrat';">{{title}}</SPAN></SPAN></DIV></div>
+HTMLText_D9F0B796_C45D_64AB_41C2_9F9C8C6BB833.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-shadow:0px 0px 9px rgba(0,0,0,1);text-align:left;font-size:6.56vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:6.56vmin;font-family:'Montserrat';">{{title}}</SPAN></SPAN></DIV></div>
 
 ## Tour
 
 ### Description
 
 ### Title
-tour.name = Untitled 7
+tour.name = Jawhara-tour-floorplan

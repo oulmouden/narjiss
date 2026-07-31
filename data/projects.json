@@ -10,6 +10,9 @@
         "has_tour": true,
         "detail_url": "",
         "tour_url": "jawhara/Tour/index.htm",
+        "apartment_tour_url": "jawhara/Tour-FloorPlan/index.htm",
+        "plan_architecte_url": "jawhara/floorplan/plan-architecte.png",
+        "plan_visuel_url": "jawhara/floorplan/plan-visuel.png",
         "brochure_pdf": "images/projects/jawhara/PLAN DE MASSE.pdf",
         "name": {
             "fr": "Residence Al Jawhara",
