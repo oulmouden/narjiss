@@ -13,10 +13,13 @@ panorama_B8DC8F3C_B5BB_493C_41D7_876488BEB442.label = narjiss-bureau-accueil-ave
 panorama_BA7E24BB_B5BB_7FC5_41D3_3A3350E7BB0D.label = narjiss-bureau-commercial-1
 panorama_BA09B82D_B5BB_76DD_41E3_DBD39950358C.label = narjiss-bureau-commercial-2
 panorama_BA098F14_B5BB_4AC3_41DA_D7AEE23BB08A.label = narjiss-bureau-entree-avec-arbres
+video_BC8E9B91_B3B2_7853_419D_06EAA95E7CC6.label = rachid-Zine
 
 ### Video
 videolevel_B8CED7C8_B5D7_F943_41D6_F57D299ED536.url = media/video_B8118CDF_B5DD_CF7D_41DD_420EDF8F5FB2_fr.mp4
 videolevel_B8CED7C8_B5D7_F943_41D6_F57D299ED536.posterURL = media/video_B8118CDF_B5DD_CF7D_41DD_420EDF8F5FB2_poster_fr.jpg
+videolevel_BDF1FD33_B3B6_7854_41E6_0D30FB8050B2.url = media/video_BC8E9B91_B3B2_7853_419D_06EAA95E7CC6_fr.mp4
+videolevel_BDF1FD33_B3B6_7854_41E6_0D30FB8050B2.posterURL = media/video_BC8E9B91_B3B2_7853_419D_06EAA95E7CC6_poster_fr.jpg
 
 ### Video Subtitles
 

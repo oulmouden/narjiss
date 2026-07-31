@@ -1,0 +1,38 @@
+#: locale=en
+
+## Media
+
+### Title
+panorama_BBAC8AE4_B457_BD09_41DE_6D8680C40C58.label = Generated Image April 22, 2026 - 11_29PM
+panorama_BBACF229_B457_AD18_41D1_3A87F606B5F7.label = Generated Image April 23, 2026 - 10_37AM
+panorama_BBAC2025_B457_AD0B_41DE_02606180D742.label = Generated Image April 23, 2026 - 10_37AM (1)
+panorama_BBAC2445_B456_5508_41D2_7BDA13FA4EC7.label = Generated Image April 23, 2026 - 10_40AM
+panorama_BBACE65C_B456_5538_41DB_75240B7B786F.label = Generated Image April 23, 2026 - 12_05PM
+panorama_BBACFB6E_B456_5319_41E2_CCF56A7C87C8.label = Generated Image April 23, 2026 - 12_05PM
+panorama_BBAC90D5_B456_6D0B_41E3_A80243599C1A.label = Generated Image April 23, 2026 - 12_11PM
+panorama_A444EA56_B457_DD09_41DF_D0D959688EF2.label = chambre1_17
+panorama_BBACEFBD_B457_D37B_41CE_78371E8A360D.label = couloir_18
+panorama_BBAC04C7_B457_B517_41CA_AAB5D83E5A3D.label = cuisine
+panorama_BBACB646_B456_7509_41E6_823E40C2BEBD.label = photo_13_2026-04-22_19-43-35
+panorama_BBAC883B_B456_7D7F_41BE_56F0285FB79D.label = photo_15
+panorama_BBACBE0D_B456_751B_41D8_6A7AA1BFE69C.label = photo_16
+panorama_BBB370B8_B456_6D79_4169_A2AF53B40BEA.label = photo_19
+panorama_BBACA2E0_B456_6D08_41B9_A9816430E2CF.label = photo_28_2026-04-22_19-43-35
+panorama_BBB354BB_B456_557F_41DE_FC1D2DB01413.label = salon_19
+
+## Skin
+
+### Image
+Image_5E30FEE3_49C3_172D_41BA_0CAC6EB4CC45.url = skin/Image_5E30FEE3_49C3_172D_41BA_0CAC6EB4CC45_en.png
+Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826.url = skin/Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826_en.png
+Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826_mobile.url = skin/Image_64AABF9C_41B0_1C4B_41CE_CF9C0A699826_mobile_en.png
+
+### Multiline Text
+HTMLText_4918E763_63C3_6A95_41D7_5B3B4CEF046A_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:20px;font-family:'Poppins SemiBold';">Floorplan Pro</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:16px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:16px;font-family:'Poppins SemiBold';">Auto-Sync Current &amp; Visited Pins to Panoramas</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">No more duplicating pins for every panorama. Simply add your hotspot pins to the floorplan, connect them to panoramas with the "Open Panorama" action, and add two extra hotspots labeled "current_pin" and "visited_pin" - that's it.</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">The script automatically syncs the current pin to your active location and shows visited pins on panoramas you've already explored. Want to change the pin styles? Just edit one pin and it updates everywhere.</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">Works with unlimited floorplans, each with its own unique pin designs and sizes. Easy to set up, easy to manage.</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:16px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:16px;font-family:'Poppins SemiBold';">Bonus: Zoomable Floorplan</SPAN></SPAN></DIV><p STYLE="margin:0; line-height:12px;"><BR STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-size:6px;font-family:Arial, Helvetica, sans-serif;"/></p><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#333333;font-size:12px;font-family:'Poppins Regular';">Easily resize your floorplan with a click. Just set the initial size and the final size - the script toggles between them. Perfect for simple zoom in/out functionality, or combine it with other actions like changing backgrounds, showing/hiding buttons, or any other skin behaviors to create more complex interactions. Inspect the two examples in this tour to see both simple and advanced setups. Works with any skin element, not just floorplans.</SPAN></SPAN></DIV></div>
+
+## Tour
+
+### Description
+
+### Title
+tour.name = Untitled 7
