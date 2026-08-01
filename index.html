@@ -365,7 +365,7 @@ function sliderAltFromPath(path) {
 }
 
 function loadHomeSliderImages() {
-  return fetch('data/home-slider-images.json?v=2')
+  return fetch('data/home-slider-images.json?v=3')
     .then(function(res) {
       if (!res.ok) return [];
       return res.json();
