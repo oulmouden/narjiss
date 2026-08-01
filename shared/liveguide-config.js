@@ -2,32 +2,56 @@
    VISITE GUIDÉE EN DIRECT — Configuration publique (côté client)
    ------------------------------------------------------------
    Ces valeurs sont PUBLIQUES et peuvent rester dans le dépôt :
-   la clé "key" et le "cluster" Pusher ne sont pas secrets.
-   Le SECRET Pusher, lui, reste uniquement dans
-   api/liveguide-config.php (jamais committé).
+   la clé "key" et le "cluster" Pusher ne sont pas secrets (le
+   navigateur les expose de toute façon). Le SECRET Pusher, lui,
+   reste uniquement côté serveur dans api/liveguide-config.php
+   (jamais committé), PROPRE À CHAQUE ENVIRONNEMENT.
+
+   SÉLECTION PAR ENVIRONNEMENT : chaque environnement (production,
+   staging, développement) a sa PROPRE app Pusher. On choisit la
+   clé publique selon le domaine ci-dessous ; le secret associé vit
+   dans le api/liveguide-config.php du serveur correspondant.
 
    Où trouver ces valeurs :
-   Dashboard Pusher → ton app Channels → onglet "App Keys".
+   Dashboard Pusher → l'app Channels de l'environnement → "App Keys".
    ============================================================ */
 
-window.LIVEGUIDE_CONFIG = {
-  // Mettre à true une fois Pusher configuré pour activer la fonctionnalité.
-  enabled: true,
+(function () {
+  // --- Clés PUBLIQUES par environnement (app_id + secret = côté serveur) ---
+  var ENVS = {
+    production:    { key: 'eec6f37dc1a2f36cb863', cluster: 'eu' }, // app 2180430
+    staging:       { key: '6e3e4745fe8ec26c36bf', cluster: 'eu' }, // app 2180429
+    developpement: { key: 'REMPLACER_KEY_DEV',    cluster: 'eu' }  // app narjiss-developpement (à renseigner)
+  };
 
-  // Pusher → App Keys → "key"
-  pusherKey: '4a38b9ede8310cb9e162',
+  // Domaine du staging (à adapter le jour où le staging aura son URL).
+  var STAGING_HOST = 'staging.narjiss.company';
 
-  // Pusher → App Keys → "cluster" (ex: 'eu', 'mt1', 'ap2'…)
-  pusherCluster: 'eu',
+  var host = (location.hostname || '').toLowerCase();
+  var env;
+  if (host === 'www.narjiss.company' || host === 'narjiss.company') {
+    env = ENVS.production;
+  } else if (host === STAGING_HOST || host.indexOf('staging') !== -1) {
+    env = ENVS.staging;
+  } else {
+    env = ENVS.developpement; // localhost, 127.0.0.1, IP LAN, file://…
+  }
 
-  // --- Voix intégrée (WebRTC one-way, hôte → visiteurs) ---
-  // STUN public (gratuit) : suffit quand hôte et visiteurs peuvent se joindre
-  // directement. Laisser tel quel dans la majorité des cas.
-  stun: 'stun:stun.l.google.com:19302',
+  window.LIVEGUIDE_CONFIG = {
+    // Mettre à false pour désactiver la visite guidée sur cet environnement.
+    enabled: true,
 
-  // TURN (optionnel) : relais utile quand un visiteur est derrière un réseau
-  // restrictif (~20-30% des cas en cross-réseau/4G d'entreprise). Payant en
-  // général (ex: Twilio, Metered, coturn auto-hébergé). Laisser null si non utilisé.
-  // Exemple : { urls: 'turn:mon-turn:3478', username: 'user', credential: 'pass' }
-  turn: null
-};
+    // Clé + cluster Pusher choisis selon le domaine (voir ci-dessus).
+    pusherKey: env.key,
+    pusherCluster: env.cluster,
+
+    // --- Voix intégrée (WebRTC one-way, hôte → visiteurs) ---
+    // STUN public (gratuit) : suffit dans la majorité des cas.
+    stun: 'stun:stun.l.google.com:19302',
+
+    // TURN (optionnel) : relais utile derrière un réseau restrictif
+    // (~20-30% des cas en 4G d'entreprise). Payant en général.
+    // Exemple : { urls: 'turn:mon-turn:3478', username: 'user', credential: 'pass' }
+    turn: null
+  };
+})();
