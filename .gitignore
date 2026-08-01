@@ -45,3 +45,9 @@ api/liveguide-config.php
 # Sauvegardes d'optimisation d'images (copies locales)
 _originaux/
 *.bak-optim
+
+# Exports 3DVista lourds (> 100 Mo, refusés par GitHub) — déployés séparément, hors dépôt
+jawhara/Tour/Untitled 2_Windows.exe
+jawhara/Tour/Untitled 2.tar.bz2
+*.exe
+*.tar.bz2
