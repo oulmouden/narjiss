@@ -21,7 +21,7 @@
   var ENVS = {
     production:    { key: 'eec6f37dc1a2f36cb863', cluster: 'eu' }, // app 2180430
     staging:       { key: '6e3e4745fe8ec26c36bf', cluster: 'eu' }, // app 2180429
-    developpement: { key: 'REMPLACER_KEY_DEV',    cluster: 'eu' }  // app narjiss-developpement (à renseigner)
+    developpement: { key: '4a38b9ede8310cb9e162', cluster: 'eu' }  // app 2180428 (narjiss-developpement)
   };
 
   // Domaine du staging (à adapter le jour où le staging aura son URL).
