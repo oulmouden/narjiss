@@ -365,6 +365,15 @@
       if (b) basculerSelection(Number(b.dataset.retirer), 'disponible');
     });
 
+    // Étape suivante : le comparatif puis la mise en relation. Le canal est
+    // repris tel quel pour qu'une borne reste identifiée comme telle.
+    document.getElementById('njSuivant').addEventListener('click', function () {
+      if (!etat.selection.length) return;
+      var canal = new URLSearchParams(window.location.search).get('canal');
+      window.location.href = 'ma-selection.html?projet=' + encodeURIComponent(etat.projet) +
+        (canal ? '&canal=' + encodeURIComponent(canal) : '');
+    });
+
     charger();
   }
 

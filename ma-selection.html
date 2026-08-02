@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Ma sélection</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css?v=8">
+<style>
+/* Étapes 4 et 5 du parcours. Mêmes repères visuels que disponibilites.html :
+   le visiteur doit sentir qu'il avance dans un même tunnel. */
+
+.nj-hero {
+  padding: 1.1rem 1.5rem .8rem; text-align: center;
+  background: linear-gradient(180deg, var(--sand) 0%, var(--white) 100%);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.nj-hero h1 {
+  margin: 0 0 .25rem; font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2.2rem); color: var(--charcoal);
+}
+.nj-fil {
+  display: flex; justify-content: center; gap: .4rem;
+  margin: .5rem 0 0; padding: 0; list-style: none; font-size: .8rem; color: var(--muted);
+}
+.nj-fil li { display: flex; align-items: center; gap: .4rem; }
+.nj-fil li::after { content: '›'; opacity: .5; }
+.nj-fil li:last-child::after { content: ''; }
+.nj-fil .nj-fil-actif { color: var(--ocean-deep); font-weight: 600; }
+
+.nj-shell { max-width: 1100px; margin: 0 auto; padding: var(--space-lg) var(--space-md) 4rem; }
+.nj-section { margin-bottom: var(--space-lg); }
+.nj-section > h2 {
+  margin: 0 0 .2rem; font-family: var(--font-serif);
+  font-size: 1.4rem; color: var(--charcoal);
+}
+.nj-section > p.nj-sous { margin: 0 0 1rem; color: var(--muted); font-size: .9rem; }
+
+/* ── Comparatif ────────────────────────────────────────────────────── */
+.nj-compare-wrap { overflow-x: auto; }
+.nj-compare {
+  width: 100%; border-collapse: collapse;
+  background: var(--surface); border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.nj-compare th, .nj-compare td {
+  padding: .7rem .8rem; text-align: left;
+  border-bottom: 1px solid var(--border-subtle); font-size: .9rem;
+}
+.nj-compare thead th {
+  background: var(--sand); color: var(--charcoal);
+  font-size: .95rem; vertical-align: top;
+}
+.nj-compare tbody th {
+  width: 30%; color: var(--muted); font-weight: 600; font-size: .82rem;
+  text-transform: uppercase; letter-spacing: .02em;
+}
+.nj-compare-num { display: block; font-weight: 700; }
+.nj-retirer {
+  margin-top: .35rem; padding: .2rem .5rem; min-height: 32px;
+  background: none; border: 1px solid var(--border-medium); border-radius: 8px;
+  font: inherit; font-size: .72rem; color: var(--muted); cursor: pointer;
+}
+.nj-retirer:hover { border-color: var(--sun); color: var(--sun); }
+/* Sur deux ou trois logements, la meilleure valeur saute aux yeux. */
+.nj-mieux { background: rgba(31, 111, 85, .08); font-weight: 700; }
+
+.nj-pastille {
+  display: inline-block; padding: .12rem .45rem; border-radius: 999px;
+  font-size: .68rem; font-weight: 800; text-transform: uppercase;
+}
+.nj-p-disponible { background: rgba(31,111,85,.12); color: #1F6F55; }
+.nj-p-optionne   { background: rgba(189,107,22,.14); color: #BD6B16; }
+.nj-p-reserve    { background: rgba(162,85,26,.14); color: #A2551A; }
+.nj-p-vendu      { background: rgba(0,0,0,.07); color: var(--muted); }
+
+.nj-notes {
+  margin: .9rem 0 0; padding-left: 1.1rem;
+  font-size: .84rem; color: var(--muted); line-height: 1.5;
+}
+
+/* ── Formulaire ────────────────────────────────────────────────────── */
+.nj-form {
+  background: var(--surface); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-md);
+}
+.nj-grille2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 700px) { .nj-grille2 { grid-template-columns: 1fr; } }
+.nj-champ { margin-bottom: 1rem; }
+.nj-champ label {
+  display: block; margin-bottom: .3rem;
+  font-size: .78rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .03em;
+}
+.nj-champ input, .nj-champ textarea {
+  width: 100%; min-height: 46px; padding: .55rem .7rem;
+  font: inherit; color: var(--text);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-medium); border-radius: 10px;
+}
+.nj-champ textarea { min-height: 90px; resize: vertical; }
+.nj-champ input:focus, .nj-champ textarea:focus {
+  outline: 2px solid var(--ocean); outline-offset: 1px; border-color: var(--ocean);
+}
+.nj-oblig { color: var(--sun); }
+.nj-aide { display: block; margin-top: .25rem; font-size: .76rem; color: var(--muted); text-transform: none; font-weight: 400; }
+
+.nj-consent {
+  display: flex; gap: .7rem; align-items: flex-start;
+  padding: .8rem; margin-bottom: 1rem;
+  background: var(--surface-raised); border-radius: 10px;
+  font-size: .84rem; line-height: 1.5; color: var(--text);
+}
+.nj-consent input { width: 22px; height: 22px; margin-top: .1rem; accent-color: var(--ocean-deep); flex: none; }
+
+.nj-btn {
+  display: inline-block; min-height: 48px; padding: .8rem 1.4rem;
+  background: var(--ocean-deep); border: none; border-radius: 10px;
+  font: inherit; font-weight: 700; color: #fff; text-decoration: none; cursor: pointer;
+}
+.nj-btn:disabled { background: var(--sand-dark); color: var(--muted); cursor: not-allowed; }
+.nj-btn-clair { background: none; border: 1px solid var(--border-medium); color: var(--text); }
+.nj-btn-wa { background: #25D366; }
+.nj-actions { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+
+.nj-erreur {
+  margin-bottom: 1rem; padding: .7rem .9rem;
+  background: rgba(176,42,42,.08); border-left: 4px solid #B02A2A;
+  border-radius: 8px; color: #B02A2A; font-size: .88rem;
+}
+.nj-vide {
+  padding: 2.5rem 1.5rem; text-align: center; color: var(--muted);
+  background: var(--surface-raised); border-radius: var(--radius);
+}
+.nj-vide .nj-btn { margin-top: .8rem; color: #fff; }
+
+.nj-ok {
+  padding: 1.5rem; background: rgba(31,111,85,.07);
+  border: 1px solid rgba(31,111,85,.25); border-radius: var(--radius); line-height: 1.65;
+}
+.nj-ok-titre {
+  margin: 0 0 .6rem; font-family: var(--font-serif);
+  font-size: 1.3rem; font-weight: 700; color: #1F6F55;
+}
+.nj-enligne {
+  padding: .1rem .4rem; border-radius: 999px;
+  background: rgba(31,111,85,.15); color: #1F6F55;
+  font-size: .7rem; font-weight: 800; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<section class="nj-hero">
+  <h1>Ma sélection</h1>
+  <p>Comparez vos logements, puis parlons-en avec un conseiller.</p>
+  <ol class="nj-fil">
+    <li>Vos critères</li>
+    <li>Le projet</li>
+    <li>Les logements</li>
+    <li class="nj-fil-actif">Ma sélection</li>
+    <li>Un conseiller</li>
+  </ol>
+</section>
+
+<div class="nj-shell">
+
+  <section class="nj-section">
+    <h2>Vos logements côte à côte</h2>
+    <p class="nj-sous">
+      Le meilleur prix et la plus grande surface sont mis en évidence.
+      <a id="njRetour" href="disponibilites.html">Modifier ma sélection</a>
+    </p>
+    <div class="nj-compare-wrap" id="njComparatif"></div>
+  </section>
+
+  <section class="nj-section" id="njEtape5">
+    <h2>Parler à un conseiller</h2>
+    <p class="nj-sous">
+      Un conseiller vous rappelle avec votre sélection sous les yeux.
+      Vous pouvez aussi proposer une date de visite.
+    </p>
+
+    <form class="nj-form" id="njFormulaire" hidden novalidate>
+      <p class="nj-erreur" id="njErreur" role="alert" hidden></p>
+      <input type="hidden" name="lots" id="fLots">
+
+      <div class="nj-grille2">
+        <div class="nj-champ">
+          <label for="fNom">Nom <span class="nj-oblig">*</span></label>
+          <input type="text" id="fNom" name="nom" required autocomplete="family-name" maxlength="120">
+        </div>
+        <div class="nj-champ">
+          <label for="fPrenom">Prénom</label>
+          <input type="text" id="fPrenom" name="prenom" autocomplete="given-name" maxlength="120">
+        </div>
+        <div class="nj-champ">
+          <label for="fTel">Téléphone <span class="nj-oblig">*</span></label>
+          <input type="tel" id="fTel" name="telephone" required autocomplete="tel"
+                 inputmode="tel" placeholder="06 12 34 56 78" maxlength="40">
+        </div>
+        <div class="nj-champ">
+          <label for="fEmail">E-mail</label>
+          <input type="email" id="fEmail" name="email" autocomplete="email" maxlength="160">
+        </div>
+        <div class="nj-champ">
+          <label for="fVille">Ville</label>
+          <input type="text" id="fVille" name="ville" autocomplete="address-level2" maxlength="100">
+        </div>
+        <div class="nj-champ">
+          <label for="fVisite">Date de visite souhaitée
+            <span class="nj-aide">Facultatif — nous confirmons le créneau par téléphone.</span>
+          </label>
+          <input type="date" id="fVisite" name="visite_date">
+        </div>
+      </div>
+
+      <div class="nj-champ">
+        <label for="fMessage">Votre message</label>
+        <textarea id="fMessage" name="message" maxlength="1000"
+                  placeholder="Une question, une contrainte de financement, un horaire qui vous arrange…"></textarea>
+      </div>
+
+      <label class="nj-consent" for="fConsent">
+        <input type="checkbox" id="fConsent" name="consentement" value="1" required>
+        <span>
+          J'accepte que Narjiss Immobilière conserve ces informations pour me recontacter
+          au sujet de cette sélection. Vous pouvez demander leur suppression à tout moment
+          en nous écrivant.
+        </span>
+      </label>
+
+      <div class="nj-actions">
+        <button type="submit" class="nj-btn" id="njEnvoyer">Envoyer ma demande</button>
+        <a class="nj-btn nj-btn-clair" href="disponibilites.html" id="njRetour2">Retour aux logements</a>
+      </div>
+    </form>
+  </section>
+
+</div>
+
+<script src="shared/menu.js?v=10"></script>
+<script src="ma-selection.js?v=1"></script>
+</body>
+</html>
