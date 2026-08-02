@@ -140,8 +140,14 @@ if (!$ids || count($ids) > 3) {
 $dateVisite = nj_p_champ('visite_date', 20);
 $veutVisite = $dateVisite !== '';
 if ($veutVisite) {
-    $d = DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $dateVisite)
-        ?: DateTimeImmutable::createFromFormat('Y-m-d', $dateVisite);
+    $d = DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $dateVisite);
+    if (!$d) {
+        // Le champ du formulaire est un simple sélecteur de date. Sans heure,
+        // createFromFormat reprendrait l'heure d'envoi, ce qui donnerait un
+        // « créneau » à 13h51. On pose 10h00, que le conseiller ajustera en
+        // confirmant par téléphone.
+        $d = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $dateVisite . ' 10:00:00');
+    }
     if (!$d) {
         nj_p_fail(422, 'Date de visite illisible.');
     }
