@@ -19,7 +19,8 @@
     facettes: null,
     filtres: {},
     selection: [],
-    avecDonnees: null   // ids des projets ayant une grille, null tant qu'inconnu
+    avecDonnees: null,  // ids des projets ayant une grille, null tant qu'inconnu
+    vue: 'plan'         // 'plan' (façade) ou 'liste' (cartes détaillées)
   };
 
   var T = {
@@ -37,6 +38,8 @@
       selection: 'Ma sélection', vide: 'Aucun logement sélectionné',
       ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
       projet: 'Projet',
+      vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste',
+      libres: 'libres', planAide: 'Chaque pastille est un lot. Touchez un lot libre pour l\'ajouter.',
       enPreparation: 'Données en cours de mise à jour',
       enPreparationTitre: 'Les disponibilités de ce projet arrivent bientôt.',
       enPreparationAide: 'La grille des lots est en cours de préparation. Nos conseillers peuvent déjà répondre à vos questions.',
@@ -63,6 +66,8 @@
       selection: 'My shortlist', vide: 'No home selected',
       ajouter: 'Add to my shortlist', retirer: 'Remove',
       projet: 'Project',
+      vue: 'View', vuePlan: 'Plan', vueListe: 'List',
+      libres: 'free', planAide: 'Each tile is a unit. Tap a free unit to add it.',
       enPreparation: 'Data being updated',
       enPreparationTitre: 'Availability for this project is coming soon.',
       enPreparationAide: 'The unit list is being prepared. Our advisers can already answer your questions.',
@@ -89,6 +94,8 @@
       selection: 'اختياري', vide: 'لم يتم اختيار أي سكن',
       ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
       projet: 'المشروع',
+      vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة',
+      libres: 'متاحة', planAide: 'كل مربع يمثل وحدة. المس وحدة متاحة لإضافتها.',
       enPreparation: 'البيانات قيد التحديث',
       enPreparationTitre: 'ستتوفر قائمة هذا المشروع قريبا.',
       enPreparationAide: 'قائمة الوحدات قيد الإعداد. يمكن لمستشارينا الإجابة عن أسئلتكم منذ الآن.',
@@ -115,6 +122,8 @@
       selection: 'Mi selección', vide: 'Ninguna vivienda seleccionada',
       ajouter: 'Añadir a mi selección', retirer: 'Quitar',
       projet: 'Proyecto',
+      vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista',
+      libres: 'libres', planAide: 'Cada casilla es un lote. Toque un lote libre para añadirlo.',
       enPreparation: 'Datos en actualización',
       enPreparationTitre: 'Las disponibilidades de este proyecto llegarán pronto.',
       enPreparationAide: 'La lista de lotes se está preparando. Nuestros asesores ya pueden responder a sus preguntas.',
@@ -207,8 +216,21 @@
 
   /** Reflète l'état de sélection sur une carte déjà présente dans le DOM. */
   function majCarte(id) {
-    var carte = document.querySelector('.nj-lot[data-id="' + id + '"]');
+    var carte = document.querySelector('.nj-lot[data-id="' + id + '"], .nj-carreau[data-id="' + id + '"]');
     if (!carte) return;
+    if (carte.classList.contains('nj-carreau')) {
+      var choisiC = estSelectionne(id);
+      carte.classList.toggle('nj-choisi', choisiC);
+      carte.setAttribute('aria-pressed', choisiC ? 'true' : 'false');
+      var coche = carte.querySelector('.nj-carreau-coche');
+      if (choisiC && !coche) {
+        carte.insertAdjacentHTML('beforeend',
+          '<span class="nj-carreau-coche" aria-hidden="true">\u2713</span>');
+      } else if (!choisiC && coche) {
+        coche.remove();
+      }
+      return;
+    }
     var choisi = estSelectionne(id);
     carte.classList.toggle('nj-choisi', choisi);
     carte.setAttribute('aria-pressed', choisi ? 'true' : 'false');
@@ -245,7 +267,7 @@
         etat.lots = d.lots;
         if (!etat.facettes) etat.facettes = d.facettes;   // figées : voir api
         rendreFiltres();
-        rendreLots();
+        afficherLots();
         rendreBarreSelection();
       })
       .catch(function () {
@@ -380,6 +402,106 @@
             : '<span class="nj-action nj-action-off">' + t('indispo') + '</span>') +
         '</footer>' +
       '</article>';
+  }
+
+  /**
+   * Vue « plan de commercialisation » : une ligne par étage, du dernier au
+   * rez-de-chaussée, comme on lit une façade. C'est la représentation que le
+   * conseiller a en tête devant son tableau mural, et la plus lisible à deux
+   * mètres sur la borne du bureau de vente.
+   */
+  function rendrePlan() {
+    var grille = document.getElementById('njGrille');
+    if (!etat.lots.length) {
+      grille.innerHTML = '<p class="nj-vide"><strong>' + t('aucun') + '</strong><br>' +
+        t('aucunAide') + '</p>';
+      return;
+    }
+
+    var groupes = {};
+    etat.lots.forEach(function (lot) {
+      var g = lot.immeuble || '—';
+      groupes[g] = groupes[g] || {};
+      (groupes[g][lot.niveau] = groupes[g][lot.niveau] ||
+        { ordre: lot.niveau_ordre, lots: [] }).lots.push(lot);
+    });
+
+    var html = '<p class="nj-plan-aide">' + t('planAide') + '</p>';
+
+    Object.keys(groupes).sort().forEach(function (imm) {
+      var niveaux = groupes[imm];
+      var tousLots = Object.keys(niveaux).reduce(function (acc, n) {
+        return acc.concat(niveaux[n].lots);
+      }, []);
+      var libres = tousLots.filter(function (l) { return l.statut === 'disponible'; }).length;
+      var pct = Math.round(libres / tousLots.length * 100);
+
+      html += '<section class="nj-plan-imm">' +
+        '<header class="nj-plan-tete">' +
+          '<h2>' + t('immeuble') + ' ' + imm + '</h2>' +
+          '<span class="nj-plan-compte"><bdi dir="ltr">' + libres + '/' + tousLots.length +
+          '</bdi> ' + t('libres') + '</span>' +
+          '<span class="nj-plan-jauge" role="img" aria-label="' + pct + '%">' +
+            '<span style="width:' + pct + '%"></span></span>' +
+        '</header>';
+
+      // Du dernier étage vers le bas : on lit un immeuble comme on le voit.
+      Object.keys(niveaux).sort(function (a, b) {
+        return niveaux[b].ordre - niveaux[a].ordre;
+      }).forEach(function (n) {
+        var lots = niveaux[n].lots.slice().sort(function (a, b) {
+          return a.numero.localeCompare(b.numero, undefined, { numeric: true });
+        });
+        html += '<div class="nj-plan-etage">' +
+          '<span class="nj-plan-niveau">' + (n === 'RDC' ? t('rdc') : n) + '</span>' +
+          '<div class="nj-plan-lots">' +
+            lots.map(carreau).join('') +
+          '</div></div>';
+      });
+      html += '</section>';
+    });
+
+    grille.innerHTML = html;
+  }
+
+  /** Une pastille de lot dans le plan. */
+  function carreau(lot) {
+    var libre = lot.statut === 'disponible';
+    var choisi = estSelectionne(lot.id);
+    var position = lot.numero.split('-').pop();
+    var resume = lot.typologie.toUpperCase() + ' · ' + lot.numero + ' · ' +
+      lot.surface + ' m² · ' + nombre(lot.prix) + ' ' + t('dh') + ' · ' + t(lot.statut);
+
+    return '<button type="button" class="nj-carreau nj-' + lot.statut +
+      (choisi ? ' nj-choisi' : '') + '" data-id="' + lot.id +
+      '" data-statut="' + lot.statut + '" title="' + resume + '" aria-label="' + resume +
+      '" aria-pressed="' + (choisi ? 'true' : 'false') + '"' +
+      (libre ? '' : ' disabled') + '>' +
+      '<span class="nj-carreau-num">' + position + '</span>' +
+      '<span class="nj-carreau-typo">' + lot.typologie.toUpperCase() + '</span>' +
+      (choisi ? '<span class="nj-carreau-coche" aria-hidden="true">✓</span>' : '') +
+      '</button>';
+  }
+
+  /** Bascule entre la façade et les cartes détaillées. */
+  function changerVue(vue) {
+    if (vue !== 'plan' && vue !== 'liste') return;
+    etat.vue = vue;
+    try { localStorage.setItem('nj-vue-lots', vue); } catch (e) {}
+    document.querySelectorAll('[data-vue]').forEach(function (b) {
+      var actif = b.dataset.vue === vue;
+      b.classList.toggle('is-active', actif);
+      b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+    });
+    afficherLots();
+  }
+
+  /** Rend la vue courante. */
+  function afficherLots() {
+    var compteur = document.getElementById('njCompteur');
+    compteur.textContent = etat.lots.length + ' ' +
+      (etat.lots.length > 1 ? t('resultats') : t('resultat'));
+    if (etat.vue === 'plan') rendrePlan(); else rendreLots();
   }
 
   function rendreLots() {
@@ -542,6 +664,14 @@
     var params = new URLSearchParams(window.location.search);
     etat.projet = (params.get('projet') || '').toLowerCase();
     chargerSelection();
+    try {
+      var vueGardee = localStorage.getItem('nj-vue-lots');
+      if (vueGardee === 'plan' || vueGardee === 'liste') etat.vue = vueGardee;
+    } catch (e) {}
+    document.querySelectorAll('[data-vue]').forEach(function (b) {
+      b.addEventListener('click', function () { changerVue(this.dataset.vue); });
+    });
+    changerVue(etat.vue);
 
     ['fTypologie', 'fImmeuble', 'fOrientation', 'fNiveau'].forEach(function (id) {
       document.getElementById(id).addEventListener('change', function () {
@@ -573,12 +703,12 @@
     // Délégation : la grille est reconstruite à chaque filtre, on ne peut pas
     // attacher les écouteurs aux cartes elles-mêmes.
     document.getElementById('njGrille').addEventListener('click', function (e) {
-      var carte = e.target.closest('.nj-lot');
+      var carte = e.target.closest('.nj-lot, .nj-carreau');
       if (carte) basculerSelection(Number(carte.dataset.id), carte.dataset.statut);
     });
     document.getElementById('njGrille').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      var carte = e.target.closest('.nj-lot');
+      var carte = e.target.closest('.nj-lot, .nj-carreau');
       if (carte) { e.preventDefault(); basculerSelection(Number(carte.dataset.id), carte.dataset.statut); }
     });
     document.getElementById('njBarreListe').addEventListener('click', function (e) {
@@ -614,6 +744,9 @@
     texte('njTitre', t('titre'));
     texte('njAffiner', t('affiner'));
     texte('lblProjet', t('projet'));
+    texte('njVueLabel', t('vue'));
+    texte('njVuePlan', t('vuePlan'));
+    texte('njVueListe', t('vueListe'));
     texte('lblTypologie', t('typologie'));
     texte('lblImmeuble', t('immeuble'));
     texte('lblNiveau', t('niveau'));
@@ -667,7 +800,7 @@
       afficherEnPreparation();
       return;
     }
-    if (etat.facettes) { rendreLots(); rendreBarreSelection(); }
+    if (etat.facettes) { afficherLots(); rendreBarreSelection(); }
   };
 
   document.addEventListener('DOMContentLoaded', function () {

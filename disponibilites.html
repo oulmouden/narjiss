@@ -7,7 +7,7 @@
 <title>Narjiss — Choisissez votre logement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=13">
+<link rel="stylesheet" href="shared/menu.css?v=14">
 <style>
 /* Étape 3 du parcours client. Dimensionné pour le grand écran tactile du
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
@@ -96,6 +96,84 @@
 .nj-legende { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .75rem; }
 .nj-legende span { display: inline-flex; align-items: center; gap: .3rem; color: var(--muted); }
 .nj-legende i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+/* ── Bascule d'affichage ────────────────────────────────────────────── */
+.nj-vue { display: flex; align-items: center; gap: .4rem; }
+.nj-vue-label {
+  font-size: .72rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.nj-vue-btn {
+  min-height: 36px; padding: .3rem .9rem;
+  background: var(--surface); border: 1px solid var(--border-medium); border-radius: 999px;
+  font: inherit; font-size: .82rem; font-weight: 600; color: var(--muted); cursor: pointer;
+}
+.nj-vue-btn:hover { border-color: var(--ocean); color: var(--text); }
+.nj-vue-btn.is-active {
+  background: var(--accent-solid); border-color: var(--accent-solid); color: var(--on-accent);
+}
+.nj-vue-btn:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+
+/* ── Plan de commercialisation ──────────────────────────────────────── */
+.nj-plan-aide { margin: 0 0 1.1rem; font-size: .84rem; color: var(--muted); }
+.nj-plan-imm { margin-bottom: var(--space-lg); }
+.nj-plan-tete {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem;
+  padding-bottom: .5rem; margin-bottom: .8rem;
+  border-bottom: 2px solid var(--sand-dark);
+}
+.nj-plan-tete h2 {
+  margin: 0; font-family: var(--font-serif); font-size: 1.3rem; color: var(--charcoal);
+}
+.nj-plan-compte { font-size: .85rem; font-weight: 700; color: var(--lot-dispo); }
+.nj-plan-jauge {
+  flex: 1; min-width: 90px; max-width: 220px; height: 7px;
+  background: var(--sand-dark); border-radius: 999px; overflow: hidden;
+}
+.nj-plan-jauge span { display: block; height: 100%; background: var(--lot-dispo); }
+
+/* Un etage = une ligne, du dernier au rez-de-chaussee. */
+.nj-plan-etage {
+  display: grid; grid-template-columns: 82px 1fr;
+  align-items: center; gap: .6rem; margin-bottom: .45rem;
+}
+.nj-plan-niveau {
+  font-size: .74rem; font-weight: 800; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em; text-align: end;
+}
+.nj-plan-lots { display: flex; flex-wrap: wrap; gap: .45rem; }
+
+.nj-carreau {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 76px; min-height: 58px; padding: .3rem;
+  border: 2px solid transparent; border-radius: 10px;
+  font: inherit; cursor: pointer;
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.nj-carreau:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--shadow); }
+.nj-carreau:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.nj-carreau:disabled { cursor: not-allowed; }
+.nj-carreau-num { font-size: 1.02rem; font-weight: 800; line-height: 1.1; }
+.nj-carreau-typo { font-size: .6rem; font-weight: 700; letter-spacing: .04em; opacity: .8; }
+.nj-carreau-coche {
+  position: absolute; top: -6px; inset-inline-end: -6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--ocean); color: #fff;
+  font-size: .72rem; line-height: 20px; text-align: center; font-weight: 800;
+}
+
+/* Memes couleurs que les cartes, l'Excel et le back-office. */
+.nj-carreau.nj-disponible { background: var(--lot-dispo-bg); color: var(--lot-dispo); }
+.nj-carreau.nj-optionne   { background: var(--lot-optionne-bg); color: var(--lot-optionne); }
+.nj-carreau.nj-reserve    { background: var(--lot-reserve-bg); color: var(--lot-reserve); }
+.nj-carreau.nj-vendu      { background: var(--lot-vendu-bg); color: var(--lot-vendu); }
+.nj-carreau.nj-choisi     { border-color: var(--ocean); }
+
+@media (max-width: 600px) {
+  .nj-plan-etage { grid-template-columns: 58px 1fr; }
+  .nj-carreau { width: 64px; min-height: 52px; }
+}
 
 .nj-immeuble { margin-bottom: var(--space-lg); }
 .nj-immeuble > h2 {
@@ -269,6 +347,11 @@
   <main>
     <div class="nj-resultats-tete">
       <p class="nj-compteur" id="njCompteur">…</p>
+      <div class="nj-vue" role="group" aria-labelledby="njVueLabel">
+        <span class="nj-vue-label" id="njVueLabel">Affichage</span>
+        <button type="button" class="nj-vue-btn" data-vue="plan" id="njVuePlan" aria-pressed="true">Plan</button>
+        <button type="button" class="nj-vue-btn" data-vue="liste" id="njVueListe" aria-pressed="false">Liste</button>
+      </div>
       <p class="nj-legende" id="njLegende">
         <span><i style="background:var(--lot-dispo)"></i>Disponible</span>
         <span><i style="background:var(--lot-optionne)"></i>Optionné</span>
@@ -291,6 +374,6 @@
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=14"></script>
-<script src="disponibilites.js?v=10"></script>
+<script src="disponibilites.js?v=11"></script>
 </body>
 </html>
