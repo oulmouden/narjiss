@@ -253,6 +253,39 @@ textarea {
   background: rgba(189, 107, 22, 0.1);
 }
 
+/* Statuts de lot : mêmes couleurs que la grille Excel du bureau de vente,
+   pour que le chef de vente retrouve ses repères d'un support à l'autre. */
+.badge.lot-disponible {
+  color: var(--green);
+  background: rgba(31, 111, 85, 0.1);
+}
+
+.badge.lot-optionne {
+  color: var(--ochre);
+  background: rgba(189, 107, 22, 0.12);
+}
+
+.badge.lot-reserve {
+  color: #a2551a;
+  background: rgba(214, 132, 48, 0.16);
+}
+
+.badge.lot-vendu {
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.badge.lot-bloque {
+  color: var(--danger);
+  background: rgba(176, 42, 42, 0.1);
+}
+
+.badge small {
+  margin-left: 0.35rem;
+  font-weight: 500;
+  text-transform: none;
+}
+
 .error {
   color: var(--danger);
 }
