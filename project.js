@@ -1557,6 +1557,7 @@
       deliveryLabel: "Livraison", titled: "Titre foncier", featuresKicker: "Standing",
       featuresTitle: "Équipements & caractéristiques", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilité", lotsAvailable: "lots disponibles", lastUnits: "Derniers lots",
+      chooseUnit: "Choisir mon logement", chooseUnitHint: "{n} logements disponibles a l'unite",
       simKicker: "Financement", simTitle: "Simulateur de mensualité",
       simNote: "Estimation indicative — saisissez le montant du bien, aucun prix n'est communiqué en ligne.",
       simAmount: "Montant du bien (DH)", simDown: "Apport (DH)", simRate: "Taux annuel (%)",
@@ -1569,6 +1570,7 @@
       deliveryLabel: "Delivery", titled: "Land title", featuresKicker: "Standing",
       featuresTitle: "Amenities & features", availabilityKicker: "Stock",
       availabilityTitle: "Availability", lotsAvailable: "units available", lastUnits: "Last units",
+      chooseUnit: "Choose my home", chooseUnitHint: "{n} homes available individually",
       simKicker: "Financing", simTitle: "Monthly payment simulator",
       simNote: "Indicative estimate — enter the property amount; no price is shown online.",
       simAmount: "Property amount (DH)", simDown: "Down payment (DH)", simRate: "Annual rate (%)",
@@ -1581,6 +1583,7 @@
       deliveryLabel: "التسليم", titled: "محفّظ", featuresKicker: "التجهيزات",
       featuresTitle: "المرافق والمميزات", availabilityKicker: "المخزون",
       availabilityTitle: "التوفر", lotsAvailable: "وحدة متوفرة", lastUnits: "آخر الوحدات",
+      chooseUnit: "اختر سكني", chooseUnitHint: "{n} مسكن متاح للاختيار",
       simKicker: "التمويل", simTitle: "محاكي القسط الشهري",
       simNote: "تقدير إرشادي — أدخل مبلغ العقار، لا يُعرض أي سعر عبر الإنترنت.",
       simAmount: "مبلغ العقار (درهم)", simDown: "الدفعة الأولى (درهم)", simRate: "الفائدة السنوية (%)",
@@ -1593,6 +1596,7 @@
       deliveryLabel: "Entrega", titled: "Título de propiedad", featuresKicker: "Categoría",
       featuresTitle: "Equipamiento y características", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilidad", lotsAvailable: "lotes disponibles", lastUnits: "Últimos lotes",
+      chooseUnit: "Elegir mi vivienda", chooseUnitHint: "{n} viviendas disponibles a la unidad",
       simKicker: "Financiación", simTitle: "Simulador de cuota",
       simNote: "Estimación indicativa — introduzca el importe del bien; no se muestra ningún precio en línea.",
       simAmount: "Importe del bien (DH)", simDown: "Entrada (DH)", simRate: "Tasa anual (%)",
@@ -1736,6 +1740,38 @@
     return '<section class="section availability"><div class="section-kicker">' + x.availabilityKicker + '</div><h2>' + x.availabilityTitle + " " + badge + '</h2>' +
       '<div class="avail-headline"><strong>' + tot.avail + '</strong> ' + x.lotsAvailable + " / " + tot.total + '</div>' +
       '<div class="avail-rows">' + rows + '</div></section>';
+  }
+
+  /**
+   * Ajoute le bouton « Choisir mon logement » sous le bloc Disponibilité.
+   *
+   * Le lot à l'unité vit en base (table lots), pas dans data/projects.json :
+   * on interroge donc l'API avant d'afficher quoi que ce soit, et on se tait
+   * si le projet n'a pas encore de grille importée.
+   */
+  function installUnitPicker(project, lang) {
+    var section = document.querySelector(".section.availability");
+    if (!section || !project || !project.id) return;
+
+    fetch("api/lots-public.php?projet=" + encodeURIComponent(project.id) + "&disponible=1",
+          { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok || !d.total) return;
+        var x = UIX[lang] || UIX.fr;
+        var fleche = lang === "ar" ? " \u2190" : " \u2192";
+        var wrap = document.createElement("div");
+        wrap.className = "avail-cta";
+        wrap.innerHTML =
+          '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' +
+          encodeURIComponent(project.id) + "#" + lang + '">' + x.chooseUnit + fleche + "</a>" +
+          '<span class="avail-cta-hint">' +
+          String(x.chooseUnitHint).replace("{n}", d.total) + "</span>";
+        section.appendChild(wrap);
+      })
+      .catch(function () {
+        // Base injoignable : la fiche projet reste utilisable sans ce bouton.
+      });
   }
 
   function renderSimulator(lang) {
@@ -1981,6 +2017,7 @@
     setupHeroMedia(project, lang);
     setupRouteButtons(project, lang);
     setupSimulator(lang);
+    installUnitPicker(project, lang);
   }
 
   window.onLanguageChange = function(lang) {
