@@ -7,7 +7,7 @@
 <title>Narjiss — Choisissez votre logement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=8">
+<link rel="stylesheet" href="shared/menu.css?v=12">
 <style>
 /* Étape 3 du parcours client. Dimensionné pour le grand écran tactile du
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
@@ -15,7 +15,7 @@
 
 .nj-hero {
   padding: 1.1rem 1.5rem .8rem;
-  background: linear-gradient(180deg, var(--sand) 0%, var(--white) 100%);
+  background: linear-gradient(180deg, var(--sand) 0%, var(--bg) 100%);
   border-bottom: 1px solid var(--border-subtle);
   text-align: center;
 }
@@ -111,10 +111,10 @@
 }
 .nj-lot:hover, .nj-lot:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); outline: none; }
 .nj-lot:focus-visible { border-color: var(--ocean); }
-.nj-disponible { border-left-color: #1F6F55; }
-.nj-optionne   { border-left-color: #BD6B16; }
-.nj-reserve    { border-left-color: #A2551A; }
-.nj-vendu      { border-left-color: #9AA1AC; opacity: .62; cursor: not-allowed; }
+.nj-disponible { border-left-color: var(--lot-dispo); }
+.nj-optionne   { border-left-color: var(--lot-optionne); }
+.nj-reserve    { border-left-color: var(--lot-reserve); }
+.nj-vendu      { border-left-color: var(--lot-vendu); opacity: var(--lot-vendu-opacite); cursor: not-allowed; }
 .nj-vendu:hover { transform: none; box-shadow: none; }
 .nj-choisi { border-color: var(--ocean); background: rgba(0, 174, 239, .06); }
 
@@ -124,10 +124,10 @@
   padding: .12rem .4rem; border-radius: 999px;
   font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em;
 }
-.nj-disponible .nj-pastille { background: rgba(31,111,85,.12); color: #1F6F55; }
-.nj-optionne   .nj-pastille { background: rgba(189,107,22,.14); color: #BD6B16; }
-.nj-reserve    .nj-pastille { background: rgba(162,85,26,.14); color: #A2551A; }
-.nj-vendu      .nj-pastille { background: rgba(0,0,0,.07); color: var(--muted); }
+.nj-disponible .nj-pastille { background: var(--lot-dispo-bg); color: var(--lot-dispo); }
+.nj-optionne   .nj-pastille { background: var(--lot-optionne-bg); color: var(--lot-optionne); }
+.nj-reserve    .nj-pastille { background: var(--lot-reserve-bg); color: var(--lot-reserve); }
+.nj-vendu      .nj-pastille { background: var(--lot-vendu-bg); color: var(--muted); }
 
 .nj-lot-prix { margin: .45rem 0 .3rem; font-size: 1.25rem; font-weight: 700; color: var(--ocean-deep); }
 .nj-lot-prix small { font-size: .7rem; font-weight: 600; color: var(--muted); }
@@ -140,7 +140,7 @@
   color: var(--muted); line-height: 1.35;
 }
 .nj-lot-pied { margin-top: .6rem; }
-.nj-action { font-size: .8rem; font-weight: 700; color: var(--ocean-deep); }
+.nj-action { font-size: .8rem; font-weight: 700; color: var(--lot-dispo); }
 .nj-action-off { color: var(--muted); font-weight: 500; }
 
 .nj-vide {
@@ -169,13 +169,13 @@
 }
 .nj-jeton-x {
   width: 26px; height: 26px; border: none; border-radius: 50%;
-  background: rgba(0,0,0,.08); font-size: 1rem; line-height: 1; color: var(--muted); cursor: pointer;
+  background: var(--lot-vendu-bg); font-size: 1rem; line-height: 1; color: var(--muted); cursor: pointer;
 }
-.nj-jeton-x:hover { background: var(--sun); color: #fff; }
+.nj-jeton-x:hover { background: var(--sun); color: var(--on-accent); }
 .nj-suivant {
   min-height: 46px; padding: 0 1.3rem;
-  background: var(--ocean-deep); border: none; border-radius: 10px;
-  font: inherit; font-weight: 700; color: #fff; white-space: nowrap; cursor: pointer;
+  background: var(--accent-solid); border: none; border-radius: 10px;
+  font: inherit; font-weight: 700; color: var(--on-accent); white-space: nowrap; cursor: pointer;
 }
 .nj-suivant:disabled { background: var(--sand-dark); color: var(--muted); cursor: not-allowed; }
 
@@ -193,6 +193,8 @@
 </style>
 </head>
 <body>
+
+<div id="mainMenu"></div>
 
 <section class="nj-hero">
   <h1>Choisissez votre logement</h1>
@@ -247,10 +249,10 @@
     <div class="nj-resultats-tete">
       <p class="nj-compteur" id="njCompteur">…</p>
       <p class="nj-legende">
-        <span><i style="background:#1F6F55"></i>Disponible</span>
-        <span><i style="background:#BD6B16"></i>Optionné</span>
-        <span><i style="background:#A2551A"></i>Réservé</span>
-        <span><i style="background:#9AA1AC"></i>Vendu</span>
+        <span><i style="background:var(--lot-dispo)"></i>Disponible</span>
+        <span><i style="background:var(--lot-optionne)"></i>Optionné</span>
+        <span><i style="background:var(--lot-reserve)"></i>Réservé</span>
+        <span><i style="background:var(--lot-vendu)"></i>Vendu</span>
       </p>
     </div>
     <div id="njGrille"></div>
@@ -265,7 +267,9 @@
 
 <p class="nj-sr" id="njLive" role="status" aria-live="polite"></p>
 
-<script src="shared/menu.js?v=10"></script>
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js?v=11"></script>
 <script src="disponibilites.js?v=3"></script>
 </body>
 </html>

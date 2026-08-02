@@ -55,6 +55,25 @@
   --nav-link: #303744;
   --dropdown-bg: #ffffff;
   --footer-bg: #7f8187;
+
+  /* Statuts de lot du parcours client — memes reperes que la grille Excel
+     du bureau de vente et que le back-office. */
+  --lot-dispo: #1F6F55;
+  --lot-dispo-bg: rgba(31, 111, 85, .12);
+  --lot-optionne: #8A4E0D;
+  --lot-optionne-bg: rgba(189, 107, 22, .14);
+  --lot-reserve: #7F4415;
+  --lot-reserve-bg: rgba(162, 85, 26, .14);
+  --lot-vendu: #6B7383;
+  --lot-vendu-bg: rgba(0, 0, 0, .07);
+  --lot-vendu-opacite: .62;
+  --lot-mieux-bg: rgba(31, 111, 85, .09);
+  --danger: #B02A2A;
+  --danger-bg: rgba(176, 42, 42, .08);
+  --wa: #25D366;
+  /* Texte pose sur un aplat de couleur d'accent. */
+  --on-accent: #FFFFFF;
+  --accent-solid: #00658F;
 }
 
 /* ============================================================
@@ -87,33 +106,30 @@
   --nav-link: #E4E8F0;
   --dropdown-bg: #171C26;
   --footer-bg: #0d1017;
+
+  --lot-dispo: #55D6A8;
+  --lot-dispo-bg: rgba(85, 214, 168, .15);
+  --lot-optionne: #FFB25C;
+  --lot-optionne-bg: rgba(255, 178, 92, .16);
+  --lot-reserve: #FF9A6B;
+  --lot-reserve-bg: rgba(255, 154, 107, .16);
+  --lot-vendu: #8A94A6;
+  --lot-vendu-bg: rgba(255, 255, 255, .07);
+  --lot-vendu-opacite: .55;
+  --lot-mieux-bg: rgba(85, 214, 168, .13);
+  --danger: #FF8080;
+  --danger-bg: rgba(255, 128, 128, .13);
+  --wa: #25D366;
+  --on-accent: #06121A;
+  --accent-solid: #1AA6E6;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --ocean: #35C3FF;
-    --ocean-deep: #1AA6E6;
-    --sun: #FF9A3D;
-    --sun-light: #FFC061;
-    --sand: #171C26;
-    --sand-dark: #232A36;
-    --charcoal: #E8EBF2;
-    --text: #E4E8F0;
-    --muted: #9BA6B8;
-    --bg: #0F131A;
-    --surface: #171C26;
-    --surface-raised: #1F2632;
-    --border-subtle: rgba(255, 255, 255, .09);
-    --border-medium: rgba(255, 255, 255, .17);
-    --shadow: 0 4px 20px rgba(0, 0, 0, .5);
-    --shadow-lg: 0 14px 50px rgba(0, 0, 0, .62);
-    --focus-ring: 0 0 0 3px rgba(53, 195, 255, .4);
-    --nav-bg: rgba(18, 22, 30, .94);
-    --nav-link: #E4E8F0;
-    --dropdown-bg: #171C26;
-    --footer-bg: #0d1017;
-  }
-}
+/* Le thème clair est le défaut, y compris pour un visiteur dont le système
+   est réglé en sombre : c'est la demande du client, l'immobilier se présente
+   sur fond clair. Le nocturne ne s'applique donc que sur choix explicite, via
+   le bouton 🌙 du menu (mémorisé dans localStorage, clé « nj-theme »).
+   Pour revenir au suivi automatique du système, rétablir ici un bloc
+   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { … } }
+   reprenant les mêmes valeurs que :root[data-theme="dark"] ci-dessus. */
 
 /* Bouton de bascule clair/nocturne (dans le menu, près des langues) */
 .theme-toggle {

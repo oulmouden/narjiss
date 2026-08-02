@@ -616,11 +616,11 @@ function njStoredTheme() {
   try { var t = localStorage.getItem(NJ_THEME_KEY); return (t === 'dark' || t === 'light') ? t : null; }
   catch (e) { return null; }
 }
-function njSystemPrefersDark() {
-  return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-}
 function njEffectiveTheme() {
-  return njStoredTheme() || (njSystemPrefersDark() ? 'dark' : 'light');
+  // Le clair est le défaut, même si le système du visiteur est en sombre :
+  // le CSS ne suit plus prefers-color-scheme, et les deux doivent s'accorder.
+  // Sans cela, le bouton croit être en nocturne et le premier clic ne fait rien.
+  return njStoredTheme() || 'light';
 }
 function njUpdateThemeButton() {
   var btn = document.getElementById('themeToggle');
@@ -637,14 +637,8 @@ function njToggleTheme() {
   document.documentElement.setAttribute('data-theme', next);
   njUpdateThemeButton();
 }
-// Suit le système en direct tant que l'utilisateur n'a pas fait de choix explicite.
-if (window.matchMedia) {
-  try {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
-      if (!njStoredTheme()) njUpdateThemeButton();
-    });
-  } catch (e) {}
-}
+// Plus d'écoute de prefers-color-scheme : le thème ne dépend que du choix
+// explicite du visiteur, le clair servant de défaut.
 
 // ===== MENU HTML BUILDER =====
 function buildMenuHTML(activePage, basePath) {

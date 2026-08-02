@@ -7,14 +7,14 @@
 <title>Narjiss — Ma sélection</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=8">
+<link rel="stylesheet" href="shared/menu.css?v=12">
 <style>
 /* Étapes 4 et 5 du parcours. Mêmes repères visuels que disponibilites.html :
    le visiteur doit sentir qu'il avance dans un même tunnel. */
 
 .nj-hero {
   padding: 1.1rem 1.5rem .8rem; text-align: center;
-  background: linear-gradient(180deg, var(--sand) 0%, var(--white) 100%);
+  background: linear-gradient(180deg, var(--sand) 0%, var(--bg) 100%);
   border-bottom: 1px solid var(--border-subtle);
 }
 .nj-hero h1 {
@@ -65,16 +65,16 @@
 }
 .nj-retirer:hover { border-color: var(--sun); color: var(--sun); }
 /* Sur deux ou trois logements, la meilleure valeur saute aux yeux. */
-.nj-mieux { background: rgba(31, 111, 85, .08); font-weight: 700; }
+.nj-mieux { background: var(--lot-mieux-bg); font-weight: 700; }
 
 .nj-pastille {
   display: inline-block; padding: .12rem .45rem; border-radius: 999px;
   font-size: .68rem; font-weight: 800; text-transform: uppercase;
 }
-.nj-p-disponible { background: rgba(31,111,85,.12); color: #1F6F55; }
-.nj-p-optionne   { background: rgba(189,107,22,.14); color: #BD6B16; }
-.nj-p-reserve    { background: rgba(162,85,26,.14); color: #A2551A; }
-.nj-p-vendu      { background: rgba(0,0,0,.07); color: var(--muted); }
+.nj-p-disponible { background: var(--lot-dispo-bg); color: var(--lot-dispo); }
+.nj-p-optionne   { background: var(--lot-optionne-bg); color: var(--lot-optionne); }
+.nj-p-reserve    { background: var(--lot-reserve-bg); color: var(--lot-reserve); }
+.nj-p-vendu      { background: var(--lot-vendu-bg); color: var(--muted); }
 
 .nj-notes {
   margin: .9rem 0 0; padding-left: 1.1rem;
@@ -117,41 +117,43 @@
 
 .nj-btn {
   display: inline-block; min-height: 48px; padding: .8rem 1.4rem;
-  background: var(--ocean-deep); border: none; border-radius: 10px;
-  font: inherit; font-weight: 700; color: #fff; text-decoration: none; cursor: pointer;
+  background: var(--accent-solid); border: none; border-radius: 10px;
+  font: inherit; font-weight: 700; color: var(--on-accent); text-decoration: none; cursor: pointer;
 }
 .nj-btn:disabled { background: var(--sand-dark); color: var(--muted); cursor: not-allowed; }
 .nj-btn-clair { background: none; border: 1px solid var(--border-medium); color: var(--text); }
-.nj-btn-wa { background: #25D366; }
+.nj-btn-wa { background: var(--wa); color: #06231A; }
 .nj-actions { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
 
 .nj-erreur {
   margin-bottom: 1rem; padding: .7rem .9rem;
-  background: rgba(176,42,42,.08); border-left: 4px solid #B02A2A;
-  border-radius: 8px; color: #B02A2A; font-size: .88rem;
+  background: var(--danger-bg); border-left: 4px solid var(--danger);
+  border-radius: 8px; color: var(--danger); font-size: .88rem;
 }
 .nj-vide {
   padding: 2.5rem 1.5rem; text-align: center; color: var(--muted);
   background: var(--surface-raised); border-radius: var(--radius);
 }
-.nj-vide .nj-btn { margin-top: .8rem; color: #fff; }
+.nj-vide .nj-btn { margin-top: .8rem; color: var(--on-accent); }
 
 .nj-ok {
-  padding: 1.5rem; background: rgba(31,111,85,.07);
-  border: 1px solid rgba(31,111,85,.25); border-radius: var(--radius); line-height: 1.65;
+  padding: 1.5rem; background: var(--lot-dispo-bg);
+  border: 1px solid var(--lot-dispo); border-radius: var(--radius); line-height: 1.65;
 }
 .nj-ok-titre {
   margin: 0 0 .6rem; font-family: var(--font-serif);
-  font-size: 1.3rem; font-weight: 700; color: #1F6F55;
+  font-size: 1.3rem; font-weight: 700; color: var(--lot-dispo);
 }
 .nj-enligne {
   padding: .1rem .4rem; border-radius: 999px;
-  background: rgba(31,111,85,.15); color: #1F6F55;
+  background: var(--lot-dispo-bg); color: var(--lot-dispo);
   font-size: .7rem; font-weight: 800; text-transform: uppercase;
 }
 </style>
 </head>
 <body>
+
+<div id="mainMenu"></div>
 
 <section class="nj-hero">
   <h1>Ma sélection</h1>
@@ -241,7 +243,9 @@
 
 </div>
 
-<script src="shared/menu.js?v=10"></script>
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js?v=11"></script>
 <script src="ma-selection.js?v=1"></script>
 </body>
 </html>
