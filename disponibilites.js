@@ -93,8 +93,24 @@
       return;
     }
     enregistrerSelection();
-    rendreLots();
+    // On rafraîchit la seule carte concernée, pas toute la grille : un
+    // innerHTML global détruirait la carte que le visiteur vient de toucher,
+    // lui ferait perdre le focus clavier et sauter la position de défilement.
+    majCarte(id);
     rendreBarreSelection();
+  }
+
+  /** Reflète l'état de sélection sur une carte déjà présente dans le DOM. */
+  function majCarte(id) {
+    var carte = document.querySelector('.nj-lot[data-id="' + id + '"]');
+    if (!carte) return;
+    var choisi = estSelectionne(id);
+    carte.classList.toggle('nj-choisi', choisi);
+    carte.setAttribute('aria-pressed', choisi ? 'true' : 'false');
+    var action = carte.querySelector('.nj-action');
+    if (action && !action.classList.contains('nj-action-off')) {
+      action.textContent = choisi ? '✓ ' + t('retirer') : '+ ' + t('ajouter');
+    }
   }
 
   /** Message vocalisé pour les lecteurs d'écran, sans alerte bloquante. */
