@@ -1557,7 +1557,8 @@
       deliveryLabel: "Livraison", titled: "Titre foncier", featuresKicker: "Standing",
       featuresTitle: "Équipements & caractéristiques", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilité", lotsAvailable: "lots disponibles", lastUnits: "Derniers lots",
-      chooseUnit: "Choisir mon logement", chooseUnitHint: "{n} logements disponibles a l'unite",
+      chooseUnit: "Choisir mon logement", chooseUnitHint: "{n} logements disponibles à l'unité",
+      availLive: "Mis à jour en direct", availFrom: "à partir de", devise: "DH",
       simKicker: "Financement", simTitle: "Simulateur de mensualité",
       simNote: "Estimation indicative — saisissez le montant du bien, aucun prix n'est communiqué en ligne.",
       simAmount: "Montant du bien (DH)", simDown: "Apport (DH)", simRate: "Taux annuel (%)",
@@ -1571,6 +1572,7 @@
       featuresTitle: "Amenities & features", availabilityKicker: "Stock",
       availabilityTitle: "Availability", lotsAvailable: "units available", lastUnits: "Last units",
       chooseUnit: "Choose my home", chooseUnitHint: "{n} homes available individually",
+      availLive: "Live figures", availFrom: "from", devise: "MAD",
       simKicker: "Financing", simTitle: "Monthly payment simulator",
       simNote: "Indicative estimate — enter the property amount; no price is shown online.",
       simAmount: "Property amount (DH)", simDown: "Down payment (DH)", simRate: "Annual rate (%)",
@@ -1584,6 +1586,7 @@
       featuresTitle: "المرافق والمميزات", availabilityKicker: "المخزون",
       availabilityTitle: "التوفر", lotsAvailable: "وحدة متوفرة", lastUnits: "آخر الوحدات",
       chooseUnit: "اختر سكني", chooseUnitHint: "{n} مسكن متاح للاختيار",
+      availLive: "محدّث مباشرة", availFrom: "ابتداء من", devise: "درهم",
       simKicker: "التمويل", simTitle: "محاكي القسط الشهري",
       simNote: "تقدير إرشادي — أدخل مبلغ العقار، لا يُعرض أي سعر عبر الإنترنت.",
       simAmount: "مبلغ العقار (درهم)", simDown: "الدفعة الأولى (درهم)", simRate: "الفائدة السنوية (%)",
@@ -1597,6 +1600,7 @@
       featuresTitle: "Equipamiento y características", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilidad", lotsAvailable: "lotes disponibles", lastUnits: "Últimos lotes",
       chooseUnit: "Elegir mi vivienda", chooseUnitHint: "{n} viviendas disponibles a la unidad",
+      availLive: "Actualizado en directo", availFrom: "desde", devise: "DH",
       simKicker: "Financiación", simTitle: "Simulador de cuota",
       simNote: "Estimación indicativa — introduzca el importe del bien; no se muestra ningún precio en línea.",
       simAmount: "Importe del bien (DH)", simDown: "Entrada (DH)", simRate: "Tasa anual (%)",
@@ -1749,28 +1753,71 @@
    * on interroge donc l'API avant d'afficher quoi que ce soit, et on se tait
    * si le projet n'a pas encore de grille importée.
    */
+  /**
+   * Aligne le bloc « Disponibilité » sur la base, et y pose le bouton du
+   * parcours client.
+   *
+   * data/projects.json porte des compteurs saisis à la main, forcément
+   * périmés dès qu'une vente est enregistrée. Quand le projet a une grille
+   * en base, elle fait foi : on réécrit les barres par typologie et le total.
+   * Sinon on ne touche à rien, les onze autres projets gardent leurs chiffres
+   * déclaratifs — c'est mieux que pas de bloc du tout.
+   */
   function installUnitPicker(project, lang) {
-    var section = document.querySelector(".section.availability");
-    if (!section || !project || !project.id) return;
+    if (!project || !project.id) return;
+    var x = UIX[lang] || UIX.fr;
 
-    fetch("api/lots-public.php?projet=" + encodeURIComponent(project.id) + "&disponible=1",
+    fetch("api/lots-public.php?projet=" + encodeURIComponent(project.id) + "&resume=1",
           { cache: "no-store" })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.ok || !d.total) return;
-        var x = UIX[lang] || UIX.fr;
+
+        var section = document.querySelector(".section.availability");
+        if (!section) {
+          // Projet sans typologies déclarées : le bloc n'a pas été rendu, on
+          // le crée avant le simulateur pour ne pas perdre l'information.
+          var simulateur = document.querySelector(".section.simulator");
+          if (!simulateur) return;
+          section = document.createElement("section");
+          section.className = "section availability";
+          simulateur.parentNode.insertBefore(section, simulateur);
+        }
+
+        var pct = Math.round(d.disponibles / d.total * 100);
+        var badge = (pct > 0 && pct < 25)
+          ? '<span class="cbadge cbadge-hot">' + x.lastUnits + "</span>"
+          : (d.disponibles === 0 ? '<span class="cbadge">' + x.soldOut + "</span>" : "");
+
+        var rows = d.typologies.map(function (ty) {
+          var largeur = ty.total ? Math.round(ty.disponibles / ty.total * 100) : 0;
+          var prix = ty.prix_min
+            ? '<span class="avail-from">' + x.availFrom + " " + nf(ty.prix_min) + " " + x.devise + "</span>"
+            : "";
+          return '<div class="avail-row">' +
+            '<span class="avail-name">' + String(ty.code).toUpperCase() + "</span>" +
+            '<div class="avail-bar"><span style="width:' + largeur + '%"></span></div>' +
+            '<span class="avail-num">' + ty.disponibles + "/" + ty.total + "</span>" +
+            prix + "</div>";
+        }).join("");
+
         var fleche = lang === "ar" ? " \u2190" : " \u2192";
-        var wrap = document.createElement("div");
-        wrap.className = "avail-cta";
-        wrap.innerHTML =
-          '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' +
-          encodeURIComponent(project.id) + "#" + lang + '">' + x.chooseUnit + fleche + "</a>" +
-          '<span class="avail-cta-hint">' +
-          String(x.chooseUnitHint).replace("{n}", d.total) + "</span>";
-        section.appendChild(wrap);
+        section.innerHTML =
+          '<div class="section-kicker">' + x.availabilityKicker + "</div>" +
+          "<h2>" + x.availabilityTitle + " " + badge +
+            ' <span class="avail-live">' + x.availLive + "</span></h2>" +
+          '<div class="avail-headline"><strong>' + d.disponibles + "</strong> " +
+            x.lotsAvailable + " / " + d.total + "</div>" +
+          '<div class="avail-rows">' + rows + "</div>" +
+          '<div class="avail-cta">' +
+            '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' +
+            encodeURIComponent(project.id) + "#" + lang + '">' + x.chooseUnit + fleche + "</a>" +
+            '<span class="avail-cta-hint">' +
+            String(x.chooseUnitHint).replace("{n}", d.disponibles) + "</span>" +
+          "</div>";
       })
       .catch(function () {
-        // Base injoignable : la fiche projet reste utilisable sans ce bouton.
+        // Base injoignable : le bloc garde les chiffres de projects.json.
       });
   }
 

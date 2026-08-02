@@ -1053,6 +1053,16 @@ html[dir=rtl] .major-card { text-align: right; }
   border-top: 1px solid var(--border-subtle);
 }
 .avail-cta-hint { color: var(--muted); font-size: .85rem; }
+/* Chiffres issus de la base, par opposition aux compteurs declaratifs. */
+.avail-live {
+  display: inline-block; vertical-align: middle;
+  padding: .12rem .5rem; border-radius: 999px;
+  background: rgba(31,111,85,.12); color: #1F6F55;
+  font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+}
+.avail-from { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+.avail-row { align-items: center; }
+
 
 .avail-rows { display:flex; flex-direction:column; gap:.55rem; max-width:620px; }
 .avail-row { display:grid; grid-template-columns:72px 1fr 62px; align-items:center; gap:.7rem; }
@@ -1102,6 +1112,6 @@ html[dir=rtl] .avail-num { text-align:left; }
 <div id="mainFooter"></div>
 <script src="shared/menu.js?v=13"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260802a"></script>
+<script src="project.js?v=20260802d"></script>
 </body>
 </html>

@@ -79,6 +79,51 @@ if (!isset(nj_projects()[$projet])) {
     nj_lots_erreur(404, 'Projet inconnu.');
 }
 
+/*
+ * &resume=1 — compte des lots par typologie, pour le bloc « Disponibilité »
+ * de la fiche projet. Beaucoup plus leger que de renvoyer les lots un a un
+ * juste pour les additionner cote navigateur.
+ */
+if (($_GET['resume'] ?? '') === '1') {
+    try {
+        $st = nj_db()->prepare(
+            "SELECT typologie,
+                    COUNT(*) AS total,
+                    SUM(statut = 'disponible') AS disponibles,
+                    MIN(CASE WHEN statut = 'disponible' THEN prix_dh END) AS prix_min,
+                    MIN(surface_habitable) AS surface_min,
+                    MAX(surface_habitable) AS surface_max
+             FROM v_lots_publics
+             WHERE projet = ?
+             GROUP BY typologie
+             ORDER BY total DESC"
+        );
+        $st->execute([$projet]);
+        $lignes = $st->fetchAll();
+    } catch (Throwable $e) {
+        error_log('lots-public resume: ' . $e->getMessage());
+        nj_lots_erreur(500, 'Resume indisponible.');
+    }
+
+    $typologies = array_map(static fn(array $l): array => [
+        'code'        => $l['typologie'],
+        'total'       => (int) $l['total'],
+        'disponibles' => (int) $l['disponibles'],
+        'prix_min'    => $l['prix_min'] !== null ? (float) $l['prix_min'] : null,
+        'surface_min' => (float) $l['surface_min'],
+        'surface_max' => (float) $l['surface_max'],
+    ], $lignes);
+
+    echo json_encode([
+        'ok'          => true,
+        'projet'      => $projet,
+        'total'       => array_sum(array_column($typologies, 'total')),
+        'disponibles' => array_sum(array_column($typologies, 'disponibles')),
+        'typologies'  => $typologies,
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $enums = nj_lot_enums();
 $where  = ['projet = :projet'];
 $params = ['projet' => $projet];
