@@ -32,6 +32,7 @@
 }
 .nj-fil li { display: flex; align-items: center; gap: .4rem; }
 .nj-fil li::after { content: '›'; opacity: .5; }
+[dir="rtl"] .nj-fil li::after { content: '‹'; }
 .nj-fil li:last-child::after { content: ''; }
 .nj-fil .nj-fil-actif { color: var(--ocean-deep); font-weight: 600; }
 
@@ -106,15 +107,15 @@
 .nj-lot {
   position: relative; padding: .85rem .9rem;
   background: var(--surface); border: 2px solid var(--border-subtle);
-  border-left-width: 6px; border-radius: 12px;
+  border-inline-start-width: 6px; border-radius: 12px;
   cursor: pointer; transition: transform .12s ease, box-shadow .12s ease;
 }
 .nj-lot:hover, .nj-lot:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); outline: none; }
 .nj-lot:focus-visible { border-color: var(--ocean); }
-.nj-disponible { border-left-color: var(--lot-dispo); }
-.nj-optionne   { border-left-color: var(--lot-optionne); }
-.nj-reserve    { border-left-color: var(--lot-reserve); }
-.nj-vendu      { border-left-color: var(--lot-vendu); opacity: var(--lot-vendu-opacite); cursor: not-allowed; }
+.nj-disponible { border-inline-start-color: var(--lot-dispo); }
+.nj-optionne   { border-inline-start-color: var(--lot-optionne); }
+.nj-reserve    { border-inline-start-color: var(--lot-reserve); }
+.nj-vendu      { border-inline-start-color: var(--lot-vendu); opacity: var(--lot-vendu-opacite); cursor: not-allowed; }
 .nj-vendu:hover { transform: none; box-shadow: none; }
 .nj-choisi { border-color: var(--ocean); background: rgba(0, 174, 239, .06); }
 
@@ -197,9 +198,9 @@
 <div id="mainMenu"></div>
 
 <section class="nj-hero">
-  <h1>Choisissez votre logement</h1>
-  <p>Résidence Al Jawhara — Dcheira El Jihadia, Agadir</p>
-  <ol class="nj-fil">
+  <h1 id="njTitre">Choisissez votre logement</h1>
+  <p id="njSousTitre">Résidence Al Jawhara — Dcheira El Jihadia, Agadir</p>
+  <ol class="nj-fil" id="njFil">
     <li>Vos critères</li>
     <li>Le projet</li>
     <li class="nj-fil-actif">Les logements</li>
@@ -210,36 +211,36 @@
 
 <div class="nj-shell">
   <aside class="nj-filtres">
-    <h2>Affiner</h2>
+    <h2 id="njAffiner">Affiner</h2>
 
     <div class="nj-champ">
-      <label for="fTypologie">Type</label>
+      <label for="fTypologie" id="lblTypologie">Type</label>
       <select id="fTypologie"></select>
     </div>
     <div class="nj-champ">
-      <label for="fImmeuble">Immeuble</label>
+      <label for="fImmeuble" id="lblImmeuble">Immeuble</label>
       <select id="fImmeuble"></select>
     </div>
     <div class="nj-champ">
-      <label for="fNiveau">À partir de l'étage</label>
+      <label for="fNiveau" id="lblNiveau">À partir de l'étage</label>
       <select id="fNiveau"></select>
     </div>
     <div class="nj-champ">
-      <label for="fOrientation">Orientation</label>
+      <label for="fOrientation" id="lblOrientation">Orientation</label>
       <select id="fOrientation"></select>
     </div>
     <div class="nj-champ">
-      <label for="fBudget">Budget maximum <span class="nj-valeur" id="fBudgetVal">—</span></label>
+      <label for="fBudget"><span id="lblBudget">Budget maximum</span> <span class="nj-valeur" id="fBudgetVal">—</span></label>
       <input type="range" id="fBudget" min="0" max="100" value="100">
     </div>
     <div class="nj-champ">
-      <label for="fSurface">Surface minimum <span class="nj-valeur" id="fSurfaceVal">—</span></label>
+      <label for="fSurface"><span id="lblSurface">Surface minimum</span> <span class="nj-valeur" id="fSurfaceVal">—</span></label>
       <input type="range" id="fSurface" min="0" max="100" value="0">
     </div>
     <div class="nj-champ">
       <label class="nj-case" for="fDispo">
         <input type="checkbox" id="fDispo">
-        Uniquement les logements disponibles
+        <span id="lblDispoSeuls">Uniquement les logements disponibles</span>
       </label>
     </div>
     <button type="button" class="nj-reinit" id="njReinit">Tout effacer</button>
@@ -248,7 +249,7 @@
   <main>
     <div class="nj-resultats-tete">
       <p class="nj-compteur" id="njCompteur">…</p>
-      <p class="nj-legende">
+      <p class="nj-legende" id="njLegende">
         <span><i style="background:var(--lot-dispo)"></i>Disponible</span>
         <span><i style="background:var(--lot-optionne)"></i>Optionné</span>
         <span><i style="background:var(--lot-reserve)"></i>Réservé</span>
@@ -260,7 +261,7 @@
 </div>
 
 <div class="nj-barre" id="njBarre">
-  <p class="nj-barre-titre">Ma sélection <span id="njBarreCompte">0/3</span></p>
+  <p class="nj-barre-titre"><span id="njBarreLabel">Ma sélection</span> <span id="njBarreCompte">0/3</span></p>
   <div class="nj-barre-liste" id="njBarreListe"></div>
   <button type="button" class="nj-suivant" id="njSuivant" disabled>Parler à un conseiller →</button>
 </div>
@@ -270,6 +271,6 @@
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=11"></script>
-<script src="disponibilites.js?v=3"></script>
+<script src="disponibilites.js?v=5"></script>
 </body>
 </html>

@@ -23,20 +23,88 @@
 
   var T = {
     fr: {
-      titre: 'Choisissez votre logement', dispo: 'Disponible', optionne: 'Optionné',
-      reserve: 'Réservé', vendu: 'Vendu', tous: 'Tous', toutes: 'Toutes',
-      typologie: 'Type', immeuble: 'Immeuble', niveau: 'À partir de l\'étage',
+      titre: 'Choisissez votre logement', affiner: 'Affiner',
+      disponible: 'Disponible', optionne: 'Optionné', reserve: 'Réservé', vendu: 'Vendu',
+      tous: 'Tous', toutes: 'Toutes',
+      typologie: 'Type', immeuble: 'Immeuble', niveau: "À partir de l'étage",
       orientation: 'Orientation', budget: 'Budget maximum', surface: 'Surface minimum',
       dispoSeuls: 'Uniquement les logements disponibles', reinit: 'Tout effacer',
-      resultat: 'logement', resultats: 'logements', aucun: 'Aucun logement ne correspond à ces critères.',
+      resultat: 'logement', resultats: 'logements',
+      aucun: 'Aucun logement ne correspond à ces critères.',
       aucunAide: 'Élargissez votre budget ou retirez un filtre.',
-      etage: 'Étage', rdc: 'Rez-de-chaussée', chambres: 'ch.', comparer: 'Comparer',
+      etage: 'Étage', rdc: 'Rez-de-chaussée', chambres: 'ch.',
       selection: 'Ma sélection', vide: 'Aucun logement sélectionné',
-      ajouter: 'Ajouter à ma sélection', retirer: 'Retirer', complet: 'Sélection complète (3 maximum)',
-      suivant: 'Parler à un conseiller', precedent: 'Retour aux projets',
-      indispo: 'Ce logement n\'est plus disponible', dh: 'DH', parM2: 'DH/m²',
+      ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
+      complet: 'Sélection complète (3 maximum)',
+      suivant: 'Parler à un conseiller', indispo: "Ce logement n'est plus disponible",
+      dh: 'DH', parM2: 'DH/m²',
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin',
-      double: 'Traversant', angle: 'Angle', erreur: 'Disponibilités indisponibles pour le moment.'
+      double: 'Traversant', angle: 'Angle',
+      erreur: 'Disponibilités indisponibles pour le moment.',
+      fil: ['Vos critères', 'Le projet', 'Les logements', 'Ma sélection', 'Un conseiller']
+    },
+    en: {
+      titre: 'Choose your home', affiner: 'Refine',
+      disponible: 'Available', optionne: 'Under option', reserve: 'Reserved', vendu: 'Sold',
+      tous: 'All', toutes: 'All',
+      typologie: 'Type', immeuble: 'Building', niveau: 'From floor',
+      orientation: 'Aspect', budget: 'Maximum budget', surface: 'Minimum area',
+      dispoSeuls: 'Available homes only', reinit: 'Clear all',
+      resultat: 'home', resultats: 'homes',
+      aucun: 'No home matches these criteria.',
+      aucunAide: 'Raise your budget or remove a filter.',
+      etage: 'Floor', rdc: 'Ground floor', chambres: 'bed',
+      selection: 'My shortlist', vide: 'No home selected',
+      ajouter: 'Add to my shortlist', retirer: 'Remove',
+      complet: 'Shortlist full (3 maximum)',
+      suivant: 'Talk to an adviser', indispo: 'This home is no longer available',
+      dh: 'MAD', parM2: 'MAD/m²',
+      rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
+      double: 'Dual aspect', angle: 'Corner',
+      erreur: 'Availability cannot be loaded right now.',
+      fil: ['Your criteria', 'The project', 'The homes', 'My shortlist', 'An adviser']
+    },
+    ar: {
+      titre: 'اختر سكنك', affiner: 'تصفية',
+      disponible: 'متاح', optionne: 'محجوز مؤقتا', reserve: 'محجوز', vendu: 'مباع',
+      tous: 'الكل', toutes: 'الكل',
+      typologie: 'النوع', immeuble: 'العمارة', niveau: 'ابتداء من الطابق',
+      orientation: 'الاتجاه', budget: 'الميزانية القصوى', surface: 'المساحة الدنيا',
+      dispoSeuls: 'المساكن المتاحة فقط', reinit: 'مسح الكل',
+      resultat: 'سكن', resultats: 'مسكن',
+      aucun: 'لا يوجد سكن مطابق لهذه المعايير.',
+      aucunAide: 'وسّع ميزانيتك أو أزل أحد عوامل التصفية.',
+      etage: 'الطابق', rdc: 'الطابق الأرضي', chambres: 'غرفة',
+      selection: 'اختياري', vide: 'لم يتم اختيار أي سكن',
+      ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
+      complet: 'اكتمل الاختيار (3 كحد أقصى)',
+      suivant: 'التحدث إلى مستشار', indispo: 'هذا السكن لم يعد متاحا',
+      dh: 'درهم', parM2: 'درهم/م²',
+      rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
+      double: 'واجهتان', angle: 'زاوية',
+      erreur: 'تعذر عرض المتوفر حاليا.',
+      fil: ['معاييرك', 'المشروع', 'المساكن', 'اختياري', 'مستشار']
+    },
+    es: {
+      titre: 'Elija su vivienda', affiner: 'Afinar',
+      disponible: 'Disponible', optionne: 'En opción', reserve: 'Reservado', vendu: 'Vendido',
+      tous: 'Todos', toutes: 'Todas',
+      typologie: 'Tipo', immeuble: 'Edificio', niveau: 'A partir de la planta',
+      orientation: 'Orientación', budget: 'Presupuesto máximo', surface: 'Superficie mínima',
+      dispoSeuls: 'Solo viviendas disponibles', reinit: 'Borrar todo',
+      resultat: 'vivienda', resultats: 'viviendas',
+      aucun: 'Ninguna vivienda coincide con estos criterios.',
+      aucunAide: 'Amplíe su presupuesto o quite un filtro.',
+      etage: 'Planta', rdc: 'Planta baja', chambres: 'hab.',
+      selection: 'Mi selección', vide: 'Ninguna vivienda seleccionada',
+      ajouter: 'Añadir a mi selección', retirer: 'Quitar',
+      complet: 'Selección completa (3 máximo)',
+      suivant: 'Hablar con un asesor', indispo: 'Esta vivienda ya no está disponible',
+      dh: 'DH', parM2: 'DH/m²',
+      rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
+      double: 'Doble orientación', angle: 'Esquina',
+      erreur: 'Las disponibilidades no se pueden cargar por ahora.',
+      fil: ['Sus criterios', 'El proyecto', 'Las viviendas', 'Mi selección', 'Un asesor']
     }
   };
 
@@ -155,8 +223,19 @@
 
   function rendreFiltres() {
     if (filtresRendus || !etat.facettes) return;
+    var premierRendu = !filtresRendus && !document.getElementById('fTypologie').options.length;
     filtresRendus = true;
     var f = etat.facettes;
+
+    // Un changement de langue reconstruit les libellés des options : on
+    // mémorise les choix en cours pour ne pas les effacer sous les doigts
+    // du visiteur.
+    var choix = {};
+    ['fTypologie', 'fImmeuble', 'fOrientation', 'fNiveau'].forEach(function (id) {
+      choix[id] = document.getElementById(id).value;
+    });
+    var budgetAvant = document.getElementById('fBudget').value;
+    var surfaceAvant = document.getElementById('fSurface').value;
 
     function options(map, tout, formateur) {
       var html = '<option value="">' + tout + '</option>';
@@ -173,7 +252,11 @@
       options(f.orientations, t('toutes'), libelleOrientation);
 
     var niv = '<option value="">' + t('tous') + '</option>';
-    Object.keys(f.niveaux).forEach(function (n) {
+    // Tri sur le rang, pas sur la clé : Object.keys remonte « 1, 2, 3 » avant
+    // « RDC », qui se retrouverait en bas de la liste.
+    Object.keys(f.niveaux).sort(function (a, b) {
+      return f.niveaux[a] - f.niveaux[b];
+    }).forEach(function (n) {
       niv += '<option value="' + f.niveaux[n] + '">' + libelleNiveau(n) + '</option>';
     });
     document.getElementById('fNiveau').innerHTML = niv;
@@ -184,14 +267,18 @@
     budget.min = Math.floor(f.prix_min / 50000) * 50000;
     budget.max = Math.ceil(f.prix_max / 50000) * 50000;
     budget.step = 50000;
-    budget.value = budget.max;
-    majEtiquetteBudget();
+    budget.value = premierRendu ? budget.max : budgetAvant;
 
     var surface = document.getElementById('fSurface');
     surface.min = Math.floor(f.surface_min);
     surface.max = Math.ceil(f.surface_max);
     surface.step = 5;
-    surface.value = surface.min;
+    surface.value = premierRendu ? surface.min : surfaceAvant;
+
+    Object.keys(choix).forEach(function (id) {
+      if (choix[id]) document.getElementById(id).value = choix[id];
+    });
+    majEtiquetteBudget();
     majEtiquetteSurface();
   }
 
@@ -377,8 +464,63 @@
     charger();
   }
 
-  // Le menu partagé recharge les libellés à chaque changement de langue.
+  /** Applique la langue courante à tout le texte figé de la page. */
+  function appliquerLangue() {
+    var lang = (typeof currentLang !== 'undefined' && T[currentLang]) ? currentLang : 'fr';
+    var texte = function (id, valeur) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = valeur;
+    };
+
+    document.title = 'Narjiss — ' + t('titre');
+    texte('njTitre', t('titre'));
+    texte('njAffiner', t('affiner'));
+    texte('lblTypologie', t('typologie'));
+    texte('lblImmeuble', t('immeuble'));
+    texte('lblNiveau', t('niveau'));
+    texte('lblOrientation', t('orientation'));
+    texte('lblBudget', t('budget'));
+    texte('lblSurface', t('surface'));
+    texte('lblDispoSeuls', t('dispoSeuls'));
+    texte('njReinit', t('reinit'));
+    texte('njBarreLabel', t('selection'));
+
+    // La flèche suit le sens de lecture : ← en arabe, comme sur carte.html.
+    var suivant = document.getElementById('njSuivant');
+    if (suivant) suivant.textContent = t('suivant') + (lang === 'ar' ? ' ←' : ' →');
+
+    // Nom et localisation du projet : déjà traduits dans data/projects.json.
+    var projet = (window.PROJECTS || []).filter(function (p) { return p.id === etat.projet; })[0];
+    if (projet) {
+      var nom = menuText(projet.name, lang);
+      var lieu = menuText(projet.location, lang);
+      texte('njSousTitre', lieu ? nom + ' — ' + lieu : nom);
+    }
+
+    var fil = document.getElementById('njFil');
+    if (fil) {
+      var etapes = T[lang].fil;
+      [].forEach.call(fil.children, function (li, i) {
+        if (etapes[i]) li.textContent = etapes[i];
+      });
+    }
+
+    var legende = document.getElementById('njLegende');
+    if (legende) {
+      legende.innerHTML = ['disponible', 'optionne', 'reserve', 'vendu'].map(function (st) {
+        return '<span><i style="background:var(--lot-' +
+          (st === 'disponible' ? 'dispo' : st) + ')"></i>' + t(st) + '</span>';
+      }).join('');
+    }
+
+    // Les options des filtres portent des libellés traduits : on les reconstruit.
+    filtresRendus = false;
+    rendreFiltres();
+  }
+
+  // Appelé par le menu partagé à chaque changement de langue.
   window.onLanguageChange = function () {
+    appliquerLangue();
     if (etat.facettes) { rendreLots(); rendreBarreSelection(); }
   };
 
