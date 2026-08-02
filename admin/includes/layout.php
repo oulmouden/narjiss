@@ -10,6 +10,7 @@ function admin_header(string $title): void
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noindex, nofollow">
         <title><?= htmlspecialchars($title) ?> - Narjiss Admin</title>
         <link rel="stylesheet" href="assets/admin.css">
     </head>

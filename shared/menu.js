@@ -19,7 +19,8 @@ var MENU_UI = {
     footer_legal_mentions: "Mentions légales",
     footer_privacy: "Confidentialité",
     footer_terms: "Conditions",
-    footer_copyright: "Tous droits réservés"
+    footer_copyright: "Tous droits réservés",
+    footer_pro: "Espace professionnel"
   },
   en: {
     home: "Home",
@@ -36,7 +37,8 @@ var MENU_UI = {
     footer_legal_mentions: "Legal notice",
     footer_privacy: "Privacy",
     footer_terms: "Terms",
-    footer_copyright: "All rights reserved"
+    footer_copyright: "All rights reserved",
+    footer_pro: "Professional area"
   },
   ar: {
     home: "الرئيسية",
@@ -53,7 +55,8 @@ var MENU_UI = {
     footer_legal_mentions: "إشعار قانوني",
     footer_privacy: "الخصوصية",
     footer_terms: "الشروط",
-    footer_copyright: "جميع الحقوق محفوظة"
+    footer_copyright: "جميع الحقوق محفوظة",
+    footer_pro: "فضاء المهنيين"
   },
   es: {
     home: "Inicio",
@@ -70,7 +73,8 @@ var MENU_UI = {
     footer_legal_mentions: "Aviso legal",
     footer_privacy: "Privacidad",
     footer_terms: "Términos",
-    footer_copyright: "Todos los derechos reservados"
+    footer_copyright: "Todos los derechos reservados",
+    footer_pro: "Espacio profesional"
   }
 };
 
@@ -689,8 +693,12 @@ function buildFooterHTML(basePath) {
   var year = new Date().getFullYear();
   var legalHash = '#' + currentLang;
   var langHash = '#' + currentLang;
-  var isLocal = ['localhost', '127.0.0.1'].indexOf(window.location.hostname) >= 0;
-  var adminLink = isLocal ? '<a class="footer-admin-link" href="' + basePath + 'admin/login.php" rel="nofollow">Admin</a>' : '';
+  // Acces au back-office : volontairement discret, en pied de page et sans
+  // bouton en evidence. Le libelle parle de « l'espace professionnel » plutot
+  // que d'« admin », qui designe une cible. rel="nofollow" et la balise
+  // noindex de la page de connexion le tiennent hors des moteurs.
+  var adminLink = '<a class="footer-admin-link" href="' + basePath +
+    'admin/login.php" rel="nofollow noopener">' + t.footer_pro + '</a>';
   var legalNoticeUrl = basePath + 'mentions-legales.html' + legalHash;
   var privacyUrl = basePath + 'confidentialite.html' + legalHash;
   var termsUrl = basePath + 'conditions.html' + legalHash;
