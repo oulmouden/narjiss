@@ -156,6 +156,33 @@
 .nj-carreau:disabled { cursor: not-allowed; }
 .nj-carreau-num { font-size: 1.02rem; font-weight: 800; line-height: 1.1; }
 .nj-carreau-typo { font-size: .6rem; font-weight: 700; letter-spacing: .04em; opacity: .8; }
+.nj-carreau-enveloppe { position: relative; display: inline-block; }
+/* Bouton « détails » : discret, mais assez large pour le doigt. */
+.nj-carreau-info {
+  position: absolute; bottom: -4px; inset-inline-start: -4px;
+  width: 24px; height: 24px; padding: 0;
+  background: var(--surface); border: 1px solid var(--border-medium);
+  border-radius: 50%; font: inherit; font-size: .72rem; font-weight: 800;
+  font-style: italic; color: var(--muted); line-height: 1; cursor: pointer;
+}
+.nj-carreau-info:hover { border-color: var(--ocean); color: var(--accent-solid); }
+.nj-carreau-info:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+
+/* ── Fiche d'un lot dans la fenêtre ─────────────────────────────────── */
+.nj-fiche { width: 100%; padding: 1.2rem 1.4rem; text-align: start; }
+.nj-fiche-prix {
+  margin: 0 0 .9rem; font-size: 1.6rem; font-weight: 700; color: var(--accent-solid);
+}
+.nj-fiche-prix small { font-size: .8rem; font-weight: 600; color: var(--muted); }
+.nj-fiche dl {
+  display: grid; grid-template-columns: auto 1fr; gap: .35rem 1rem;
+  margin: 0 0 1rem; font-size: .9rem;
+}
+.nj-fiche dt { color: var(--muted); font-weight: 600; }
+.nj-fiche dd { margin: 0; color: var(--text); font-weight: 700; }
+.nj-fiche-note { margin: 0 0 1rem; font-size: .85rem; font-style: italic; color: var(--muted); }
+.nj-fiche .nj-medias { margin-top: 0; }
+
 .nj-carreau-coche {
   position: absolute; top: -6px; inset-inline-end: -6px;
   width: 20px; height: 20px; border-radius: 50%;
@@ -241,6 +268,59 @@
 .nj-vide {
   padding: 2.5rem 1rem; text-align: center; color: var(--muted);
   background: var(--surface-raised); border-radius: var(--radius);
+}
+
+/* ── Boutons de consultation d'un lot ───────────────────────────────── */
+.nj-medias { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; }
+.nj-media-btn {
+  display: inline-flex; align-items: center; gap: .3rem;
+  min-height: 34px; padding: .25rem .6rem;
+  background: var(--surface-raised); border: 1px solid var(--border-medium);
+  border-radius: 8px; font: inherit; font-size: .74rem; font-weight: 700;
+  color: var(--text); cursor: pointer;
+}
+.nj-media-btn:hover { border-color: var(--ocean); color: var(--accent-solid); }
+.nj-media-btn:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.nj-media-btn span { font-size: .9rem; line-height: 1; }
+
+/* ── Fenêtre de consultation ────────────────────────────────────────── */
+body.nj-fige { overflow: hidden; }
+.nj-media-fond {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+  background: rgba(0, 0, 0, .68);
+}
+.nj-media-fond[hidden] { display: none; }
+.nj-media-boite {
+  display: flex; flex-direction: column;
+  width: min(1100px, 100%); max-height: 92vh;
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); overflow: hidden;
+}
+.nj-media-tete {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .8rem 1.1rem; border-bottom: 1px solid var(--border-subtle);
+}
+.nj-media-tete h2 {
+  margin: 0; font-family: var(--font-serif); font-size: 1.15rem; color: var(--charcoal);
+}
+.nj-media-fermer {
+  min-height: 40px; padding: .35rem 1rem;
+  background: var(--accent-solid); border: none; border-radius: 8px;
+  font: inherit; font-weight: 700; color: var(--on-accent); cursor: pointer;
+}
+.nj-media-corps {
+  flex: 1; min-height: 260px; overflow: auto;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-raised);
+}
+.nj-media-corps img { max-width: 100%; height: auto; display: block; }
+.nj-media-corps iframe { width: 100%; height: min(70vh, 620px); border: 0; display: block; }
+.nj-media-vide { padding: 3rem 1rem; color: var(--muted); text-align: center; }
+.nj-media-note {
+  margin: 0; padding: .6rem 1.1rem;
+  border-top: 1px solid var(--border-subtle);
+  font-size: .78rem; color: var(--muted);
 }
 
 /* ── Barre de sélection ────────────────────────────────────────────── */
@@ -369,11 +449,23 @@
   <button type="button" class="nj-suivant" id="njSuivant" disabled>Parler à un conseiller →</button>
 </div>
 
+<div class="nj-media-fond" id="njMedia" role="dialog" aria-modal="true"
+     aria-labelledby="njMediaTitre" hidden>
+  <div class="nj-media-boite">
+    <header class="nj-media-tete">
+      <h2 id="njMediaTitre"></h2>
+      <button type="button" class="nj-media-fermer" id="njMediaFermer">Fermer</button>
+    </header>
+    <div class="nj-media-corps" id="njMediaCorps"></div>
+    <p class="nj-media-note" id="njMediaNote" hidden></p>
+  </div>
+</div>
+
 <p class="nj-sr" id="njLive" role="status" aria-live="polite"></p>
 
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=14"></script>
-<script src="disponibilites.js?v=11"></script>
+<script src="disponibilites.js?v=14"></script>
 </body>
 </html>

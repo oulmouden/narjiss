@@ -38,6 +38,11 @@
       selection: 'Ma sélection', vide: 'Aucun logement sélectionné',
       ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
       projet: 'Projet',
+      detailsLot: 'Détails du lot', surfaceLot: 'Surface', chambresLot: 'Chambres', statutLot: 'Disponibilité',
+      plan: 'Plan', tour360: '360°', carte: 'Carte', fermer: 'Fermer',
+      mediaProjet: 'Document du projet — le plan propre à ce lot sera ajouté prochainement.',
+      sansPlan: 'Aucun plan disponible pour ce projet.',
+      sansTour: 'Aucune visite 360° disponible pour ce projet.',
       vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste',
       libres: 'libres', planAide: 'Chaque pastille est un lot. Touchez un lot libre pour l\'ajouter.',
       enPreparation: 'Données en cours de mise à jour',
@@ -66,6 +71,11 @@
       selection: 'My shortlist', vide: 'No home selected',
       ajouter: 'Add to my shortlist', retirer: 'Remove',
       projet: 'Project',
+      detailsLot: 'Unit details', surfaceLot: 'Area', chambresLot: 'Bedrooms', statutLot: 'Availability',
+      plan: 'Floor plan', tour360: '360°', carte: 'Map', fermer: 'Close',
+      mediaProjet: 'Project document — the plan specific to this unit will be added soon.',
+      sansPlan: 'No floor plan available for this project.',
+      sansTour: 'No 360° tour available for this project.',
       vue: 'View', vuePlan: 'Plan', vueListe: 'List',
       libres: 'free', planAide: 'Each tile is a unit. Tap a free unit to add it.',
       enPreparation: 'Data being updated',
@@ -94,6 +104,11 @@
       selection: 'اختياري', vide: 'لم يتم اختيار أي سكن',
       ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
       projet: 'المشروع',
+      detailsLot: 'تفاصيل الوحدة', surfaceLot: 'المساحة', chambresLot: 'الغرف', statutLot: 'التوفر',
+      plan: 'المخطط', tour360: '360°', carte: 'الخريطة', fermer: 'إغلاق',
+      mediaProjet: 'وثيقة المشروع — سيُضاف مخطط هذه الوحدة قريبا.',
+      sansPlan: 'لا يوجد مخطط متاح لهذا المشروع.',
+      sansTour: 'لا توجد جولة 360° متاحة لهذا المشروع.',
       vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة',
       libres: 'متاحة', planAide: 'كل مربع يمثل وحدة. المس وحدة متاحة لإضافتها.',
       enPreparation: 'البيانات قيد التحديث',
@@ -122,6 +137,11 @@
       selection: 'Mi selección', vide: 'Ninguna vivienda seleccionada',
       ajouter: 'Añadir a mi selección', retirer: 'Quitar',
       projet: 'Proyecto',
+      detailsLot: 'Detalles del lote', surfaceLot: 'Superficie', chambresLot: 'Dormitorios', statutLot: 'Disponibilidad',
+      plan: 'Plano', tour360: '360°', carte: 'Mapa', fermer: 'Cerrar',
+      mediaProjet: 'Documento del proyecto — el plano propio de este lote se añadirá pronto.',
+      sansPlan: 'No hay plano disponible para este proyecto.',
+      sansTour: 'No hay visita 360° disponible para este proyecto.',
       vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista',
       libres: 'libres', planAide: 'Cada casilla es un lote. Toque un lote libre para añadirlo.',
       enPreparation: 'Datos en actualización',
@@ -396,12 +416,138 @@
           '<li>' + montant(lot.prix_m2) + ' ' + t('parM2') + '</li>' +
         '</ul>' +
         (lot.notes ? '<p class="nj-lot-note">' + lot.notes + '</p>' : '') +
+        boutonsMedias(lot) +
         '<footer class="nj-lot-pied">' +
           (libre
             ? '<span class="nj-action">' + (choisi ? '✓ ' + t('retirer') : '+ ' + t('ajouter')) + '</span>'
             : '<span class="nj-action nj-action-off">' + t('indispo') + '</span>') +
         '</footer>' +
       '</article>';
+  }
+
+  /* ── Consultation d'un lot : plan, visite 360°, carte ─────────────── */
+
+  /** Le projet courant, tel que le menu partagé l'a chargé. */
+  function projetCourant() {
+    return (window.PROJECTS || []).filter(function (p) {
+      return p.id === etat.projet;
+    })[0] || null;
+  }
+
+  /**
+   * Boutons de consultation d'un lot.
+   *
+   * Les trois documents sont aujourd'hui ceux du PROJET, identiques pour tous
+   * ses lots : il n'existe pas encore de plan ni de visite par lot. Le jour où
+   * `plan_fichier` sera rempli dans la grille, le bouton Plan basculera
+   * automatiquement sur le document du lot.
+   */
+  function boutonsMedias(lot) {
+    var p = projetCourant();
+    var b = [];
+    if (lot.plan || (p && (p.plan_architecte_url || p.plan_visuel_url))) {
+      b.push(bouton('plan', lot.id, '\u25A6', t('plan')));
+    }
+    if (p && (p.apartment_tour_url || p.tour_url)) {
+      b.push(bouton('tour', lot.id, '\u25CE', t('tour360')));
+    }
+    if (p && p.lat && p.lng) {
+      b.push(bouton('carte', lot.id, '\u25C9', t('carte')));
+    }
+    return b.length ? '<div class="nj-medias">' + b.join('') + '</div>' : '';
+  }
+
+  function bouton(type, id, icone, libelle) {
+    return '<button type="button" class="nj-media-btn" data-media="' + type +
+      '" data-lot="' + id + '"><span aria-hidden="true">' + icone + '</span>' +
+      libelle + '</button>';
+  }
+
+  /**
+   * Fiche d'un lot : ses caractéristiques et ses trois documents.
+   *
+   * C'est la porte d'entrée depuis le plan, où les pastilles sont trop petites
+   * pour porter les boutons eux-mêmes.
+   */
+  function ouvrirFiche(lotId) {
+    var lot = etat.lots.filter(function (l) { return l.id === lotId; })[0];
+    if (!lot) return;
+    var lignes = [
+      [t('typologie'), lot.typologie.toUpperCase()],
+      [t('surfaceLot'), lot.surface + ' m²' + (lot.balcon > 0 ? ' + ' + lot.balcon + ' m²' : '')],
+      [t('immeuble'), lot.immeuble],
+      [t('etage'), lot.niveau === 'RDC' ? t('rdc') : lot.niveau],
+      [t('orientation'), libelleOrientation(lot.orientation)],
+      [t('statutLot'), t(lot.statut)]
+    ];
+    if (lot.chambres > 0) lignes.splice(2, 0, [t('chambresLot'), String(lot.chambres)]);
+
+    var corps = '<div class="nj-fiche">' +
+      '<p class="nj-fiche-prix">' + montant(lot.prix) + ' <small>' + t('dh') + '</small></p>' +
+      '<dl>' + lignes.map(function (l) {
+        return '<dt>' + l[0] + '</dt><dd>' + l[1] + '</dd>';
+      }).join('') + '</dl>' +
+      (lot.notes ? '<p class="nj-fiche-note">' + lot.notes + '</p>' : '') +
+      boutonsMedias(lot) +
+      '</div>';
+
+    document.getElementById('njMediaTitre').textContent =
+      lot.typologie.toUpperCase() + ' · ' + lot.numero;
+    document.getElementById('njMediaCorps').innerHTML = corps;
+    document.getElementById('njMediaNote').hidden = true;
+    document.getElementById('njMedia').hidden = false;
+    document.body.classList.add('nj-fige');
+    document.getElementById('njMediaFermer').focus();
+  }
+
+  /** Ouvre la fenêtre de consultation sur un document donné. */
+  function ouvrirMedia(type, lotId) {
+    var lot = etat.lots.filter(function (l) { return l.id === lotId; })[0];
+    if (!lot) return;
+    var p = projetCourant();
+    var titre = lot.typologie.toUpperCase() + ' · ' + lot.numero;
+    var corps = '';
+    var note = '';
+
+    if (type === 'plan') {
+      var src = lot.plan || (p && (p.plan_architecte_url || p.plan_visuel_url)) || '';
+      corps = src
+        ? '<img src="' + src + '" alt="' + t('plan') + ' ' + titre + '">'
+        : '<p class="nj-media-vide">' + t('sansPlan') + '</p>';
+      if (src && !lot.plan) note = t('mediaProjet');
+    } else if (type === 'tour') {
+      var tour = p && (p.apartment_tour_url || p.tour_url);
+      corps = tour
+        ? '<iframe src="' + tour + '" title="' + t('tour360') + '" allowfullscreen loading="lazy"></iframe>'
+        : '<p class="nj-media-vide">' + t('sansTour') + '</p>';
+      if (tour) note = t('mediaProjet');
+    } else if (type === 'carte') {
+      // Fond de carte en iframe : la page n'embarque pas Leaflet, inutile de
+      // l'alourdir pour un aperçu de situation.
+      var d = 0.004;
+      var bbox = [p.lng - d, p.lat - d / 2, p.lng + d, p.lat + d / 2].join('%2C');
+      corps = '<iframe title="' + t('carte') + '" loading="lazy" src="' +
+        'https://www.openstreetmap.org/export/embed.html?bbox=' + bbox +
+        '&amp;layer=mapnik&amp;marker=' + p.lat + '%2C' + p.lng + '"></iframe>';
+      note = t('mediaProjet');
+    }
+
+    var d2 = document.getElementById('njMedia');
+    document.getElementById('njMediaTitre').textContent = titre;
+    document.getElementById('njMediaCorps').innerHTML = corps;
+    document.getElementById('njMediaNote').textContent = note;
+    document.getElementById('njMediaNote').hidden = !note;
+    d2.hidden = false;
+    document.body.classList.add('nj-fige');
+    document.getElementById('njMediaFermer').focus();
+  }
+
+  function fermerMedia() {
+    var d = document.getElementById('njMedia');
+    d.hidden = true;
+    // Vider libère l'iframe : sans ça la visite 360° continue de tourner.
+    document.getElementById('njMediaCorps').innerHTML = '';
+    document.body.classList.remove('nj-fige');
   }
 
   /**
@@ -472,7 +618,10 @@
     var resume = lot.typologie.toUpperCase() + ' · ' + lot.numero + ' · ' +
       lot.surface + ' m² · ' + nombre(lot.prix) + ' ' + t('dh') + ' · ' + t(lot.statut);
 
-    return '<button type="button" class="nj-carreau nj-' + lot.statut +
+    // Deux boutons cote a cote plutot qu'imbriques : un <button> ne peut pas
+    // en contenir un autre, et la pastille reste la cible principale.
+    return '<span class="nj-carreau-enveloppe">' +
+      '<button type="button" class="nj-carreau nj-' + lot.statut +
       (choisi ? ' nj-choisi' : '') + '" data-id="' + lot.id +
       '" data-statut="' + lot.statut + '" title="' + resume + '" aria-label="' + resume +
       '" aria-pressed="' + (choisi ? 'true' : 'false') + '"' +
@@ -480,7 +629,11 @@
       '<span class="nj-carreau-num">' + position + '</span>' +
       '<span class="nj-carreau-typo">' + lot.typologie.toUpperCase() + '</span>' +
       (choisi ? '<span class="nj-carreau-coche" aria-hidden="true">✓</span>' : '') +
-      '</button>';
+      '</button>' +
+      '<button type="button" class="nj-carreau-info" data-fiche="' + lot.id +
+      '" title="' + t('detailsLot') + ' ' + lot.numero + '" aria-label="' +
+      t('detailsLot') + ' ' + lot.numero + '">i</button>' +
+      '</span>';
   }
 
   /** Bascule entre la façade et les cartes détaillées. */
@@ -702,7 +855,22 @@
 
     // Délégation : la grille est reconstruite à chaque filtre, on ne peut pas
     // attacher les écouteurs aux cartes elles-mêmes.
-    document.getElementById('njGrille').addEventListener('click', function (e) {
+    // Delegation au niveau du document : les boutons de consultation vivent
+    // aussi dans la fenetre de la fiche, hors de la grille.
+    document.addEventListener('click', function (e) {
+      // Un bouton de consultation ne doit pas déclencher la sélection.
+      var fiche = e.target.closest('.nj-carreau-info');
+      if (fiche) {
+        e.stopPropagation();
+        ouvrirFiche(Number(fiche.dataset.fiche));
+        return;
+      }
+      var media = e.target.closest('.nj-media-btn');
+      if (media) {
+        e.stopPropagation();
+        ouvrirMedia(media.dataset.media, Number(media.dataset.lot));
+        return;
+      }
       var carte = e.target.closest('.nj-lot, .nj-carreau');
       if (carte) basculerSelection(Number(carte.dataset.id), carte.dataset.statut);
     });
@@ -729,6 +897,14 @@
       changerProjet(this.value);
     });
 
+    document.getElementById('njMediaFermer').addEventListener('click', fermerMedia);
+    document.getElementById('njMedia').addEventListener('click', function (e) {
+      if (e.target === this) fermerMedia();   // clic sur le fond
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !document.getElementById('njMedia').hidden) fermerMedia();
+    });
+
     demarrer();
   }
 
@@ -747,6 +923,7 @@
     texte('njVueLabel', t('vue'));
     texte('njVuePlan', t('vuePlan'));
     texte('njVueListe', t('vueListe'));
+    texte('njMediaFermer', t('fermer'));
     texte('lblTypologie', t('typologie'));
     texte('lblImmeuble', t('immeuble'));
     texte('lblNiveau', t('niveau'));

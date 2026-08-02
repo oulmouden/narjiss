@@ -2,90 +2,90 @@
 jawhara;A;RDC;A-RDC-01;Commerce;46.0;0.0;46.0;0;1;Angle;Sud-Ouest;Oui;Aucun;694000;15087;Disponible;;;Local commercial avec vitrine sur la voie principale
 jawhara;A;RDC;A-RDC-02;Commerce;46.0;0.0;46.0;0;1;Rue;Sud-Ouest;Oui;Aucun;687000;14935;Optionne;2026-08-14;;Local commercial avec vitrine sur la voie principale
 jawhara;A;RDC;A-RDC-03;Bureau;52.0;0.0;52.0;0;1;Rue;Sud;Oui;Aucun;643000;12365;Vendu;;;Plateau de bureau modulable, entree independante
-jawhara;A;RDC;A-RDC-04;F2;61.5;7.0;68.5;1;1;Jardin;Nord-Est;Oui;Exterieur;590000;9593;Disponible;;images/projects/jawhara/plans/f2.png;Acces direct au jardin interieur, ideal pour une famille
-jawhara;A;RDC;A-RDC-05;F3;85.5;9.5;95.0;2;2;Jardin;Nord-Est;Oui;Exterieur;794000;9287;Reserve;;images/projects/jawhara/plans/f3.png;Acces direct au jardin interieur, ideal pour une famille
-jawhara;A;RDC;A-RDC-06;F2;61.5;7.0;68.5;1;1;Cour;Nord;Oui;Exterieur;578000;9398;Vendu;;images/projects/jawhara/plans/f2.png;
-jawhara;A;1;A-1-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;803000;9560;Vendu;;images/projects/jawhara/plans/f3.png;
-jawhara;A;1;A-1-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;607000;9870;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;A;1;A-1-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;345000;10000;Vendu;;images/projects/jawhara/plans/studio.png;
-jawhara;A;1;A-1-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;780000;9286;Vendu;;images/projects/jawhara/plans/f3.png;
-jawhara;A;1;A-1-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1044000;9534;Reserve;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;A;1;A-1-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;613000;9967;Vendu;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;A;2;A-2-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;819000;9750;Reserve;;images/projects/jawhara/plans/f3.png;
-jawhara;A;2;A-2-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;619000;10065;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;A;2;A-2-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;352000;10203;Bloque;;images/projects/jawhara/plans/studio.png;Logement temoin, non commercialise
-jawhara;A;2;A-2-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;795000;9464;Reserve;;images/projects/jawhara/plans/f3.png;
-jawhara;A;2;A-2-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1064000;9717;Disponible;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;A;2;A-2-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;625000;10163;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;A;3;A-3-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;835000;9940;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;A;3;A-3-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;631000;10260;Vendu;;images/projects/jawhara/plans/f2.png;
-jawhara;A;3;A-3-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;358000;10377;Disponible;;images/projects/jawhara/plans/studio.png;
-jawhara;A;3;A-3-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;810000;9643;Vendu;;images/projects/jawhara/plans/f3.png;
-jawhara;A;3;A-3-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1085000;9909;Vendu;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;A;3;A-3-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;637000;10358;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;A;4;A-4-01;Duplex;132.0;24.0;156.0;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1423000;10780;Vendu;;images/projects/jawhara/plans/duplex.png;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;A;4;A-4-02;F4;108.0;12.0;120.0;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1079000;9991;Reserve;;images/projects/jawhara/plans/f4.png;Dernier etage, terrasse privative
-jawhara;A;4;A-4-03;F2;61.5;7.0;68.5;1;1;Cour;Nord;Oui;Sous-sol;630000;10244;Reserve;;images/projects/jawhara/plans/f2.png;Dernier etage, terrasse privative
-jawhara;A;4;A-4-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;833000;9917;Vendu;;images/projects/jawhara/plans/f3.png;Dernier etage, terrasse privative
-jawhara;A;4;A-4-05;Duplex;133.5;24.0;157.5;4;3;Double orientation;Est;Oui;Sous-sol;1467000;10989;Disponible;;images/projects/jawhara/plans/duplex.png;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;A;4;A-4-06;F3;84.0;9.5;93.5;2;2;Angle;Nord-Ouest;Oui;Sous-sol;867000;10321;Optionne;2026-08-09;images/projects/jawhara/plans/f3.png;Dernier etage, terrasse privative
+jawhara;A;RDC;A-RDC-04;F2;61.5;7.0;68.5;1;1;Jardin;Nord-Est;Oui;Exterieur;590000;9593;Disponible;;;Acces direct au jardin interieur, ideal pour une famille
+jawhara;A;RDC;A-RDC-05;F3;85.5;9.5;95.0;2;2;Jardin;Nord-Est;Oui;Exterieur;794000;9287;Reserve;;;Acces direct au jardin interieur, ideal pour une famille
+jawhara;A;RDC;A-RDC-06;F2;61.5;7.0;68.5;1;1;Cour;Nord;Oui;Exterieur;578000;9398;Vendu;;;
+jawhara;A;1;A-1-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;803000;9560;Vendu;;;
+jawhara;A;1;A-1-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;607000;9870;Disponible;;;
+jawhara;A;1;A-1-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;345000;10000;Vendu;;;
+jawhara;A;1;A-1-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;780000;9286;Vendu;;;
+jawhara;A;1;A-1-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1044000;9534;Reserve;;;Traversant : lumiere du matin et du soir
+jawhara;A;1;A-1-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;613000;9967;Vendu;;;Appartement d'angle, deux facades
+jawhara;A;2;A-2-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;819000;9750;Reserve;;;
+jawhara;A;2;A-2-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;619000;10065;Disponible;;;
+jawhara;A;2;A-2-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;352000;10203;Bloque;;;Logement temoin, non commercialise
+jawhara;A;2;A-2-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;795000;9464;Reserve;;;
+jawhara;A;2;A-2-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1064000;9717;Disponible;;;Traversant : lumiere du matin et du soir
+jawhara;A;2;A-2-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;625000;10163;Disponible;;;Appartement d'angle, deux facades
+jawhara;A;3;A-3-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;835000;9940;Disponible;;;
+jawhara;A;3;A-3-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;631000;10260;Vendu;;;
+jawhara;A;3;A-3-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;358000;10377;Disponible;;;
+jawhara;A;3;A-3-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;810000;9643;Vendu;;;
+jawhara;A;3;A-3-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1085000;9909;Vendu;;;Traversant : lumiere du matin et du soir
+jawhara;A;3;A-3-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;637000;10358;Disponible;;;Appartement d'angle, deux facades
+jawhara;A;4;A-4-01;Duplex;132.0;24.0;156.0;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1423000;10780;Vendu;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
+jawhara;A;4;A-4-02;F4;108.0;12.0;120.0;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1079000;9991;Reserve;;;Dernier etage, terrasse privative
+jawhara;A;4;A-4-03;F2;61.5;7.0;68.5;1;1;Cour;Nord;Oui;Sous-sol;630000;10244;Reserve;;;Dernier etage, terrasse privative
+jawhara;A;4;A-4-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;833000;9917;Vendu;;;Dernier etage, terrasse privative
+jawhara;A;4;A-4-05;Duplex;133.5;24.0;157.5;4;3;Double orientation;Est;Oui;Sous-sol;1467000;10989;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
+jawhara;A;4;A-4-06;F3;84.0;9.5;93.5;2;2;Angle;Nord-Ouest;Oui;Sous-sol;867000;10321;Optionne;2026-08-09;;Dernier etage, terrasse privative
 jawhara;B;RDC;B-RDC-01;Commerce;46.5;0.0;46.5;0;1;Angle;Sud-Ouest;Oui;Aucun;708000;15226;Disponible;;;Local commercial avec vitrine sur la voie principale
 jawhara;B;RDC;B-RDC-02;Commerce;46.5;0.0;46.5;0;1;Rue;Sud-Ouest;Oui;Aucun;701000;15075;Disponible;;;Local commercial avec vitrine sur la voie principale
 jawhara;B;RDC;B-RDC-03;Bureau;52.5;0.0;52.5;0;1;Rue;Sud;Oui;Aucun;655000;12476;Disponible;;;Plateau de bureau modulable, entree independante
-jawhara;B;RDC;B-RDC-04;F2;62.0;7.0;69.0;1;1;Jardin;Nord-Est;Oui;Exterieur;600000;9677;Vendu;;images/projects/jawhara/plans/f2.png;Acces direct au jardin interieur, ideal pour une famille
-jawhara;B;RDC;B-RDC-05;F3;86.0;9.5;95.5;2;2;Jardin;Nord-Est;Oui;Exterieur;806000;9372;Disponible;;images/projects/jawhara/plans/f3.png;Acces direct au jardin interieur, ideal pour une famille
-jawhara;B;RDC;B-RDC-06;F2;62.0;7.0;69.0;1;1;Cour;Nord;Oui;Exterieur;589000;9500;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;B;1;B-1-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;816000;9657;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;B;1;B-1-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;618000;9968;Optionne;2026-08-14;images/projects/jawhara/plans/f2.png;
-jawhara;B;1;B-1-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;353000;10086;Disponible;;images/projects/jawhara/plans/studio.png;
-jawhara;B;1;B-1-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;792000;9373;Reserve;;images/projects/jawhara/plans/f3.png;
-jawhara;B;1;B-1-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1059000;9627;Disponible;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;B;1;B-1-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;624000;10065;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;B;2;B-2-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;832000;9846;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;B;2;B-2-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;631000;10177;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;B;2;B-2-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;360000;10286;Bloque;;images/projects/jawhara/plans/studio.png;Logement temoin, non commercialise
-jawhara;B;2;B-2-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;808000;9562;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;B;2;B-2-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1080000;9818;Disponible;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;B;2;B-2-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;637000;10274;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;B;3;B-3-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;848000;10036;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;B;3;B-3-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;643000;10371;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;B;3;B-3-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;367000;10486;Optionne;2026-08-27;images/projects/jawhara/plans/studio.png;
-jawhara;B;3;B-3-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;823000;9740;Vendu;;images/projects/jawhara/plans/f3.png;
-jawhara;B;3;B-3-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1101000;10009;Vendu;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;B;3;B-3-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;649000;10468;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;B;4;B-4-01;Duplex;132.5;24.0;156.5;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1442000;10883;Disponible;;images/projects/jawhara/plans/duplex.png;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;B;4;B-4-02;F4;108.5;12.0;120.5;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1095000;10092;Disponible;;images/projects/jawhara/plans/f4.png;Dernier etage, terrasse privative
-jawhara;B;4;B-4-03;F2;62.0;7.0;69.0;1;1;Cour;Nord;Oui;Sous-sol;642000;10355;Optionne;2026-08-14;images/projects/jawhara/plans/f2.png;Dernier etage, terrasse privative
-jawhara;B;4;B-4-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;847000;10024;Disponible;;images/projects/jawhara/plans/f3.png;Dernier etage, terrasse privative
-jawhara;B;4;B-4-05;Duplex;134.0;24.0;158.0;4;3;Double orientation;Est;Oui;Sous-sol;1487000;11097;Disponible;;images/projects/jawhara/plans/duplex.png;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;B;4;B-4-06;F3;84.5;9.5;94.0;2;2;Angle;Nord-Ouest;Oui;Sous-sol;880000;10414;Disponible;;images/projects/jawhara/plans/f3.png;Dernier etage, terrasse privative
+jawhara;B;RDC;B-RDC-04;F2;62.0;7.0;69.0;1;1;Jardin;Nord-Est;Oui;Exterieur;600000;9677;Vendu;;;Acces direct au jardin interieur, ideal pour une famille
+jawhara;B;RDC;B-RDC-05;F3;86.0;9.5;95.5;2;2;Jardin;Nord-Est;Oui;Exterieur;806000;9372;Disponible;;;Acces direct au jardin interieur, ideal pour une famille
+jawhara;B;RDC;B-RDC-06;F2;62.0;7.0;69.0;1;1;Cour;Nord;Oui;Exterieur;589000;9500;Disponible;;;
+jawhara;B;1;B-1-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;816000;9657;Disponible;;;
+jawhara;B;1;B-1-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;618000;9968;Optionne;2026-08-14;;
+jawhara;B;1;B-1-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;353000;10086;Disponible;;;
+jawhara;B;1;B-1-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;792000;9373;Reserve;;;
+jawhara;B;1;B-1-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1059000;9627;Disponible;;;Traversant : lumiere du matin et du soir
+jawhara;B;1;B-1-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;624000;10065;Disponible;;;Appartement d'angle, deux facades
+jawhara;B;2;B-2-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;832000;9846;Disponible;;;
+jawhara;B;2;B-2-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;631000;10177;Disponible;;;
+jawhara;B;2;B-2-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;360000;10286;Bloque;;;Logement temoin, non commercialise
+jawhara;B;2;B-2-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;808000;9562;Disponible;;;
+jawhara;B;2;B-2-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1080000;9818;Disponible;;;Traversant : lumiere du matin et du soir
+jawhara;B;2;B-2-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;637000;10274;Disponible;;;Appartement d'angle, deux facades
+jawhara;B;3;B-3-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;848000;10036;Disponible;;;
+jawhara;B;3;B-3-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;643000;10371;Disponible;;;
+jawhara;B;3;B-3-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;367000;10486;Optionne;2026-08-27;;
+jawhara;B;3;B-3-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;823000;9740;Vendu;;;
+jawhara;B;3;B-3-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1101000;10009;Vendu;;;Traversant : lumiere du matin et du soir
+jawhara;B;3;B-3-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;649000;10468;Disponible;;;Appartement d'angle, deux facades
+jawhara;B;4;B-4-01;Duplex;132.5;24.0;156.5;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1442000;10883;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
+jawhara;B;4;B-4-02;F4;108.5;12.0;120.5;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1095000;10092;Disponible;;;Dernier etage, terrasse privative
+jawhara;B;4;B-4-03;F2;62.0;7.0;69.0;1;1;Cour;Nord;Oui;Sous-sol;642000;10355;Optionne;2026-08-14;;Dernier etage, terrasse privative
+jawhara;B;4;B-4-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;847000;10024;Disponible;;;Dernier etage, terrasse privative
+jawhara;B;4;B-4-05;Duplex;134.0;24.0;158.0;4;3;Double orientation;Est;Oui;Sous-sol;1487000;11097;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
+jawhara;B;4;B-4-06;F3;84.5;9.5;94.0;2;2;Angle;Nord-Ouest;Oui;Sous-sol;880000;10414;Disponible;;;Dernier etage, terrasse privative
 jawhara;C;RDC;C-RDC-01;Commerce;47.0;0.0;47.0;0;1;Angle;Sud-Ouest;Oui;Aucun;730000;15532;Disponible;;;Local commercial avec vitrine sur la voie principale
 jawhara;C;RDC;C-RDC-02;Commerce;47.0;0.0;47.0;0;1;Rue;Sud-Ouest;Oui;Aucun;723000;15383;Disponible;;;Local commercial avec vitrine sur la voie principale
 jawhara;C;RDC;C-RDC-03;Bureau;53.0;0.0;53.0;0;1;Rue;Sud;Oui;Aucun;675000;12736;Disponible;;;Plateau de bureau modulable, entree independante
-jawhara;C;RDC;C-RDC-04;F2;62.5;7.0;69.5;1;1;Jardin;Nord-Est;Oui;Exterieur;617000;9872;Disponible;;images/projects/jawhara/plans/f2.png;Acces direct au jardin interieur, ideal pour une famille
-jawhara;C;RDC;C-RDC-05;F3;86.5;9.5;96.0;2;2;Jardin;Nord-Est;Oui;Exterieur;827000;9561;Optionne;2026-08-09;images/projects/jawhara/plans/f3.png;Acces direct au jardin interieur, ideal pour une famille
-jawhara;C;RDC;C-RDC-06;F2;62.5;7.0;69.5;1;1;Cour;Nord;Oui;Exterieur;605000;9680;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;C;1;C-1-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;837000;9847;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;C;1;C-1-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;636000;10176;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;C;1;C-1-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;366000;10310;Disponible;;images/projects/jawhara/plans/studio.png;
-jawhara;C;1;C-1-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;813000;9565;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;C;1;C-1-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1085000;9819;Vendu;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;C;1;C-1-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;642000;10272;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;C;2;C-2-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;853000;10035;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;C;2;C-2-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;648000;10368;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;C;2;C-2-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;373000;10507;Bloque;;images/projects/jawhara/plans/studio.png;Logement temoin, non commercialise
-jawhara;C;2;C-2-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;829000;9753;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;C;2;C-2-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1106000;10009;Disponible;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;C;2;C-2-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;655000;10480;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;C;3;C-3-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;870000;10235;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;C;3;C-3-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;661000;10576;Disponible;;images/projects/jawhara/plans/f2.png;
-jawhara;C;3;C-3-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;380000;10704;Disponible;;images/projects/jawhara/plans/studio.png;
-jawhara;C;3;C-3-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;845000;9941;Disponible;;images/projects/jawhara/plans/f3.png;
-jawhara;C;3;C-3-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1127000;10199;Disponible;;images/projects/jawhara/plans/f4.png;Traversant : lumiere du matin et du soir
-jawhara;C;3;C-3-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;667000;10672;Disponible;;images/projects/jawhara/plans/f2.png;Appartement d'angle, deux facades
-jawhara;C;4;C-4-01;Duplex;133.0;24.0;157.0;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1476000;11098;Disponible;;images/projects/jawhara/plans/duplex.png;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;C;4;C-4-02;F4;109.0;12.0;121.0;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1122000;10294;Disponible;;images/projects/jawhara/plans/f4.png;Dernier etage, terrasse privative
-jawhara;C;4;C-4-03;F2;62.5;7.0;69.5;1;1;Cour;Nord;Oui;Sous-sol;660000;10560;Disponible;;images/projects/jawhara/plans/f2.png;Dernier etage, terrasse privative
-jawhara;C;4;C-4-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;868000;10212;Reserve;;images/projects/jawhara/plans/f3.png;Dernier etage, terrasse privative
-jawhara;C;4;C-4-05;Duplex;134.5;24.0;158.5;4;3;Double orientation;Est;Oui;Sous-sol;1522000;11316;Disponible;;images/projects/jawhara/plans/duplex.png;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;C;4;C-4-06;F3;85.0;9.5;94.5;2;2;Angle;Nord-Ouest;Oui;Sous-sol;903000;10624;Disponible;;images/projects/jawhara/plans/f3.png;Dernier etage, terrasse privative
+jawhara;C;RDC;C-RDC-04;F2;62.5;7.0;69.5;1;1;Jardin;Nord-Est;Oui;Exterieur;617000;9872;Disponible;;;Acces direct au jardin interieur, ideal pour une famille
+jawhara;C;RDC;C-RDC-05;F3;86.5;9.5;96.0;2;2;Jardin;Nord-Est;Oui;Exterieur;827000;9561;Optionne;2026-08-09;;Acces direct au jardin interieur, ideal pour une famille
+jawhara;C;RDC;C-RDC-06;F2;62.5;7.0;69.5;1;1;Cour;Nord;Oui;Exterieur;605000;9680;Disponible;;;
+jawhara;C;1;C-1-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;837000;9847;Disponible;;;
+jawhara;C;1;C-1-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;636000;10176;Disponible;;;
+jawhara;C;1;C-1-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;366000;10310;Disponible;;;
+jawhara;C;1;C-1-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;813000;9565;Disponible;;;
+jawhara;C;1;C-1-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1085000;9819;Vendu;;;Traversant : lumiere du matin et du soir
+jawhara;C;1;C-1-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;642000;10272;Disponible;;;Appartement d'angle, deux facades
+jawhara;C;2;C-2-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;853000;10035;Disponible;;;
+jawhara;C;2;C-2-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;648000;10368;Disponible;;;
+jawhara;C;2;C-2-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;373000;10507;Bloque;;;Logement temoin, non commercialise
+jawhara;C;2;C-2-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;829000;9753;Disponible;;;
+jawhara;C;2;C-2-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1106000;10009;Disponible;;;Traversant : lumiere du matin et du soir
+jawhara;C;2;C-2-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;655000;10480;Disponible;;;Appartement d'angle, deux facades
+jawhara;C;3;C-3-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;870000;10235;Disponible;;;
+jawhara;C;3;C-3-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;661000;10576;Disponible;;;
+jawhara;C;3;C-3-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;380000;10704;Disponible;;;
+jawhara;C;3;C-3-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;845000;9941;Disponible;;;
+jawhara;C;3;C-3-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1127000;10199;Disponible;;;Traversant : lumiere du matin et du soir
+jawhara;C;3;C-3-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;667000;10672;Disponible;;;Appartement d'angle, deux facades
+jawhara;C;4;C-4-01;Duplex;133.0;24.0;157.0;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1476000;11098;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
+jawhara;C;4;C-4-02;F4;109.0;12.0;121.0;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1122000;10294;Disponible;;;Dernier etage, terrasse privative
+jawhara;C;4;C-4-03;F2;62.5;7.0;69.5;1;1;Cour;Nord;Oui;Sous-sol;660000;10560;Disponible;;;Dernier etage, terrasse privative
+jawhara;C;4;C-4-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;868000;10212;Reserve;;;Dernier etage, terrasse privative
+jawhara;C;4;C-4-05;Duplex;134.5;24.0;158.5;4;3;Double orientation;Est;Oui;Sous-sol;1522000;11316;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
+jawhara;C;4;C-4-06;F3;85.0;9.5;94.5;2;2;Angle;Nord-Ouest;Oui;Sous-sol;903000;10624;Disponible;;;Dernier etage, terrasse privative
