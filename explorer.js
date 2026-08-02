@@ -2,6 +2,7 @@
   var UI = {
     fr: {
       placeholder: "Adresse, quartier, ville",
+      typesLabel: "Types de biens", filterByType: "Filtrer par",
       all: "Tous",
       tour: "Visite 360",
       poi: "+50 POI",
@@ -24,6 +25,7 @@
     },
     en: {
       placeholder: "Address, neighborhood, city",
+      typesLabel: "Property types", filterByType: "Filter by",
       all: "All",
       tour: "360 tour",
       poi: "+50 POIs",
@@ -46,6 +48,7 @@
     },
     ar: {
       placeholder: "العنوان، الحي، المدينة",
+      typesLabel: "أنواع العقارات", filterByType: "تصفية حسب",
       all: "الكل",
       tour: "جولة 360",
       poi: "+50 نقطة",
@@ -68,6 +71,7 @@
     },
     es: {
       placeholder: "Dirección, barrio, ciudad",
+      typesLabel: "Tipos de bienes", filterByType: "Filtrar por",
       all: "Todos",
       tour: "Visita 360",
       poi: "+50 POI",
@@ -95,6 +99,13 @@
   var filter = "all";
   var sortMode = "poi";
   var currentProjects = [];
+  var ecouteurTypesPose = false;
+  var typeFilter = "";
+
+  /** Langue courante du site, avec repli sur le français. */
+  function currentLangOuFr() {
+    return (typeof currentLang !== "undefined" && UI[currentLang]) ? currentLang : "fr";
+  }
   var viewMode = "both";
 
   try {
@@ -230,12 +241,32 @@
   function projectTypesHtml(project, lang) {
     var types = project.types && project.types[lang];
     if (!types || !types.length) return "";
-    var html = '<div class="listing-types" aria-label="Types de biens">';
+    var t = UI[lang] || UI.fr;
+    var html = '<div class="listing-types" aria-label="' + escapeHtml(t.typesLabel) + '">';
     for (var i = 0; i < types.length; i++) {
-      html += '<span class="listing-type">' + escapeHtml(types[i]) + '</span>';
+      var valeur = escapeHtml(types[i]);
+      // Une pastille pleine se lit comme un bouton : elle en devient un, et
+      // filtre la liste sur ce type via la recherche déjà en place.
+      var actif = project.type && project.type === typeFilter ? ' is-active' : '';
+      html += '<button type="button" class="listing-type' + actif + '" data-type="' +
+              escapeHtml(project.type || '') + '" title="' +
+              escapeHtml(t.filterByType) + ' ' + valeur + '">' + valeur + '</button>';
     }
     html += '</div>';
     return html;
+  }
+
+  /**
+   * Filtre la liste sur un type de bien.
+   *
+   * On stocke l'identifiant neutre du projet (« appartements », « terrains »)
+   * et non le libellé affiché : sinon le filtre poserait « Appartements » dans
+   * une recherche textuelle, et passer en arabe ne renverrait plus rien.
+   */
+  function filterByType(typeKey, lang) {
+    // Recliquer sur le type actif le retire : le geste est réversible.
+    typeFilter = (typeFilter === typeKey) ? "" : typeKey;
+    renderListings(lang);
   }
 
   function projectUrl(project, lang) {
@@ -273,6 +304,7 @@
         (project.types && project.types[lang] || []).join(" ")
       ].join(" ").toLowerCase();
       if (q && hay.indexOf(q) < 0) return false;
+      if (typeFilter && project.type !== typeFilter) return false;
       if (filter === "tour" && !project.has_tour) return false;
       if (filter === "poi" && (project.poi_count || 0) < 50) return false;
       return true;
@@ -387,8 +419,25 @@
     };
     document.getElementById("resetBtn").onclick = function() {
       document.getElementById("searchInput").value = "";
+      typeFilter = "";
       renderListings(lang);
     };
+
+    // Délégation sur le document : les pastilles vivent aussi bien dans les
+    // cartes de la liste que dans les popups Leaflet, recréées à chaque
+    // ouverture. setupControls est rappelée à chaque changement de langue,
+    // d'où le drapeau : sans lui, un clic déclencherait autant de filtrages
+    // que de langues visitées.
+    if (!ecouteurTypesPose) {
+      ecouteurTypesPose = true;
+      document.addEventListener("click", function(e) {
+        var chip = e.target.closest(".listing-type[data-type]");
+        if (!chip) return;
+        e.preventDefault();
+        e.stopPropagation();
+        filterByType(chip.dataset.type, currentLangOuFr());
+      });
+    }
 
     document.getElementById("viewSelectLabel").textContent = t.viewLabel;
     var viewSelect = document.getElementById("viewSelect");
