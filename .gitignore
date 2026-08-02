@@ -12,6 +12,10 @@ venv/
 *.tmp
 *.bak
 
+# Secrets / connexion base de donnees (ne JAMAIS versionner)
+admin/includes/db-config.php
+*.cnf
+
 # Système
 Thumbs.db
 ehthumbs.db

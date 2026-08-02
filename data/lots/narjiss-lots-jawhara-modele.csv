@@ -1,0 +1,41 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;notes
+jawhara;A;RDC;A-RDC-01;Commerce;46.0;0.0;46.0;0;1;Rue;Sud-Ouest;Oui;Aucun;687000;14935;Vendu;;;Local d'angle avec vitrine sur la voie principale
+jawhara;A;RDC;A-RDC-02;Commerce;46.0;0.0;46.0;0;1;Rue;Sud-Ouest;Oui;Aucun;687000;14935;Reserve;;;
+jawhara;A;RDC;A-RDC-03;F2;61.5;7.0;68.5;1;1;Jardin;Nord-Est;Oui;Exterieur;578000;9398;Vendu;;images/projects/jawhara/plans/f2.png;
+jawhara;A;RDC;A-RDC-04;F2;63.0;7.0;70.0;1;1;Jardin;Nord-Est;Oui;Exterieur;592000;9397;Vendu;;images/projects/jawhara/plans/f2.png;
+jawhara;A;1;A-1-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;803000;9560;Vendu;;images/projects/jawhara/plans/f3.png;
+jawhara;A;1;A-1-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;607000;9870;Optionne;2026-08-14;images/projects/jawhara/plans/f2.png;
+jawhara;A;1;A-1-03;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;780000;9286;Vendu;;images/projects/jawhara/plans/f3.png;
+jawhara;A;1;A-1-04;F4;109.5;12.0;121.5;3;2;Cour;Nord-Est;Oui;Sous-sol;994000;9078;Disponible;;images/projects/jawhara/plans/f4.png;
+jawhara;A;2;A-2-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;819000;9750;Reserve;;images/projects/jawhara/plans/f3.png;
+jawhara;A;2;A-2-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;619000;10065;Disponible;;images/projects/jawhara/plans/f2.png;
+jawhara;A;2;A-2-03;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;795000;9464;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;A;2;A-2-04;F4;109.5;12.0;121.5;3;2;Cour;Nord-Est;Oui;Sous-sol;1014000;9260;Disponible;;images/projects/jawhara/plans/f4.png;Vue degagee sur le jardin interieur
+jawhara;A;3;A-3-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;835000;9940;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;A;3;A-3-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;631000;10260;Optionne;2026-08-21;images/projects/jawhara/plans/f2.png;
+jawhara;A;3;A-3-03;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;810000;9643;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;A;3;A-3-04;F4;109.5;12.0;121.5;3;2;Cour;Nord-Est;Oui;Sous-sol;1033000;9434;Disponible;;images/projects/jawhara/plans/f4.png;
+jawhara;A;4;A-4-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;858000;10214;Reserve;;images/projects/jawhara/plans/f3.png;Terrasse privative 22 m2 incluse
+jawhara;A;4;A-4-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;649000;10553;Disponible;;images/projects/jawhara/plans/f2.png;
+jawhara;A;4;A-4-03;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;833000;9917;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;A;4;A-4-04;F4;109.5;12.0;121.5;3;2;Cour;Nord-Est;Oui;Sous-sol;1062000;9699;Bloque;;images/projects/jawhara/plans/f4.png;Bloque : reserve au promoteur (logement temoin)
+jawhara;B;RDC;B-RDC-01;Commerce;46.5;0.0;46.5;0;1;Rue;Sud-Ouest;Oui;Aucun;694000;14925;Reserve;;;
+jawhara;B;RDC;B-RDC-02;Commerce;46.5;0.0;46.5;0;1;Rue;Sud-Ouest;Oui;Aucun;694000;14925;Vendu;;;
+jawhara;B;RDC;B-RDC-03;F2;62.0;7.0;69.0;1;1;Jardin;Nord-Est;Oui;Exterieur;583000;9403;Disponible;;images/projects/jawhara/plans/f2.png;Acces direct jardin, ideal famille
+jawhara;B;RDC;B-RDC-04;F2;63.5;7.0;70.5;1;1;Jardin;Nord-Est;Oui;Exterieur;597000;9402;Disponible;;images/projects/jawhara/plans/f2.png;
+jawhara;B;1;B-1-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;808000;9562;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;B;1;B-1-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;612000;9871;Disponible;;images/projects/jawhara/plans/f2.png;
+jawhara;B;1;B-1-03;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;784000;9278;Vendu;;images/projects/jawhara/plans/f3.png;
+jawhara;B;1;B-1-04;F4;110.0;12.0;122.0;3;2;Cour;Nord-Est;Oui;Sous-sol;999000;9082;Disponible;;images/projects/jawhara/plans/f4.png;
+jawhara;B;2;B-2-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;824000;9751;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;B;2;B-2-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;624000;10065;Optionne;2026-08-09;images/projects/jawhara/plans/f2.png;
+jawhara;B;2;B-2-03;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;800000;9467;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;B;2;B-2-04;F4;110.0;12.0;122.0;3;2;Cour;Nord-Est;Oui;Sous-sol;1018000;9255;Disponible;;images/projects/jawhara/plans/f4.png;
+jawhara;B;3;B-3-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;840000;9941;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;B;3;B-3-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;636000;10258;Disponible;;images/projects/jawhara/plans/f2.png;
+jawhara;B;3;B-3-03;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;815000;9645;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;B;3;B-3-04;F4;110.0;12.0;122.0;3;2;Cour;Nord-Est;Oui;Sous-sol;1038000;9436;Reserve;;images/projects/jawhara/plans/f4.png;
+jawhara;B;4;B-4-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;863000;10213;Disponible;;images/projects/jawhara/plans/f3.png;Terrasse privative 20 m2 incluse
+jawhara;B;4;B-4-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;654000;10548;Disponible;;images/projects/jawhara/plans/f2.png;
+jawhara;B;4;B-4-03;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;838000;9917;Disponible;;images/projects/jawhara/plans/f3.png;
+jawhara;B;4;B-4-04;F4;110.0;12.0;122.0;3;2;Cour;Nord-Est;Oui;Sous-sol;1067000;9700;Disponible;;images/projects/jawhara/plans/f4.png;
