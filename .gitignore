@@ -16,6 +16,9 @@ venv/
 admin/includes/db-config.php
 *.cnf
 
+# Sauvegardes laissees par tools/reset-admin-password.php
+admin/includes/config.php.bak-*
+
 # Système
 Thumbs.db
 ehthumbs.db
