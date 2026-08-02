@@ -7,7 +7,7 @@ var MENU_UI = {
   fr: {
     home: "Accueil",
     projects: "Projets",
-    units: "Logements",
+    units: "Disponibilités",
     map: "Carte",
     about: "À propos",
     contact: "Contact",
@@ -24,7 +24,7 @@ var MENU_UI = {
   en: {
     home: "Home",
     projects: "Projects",
-    units: "Homes",
+    units: "Availability",
     map: "Map",
     about: "About",
     contact: "Contact",
@@ -41,7 +41,7 @@ var MENU_UI = {
   ar: {
     home: "الرئيسية",
     projects: "المشاريع",
-    units: "المساكن",
+    units: "التوفر",
     map: "الخريطة",
     about: "من نحن",
     contact: "اتصل بنا",
@@ -58,7 +58,7 @@ var MENU_UI = {
   es: {
     home: "Inicio",
     projects: "Proyectos",
-    units: "Viviendas",
+    units: "Disponibilidad",
     map: "Mapa",
     about: "Acerca de",
     contact: "Contacto",

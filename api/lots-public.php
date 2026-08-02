@@ -41,7 +41,6 @@ if (($_GET['projets'] ?? '') === '1') {
                     SUM(statut = 'disponible') AS disponibles
              FROM v_lots_publics
              GROUP BY projet
-             HAVING disponibles > 0
              ORDER BY projet"
         );
         $lignes = $st->fetchAll();

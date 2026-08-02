@@ -14,11 +14,12 @@
   var CLE_SELECTION = 'nj-selection-lots';
 
   var etat = {
-    projet: 'jawhara',
+    projet: '',
     lots: [],
     facettes: null,
     filtres: {},
-    selection: []
+    selection: [],
+    avecDonnees: null   // ids des projets ayant une grille, null tant qu'inconnu
   };
 
   var T = {
@@ -35,17 +36,17 @@
       etage: 'Étage', rdc: 'Rez-de-chaussée', chambres: 'ch.',
       selection: 'Ma sélection', vide: 'Aucun logement sélectionné',
       ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
+      projet: 'Projet',
+      enPreparation: 'Données en cours de mise à jour',
+      enPreparationTitre: 'Les disponibilités de ce projet arrivent bientôt.',
+      enPreparationAide: 'La grille des lots est en cours de préparation. Nos conseillers peuvent déjà répondre à vos questions.',
+      contacter: 'Contacter un conseiller', voirFiche: 'Voir la fiche du projet',
       complet: 'Sélection complète (3 maximum)',
       suivant: 'Parler à un conseiller', indispo: "Ce logement n'est plus disponible",
       dh: 'DH', parM2: 'DH/m²',
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin',
       double: 'Traversant', angle: 'Angle',
       erreur: 'Disponibilités indisponibles pour le moment.',
-      choisirProjet: 'Quel projet vous intéresse ?',
-      choisirAide: 'Sélectionnez un projet pour voir ses logements disponibles.',
-      aucunProjet: "Aucune grille de logements n'est encore publiée.",
-      aucunProjetAide: 'Nos conseillers restent à votre disposition.',
-      voirProjets: 'Voir tous nos projets', dispoSur: 'disponibles sur',
       fil: ['Vos critères', 'Le projet', 'Les logements', 'Ma sélection', 'Un conseiller']
     },
     en: {
@@ -61,17 +62,17 @@
       etage: 'Floor', rdc: 'Ground floor', chambres: 'bed',
       selection: 'My shortlist', vide: 'No home selected',
       ajouter: 'Add to my shortlist', retirer: 'Remove',
+      projet: 'Project',
+      enPreparation: 'Data being updated',
+      enPreparationTitre: 'Availability for this project is coming soon.',
+      enPreparationAide: 'The unit list is being prepared. Our advisers can already answer your questions.',
+      contacter: 'Contact an adviser', voirFiche: 'View the project page',
       complet: 'Shortlist full (3 maximum)',
       suivant: 'Talk to an adviser', indispo: 'This home is no longer available',
       dh: 'MAD', parM2: 'MAD/m²',
       rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
       double: 'Dual aspect', angle: 'Corner',
       erreur: 'Availability cannot be loaded right now.',
-      choisirProjet: 'Which project interests you?',
-      choisirAide: 'Pick a project to see its available homes.',
-      aucunProjet: 'No unit list has been published yet.',
-      aucunProjetAide: 'Our advisers remain at your disposal.',
-      voirProjets: 'See all our projects', dispoSur: 'available out of',
       fil: ['Your criteria', 'The project', 'The homes', 'My shortlist', 'An adviser']
     },
     ar: {
@@ -87,17 +88,17 @@
       etage: 'الطابق', rdc: 'الطابق الأرضي', chambres: 'غرفة',
       selection: 'اختياري', vide: 'لم يتم اختيار أي سكن',
       ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
+      projet: 'المشروع',
+      enPreparation: 'البيانات قيد التحديث',
+      enPreparationTitre: 'ستتوفر قائمة هذا المشروع قريبا.',
+      enPreparationAide: 'قائمة الوحدات قيد الإعداد. يمكن لمستشارينا الإجابة عن أسئلتكم منذ الآن.',
+      contacter: 'الاتصال بمستشار', voirFiche: 'عرض بطاقة المشروع',
       complet: 'اكتمل الاختيار (3 كحد أقصى)',
       suivant: 'التحدث إلى مستشار', indispo: 'هذا السكن لم يعد متاحا',
       dh: 'درهم', parM2: 'درهم/م²',
       rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
       double: 'واجهتان', angle: 'زاوية',
       erreur: 'تعذر عرض المتوفر حاليا.',
-      choisirProjet: 'ما هو المشروع الذي يهمك؟',
-      choisirAide: 'اختر مشروعا لعرض المساكن المتاحة فيه.',
-      aucunProjet: 'لم تُنشر بعد أي قائمة مساكن.',
-      aucunProjetAide: 'مستشارونا رهن إشارتكم.',
-      voirProjets: 'عرض كل مشاريعنا', dispoSur: 'متاح من أصل',
       fil: ['معاييرك', 'المشروع', 'المساكن', 'اختياري', 'مستشار']
     },
     es: {
@@ -113,24 +114,28 @@
       etage: 'Planta', rdc: 'Planta baja', chambres: 'hab.',
       selection: 'Mi selección', vide: 'Ninguna vivienda seleccionada',
       ajouter: 'Añadir a mi selección', retirer: 'Quitar',
+      projet: 'Proyecto',
+      enPreparation: 'Datos en actualización',
+      enPreparationTitre: 'Las disponibilidades de este proyecto llegarán pronto.',
+      enPreparationAide: 'La lista de lotes se está preparando. Nuestros asesores ya pueden responder a sus preguntas.',
+      contacter: 'Contactar con un asesor', voirFiche: 'Ver la ficha del proyecto',
       complet: 'Selección completa (3 máximo)',
       suivant: 'Hablar con un asesor', indispo: 'Esta vivienda ya no está disponible',
       dh: 'DH', parM2: 'DH/m²',
       rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
       double: 'Doble orientación', angle: 'Esquina',
       erreur: 'Las disponibilidades no se pueden cargar por ahora.',
-      choisirProjet: '¿Qué proyecto le interesa?',
-      choisirAide: 'Elija un proyecto para ver sus viviendas disponibles.',
-      aucunProjet: 'Todavía no se ha publicado ninguna lista de viviendas.',
-      aucunProjetAide: 'Nuestros asesores quedan a su disposición.',
-      voirProjets: 'Ver todos nuestros proyectos', dispoSur: 'disponibles de',
       fil: ['Sus criterios', 'El proyecto', 'Las viviendas', 'Mi selección', 'Un asesor']
     }
   };
 
+  /** Langue courante du site, avec repli sur le français. */
+  function langue() {
+    return (typeof currentLang !== 'undefined' && T[currentLang]) ? currentLang : 'fr';
+  }
+
   function t(cle) {
-    var lang = (typeof currentLang !== 'undefined' && T[currentLang]) ? currentLang : 'fr';
-    return T[lang][cle] || T.fr[cle] || cle;
+    return T[langue()][cle] || T.fr[cle] || cle;
   }
 
   function nombre(v) {
@@ -425,46 +430,100 @@
   /* ── Démarrage ─────────────────────────────────────────────────────── */
 
   /**
-   * Aucun projet dans l'URL — cas de l'entrée de menu, qui ne peut pas en
-   * désigner un. On demande à l'API lesquels ont une grille : un seul, on y va
-   * directement ; plusieurs, on laisse choisir ; aucun, on le dit franchement
-   * plutôt que d'afficher une page vide.
+   * Remplit le sélecteur avec les douze projets du site, et pas seulement
+   * ceux qui ont une grille : le visiteur doit voir toute l'offre, et savoir
+   * qu'un projet existe même si ses lots ne sont pas encore saisis.
    */
-  function choisirProjet() {
-    var grille = document.getElementById('njGrille');
+  function rendreSelecteurProjets() {
+    var select = document.getElementById('fProjet');
+    var lang = langue();
+    var projets = (window.PROJECTS || []).slice().sort(function (a, b) {
+      return menuText(a.name, lang).localeCompare(menuText(b.name, lang));
+    });
+
+    select.innerHTML = projets.map(function (p) {
+      var pret = etat.avecDonnees ? etat.avecDonnees.indexOf(p.id) !== -1 : true;
+      return '<option value="' + p.id + '"' + (p.id === etat.projet ? ' selected' : '') + '>' +
+        menuText(p.name, lang) + (pret ? '' : ' — ' + t('enPreparation')) + '</option>';
+    }).join('');
+  }
+
+  /** Le projet choisi n'a pas encore de grille : on le dit, sans page vide. */
+  function afficherEnPreparation() {
+    var lang = langue();
     document.getElementById('njCompteur').textContent = '';
+    document.getElementById('njLegende').innerHTML = '';
+    document.getElementById('njGrille').innerHTML =
+      '<div class="nj-vide nj-attente">' +
+        '<p><strong>' + t('enPreparationTitre') + '</strong></p>' +
+        '<p>' + t('enPreparationAide') + '</p>' +
+        '<p class="nj-attente-liens">' +
+          '<a class="nj-choix-lien" href="project.html?id=' + encodeURIComponent(etat.projet) +
+          '#' + lang + '">' + t('voirFiche') + '</a>' +
+          '<a class="nj-choix-lien" href="contact.html#' + lang + '">' + t('contacter') + '</a>' +
+        '</p>' +
+      '</div>';
+    // Les filtres n'ont rien à filtrer : on les masque plutôt que de les
+    // laisser vides et cliquables.
+    basculerFiltres(false);
+  }
+
+  /** Montre ou cache les filtres, selon qu'il y a une grille à filtrer. */
+  function basculerFiltres(visible) {
+    var champs = document.querySelectorAll('.nj-filtres .nj-champ:not(.nj-champ-projet)');
+    [].forEach.call(champs, function (c) { c.hidden = !visible; });
+    var reinit = document.getElementById('njReinit');
+    if (reinit) reinit.hidden = !visible;
+  }
+
+  /**
+   * Charge la liste des projets ayant une grille, puis affiche le projet
+   * courant. Appelée une fois au démarrage.
+   */
+  function demarrer() {
     return fetch('api/lots-public.php?projets=1', { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (!d.ok) throw new Error(d.error);
-        if (d.projets.length === 1) {
-          etat.projet = d.projets[0].id;
-          appliquerLangue();
-          return charger();
-        }
-        var lang = (typeof currentLang !== 'undefined' && T[currentLang]) ? currentLang : 'fr';
-        if (!d.projets.length) {
-          grille.innerHTML = '<p class="nj-vide"><strong>' + t('aucunProjet') + '</strong><br>' +
-            t('aucunProjetAide') + '<br><br><a class="nj-choix-lien" href="explorer.html#' +
-            lang + '">' + t('voirProjets') + '</a></p>';
-          return;
-        }
-        grille.innerHTML =
-          '<div class="nj-choix"><h2>' + t('choisirProjet') + '</h2>' +
-          '<p>' + t('choisirAide') + '</p><ul>' +
-          d.projets.map(function (p) {
-            var nom = menuText(p.nom, lang) || p.id;
-            var lieu = menuText(p.lieu, lang);
-            return '<li><a href="disponibilites.html?projet=' + encodeURIComponent(p.id) +
-              '#' + lang + '"><strong>' + nom + '</strong>' +
-              (lieu ? '<span class="nj-choix-lieu">' + lieu + '</span>' : '') +
-              '<span class="nj-choix-compte">' + p.disponibles + ' ' +
-              t('dispoSur') + ' ' + p.total + '</span></a></li>';
-          }).join('') + '</ul></div>';
+        etat.avecDonnees = d.ok ? d.projets.map(function (p) { return p.id; }) : [];
       })
-      .catch(function () {
-        grille.innerHTML = '<p class="nj-vide">' + t('erreur') + '</p>';
+      .catch(function () { etat.avecDonnees = []; })
+      .then(function () {
+        // Sans projet dans l'URL, on ouvre le premier qui a des données ;
+        // à défaut le premier du site, pour ne jamais afficher un écran nu.
+        if (!etat.projet) {
+          etat.projet = etat.avecDonnees[0] ||
+            ((window.PROJECTS || [])[0] || {}).id || '';
+        }
+        rendreSelecteurProjets();
+        appliquerLangue();
+        return afficherProjet();
       });
+  }
+
+  /** Affiche le projet courant : sa grille, ou le message d'attente. */
+  function afficherProjet() {
+    if (etat.avecDonnees && etat.avecDonnees.indexOf(etat.projet) === -1) {
+      afficherEnPreparation();
+      return Promise.resolve();
+    }
+    basculerFiltres(true);
+    filtresRendus = false;
+    etat.facettes = null;
+    return charger();
+  }
+
+  /** Changement de projet dans le sélecteur. */
+  function changerProjet(id) {
+    if (!id || id === etat.projet) return;
+    etat.projet = id;
+    // L'URL suit, pour que la page reste partageable et rechargeable.
+    var params = new URLSearchParams(window.location.search);
+    params.set('projet', id);
+    history.replaceState({}, '', 'disponibilites.html?' + params.toString() +
+      window.location.hash);
+    etat.filtres = {};
+    appliquerLangue();
+    afficherProjet();
   }
 
   function init() {
@@ -524,7 +583,11 @@
         (canal ? '&canal=' + encodeURIComponent(canal) : '');
     });
 
-    if (etat.projet) charger(); else choisirProjet();
+    document.getElementById('fProjet').addEventListener('change', function () {
+      changerProjet(this.value);
+    });
+
+    demarrer();
   }
 
   /** Applique la langue courante à tout le texte figé de la page. */
@@ -538,6 +601,7 @@
     document.title = 'Narjiss — ' + t('titre');
     texte('njTitre', t('titre'));
     texte('njAffiner', t('affiner'));
+    texte('lblProjet', t('projet'));
     texte('lblTypologie', t('typologie'));
     texte('lblImmeuble', t('immeuble'));
     texte('lblNiveau', t('niveau'));
@@ -584,9 +648,13 @@
   // Appelé par le menu partagé à chaque changement de langue.
   window.onLanguageChange = function () {
     appliquerLangue();
-    // L'écran de choix du projet porte ses propres libellés et des liens
-    // suffixés par la langue : il doit être reconstruit, pas seulement la grille.
-    if (!etat.projet) { choisirProjet(); return; }
+    rendreSelecteurProjets();
+    // Le message d'attente porte ses propres libellés et des liens suffixés
+    // par la langue : il doit être reconstruit, pas seulement la grille.
+    if (etat.avecDonnees && etat.avecDonnees.indexOf(etat.projet) === -1) {
+      afficherEnPreparation();
+      return;
+    }
     if (etat.facettes) { rendreLots(); rendreBarreSelection(); }
   };
 

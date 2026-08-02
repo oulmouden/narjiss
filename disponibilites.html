@@ -52,6 +52,15 @@
 @media (max-width: 900px) { .nj-filtres { position: static; } }
 .nj-filtres h2 { margin: 0 0 .9rem; font-size: 1rem; color: var(--charcoal); }
 .nj-champ { margin-bottom: 1rem; }
+/* Le sélecteur de projet change de contexte, il ne filtre pas : il se
+   détache visuellement des filtres qui le suivent. */
+.nj-champ-projet {
+  padding-bottom: 1rem; margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.nj-champ-projet select { font-weight: 700; }
+.nj-champ-projet option:disabled { color: var(--muted); }
+
 .nj-champ > label {
   display: block; margin-bottom: .35rem;
   font-size: .78rem; font-weight: 600; color: var(--muted);
@@ -144,24 +153,12 @@
 .nj-action { font-size: .8rem; font-weight: 700; color: var(--lot-dispo); }
 .nj-action-off { color: var(--muted); font-weight: 500; }
 
-/* Choix du projet, quand la page est ouverte depuis le menu sans projet. */
-.nj-choix { max-width: 620px; }
-.nj-choix h2 { margin: 0 0 .3rem; font-family: var(--font-serif); font-size: 1.4rem; color: var(--charcoal); }
-.nj-choix > p { margin: 0 0 1.2rem; color: var(--muted); }
-.nj-choix ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .7rem; }
-.nj-choix a {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem;
-  min-height: 56px; padding: .9rem 1.1rem;
-  background: var(--surface); border: 1px solid var(--border-medium);
-  border-radius: var(--radius); text-decoration: none; color: var(--text);
-}
-.nj-choix a:hover, .nj-choix a:focus-visible {
-  border-color: var(--ocean); box-shadow: var(--shadow); outline: none;
-}
-.nj-choix strong { font-size: 1.05rem; color: var(--charcoal); }
-.nj-choix-lieu { color: var(--muted); font-size: .85rem; }
-.nj-choix-compte { margin-inline-start: auto; font-weight: 700; color: var(--lot-dispo); font-size: .9rem; }
+/* Message affiché quand le projet choisi n'a pas encore de grille. */
 .nj-choix-lien { color: var(--accent-solid); font-weight: 700; }
+.nj-attente { text-align: start; max-width: 620px; }
+.nj-attente p { margin: 0 0 .6rem; }
+.nj-attente-liens { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem !important; }
+
 
 .nj-vide {
   padding: 2.5rem 1rem; text-align: center; color: var(--muted);
@@ -232,6 +229,10 @@
   <aside class="nj-filtres">
     <h2 id="njAffiner">Affiner</h2>
 
+    <div class="nj-champ nj-champ-projet">
+      <label for="fProjet" id="lblProjet">Projet</label>
+      <select id="fProjet"></select>
+    </div>
     <div class="nj-champ">
       <label for="fTypologie" id="lblTypologie">Type</label>
       <select id="fTypologie"></select>
@@ -289,7 +290,7 @@
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=12"></script>
-<script src="disponibilites.js?v=7"></script>
+<script src="shared/menu.js?v=13"></script>
+<script src="disponibilites.js?v=9"></script>
 </body>
 </html>
