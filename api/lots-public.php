@@ -26,6 +26,52 @@ function nj_lots_erreur(int $code, string $message): never
     exit;
 }
 
+/*
+ * ?projets=1 — quels projets ont une grille de lots importée.
+ *
+ * Sert au menu et à la page des disponibilités appelée sans projet : sans
+ * cette liste, elle ne saurait pas quoi proposer, et le menu enverrait le
+ * visiteur vers une page vide pour les onze projets sans grille.
+ */
+if (($_GET['projets'] ?? '') === '1') {
+    try {
+        $st = nj_db()->query(
+            "SELECT projet,
+                    COUNT(*) AS total,
+                    SUM(statut = 'disponible') AS disponibles
+             FROM v_lots_publics
+             GROUP BY projet
+             HAVING disponibles > 0
+             ORDER BY projet"
+        );
+        $lignes = $st->fetchAll();
+    } catch (Throwable $e) {
+        error_log('lots-public projets: ' . $e->getMessage());
+        nj_lots_erreur(500, 'Liste indisponible.');
+    }
+
+    $projets = nj_projects();
+    echo json_encode([
+        'ok' => true,
+        'projets' => array_values(array_filter(array_map(
+            static function (array $l) use ($projets): ?array {
+                // Un projet retiré de projects.json ne doit plus être proposé,
+                // même si ses lots dorment encore en base.
+                if (!isset($projets[$l['projet']])) return null;
+                return [
+                    'id'          => $l['projet'],
+                    'nom'         => $projets[$l['projet']]['name'] ?? null,
+                    'lieu'        => $projets[$l['projet']]['location'] ?? null,
+                    'total'       => (int) $l['total'],
+                    'disponibles' => (int) $l['disponibles'],
+                ];
+            },
+            $lignes
+        ))),
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $projet = strtolower(trim((string) ($_GET['projet'] ?? '')));
 if ($projet === '' || !preg_match('/^[a-z0-9_]+$/', $projet)) {
     nj_lots_erreur(400, 'Projet manquant ou invalide.');

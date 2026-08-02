@@ -41,6 +41,11 @@
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin',
       double: 'Traversant', angle: 'Angle',
       erreur: 'Disponibilités indisponibles pour le moment.',
+      choisirProjet: 'Quel projet vous intéresse ?',
+      choisirAide: 'Sélectionnez un projet pour voir ses logements disponibles.',
+      aucunProjet: "Aucune grille de logements n'est encore publiée.",
+      aucunProjetAide: 'Nos conseillers restent à votre disposition.',
+      voirProjets: 'Voir tous nos projets', dispoSur: 'disponibles sur',
       fil: ['Vos critères', 'Le projet', 'Les logements', 'Ma sélection', 'Un conseiller']
     },
     en: {
@@ -62,6 +67,11 @@
       rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
       double: 'Dual aspect', angle: 'Corner',
       erreur: 'Availability cannot be loaded right now.',
+      choisirProjet: 'Which project interests you?',
+      choisirAide: 'Pick a project to see its available homes.',
+      aucunProjet: 'No unit list has been published yet.',
+      aucunProjetAide: 'Our advisers remain at your disposal.',
+      voirProjets: 'See all our projects', dispoSur: 'available out of',
       fil: ['Your criteria', 'The project', 'The homes', 'My shortlist', 'An adviser']
     },
     ar: {
@@ -83,6 +93,11 @@
       rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
       double: 'واجهتان', angle: 'زاوية',
       erreur: 'تعذر عرض المتوفر حاليا.',
+      choisirProjet: 'ما هو المشروع الذي يهمك؟',
+      choisirAide: 'اختر مشروعا لعرض المساكن المتاحة فيه.',
+      aucunProjet: 'لم تُنشر بعد أي قائمة مساكن.',
+      aucunProjetAide: 'مستشارونا رهن إشارتكم.',
+      voirProjets: 'عرض كل مشاريعنا', dispoSur: 'متاح من أصل',
       fil: ['معاييرك', 'المشروع', 'المساكن', 'اختياري', 'مستشار']
     },
     es: {
@@ -104,6 +119,11 @@
       rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
       double: 'Doble orientación', angle: 'Esquina',
       erreur: 'Las disponibilidades no se pueden cargar por ahora.',
+      choisirProjet: '¿Qué proyecto le interesa?',
+      choisirAide: 'Elija un proyecto para ver sus viviendas disponibles.',
+      aucunProjet: 'Todavía no se ha publicado ninguna lista de viviendas.',
+      aucunProjetAide: 'Nuestros asesores quedan a su disposición.',
+      voirProjets: 'Ver todos nuestros proyectos', dispoSur: 'disponibles de',
       fil: ['Sus criterios', 'El proyecto', 'Las viviendas', 'Mi selección', 'Un asesor']
     }
   };
@@ -404,9 +424,52 @@
 
   /* ── Démarrage ─────────────────────────────────────────────────────── */
 
+  /**
+   * Aucun projet dans l'URL — cas de l'entrée de menu, qui ne peut pas en
+   * désigner un. On demande à l'API lesquels ont une grille : un seul, on y va
+   * directement ; plusieurs, on laisse choisir ; aucun, on le dit franchement
+   * plutôt que d'afficher une page vide.
+   */
+  function choisirProjet() {
+    var grille = document.getElementById('njGrille');
+    document.getElementById('njCompteur').textContent = '';
+    return fetch('api/lots-public.php?projets=1', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) throw new Error(d.error);
+        if (d.projets.length === 1) {
+          etat.projet = d.projets[0].id;
+          appliquerLangue();
+          return charger();
+        }
+        var lang = (typeof currentLang !== 'undefined' && T[currentLang]) ? currentLang : 'fr';
+        if (!d.projets.length) {
+          grille.innerHTML = '<p class="nj-vide"><strong>' + t('aucunProjet') + '</strong><br>' +
+            t('aucunProjetAide') + '<br><br><a class="nj-choix-lien" href="explorer.html#' +
+            lang + '">' + t('voirProjets') + '</a></p>';
+          return;
+        }
+        grille.innerHTML =
+          '<div class="nj-choix"><h2>' + t('choisirProjet') + '</h2>' +
+          '<p>' + t('choisirAide') + '</p><ul>' +
+          d.projets.map(function (p) {
+            var nom = menuText(p.nom, lang) || p.id;
+            var lieu = menuText(p.lieu, lang);
+            return '<li><a href="disponibilites.html?projet=' + encodeURIComponent(p.id) +
+              '#' + lang + '"><strong>' + nom + '</strong>' +
+              (lieu ? '<span class="nj-choix-lieu">' + lieu + '</span>' : '') +
+              '<span class="nj-choix-compte">' + p.disponibles + ' ' +
+              t('dispoSur') + ' ' + p.total + '</span></a></li>';
+          }).join('') + '</ul></div>';
+      })
+      .catch(function () {
+        grille.innerHTML = '<p class="nj-vide">' + t('erreur') + '</p>';
+      });
+  }
+
   function init() {
     var params = new URLSearchParams(window.location.search);
-    etat.projet = (params.get('projet') || 'jawhara').toLowerCase();
+    etat.projet = (params.get('projet') || '').toLowerCase();
     chargerSelection();
 
     ['fTypologie', 'fImmeuble', 'fOrientation', 'fNiveau'].forEach(function (id) {
@@ -461,7 +524,7 @@
         (canal ? '&canal=' + encodeURIComponent(canal) : '');
     });
 
-    charger();
+    if (etat.projet) charger(); else choisirProjet();
   }
 
   /** Applique la langue courante à tout le texte figé de la page. */
@@ -521,11 +584,14 @@
   // Appelé par le menu partagé à chaque changement de langue.
   window.onLanguageChange = function () {
     appliquerLangue();
+    // L'écran de choix du projet porte ses propres libellés et des liens
+    // suffixés par la langue : il doit être reconstruit, pas seulement la grille.
+    if (!etat.projet) { choisirProjet(); return; }
     if (etat.facettes) { rendreLots(); rendreBarreSelection(); }
   };
 
   document.addEventListener('DOMContentLoaded', function () {
-    initPage('projects', '');
+    initPage('units', '');
     init();
   });
 })();

@@ -7,6 +7,7 @@ var MENU_UI = {
   fr: {
     home: "Accueil",
     projects: "Projets",
+    units: "Logements",
     map: "Carte",
     about: "À propos",
     contact: "Contact",
@@ -23,6 +24,7 @@ var MENU_UI = {
   en: {
     home: "Home",
     projects: "Projects",
+    units: "Homes",
     map: "Map",
     about: "About",
     contact: "Contact",
@@ -39,6 +41,7 @@ var MENU_UI = {
   ar: {
     home: "الرئيسية",
     projects: "المشاريع",
+    units: "المساكن",
     map: "الخريطة",
     about: "من نحن",
     contact: "اتصل بنا",
@@ -55,6 +58,7 @@ var MENU_UI = {
   es: {
     home: "Inicio",
     projects: "Proyectos",
+    units: "Viviendas",
     map: "Mapa",
     about: "Acerca de",
     contact: "Contacto",
@@ -662,6 +666,7 @@ function buildMenuHTML(activePage, basePath) {
         '<ul class="nav-links" id="navLinks">' +
           '<li><a href="' + basePath + 'index.html' + langHash + '"' + (activePage === 'home' ? ' class="active"' : '') + '>🏠 ' + t.home + '</a></li>' +
           '<li><a href="' + basePath + 'explorer.html' + langHash + '"' + (activePage === 'projects' ? ' class="active"' : '') + '><span class="nav-project-icon" aria-hidden="true"><span class="nav-project-explorer"></span><span class="nav-project-pin"></span></span>' + t.projects + '</a></li>' +
+          '<li><a href="' + basePath + 'disponibilites.html' + langHash + '"' + (activePage === 'units' ? ' class="active"' : '') + '>🔑 ' + t.units + '</a></li>' +
           '<li><a href="' + basePath + 'carte.html' + langHash + '"' + (activePage === 'map' ? ' class="active"' : '') + '>🗺️ ' + t.map + '</a></li>' +
           '<li><a href="' + basePath + 'apropos.html' + langHash + '"' + (activePage === 'about' ? ' class="active"' : '') + '>ℹ️ ' + t.about + '</a></li>' +
           '<li><a href="' + basePath + 'contact.html' + langHash + '"' + (activePage === 'contact' ? ' class="active"' : '') + '>✉️ ' + t.contact + '</a></li>' +

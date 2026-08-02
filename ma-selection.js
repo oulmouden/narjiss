@@ -418,7 +418,7 @@
   window.onLanguageChange = function () { appliquerLangue(); };
 
   document.addEventListener('DOMContentLoaded', function () {
-    initPage('projects', '');
+    initPage('units', '');
     etat.projet = (new URLSearchParams(location.search).get('projet') || 'jawhara').toLowerCase();
     lireSelection();
 

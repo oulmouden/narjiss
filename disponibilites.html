@@ -7,7 +7,7 @@
 <title>Narjiss — Choisissez votre logement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=12">
+<link rel="stylesheet" href="shared/menu.css?v=13">
 <style>
 /* Étape 3 du parcours client. Dimensionné pour le grand écran tactile du
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
@@ -144,6 +144,25 @@
 .nj-action { font-size: .8rem; font-weight: 700; color: var(--lot-dispo); }
 .nj-action-off { color: var(--muted); font-weight: 500; }
 
+/* Choix du projet, quand la page est ouverte depuis le menu sans projet. */
+.nj-choix { max-width: 620px; }
+.nj-choix h2 { margin: 0 0 .3rem; font-family: var(--font-serif); font-size: 1.4rem; color: var(--charcoal); }
+.nj-choix > p { margin: 0 0 1.2rem; color: var(--muted); }
+.nj-choix ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .7rem; }
+.nj-choix a {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem;
+  min-height: 56px; padding: .9rem 1.1rem;
+  background: var(--surface); border: 1px solid var(--border-medium);
+  border-radius: var(--radius); text-decoration: none; color: var(--text);
+}
+.nj-choix a:hover, .nj-choix a:focus-visible {
+  border-color: var(--ocean); box-shadow: var(--shadow); outline: none;
+}
+.nj-choix strong { font-size: 1.05rem; color: var(--charcoal); }
+.nj-choix-lieu { color: var(--muted); font-size: .85rem; }
+.nj-choix-compte { margin-inline-start: auto; font-weight: 700; color: var(--lot-dispo); font-size: .9rem; }
+.nj-choix-lien { color: var(--accent-solid); font-weight: 700; }
+
 .nj-vide {
   padding: 2.5rem 1rem; text-align: center; color: var(--muted);
   background: var(--surface-raised); border-radius: var(--radius);
@@ -270,7 +289,7 @@
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=11"></script>
-<script src="disponibilites.js?v=5"></script>
+<script src="shared/menu.js?v=12"></script>
+<script src="disponibilites.js?v=7"></script>
 </body>
 </html>
