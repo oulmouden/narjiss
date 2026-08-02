@@ -1792,12 +1792,13 @@
         var rows = d.typologies.map(function (ty) {
           var largeur = ty.total ? Math.round(ty.disponibles / ty.total * 100) : 0;
           var prix = ty.prix_min
-            ? '<span class="avail-from">' + x.availFrom + " " + nf(ty.prix_min) + " " + x.devise + "</span>"
+            ? '<span class="avail-from">' + x.availFrom + ' <bdi dir="ltr">' + nf(ty.prix_min) +
+              "</bdi> " + x.devise + "</span>"
             : "";
           return '<div class="avail-row">' +
             '<span class="avail-name">' + String(ty.code).toUpperCase() + "</span>" +
             '<div class="avail-bar"><span style="width:' + largeur + '%"></span></div>' +
-            '<span class="avail-num">' + ty.disponibles + "/" + ty.total + "</span>" +
+            '<span class="avail-num"><bdi dir="ltr">' + ty.disponibles + "/" + ty.total + "</bdi></span>" +
             prix + "</div>";
         }).join("");
 
@@ -1807,7 +1808,7 @@
           "<h2>" + x.availabilityTitle + " " + badge +
             ' <span class="avail-live">' + x.availLive + "</span></h2>" +
           '<div class="avail-headline"><strong>' + d.disponibles + "</strong> " +
-            x.lotsAvailable + " / " + d.total + "</div>" +
+            x.lotsAvailable + ' <bdi dir="ltr">/ ' + d.total + "</bdi></div>" +
           '<div class="avail-rows">' + rows + "</div>" +
           '<div class="avail-cta">' +
             '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' +

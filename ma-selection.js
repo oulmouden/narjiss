@@ -20,6 +20,18 @@
     return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 
+  /**
+   * Montant prêt à insérer dans du HTML.
+   *
+   * En arabe, « 589 000 » s'affichait « 000 589 » : l'espace des milliers est
+   * un caractère neutre, et l'algorithme bidirectionnel réordonne les groupes
+   * de chiffres qui l'entourent. <bdi dir="ltr"> isole le montant du sens de
+   * lecture de la page ; la devise, elle, reste dans le flux arabe.
+   */
+  function montant(v) {
+    return '<bdi dir="ltr">' + nombre(v) + '</bdi>';
+  }
+
   var T = {
     fr: {
       titre: 'Ma sélection',
@@ -202,8 +214,8 @@
   // Un rendu par critère, dans l'ordre de T[lang].lignes : les libellés sont
   // traduits, seule la mise en forme de la valeur vit ici.
   var LIGNES = [
-    function (l) { return '<strong>' + nombre(l.prix) + ' ' + t('dh') + '</strong>'; },
-    function (l) { return nombre(l.prix_m2) + ' ' + t('dh'); },
+    function (l) { return '<strong>' + montant(l.prix) + ' ' + t('dh') + '</strong>'; },
+    function (l) { return montant(l.prix_m2) + ' ' + t('dh'); },
     function (l) { return l.typologie.toUpperCase(); },
     function (l) { return l.surface + ' m²'; },
     function (l) { return l.balcon > 0 ? l.balcon + ' m²' : t('aucun'); },

@@ -142,6 +142,18 @@
     return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 
+  /**
+   * Montant prêt à insérer dans du HTML.
+   *
+   * En arabe, « 589 000 » s'affichait « 000 589 » : l'espace des milliers est
+   * un caractère neutre, et l'algorithme bidirectionnel réordonne les groupes
+   * de chiffres qui l'entourent. <bdi dir="ltr"> isole le montant du sens de
+   * lecture de la page ; la devise, elle, reste dans le flux arabe.
+   */
+  function montant(v) {
+    return '<bdi dir="ltr">' + nombre(v) + '</bdi>';
+  }
+
   function libelleNiveau(niveau) {
     return niveau === 'RDC' ? t('rdc') : t('etage') + ' ' + niveau;
   }
@@ -354,12 +366,12 @@
           '<span class="nj-lot-num">' + titre + '</span>' +
           '<span class="nj-pastille">' + t(lot.statut) + '</span>' +
         '</header>' +
-        '<p class="nj-lot-prix">' + nombre(lot.prix) + ' <small>' + t('dh') + '</small></p>' +
+        '<p class="nj-lot-prix">' + montant(lot.prix) + ' <small>' + t('dh') + '</small></p>' +
         '<ul class="nj-lot-carac">' +
           '<li>' + surface + '</li>' +
           (lot.chambres > 0 ? '<li>' + lot.chambres + ' ' + t('chambres') + '</li>' : '') +
           '<li>' + libelleOrientation(lot.orientation) + '</li>' +
-          '<li>' + nombre(lot.prix_m2) + ' ' + t('parM2') + '</li>' +
+          '<li>' + montant(lot.prix_m2) + ' ' + t('parM2') + '</li>' +
         '</ul>' +
         (lot.notes ? '<p class="nj-lot-note">' + lot.notes + '</p>' : '') +
         '<footer class="nj-lot-pied">' +
@@ -420,7 +432,7 @@
       ? '<span class="nj-barre-vide">' + t('vide') + '</span>'
       : choisis.map(function (l) {
           return '<span class="nj-jeton">' + l.typologie.toUpperCase() + ' ' + l.numero +
-                 ' · ' + nombre(l.prix) + ' ' + t('dh') +
+                 ' · ' + montant(l.prix) + ' ' + t('dh') +
                  '<button type="button" class="nj-jeton-x" data-retirer="' + l.id +
                  '" aria-label="' + t('retirer') + ' ' + l.numero + '">×</button></span>';
         }).join('');
