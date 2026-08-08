@@ -13,6 +13,19 @@
   var MAX_SELECTION = 3;         // au-delà, comparer ne veut plus rien dire
   var CLE_SELECTION = 'nj-selection-lots';
 
+  /**
+   * Version des plans. Un plan remplacé garde le même nom de fichier : sans
+   * ce suffixe, le navigateur — et surtout la borne du bureau de vente, que
+   * personne ne vient rafraîchir — continue d'afficher l'ancienne image.
+   * À incrémenter à chaque remplacement d'un plan.
+   */
+  var MEDIA_V = '2';
+
+  function versionne(url) {
+    if (!url) return url;
+    return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + MEDIA_V;
+  }
+
   var etat = {
     projet: '',
     lots: [],
@@ -20,7 +33,11 @@
     filtres: {},
     selection: [],
     avecDonnees: null,  // ids des projets ayant une grille, null tant qu'inconnu
-    vue: 'plan'         // 'plan' (façade) ou 'liste' (cartes détaillées)
+    vue: 'plan',        // 'plan' (façade), 'maquette' (plateau) ou 'liste'
+    etage: {},          // étage affiché dans la maquette, par immeuble
+    zones: null,        // numero_lot -> {plan, points}, null tant qu'inconnu
+    plansZones: null,   // chemin de plan -> {largeur, hauteur}
+    zonesProjet: null   // projet pour lequel zones/plansZones sont chargés
   };
 
   var T = {
@@ -36,21 +53,35 @@
       aucunAide: 'Élargissez votre budget ou retirez un filtre.',
       etage: 'Étage', rdc: 'Rez-de-chaussée', chambres: 'ch.',
       selection: 'Ma sélection', vide: 'Aucun logement sélectionné',
+      ajouterChoix: 'Ajouter à mes choix', retirerChoix: 'Dans mes choix', indispoChoix: 'Indisponible', retourFiche: 'Retour à la fiche', viderSelection: '✕ Vider',
       ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
       projet: 'Projet',
       detailsLot: 'Détails du lot', surfaceLot: 'Surface', chambresLot: 'Chambres', statutLot: 'Disponibilité',
       plan: 'Plan', tour360: '360°', carte: 'Carte', fermer: 'Fermer',
       mediaProjet: 'Document du projet — le plan propre à ce lot sera ajouté prochainement.',
       sansPlan: 'Aucun plan disponible pour ce projet.',
+      planArchi: "Plan d'architecte", planVisuel: 'Plan commercial',
+      comparer: 'Glissez pour comparer les deux plans',
       sansTour: 'Aucune visite 360° disponible pour ce projet.',
-      vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste',
+      vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste', vueMaquette: 'Maquette',
+      maquetteAide: "Choisissez un étage, puis un logement sur le plateau. La position de chaque lot reflète son orientation.",
+      pleinEcran: "Plein écran", quitterPleinEcran: "Quitter le plein écran",
+      planZoomAide: "Pincez pour zoomer, glissez pour déplacer. Touchez un logement pour le choisir.",
+      rdcCourt: 'RDC', circulation: 'Escalier / ascenseur', plateauVide: 'Aucun logement à cet étage avec les filtres actuels.',
       libres: 'libres', planAide: 'Chaque pastille est un lot. Touchez un lot libre pour l\'ajouter.',
       enPreparation: 'Données en cours de mise à jour',
       enPreparationTitre: 'Les disponibilités de ce projet arrivent bientôt.',
       enPreparationAide: 'La grille des lots est en cours de préparation. Nos conseillers peuvent déjà répondre à vos questions.',
       contacter: 'Contacter un conseiller', voirFiche: 'Voir la fiche du projet',
+      visiterBureau: 'Visiter notre bureau de vente',
+      yAller: 'Y aller depuis ma position',
+      partagerItineraire: "Envoyer l'itinéraire par WhatsApp",
+      quartier: '📍 Le quartier et ses commodités',
+      itineraireVers: 'Itinéraire vers',
+      geoIndispo: "La géolocalisation n'est pas disponible dans ce navigateur.",
+      geoRefus: "Impossible de récupérer votre position. Vérifiez l'autorisation de localisation.",
       complet: 'Sélection complète (3 maximum)',
-      suivant: 'Parler à un conseiller', indispo: "Ce logement n'est plus disponible",
+      suivant: 'Envoyer mes choix', indispo: "Ce logement n'est plus disponible",
       dh: 'DH', parM2: 'DH/m²',
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin',
       double: 'Traversant', angle: 'Angle',
@@ -69,21 +100,35 @@
       aucunAide: 'Raise your budget or remove a filter.',
       etage: 'Floor', rdc: 'Ground floor', chambres: 'bed',
       selection: 'My shortlist', vide: 'No home selected',
+      ajouterChoix: 'Add to my shortlist', retirerChoix: 'In my shortlist', indispoChoix: 'Unavailable', retourFiche: 'Back to details', viderSelection: '✕ Clear',
       ajouter: 'Add to my shortlist', retirer: 'Remove',
       projet: 'Project',
       detailsLot: 'Unit details', surfaceLot: 'Area', chambresLot: 'Bedrooms', statutLot: 'Availability',
       plan: 'Floor plan', tour360: '360°', carte: 'Map', fermer: 'Close',
       mediaProjet: 'Project document — the plan specific to this unit will be added soon.',
       sansPlan: 'No floor plan available for this project.',
+      planArchi: 'Architect drawing', planVisuel: 'Sales plan',
+      comparer: 'Drag to compare both plans',
       sansTour: 'No 360° tour available for this project.',
-      vue: 'View', vuePlan: 'Plan', vueListe: 'List',
+      vue: 'View', vuePlan: 'Plan', vueListe: 'List', vueMaquette: 'Floor mockup',
+      maquetteAide: 'Pick a floor, then a home on the plate. Each unit sits according to its aspect.',
+      pleinEcran: 'Full screen', quitterPleinEcran: 'Exit full screen',
+      planZoomAide: 'Pinch to zoom, drag to pan. Tap a home to pick it.',
+      rdcCourt: 'GF', circulation: 'Stairs / lift', plateauVide: 'No home on this floor with the current filters.',
       libres: 'free', planAide: 'Each tile is a unit. Tap a free unit to add it.',
       enPreparation: 'Data being updated',
       enPreparationTitre: 'Availability for this project is coming soon.',
       enPreparationAide: 'The unit list is being prepared. Our advisers can already answer your questions.',
       contacter: 'Contact an adviser', voirFiche: 'View the project page',
+      visiterBureau: 'Visit our sales office',
+      yAller: 'Go from my current location',
+      partagerItineraire: 'Send route via WhatsApp',
+      quartier: '📍 The neighbourhood and its amenities',
+      itineraireVers: 'Route to',
+      geoIndispo: 'Geolocation is not available in this browser.',
+      geoRefus: 'Unable to get your location. Please check location permission.',
       complet: 'Shortlist full (3 maximum)',
-      suivant: 'Talk to an adviser', indispo: 'This home is no longer available',
+      suivant: 'Send my selection', indispo: 'This home is no longer available',
       dh: 'MAD', parM2: 'MAD/m²',
       rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
       double: 'Dual aspect', angle: 'Corner',
@@ -91,7 +136,7 @@
       fil: ['Your criteria', 'The project', 'The homes', 'My shortlist', 'An adviser']
     },
     ar: {
-      titre: 'اختر سكنك', affiner: 'تصفية',
+      titre: 'اختر سكنك', affiner: 'حدد الخيارات',
       disponible: 'متاح', optionne: 'محجوز مؤقتا', reserve: 'محجوز', vendu: 'مباع',
       tous: 'الكل', toutes: 'الكل',
       typologie: 'النوع', immeuble: 'العمارة', niveau: 'ابتداء من الطابق',
@@ -102,21 +147,35 @@
       aucunAide: 'وسّع ميزانيتك أو أزل أحد عوامل التصفية.',
       etage: 'الطابق', rdc: 'الطابق الأرضي', chambres: 'غرفة',
       selection: 'اختياري', vide: 'لم يتم اختيار أي سكن',
+      ajouterChoix: 'إضافة إلى اختياراتي', retirerChoix: 'ضمن اختياراتي', indispoChoix: 'غير متاح', retourFiche: 'العودة إلى البطاقة', viderSelection: '✕ إفراغ',
       ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
       projet: 'المشروع',
       detailsLot: 'تفاصيل الوحدة', surfaceLot: 'المساحة', chambresLot: 'الغرف', statutLot: 'التوفر',
       plan: 'المخطط', tour360: '360°', carte: 'الخريطة', fermer: 'إغلاق',
       mediaProjet: 'وثيقة المشروع — سيُضاف مخطط هذه الوحدة قريبا.',
       sansPlan: 'لا يوجد مخطط متاح لهذا المشروع.',
+      planArchi: 'مخطط المهندس', planVisuel: 'المخطط التجاري',
+      comparer: 'اسحب للمقارنة بين المخططين',
       sansTour: 'لا توجد جولة 360° متاحة لهذا المشروع.',
-      vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة',
+      vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة', vueMaquette: 'مجسم الطابق',
+      maquetteAide: 'اختر طابقا ثم سكنا على المسطح. موقع كل وحدة يعكس اتجاهها.',
+      pleinEcran: 'ملء الشاشة', quitterPleinEcran: 'إنهاء ملء الشاشة',
+      planZoomAide: 'اقرص للتكبير، اسحب للتحريك. المس سكنا لاختياره.',
+      rdcCourt: 'الأرضي', circulation: 'الدرج / المصعد', plateauVide: 'لا يوجد سكن في هذا الطابق بالمعايير الحالية.',
       libres: 'متاحة', planAide: 'كل مربع يمثل وحدة. المس وحدة متاحة لإضافتها.',
       enPreparation: 'البيانات قيد التحديث',
       enPreparationTitre: 'ستتوفر قائمة هذا المشروع قريبا.',
       enPreparationAide: 'قائمة الوحدات قيد الإعداد. يمكن لمستشارينا الإجابة عن أسئلتكم منذ الآن.',
       contacter: 'الاتصال بمستشار', voirFiche: 'عرض بطاقة المشروع',
+      visiterBureau: 'زيارة مكتب البيع',
+      yAller: 'اذهب من موقعي الحالي',
+      partagerItineraire: 'إرسال المسار عبر واتساب',
+      quartier: '📍 الحي ومرافقه',
+      itineraireVers: 'المسار نحو',
+      geoIndispo: 'تحديد الموقع غير متاح في هذا المتصفح.',
+      geoRefus: 'تعذر الحصول على موقعك. تحقق من إذن تحديد الموقع.',
       complet: 'اكتمل الاختيار (3 كحد أقصى)',
-      suivant: 'التحدث إلى مستشار', indispo: 'هذا السكن لم يعد متاحا',
+      suivant: 'إرسال اختياراتي', indispo: 'هذا السكن لم يعد متاحا',
       dh: 'درهم', parM2: 'درهم/م²',
       rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
       double: 'واجهتان', angle: 'زاوية',
@@ -135,21 +194,35 @@
       aucunAide: 'Amplíe su presupuesto o quite un filtro.',
       etage: 'Planta', rdc: 'Planta baja', chambres: 'hab.',
       selection: 'Mi selección', vide: 'Ninguna vivienda seleccionada',
+      ajouterChoix: 'Añadir a mi selección', retirerChoix: 'En mi selección', indispoChoix: 'No disponible', retourFiche: 'Volver a la ficha', viderSelection: '✕ Vaciar',
       ajouter: 'Añadir a mi selección', retirer: 'Quitar',
       projet: 'Proyecto',
       detailsLot: 'Detalles del lote', surfaceLot: 'Superficie', chambresLot: 'Dormitorios', statutLot: 'Disponibilidad',
       plan: 'Plano', tour360: '360°', carte: 'Mapa', fermer: 'Cerrar',
       mediaProjet: 'Documento del proyecto — el plano propio de este lote se añadirá pronto.',
       sansPlan: 'No hay plano disponible para este proyecto.',
+      planArchi: 'Plano de arquitecto', planVisuel: 'Plano comercial',
+      comparer: 'Deslice para comparar los dos planos',
       sansTour: 'No hay visita 360° disponible para este proyecto.',
-      vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista',
+      vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista', vueMaquette: 'Maqueta',
+      maquetteAide: 'Elija una planta y luego una vivienda. La posición de cada lote refleja su orientación.',
+      pleinEcran: 'Pantalla completa', quitterPleinEcran: 'Salir de pantalla completa',
+      planZoomAide: 'Pellizque para acercar, arrastre para mover. Toque una vivienda para elegirla.',
+      rdcCourt: 'PB', circulation: 'Escalera / ascensor', plateauVide: 'Ninguna vivienda en esta planta con los filtros actuales.',
       libres: 'libres', planAide: 'Cada casilla es un lote. Toque un lote libre para añadirlo.',
       enPreparation: 'Datos en actualización',
       enPreparationTitre: 'Las disponibilidades de este proyecto llegarán pronto.',
       enPreparationAide: 'La lista de lotes se está preparando. Nuestros asesores ya pueden responder a sus preguntas.',
       contacter: 'Contactar con un asesor', voirFiche: 'Ver la ficha del proyecto',
+      visiterBureau: 'Visitar nuestra oficina de venta',
+      yAller: 'Ir desde mi ubicación actual',
+      partagerItineraire: 'Enviar ruta por WhatsApp',
+      quartier: '📍 El barrio y sus servicios',
+      itineraireVers: 'Ruta hacia',
+      geoIndispo: 'La geolocalización no está disponible en este navegador.',
+      geoRefus: 'No se pudo obtener tu ubicación. Revisa el permiso de ubicación.',
       complet: 'Selección completa (3 máximo)',
-      suivant: 'Hablar con un asesor', indispo: 'Esta vivienda ya no está disponible',
+      suivant: 'Enviar mi selección', indispo: 'Esta vivienda ya no está disponible',
       dh: 'DH', parM2: 'DH/m²',
       rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
       double: 'Doble orientación', angle: 'Esquina',
@@ -232,12 +305,23 @@
     // lui ferait perdre le focus clavier et sauter la position de défilement.
     majCarte(id);
     rendreBarreSelection();
+    majChoixMaquette();
   }
 
   /** Reflète l'état de sélection sur une carte déjà présente dans le DOM. */
   function majCarte(id) {
-    var carte = document.querySelector('.nj-lot[data-id="' + id + '"], .nj-carreau[data-id="' + id + '"]');
+    var carte = document.querySelector('.nj-lot[data-id="' + id + '"], ' +
+      '.nj-carreau[data-id="' + id + '"], .nj-mq-lot[data-id="' + id + '"]');
     if (!carte) return;
+    // Dans la maquette, la coche est redessinée avec le plateau : on se
+    // contente de l'anneau porté par la classe, insérer du HTML dans du SVG
+    // ne fonctionnerait pas.
+    if (carte.classList.contains('nj-mq-lot')) {
+      var choisiM = estSelectionne(id);
+      carte.classList.toggle('nj-choisi', choisiM);
+      carte.setAttribute('aria-pressed', choisiM ? 'true' : 'false');
+      return;
+    }
     if (carte.classList.contains('nj-carreau')) {
       var choisiC = estSelectionne(id);
       carte.classList.toggle('nj-choisi', choisiC);
@@ -277,9 +361,38 @@
     return 'api/lots-public.php?' + p.toString();
   }
 
+  /**
+   * Contours des lots sur les plans d'étage, tracés dans le back-office.
+   *
+   * Chargés une fois par projet et indépendamment des filtres : un contour ne
+   * dépend pas du budget saisi, et les recharger à chaque frappe ferait
+   * clignoter le plan. Un échec n'est pas bloquant — la maquette retombe sur
+   * le plateau schématique, qui n'a jamais eu besoin de ces données.
+   */
+  function chargerZones() {
+    var projet = etat.projet;
+    if (etat.zonesProjet === projet) return Promise.resolve();
+    etat.zonesProjet = projet;
+    etat.zones = null;
+    etat.plansZones = null;
+
+    return fetch('api/plan-zones-public.php?projet=' + encodeURIComponent(projet),
+                 { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok || etat.projet !== projet) return;   // projet changé entre-temps
+        etat.zones = d.zones || {};
+        etat.plansZones = d.plans || {};
+      })
+      .catch(function () { etat.zones = {}; etat.plansZones = {}; });
+  }
+
   function charger() {
     var grille = document.getElementById('njGrille');
     grille.setAttribute('aria-busy', 'true');
+    chargerZones().then(function () {
+      if (etat.vue === 'maquette') afficherLots();   // repeint avec le vrai plan
+    });
     return fetch(construireUrl(), { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
@@ -437,24 +550,123 @@
   /**
    * Boutons de consultation d'un lot.
    *
-   * Les trois documents sont aujourd'hui ceux du PROJET, identiques pour tous
-   * ses lots : il n'existe pas encore de plan ni de visite par lot. Le jour où
-   * `plan_fichier` sera rempli dans la grille, le bouton Plan basculera
-   * automatiquement sur le document du lot.
+   * Le plan et la visite 360° viennent du LOT quand la grille les renseigne
+   * (colonnes plan_architecte / plan_visuel / visite_360), et retombent sinon
+   * sur les documents du PROJET, identiques pour tous ses lots — un repli
+   * signalé au visiteur par la mention « document du projet ». La carte, elle,
+   * reste toujours celle du projet.
    */
   function boutonsMedias(lot) {
     var p = projetCourant();
     var b = [];
-    if (lot.plan || (p && (p.plan_architecte_url || p.plan_visuel_url))) {
+    if (planDuLot(lot) || (p && (p.plan_architecte_url || p.plan_visuel_url))) {
       b.push(bouton('plan', lot.id, '\u25A6', t('plan')));
     }
-    if (p && (p.apartment_tour_url || p.tour_url)) {
+    if (lot.tour || (p && (p.apartment_tour_url || p.tour_url))) {
       b.push(bouton('tour', lot.id, '\u25CE', t('tour360')));
     }
     if (p && p.lat && p.lng) {
       b.push(bouton('carte', lot.id, '\u25C9', t('carte')));
     }
     return b.length ? '<div class="nj-medias">' + b.join('') + '</div>' : '';
+  }
+
+  /**
+   * Bouton « Ajouter à mes choix » de la fiche. Seuls les lots disponibles sont
+   * sélectionnables (cf. basculerSelection). Le libellé reflète l'état, et le
+   * bouton se désactive quand la sélection est déjà pleine.
+   */
+  function boutonChoix(lot) {
+    // Un lot non disponible (réservé, vendu, optionné) ne peut pas être mis en
+    // sélection. Plutôt que de masquer le bouton — ce qui laisse croire qu'il
+    // ne marche pas — on l'affiche désactivé, avec le statut qui explique.
+    if (lot.statut !== 'disponible') {
+      return '<button type="button" class="nj-fiche-choix is-off" disabled>' +
+        '⦸ ' + t('indispoChoix') + ' · ' + t(lot.statut) + '</button>';
+    }
+    var dans = estSelectionne(lot.id);
+    var plein = !dans && etat.selection.length >= MAX_SELECTION;
+    return '<button type="button" class="nj-fiche-choix' + (dans ? ' is-in' : '') +
+      '" data-choix="' + lot.id + '" data-statut="' + echapper(lot.statut) + '"' +
+      (plein ? ' disabled title="' + echapper(t('complet')) + '"' : '') + '>' +
+      (dans ? '✓ ' + t('retirerChoix') : '＋ ' + t('ajouterChoix')) +
+      '</button>';
+  }
+
+  /**
+   * Plan propre au lot, s'il en a un. La grille peut porter trois chemins :
+   * le plan d'architecte, le plan commercial, et l'ancienne colonne
+   * `plan_fichier` conservée pour les grilles déjà importées.
+   */
+  function planDuLot(lot) {
+    return lot.plan_architecte || lot.plan_visuel || lot.plan || '';
+  }
+
+  /**
+   * Comparateur « avant/après » entre les deux plans d'un lot.
+   *
+   * Le plan commercial est en dessous et fixe la hauteur ; le plan
+   * d'architecte est rogné par-dessus au fil du curseur. Le contrôle est un
+   * <input type="range"> natif étalé sur toute l'image : on garde ainsi le
+   * clavier, le tactile et les lecteurs d'écran sans les réécrire.
+   */
+  function comparateurPlans(archi, visuel, titre) {
+    return '<div class="nj-compare" id="njCompare" style="--nj-x:50%" ' +
+        'data-titre="' + echapper(titre) + '">' +
+      '<img id="njCompareBas" src="' + versionne(visuel) + '" alt="' + t('planVisuel') + ' ' + titre + '">' +
+      '<img id="njCompareHaut" class="nj-compare-haut" src="' + versionne(archi) + '" alt="' + t('planArchi') + ' ' + titre + '">' +
+      '<span class="nj-compare-lbl nj-compare-lbl-g">' + t('planArchi') + '</span>' +
+      '<span class="nj-compare-lbl nj-compare-lbl-d">' + t('planVisuel') + '</span>' +
+      '<span class="nj-compare-trait" aria-hidden="true"></span>' +
+      '<input type="range" class="nj-compare-range" id="njCompareRange" ' +
+        'min="0" max="100" step="1" value="50" aria-label="' + t('comparer') + '">' +
+      '</div>';
+  }
+
+  function echapper(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /**
+   * Branche le curseur du comparateur, une fois le corps injecté.
+   *
+   * Si l'un des deux plans ne se charge pas (chemin erroné dans la grille,
+   * fichier absent du serveur), on ne laisse pas une image cassée : on
+   * bascule sur l'affichage simple de celui qui reste, et sur le message
+   * habituel si aucun des deux n'arrive.
+   */
+  function activerComparateur() {
+    var boite = document.getElementById('njCompare');
+    var curseur = document.getElementById('njCompareRange');
+    if (!boite || !curseur) return;
+
+    curseur.addEventListener('input', function () {
+      boite.style.setProperty('--nj-x', this.value + '%');
+    });
+
+    var bas = document.getElementById('njCompareBas');
+    var haut = document.getElementById('njCompareHaut');
+    var titre = boite.getAttribute('data-titre') || '';
+    var traite = false;
+
+    function replier(perdu) {
+      if (traite) return;
+      var reste = perdu === haut ? bas : haut;
+      // L'autre image peut avoir déjà échoué de son côté.
+      var reste_ok = reste && !(reste.complete && reste.naturalWidth === 0);
+      traite = true;
+      document.getElementById('njMediaCorps').innerHTML = reste_ok
+        ? '<img src="' + reste.getAttribute('src') + '" alt="' + t('plan') + ' ' + titre + '">'
+        : '<p class="nj-media-vide">' + t('sansPlan') + '</p>';
+    }
+
+    [bas, haut].forEach(function (im) {
+      if (!im) return;
+      im.addEventListener('error', function () { replier(im); });
+      // Une erreur peut précéder la pose de l'écouteur (image déjà en cache).
+      if (im.complete && im.naturalWidth === 0) replier(im);
+    });
   }
 
   function bouton(type, id, icone, libelle) {
@@ -489,13 +701,14 @@
       }).join('') + '</dl>' +
       (lot.notes ? '<p class="nj-fiche-note">' + lot.notes + '</p>' : '') +
       boutonsMedias(lot) +
+      '<div class="nj-fiche-actions">' + boutonChoix(lot) + boutonViderFiche(lot) + '</div>' +
       '</div>';
 
     document.getElementById('njMediaTitre').textContent =
       lot.typologie.toUpperCase() + ' · ' + lot.numero;
     document.getElementById('njMediaCorps').innerHTML = corps;
     document.getElementById('njMediaNote').hidden = true;
-    document.getElementById('njMedia').hidden = false;
+    ouvrirModale();
     document.body.classList.add('nj-fige');
     document.getElementById('njMediaFermer').focus();
   }
@@ -510,41 +723,75 @@
     var note = '';
 
     if (type === 'plan') {
-      var src = lot.plan || (p && (p.plan_architecte_url || p.plan_visuel_url)) || '';
-      corps = src
-        ? '<img src="' + src + '" alt="' + t('plan') + ' ' + titre + '">'
-        : '<p class="nj-media-vide">' + t('sansPlan') + '</p>';
-      if (src && !lot.plan) note = t('mediaProjet');
+      var planLot = planDuLot(lot);
+      // Comparateur UNIQUEMENT si les deux plans sont propres au lot :
+      // l'architecte (vignette découpée) et le commercial. Opposer la vignette
+      // d'un lot au plan d'ensemble du projet n'aurait aucun sens — les
+      // documents du projet ne servent qu'en dernier repli, en image simple.
+      var archiLot   = lot.plan_architecte || '';
+      var visuelLot  = lot.plan_visuel || '';
+      var archiProj  = (p && p.plan_architecte_url) || '';
+      var visuelProj = (p && p.plan_visuel_url) || '';
+      if (archiLot && visuelLot && archiLot !== visuelLot) {
+        corps = comparateurPlans(archiLot, visuelLot, titre);
+      } else {
+        var src = planLot || archiProj || visuelProj || '';
+        corps = src
+          ? '<img src="' + versionne(src) + '" alt="' + t('plan') + ' ' + titre + '">'
+          : '<p class="nj-media-vide">' + t('sansPlan') + '</p>';
+      }
+      // L'avertissement « document du projet » ne vaut que pour un repli.
+      if ((planLot || archiProj || visuelProj) && !planLot) note = t('mediaProjet');
     } else if (type === 'tour') {
-      var tour = p && (p.apartment_tour_url || p.tour_url);
+      var tour = lot.tour || (p && (p.apartment_tour_url || p.tour_url));
       corps = tour
         ? '<iframe src="' + tour + '" title="' + t('tour360') + '" allowfullscreen loading="lazy"></iframe>'
         : '<p class="nj-media-vide">' + t('sansTour') + '</p>';
-      if (tour) note = t('mediaProjet');
+      if (tour && !lot.tour) note = t('mediaProjet');
     } else if (type === 'carte') {
-      // Fond de carte en iframe : la page n'embarque pas Leaflet, inutile de
-      // l'alourdir pour un aperçu de situation.
-      var d = 0.004;
-      var bbox = [p.lng - d, p.lat - d / 2, p.lng + d, p.lat + d / 2].join('%2C');
-      corps = '<iframe title="' + t('carte') + '" loading="lazy" src="' +
-        'https://www.openstreetmap.org/export/embed.html?bbox=' + bbox +
-        '&amp;layer=mapnik&amp;marker=' + p.lat + '%2C' + p.lng + '"></iframe>';
+      // On réutilise LA section « Le projet dans son territoire » de
+      // project.html (carte complète : recherche d'adresse, fonds de carte,
+      // plein écran, itinéraire, POI…) en mode embarqué. Même carte que le
+      // reste du parcours client, donc parfaitement cohérente.
+      corps = '<iframe title="' + t('carte') + '" loading="lazy" allow="fullscreen" ' +
+        'allowfullscreen src="project.html?id=' + encodeURIComponent(etat.projet) +
+        '&amp;embed=map"></iframe>';
       note = t('mediaProjet');
     }
+
+    // Le média a été ouvert depuis la fiche « Info » : on offre un retour vers
+    // elle, sinon « Fermer » renvoie tout au plan de l'immeuble et fait perdre
+    // le contexte du lot.
+    corps = '<button type="button" class="nj-media-retour" data-retour-fiche="' + lot.id +
+      '">← ' + t('retourFiche') + '</button>' + corps;
 
     var d2 = document.getElementById('njMedia');
     document.getElementById('njMediaTitre').textContent = titre;
     document.getElementById('njMediaCorps').innerHTML = corps;
+    activerComparateur();
     document.getElementById('njMediaNote').textContent = note;
     document.getElementById('njMediaNote').hidden = !note;
-    d2.hidden = false;
+    ouvrirModale();
     document.body.classList.add('nj-fige');
     document.getElementById('njMediaFermer').focus();
   }
 
+  /**
+   * Ouvre la fenêtre de consultation.
+   *
+   * showModal() place le dialogue dans la « couche supérieure » du
+   * navigateur, au-dessus de tout, y compris d'un élément en plein écran.
+   * C'est ce qui manquait : avec un simple div, la fiche s'ouvrait bien du
+   * premier clic, mais derrière le plan agrandi.
+   */
+  function ouvrirModale() {
+    var d = document.getElementById('njMedia');
+    if (!d.open) d.showModal();
+  }
+
   function fermerMedia() {
     var d = document.getElementById('njMedia');
-    d.hidden = true;
+    if (d.open) d.close();
     // Vider libère l'iframe : sans ça la visite 360° continue de tourner.
     document.getElementById('njMediaCorps').innerHTML = '';
     document.body.classList.remove('nj-fige');
@@ -636,9 +883,667 @@
       '</span>';
   }
 
-  /** Bascule entre la façade et les cartes détaillées. */
+
+  /* ── Maquette d'étage ─────────────────────────────────────────────────
+     Le conseiller pose aujourd'hui une maquette physique sur son bureau et
+     désigne l'appartement du doigt. On reproduit ce geste : une élévation
+     d'immeuble où l'on choisit l'étage, puis le plateau de cet étage où
+     chaque lot occupe une position cohérente avec son orientation réelle.
+
+     La géométrie est déduite des données de la grille, sans plan importé :
+     le jour où de vrais plans d'étage seront tracés, seule plateauSVG()
+     changera, l'interaction et la sélection resteront identiques. */
+
+  function nomEtage(niveau) {
+    return niveau === 'RDC' ? t('rdcCourt') : 'R+' + niveau;
+  }
+
+  function parNumero(a, b) {
+    return a.numero.localeCompare(b.numero, undefined, { numeric: true });
+  }
+
+  /* Légende des statuts, posée dans chaque immeuble (donc visible en plein
+     écran). Mêmes couleurs que la légende globale, libellés traduits. */
+  function legendeMaquetteHTML() {
+    return '<p class="nj-legende nj-mq-legende">' +
+      '<span><i style="background:var(--lot-dispo)"></i>' + t('disponible') + '</span>' +
+      '<span><i style="background:var(--lot-optionne)"></i>' + t('optionne') + '</span>' +
+      '<span><i style="background:var(--lot-reserve)"></i>' + t('reserve') + '</span>' +
+      '<span><i style="background:var(--lot-vendu)"></i>' + t('vendu') + '</span>' +
+      '</p>';
+  }
+
+  /* Contenu du panneau « Mes choix » de la maquette (sous la liste des
+     niveaux). Reprend la sélection globale : jetons retirables + bouton vider. */
+  function choixPanelHTML() {
+    var choisis = etat.lots.filter(function (l) { return estSelectionne(l.id); });
+    var tete = '<div class="nj-mq-choix-tete">' + t('selection') +
+      ' <span class="nj-mq-choix-compte"><bdi dir="ltr">' + choisis.length + '/' +
+      MAX_SELECTION + '</bdi></span></div>';
+    if (!choisis.length) {
+      return tete + '<p class="nj-mq-choix-vide">' + t('vide') + '</p>';
+    }
+    var liste = choisis.map(function (l) {
+      return '<span class="nj-mq-choix-item">' + l.typologie.toUpperCase() + ' ' + l.numero +
+        '<button type="button" class="nj-mq-choix-x" data-retirer="' + l.id +
+        '" aria-label="' + t('retirer') + ' ' + l.numero + '">×</button></span>';
+    }).join('');
+    return tete + '<div class="nj-mq-choix-liste">' + liste + '</div>' +
+      '<button type="button" class="nj-mq-choix-envoyer" data-envoyer-choix="1">' +
+      t('suivant') + ' →</button>' +
+      '<button type="button" class="nj-mq-choix-vider" data-vider-choix="1">' +
+      t('viderSelection') + '</button>';
+  }
+
+  /* Rafraîchit tous les panneaux « Mes choix » présents dans les maquettes,
+     sans reconstruire les sections (préserve le plein écran). */
+  function majChoixMaquette() {
+    document.querySelectorAll('.nj-mq-choix').forEach(function (el) {
+      el.innerHTML = choixPanelHTML();
+    });
+  }
+
+  /* Bouton « Vider » de la fiche, à côté d'« Ajouter à mes choix ». N'apparaît
+     que si la sélection contient au moins un lot. Porte l'id du lot pour
+     rouvrir la fiche à jour après le vidage. */
+  function boutonViderFiche(lot) {
+    if (!etat.selection.length) return '';
+    return '<button type="button" class="nj-fiche-vider" data-vider-choix="' + lot.id + '">' +
+      t('viderSelection') + '</button>';
+  }
+
+  /* Change l'étage affiché SANS reconstruire la section : on ne remplace que le
+     plateau et l'état actif des boutons. Reconstruire toute la maquette
+     (innerHTML) détruisait la section agrandie et faisait sortir du plein
+     écran à chaque changement d'étage. */
+  function majEtage(imm, niveau) {
+    var sel = (window.CSS && CSS.escape) ? CSS.escape(imm) : imm;
+    var section = document.querySelector('.nj-mq-imm[data-imm="' + sel + '"]');
+    if (!section) { rendreMaquette(); return; }
+
+    var niveaux = {};
+    etat.lots.forEach(function (lot) {
+      if ((lot.immeuble || '—') !== imm) return;
+      (niveaux[lot.niveau] = niveaux[lot.niveau] ||
+        { ordre: lot.niveau_ordre, lots: [] }).lots.push(lot);
+    });
+    if (!niveaux[niveau]) { rendreMaquette(); return; }
+
+    etat.etage[imm] = niveau;
+    section.querySelectorAll('.nj-mq-etage').forEach(function (b) {
+      var actif = b.getAttribute('data-etage') === niveau;
+      b.classList.toggle('is-active', actif);
+      b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+    });
+    var plateau = section.querySelector('.nj-mq-plateau');
+    if (plateau) {
+      plateau.innerHTML = plateauOuPlan(niveaux[niveau].lots);
+      section.querySelectorAll('.nj-mq-reel').forEach(activerNavigationPlan);
+      // En plein écran, le nouvel étage doit s'afficher cadré comme l'ancien.
+      if (document.fullscreenElement) {
+        section.querySelectorAll('.nj-mq-reel').forEach(recadrerPlan);
+      }
+    }
+  }
+
+  function rendreMaquette() {
+    var grille = document.getElementById('njGrille');
+    if (!etat.lots.length) {
+      grille.innerHTML = '<p class="nj-vide"><strong>' + t('aucun') + '</strong><br>' +
+        t('aucunAide') + '</p>';
+      return;
+    }
+
+    var groupes = {};
+    etat.lots.forEach(function (lot) {
+      var g = lot.immeuble || '—';
+      groupes[g] = groupes[g] || {};
+      (groupes[g][lot.niveau] = groupes[g][lot.niveau] ||
+        { ordre: lot.niveau_ordre, lots: [] }).lots.push(lot);
+    });
+
+    var html = '<p class="nj-mq-aide">' + t('maquetteAide') + '</p>';
+
+    Object.keys(groupes).sort().forEach(function (imm) {
+      var niveaux = groupes[imm];
+      // Du dernier étage vers le bas : on lit l'élévation comme la maquette.
+      var ordres = Object.keys(niveaux).sort(function (a, b) {
+        return niveaux[b].ordre - niveaux[a].ordre;
+      });
+      // Un filtre a pu faire disparaître l'étage retenu : on retombe alors
+      // sur le plus haut encore présent.
+      if (ordres.indexOf(etat.etage[imm]) === -1) etat.etage[imm] = ordres[0];
+      var courant = etat.etage[imm];
+
+      var tousLots = ordres.reduce(function (acc, n) {
+        return acc.concat(niveaux[n].lots);
+      }, []);
+      var libres = tousLots.filter(function (l) { return l.statut === 'disponible'; }).length;
+      var pct = Math.round(libres / tousLots.length * 100);
+
+      html += '<section class="nj-mq-imm" data-imm="' + echapper(imm) + '">' +
+        '<header class="nj-plan-tete">' +
+          '<h2>' + t('immeuble') + ' ' + echapper(imm) + '</h2>' +
+          '<span class="nj-plan-compte"><bdi dir="ltr">' + libres + '/' + tousLots.length +
+          '</bdi> ' + t('libres') + '</span>' +
+          '<span class="nj-plan-jauge" role="img" aria-label="' + pct + '%">' +
+            '<span style="width:' + pct + '%"></span></span>' +
+          '<button type="button" class="nj-mq-agrandir" data-agrandir="' + echapper(imm) + '">' +
+            '⛶ ' + t('pleinEcran') + '</button>' +
+        '</header>' +
+        legendeMaquetteHTML() +
+        '<div class="nj-mq-corps">' +
+          '<div class="nj-mq-colonne">' +
+            '<div class="nj-mq-etages" role="group" aria-label="' + t('etage') + '">' +
+              ordres.map(function (n) {
+                var l = niveaux[n].lots;
+                var lib = l.filter(function (x) { return x.statut === 'disponible'; }).length;
+                var p = Math.round(lib / l.length * 100);
+                var actif = n === courant;
+                return '<button type="button" class="nj-mq-etage' + (actif ? ' is-active' : '') +
+                  '" data-etage="' + echapper(n) + '" data-imm="' + echapper(imm) +
+                  '" aria-pressed="' + (actif ? 'true' : 'false') + '">' +
+                  '<span class="nj-mq-etage-nom">' + nomEtage(n) + '</span>' +
+                  '<span class="nj-mq-etage-note"><bdi dir="ltr">' + lib + '/' + l.length +
+                  '</bdi> ' + t('libres') + '</span>' +
+                  '<span class="nj-mq-etage-jauge"><span style="width:' + p + '%"></span></span>' +
+                  '</button>';
+              }).join('') +
+            '</div>' +
+            // « Mes choix » sous la liste des niveaux : reste visible en plein
+            // écran (la barre du bas, hors de la section agrandie, ne l'est pas).
+            '<div class="nj-mq-choix">' + choixPanelHTML() + '</div>' +
+          '</div>' +
+          '<div class="nj-mq-plateau">' + plateauOuPlan(niveaux[courant].lots) + '</div>' +
+        '</div>' +
+      '</section>';
+    });
+
+    grille.innerHTML = html;
+    // Les plans réels viennent d'être injectés : on leur greffe le zoom.
+    grille.querySelectorAll('.nj-mq-reel').forEach(activerNavigationPlan);
+  }
+
+  function arr(v) { return Math.round(v * 10) / 10; }
+
+  /**
+   * Le plateau schématique est un pis-aller : il reconstitue une disposition
+   * plausible à partir des surfaces, faute de plan tracé. Dès qu'un plan
+   * d'architecte a été découpé dans le back-office, on montre le vrai.
+   *
+   * Le basculement est décidé étage par étage : un immeuble peut avoir ses
+   * étages courants tracés et pas son rez-de-chaussée, cas d'Andalusia où les
+   * commerces n'ont pas encore de plan.
+   */
+  function plateauOuPlan(lotsEtage) {
+    if (!etat.zones) return plateauSVG(lotsEtage);
+
+    var traces = lotsEtage.filter(function (l) { return etat.zones[l.numero]; });
+    // Un seul contour sur huit ne fait pas un plan lisible : sous la moitié,
+    // le plateau schématique reste plus honnête qu'un plan à trous.
+    if (traces.length < Math.max(2, Math.ceil(lotsEtage.length / 2))) {
+      return plateauSVG(lotsEtage);
+    }
+
+    var chemin = etat.zones[traces[0].numero].plan;
+    var dim = (etat.plansZones || {})[chemin];
+    if (!dim || !dim.largeur || !dim.hauteur) return plateauSVG(lotsEtage);
+
+    return planReelSVG(traces, chemin, dim);
+  }
+
+  /**
+   * Le plan d'architecte, surchargé des contours cliquables.
+   *
+   * Même structure que lotSVG (classe nj-mq-lot, data-id, data-fiche) : la
+   * délégation d'événements, la sélection et la fiche fonctionnent sans une
+   * ligne de plus.
+   */
+  function planReelSVG(lots, chemin, dim) {
+    var svg = '<svg viewBox="0 0 ' + dim.largeur + ' ' + dim.hauteur + '" ' +
+      'class="nj-mq-reel" role="group" aria-label="' + t('plan') + '">' +
+      '<image href="' + echapper(versionne(chemin)) + '" x="0" y="0" width="' +
+      dim.largeur + '" height="' + dim.hauteur + '" preserveAspectRatio="none"/>';
+
+    lots.forEach(function (lot) {
+      var pts = etat.zones[lot.numero].points;
+      var choisi = estSelectionne(lot.id);
+      var libre = lot.statut === 'disponible';
+      var position = lot.numero.split('-').pop();
+      var resume = lot.typologie.toUpperCase() + ' · ' + lot.numero + ' · ' +
+        lot.surface + ' m² · ' + nombre(lot.prix) + ' ' + t('dh') + ' · ' + t(lot.statut);
+
+      var cx = 0, cy = 0;
+      pts.forEach(function (p) { cx += p[0]; cy += p[1]; });
+      cx /= pts.length; cy /= pts.length;
+
+      svg += '<g class="nj-mq-lot nj-' + lot.statut + (choisi ? ' nj-choisi' : '') +
+        '" data-id="' + lot.id + '" data-statut="' + lot.statut + '"' +
+        (libre ? ' role="button" tabindex="0" aria-pressed="' + (choisi ? 'true' : 'false') + '"'
+               : ' role="img"') +
+        ' aria-label="' + echapper(resume) + '">' +
+        '<title>' + echapper(resume) + '</title>' +
+        '<polygon class="nj-mq-forme" points="' +
+        pts.map(function (p) { return p[0] + ',' + p[1]; }).join(' ') + '"/>' +
+        '<text class="nj-mq-num" x="' + arr(cx) + '" y="' + arr(cy - 4) +
+        '" text-anchor="middle">' + echapper(position) + '</text>' +
+        '<text class="nj-mq-info" x="' + arr(cx) + '" y="' + arr(cy + 22) +
+        '" text-anchor="middle">' + lot.typologie.toUpperCase() + ' · ' + lot.surface + ' m²</text>';
+
+      // Pastille d'information : ouvre la fiche sans toucher à la sélection.
+      svg += '<g class="nj-mq-info-btn" role="button" tabindex="0" data-fiche="' + lot.id +
+        '" aria-label="' + t('detailsLot') + ' ' + echapper(lot.numero) + '">' +
+        '<circle cx="' + arr(cx + 62) + '" cy="' + arr(cy - 34) + '" r="15"/>' +
+        '<text x="' + arr(cx + 62) + '" y="' + arr(cy - 27) + '" text-anchor="middle">i</text></g>';
+
+      if (choisi) {
+        svg += '<g class="nj-mq-coche" aria-hidden="true">' +
+          '<circle cx="' + arr(cx - 62) + '" cy="' + arr(cy - 34) + '" r="15"/>' +
+          '<text x="' + arr(cx - 62) + '" y="' + arr(cy - 27) + '" text-anchor="middle">✓</text></g>';
+      }
+      svg += '</g>';
+    });
+
+    return svg + '</svg>' +
+      '<p class="nj-mq-plan-aide">' + t('planZoomAide') + '</p>';
+  }
+
+  /**
+   * Dessine le plateau d'un étage.
+   *
+   * Les lots traversants et d'angle tiennent toute la profondeur et se
+   * placent aux extrémités ; les autres se répartissent de part et d'autre
+   * d'un couloir, côté rue en haut, côté cour en bas. Les largeurs sont
+   * proportionnelles aux surfaces : le plateau reste donc juste, même sans
+   * plan d'architecte tracé.
+   */
+  function plateauSVG(lotsEtage) {
+    var W = 1000, H = 360;
+    var x0 = 18, x1 = W - 18, y0 = 34, y1 = H - 34;
+    var LARG = x1 - x0, PROF = y1 - y0;
+    var hCouloir = 58;             // largeur du couloir de distribution
+
+    var pleins = [], haut = [], bas = [];
+    lotsEtage.slice().sort(parNumero).forEach(function (l) {
+      var o = l.orientation;
+      if (o === 'double' || o === 'angle') pleins.push(l);
+      else if (o === 'cour' || o === 'jardin') bas.push(l);
+      else haut.push(l);
+    });
+    // Deux extrémités seulement : le surplus rejoint la rangée la plus creuse.
+    while (pleins.length > 2) {
+      (haut.length <= bas.length ? haut : bas).push(pleins.pop());
+    }
+
+    var surf = function (l) { return Math.max(1, l.surface || 1); };
+    var somme = function (tab) {
+      return tab.reduce(function (a, l) { return a + surf(l); }, 0);
+    };
+
+    var blocs = [];
+    var couloir = null;
+
+    if (!haut.length && !bas.length) {
+      // Que des traversants : ils se partagent toute la profondeur.
+      var tt = somme(pleins), cx = x0;
+      pleins.forEach(function (l) {
+        var w = LARG * surf(l) / tt;
+        blocs.push({ lot: l, x: cx, y: y0, w: w, h: PROF });
+        cx += w;
+      });
+    } else {
+      var g = pleins[0] || null, d = pleins[1] || null;
+      var sH = somme(haut), sB = somme(bas);
+
+      /* Les deux rangées bordent le même couloir : elles ont donc forcément
+         la même longueur. Ce qui varie pour respecter les surfaces, c'est
+         leur PROFONDEUR — exactement comme dans un immeuble réel, où le côté
+         qui totalise moins de surface est simplement moins profond.
+
+         Une fois les profondeurs fixées, il existe un facteur d'échelle k
+         unique tel que chaque rectangle ait une aire proportionnelle à sa
+         surface : largeur = k × surface / profondeur du bloc. */
+      var hUtile = PROF - hCouloir;
+      var hHaut = Math.round(hUtile * sH / (sH + sB));
+      // Garde-fou : une rangée très déséquilibrée ne doit pas devenir un
+      // filet illisible. On accepte alors une légère entorse à l'échelle.
+      hHaut = Math.max(72, Math.min(hUtile - 72, hHaut));
+      var hBas = hUtile - hHaut;
+
+      var denom = (g ? surf(g) / PROF : 0) + (d ? surf(d) / PROF : 0) + sH / hHaut;
+      var k = LARG / denom;
+      var wG = g ? k * surf(g) / PROF : 0;
+      var wD = d ? k * surf(d) / PROF : 0;
+      var wMid = LARG - wG - wD;
+
+      if (g) blocs.push({ lot: g, x: x0, y: y0, w: wG, h: PROF });
+      if (d) blocs.push({ lot: d, x: x1 - wD, y: y0, w: wD, h: PROF });
+
+      var xMid = x0 + wG;
+      if (!bas.length || !haut.length) {
+        // Une seule rangée occupée : elle prend toute la profondeur, inutile
+        // de dessiner un couloir qui ne dessert rien.
+        var seule = haut.length ? haut : bas;
+        var ss = somme(seule), cxS = xMid;
+        seule.forEach(function (l) {
+          var w = wMid * surf(l) / ss;
+          blocs.push({ lot: l, x: cxS, y: y0, w: w, h: PROF });
+          cxS += w;
+        });
+      } else {
+        var cxH = xMid;
+        haut.forEach(function (l) {
+          var w = wMid * surf(l) / sH;
+          blocs.push({ lot: l, x: cxH, y: y0, w: w, h: hHaut });
+          cxH += w;
+        });
+        var cxB = xMid;
+        bas.forEach(function (l) {
+          var w = wMid * surf(l) / sB;
+          blocs.push({ lot: l, x: cxB, y: y1 - hBas, w: w, h: hBas });
+          cxB += w;
+        });
+        couloir = { x: xMid, y: y0 + hHaut, w: wMid, h: hCouloir };
+      }
+    }
+
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' +
+      t('vueMaquette') + '">' +
+      '<rect class="nj-mq-dalle" x="' + x0 + '" y="' + y0 + '" width="' + LARG +
+      '" height="' + PROF + '" rx="6"/>';
+
+    if (couloir) {
+      svg += '<rect class="nj-mq-couloir" x="' + arr(couloir.x) + '" y="' + arr(couloir.y) +
+        '" width="' + arr(couloir.w) + '" height="' + arr(couloir.h) + '"/>';
+      // Noyau escalier / ascenseur au centre du couloir.
+      var nw = Math.min(96, couloir.w * 0.22);
+      if (nw > 40) {
+        var nx = couloir.x + (couloir.w - nw) / 2, ny = couloir.y + 6, nh = couloir.h - 12;
+        svg += '<rect class="nj-mq-noyau" x="' + arr(nx) + '" y="' + arr(ny) +
+          '" width="' + arr(nw) + '" height="' + arr(nh) + '" rx="3"/>';
+        for (var i = 1; i <= 4; i++) {
+          var ly = ny + nh * i / 5;
+          svg += '<line x1="' + arr(nx + 6) + '" y1="' + arr(ly) + '" x2="' +
+            arr(nx + nw - 6) + '" y2="' + arr(ly) +
+            '" stroke="var(--surface)" stroke-width="2"/>';
+        }
+      }
+    }
+
+    blocs.forEach(function (b) { svg += lotSVG(b); });
+
+    // Repères de lecture : quel côté donne sur la rue, quel côté sur la cour.
+    if (couloir) {
+      svg += '<text class="nj-mq-cote" x="' + x0 + '" y="22">' + t('rue') + '</text>' +
+        '<text class="nj-mq-cote" x="' + x0 + '" y="' + (H - 8) + '">' + t('cour') + '</text>';
+    }
+    return svg + '</svg>';
+  }
+
+  /** Un lot dans le plateau : rectangle, libellés, pastille d'info. */
+  function lotSVG(b) {
+    var lot = b.lot;
+    var choisi = estSelectionne(lot.id);
+    var position = lot.numero.split('-').pop();
+    var resume = lot.typologie.toUpperCase() + ' · ' + lot.numero + ' · ' +
+      lot.surface + ' m² · ' + nombre(lot.prix) + ' ' + t('dh') +
+      ' · ' + t(lot.statut);
+    var libre = lot.statut === 'disponible';
+    var cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    var pad = 3;
+
+    var s = '<g class="nj-mq-lot nj-' + lot.statut + (choisi ? ' nj-choisi' : '') +
+      '" data-id="' + lot.id + '" data-statut="' + lot.statut + '"' +
+      (libre ? ' role="button" tabindex="0" aria-pressed="' + (choisi ? 'true' : 'false') + '"'
+             : ' role="img"') +
+      ' aria-label="' + echapper(resume) + '">' +
+      '<title>' + echapper(resume) + '</title>' +
+      '<rect class="nj-mq-fond" x="' + arr(b.x + pad) + '" y="' + arr(b.y + pad) +
+      '" width="' + arr(Math.max(2, b.w - 2 * pad)) + '" height="' +
+      arr(Math.max(2, b.h - 2 * pad)) + '" rx="5"/>';
+
+    if (b.w > 56) {
+      // « F3 · 84 m² » tient sur une ligne dès 118 px. En dessous, un bloc
+      // assez haut (typiquement un traversant d'extrémité) reste informatif
+      // en empilant le type puis la surface, plutôt que de n'afficher qu'un
+      // numéro que le client ne peut pas interpréter.
+      var large = b.w > 118 && b.h > 74;
+      var empile = !large && b.w > 62 && b.h > 130;
+      s += '<text class="nj-mq-num" x="' + arr(cx) + '" y="' +
+        arr(large ? cy - 2 : (empile ? cy - 12 : cy + 9)) +
+        '" text-anchor="middle">' + echapper(position) + '</text>';
+      if (large) {
+        s += '<text class="nj-mq-info" x="' + arr(cx) + '" y="' + arr(cy + 20) +
+          '" text-anchor="middle">' + lot.typologie.toUpperCase() + ' · ' +
+          lot.surface + ' m²</text>';
+      } else if (empile) {
+        s += '<text class="nj-mq-info" x="' + arr(cx) + '" y="' + arr(cy + 10) +
+          '" text-anchor="middle">' + lot.typologie.toUpperCase() + '</text>' +
+          '<text class="nj-mq-info" x="' + arr(cx) + '" y="' + arr(cy + 28) +
+          '" text-anchor="middle">' + lot.surface + ' m²</text>';
+      }
+    }
+
+    // Pastille d'information : ouvre la fiche sans toucher à la sélection.
+    if (b.w > 72 && b.h > 66) {
+      var ix = b.x + b.w - 20, iy = b.y + 20;
+      s += '<g class="nj-mq-info-btn" role="button" tabindex="0" data-fiche="' + lot.id +
+        '" aria-label="' + t('detailsLot') + ' ' + echapper(lot.numero) + '">' +
+        '<circle cx="' + arr(ix) + '" cy="' + arr(iy) + '" r="13"/>' +
+        '<text x="' + arr(ix) + '" y="' + arr(iy + 6) + '" text-anchor="middle">i</text></g>';
+    }
+    if (choisi && b.w > 72) {
+      var kx = b.x + 20, ky = b.y + 20;
+      s += '<g class="nj-mq-coche" aria-hidden="true">' +
+        '<circle cx="' + arr(kx) + '" cy="' + arr(ky) + '" r="13"/>' +
+        '<text x="' + arr(kx) + '" y="' + arr(ky + 6) + '" text-anchor="middle">✓</text></g>';
+    }
+    return s + '</g>';
+  }
+
+
+  /* ── Plein écran et navigation au doigt sur le plan ──────────────────────
+     Devant un client, sur la borne du bureau de vente, le plan doit occuper
+     l'écran entier : c'est le geste central de la démonstration. On agrandit
+     la section de l'immeuble — plan ET sélecteur d'étages — pour qu'on puisse
+     continuer à circuler dans le bâtiment sans en sortir. */
+
+  function basculerPleinEcran(section) {
+    if (!section) return;
+    if (document.fullscreenElement) { document.exitFullscreen(); return; }
+    if (section.requestFullscreen) section.requestFullscreen();
+    else if (section.webkitRequestFullscreen) section.webkitRequestFullscreen();
+  }
+
+  document.addEventListener('fullscreenchange', function () {
+    var plein = !!document.fullscreenElement;
+    document.querySelectorAll('[data-agrandir]').forEach(function (b) {
+      b.textContent = (plein ? '✕ ' + t('quitterPleinEcran') : '⛶ ' + t('pleinEcran'));
+    });
+    // Le plan reprend son cadrage entier : on ne veut pas entrer en plein
+    // écran sur un détail zoomé de la vue précédente.
+    document.querySelectorAll('.nj-mq-reel').forEach(recadrerPlan);
+  });
+
+  /**
+   * Zoom et déplacement du plan, au doigt comme à la souris.
+   *
+   * Même mécanique que l'éditeur d'admin : le viewBox du SVG porte les
+   * coordonnées de l'image d'origine, on ne déplace donc qu'une fenêtre de
+   * lecture. Le cadrage est borné à l'image — sans quoi, en dézoomant ou en
+   * poussant sur un bord, le client se retrouve devant du vide.
+   *
+   * Le tap reste réservé à la sélection du lot : c'est le geste utile ici, et
+   * la délégation de clic existante s'en charge. Seul un vrai glissement
+   * déplace le plan.
+   */
+  function recadrerPlan(svg) {
+    var vb = svg.getAttribute('data-vb0');
+    if (!vb) return;
+    svg.setAttribute('viewBox', vb);
+  }
+
+  function activerNavigationPlan(svg) {
+    if (svg.dataset.nav === '1') return;      // déjà équipé
+    svg.dataset.nav = '1';
+
+    var d = svg.viewBox.baseVal;
+    var LARG = d.width, HAUT = d.height;
+    svg.setAttribute('data-vb0', '0 0 ' + LARG + ' ' + HAUT);
+    var vue = { x: 0, y: 0, w: LARG, h: HAUT };
+    var ZOOM_MAX = 6;
+
+    // Redondant avec la feuille de style, mais posé aussi ici : si la règle
+    // CSS ne s'applique pas, le navigateur s'approprie le pincement et nos
+    // gestes ne voient jamais le second doigt.
+    svg.style.touchAction = 'none';
+
+    function appliquer() {
+      vue.w = Math.max(LARG / ZOOM_MAX, Math.min(LARG, vue.w));
+      vue.h = vue.w * (HAUT / LARG);
+      vue.x = Math.max(0, Math.min(LARG - vue.w, vue.x));
+      vue.y = Math.max(0, Math.min(HAUT - vue.h, vue.y));
+      svg.setAttribute('viewBox', vue.x + ' ' + vue.y + ' ' + vue.w + ' ' + vue.h);
+    }
+    function versImage(clientX, clientY) {
+      var r = svg.getBoundingClientRect();
+      return { x: vue.x + (clientX - r.left) / r.width * vue.w,
+               y: vue.y + (clientY - r.top) / r.height * vue.h };
+    }
+
+    /* ── Doigt : Touch Events ────────────────────────────────────────────
+       Les Pointer Events sont plus modernes, mais sur les écrans tactiles
+       Windows le second doigt n'arrivait pas de façon fiable tant qu'un
+       premier geste ne l'avait pas « réveillé » — d'où un pincement qui ne
+       marchait qu'après un zoom à la souris. Les Touch Events donnent la
+       liste complète des contacts à chaque événement : plus de second doigt
+       manquant. La souris garde son propre chemin, plus bas. */
+    var pince = null;    // instantané pris au début du pincement
+    var glisse = null;   // déplacement à un doigt
+    /* Pas de garde-fou « un glissement ne doit pas sélectionner le lot
+       d'arrivée » : il n'a pas lieu d'être, et c'est lui qui volait le premier
+       clic sur la pastille « i ».
+
+       Au doigt, le preventDefault() du touchmove supprime déjà le clic
+       synthétisé pour ce geste. À la souris, un glissement part d'un élément
+       et finit sur un autre : aucun clic n'est émis. Le seul cas restant — un
+       glissement qui revient exactement sur son point de départ — est si rare
+       et si inoffensif qu'il ne justifiait pas d'intercepter tous les clics du
+       plan pour l'attraper. */
+    var dernierToucher = 0;   // horodate le dernier contact, voir la souris
+
+    function ecart(t) {
+      return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    }
+
+    svg.addEventListener('touchstart', function (e) {
+      dernierToucher = Date.now();
+      var t = e.touches;
+      if (t.length >= 2) {
+        var c = versImage((t[0].clientX + t[1].clientX) / 2,
+                          (t[0].clientY + t[1].clientY) / 2);
+        pince = { d: ecart(t) || 1, cx: c.x, cy: c.y,
+                  x: vue.x, y: vue.y, w: vue.w, h: vue.h };
+        glisse = null;
+      } else if (t.length === 1) {
+        pince = null;
+        glisse = { x: t[0].clientX, y: t[0].clientY };
+      }
+    }, { passive: true });
+
+    svg.addEventListener('touchmove', function (e) {
+      dernierToucher = Date.now();
+      var t = e.touches;
+      if (pince && t.length >= 2) {
+        var ratio = ecart(t) / pince.d;
+        var w = Math.max(LARG / ZOOM_MAX, Math.min(LARG, pince.w / ratio));
+        var h = w * (HAUT / LARG);
+        // Recalculé depuis l'instantané de départ, jamais de proche en
+        // proche : sinon les arrondis font dériver le plan sous les doigts.
+        vue.x = pince.cx - (pince.cx - pince.x) * (w / pince.w);
+        vue.y = pince.cy - (pince.cy - pince.y) * (h / pince.h);
+        vue.w = w; vue.h = h;
+        appliquer();
+        e.preventDefault();
+        return;
+      }
+      if (glisse && t.length === 1 && vue.w < LARG) {
+        // Déplacement seulement une fois zoomé : au cadrage entier il n'y a
+        // rien à faire glisser, et un glissement parasite empêcherait de
+        // choisir un logement d'une simple touche.
+        var dx = t[0].clientX - glisse.x, dy = t[0].clientY - glisse.y;
+        if (!glisse.actif && Math.hypot(dx, dy) < 8) return;
+        glisse.actif = true;
+        var r = svg.getBoundingClientRect();
+        vue.x -= dx * (vue.w / r.width);
+        vue.y -= dy * (vue.h / r.height);
+        // On met à jour le point de référence sans recréer l'objet : le
+        // remplacer perdrait `actif`, et le seuil de 8 px repartirait de zéro
+        // à chaque mouvement — un glissement lent ne démarrerait jamais.
+        glisse.x = t[0].clientX; glisse.y = t[0].clientY;
+        appliquer();
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    svg.addEventListener('touchend', function (e) {
+      dernierToucher = Date.now();
+      if (!e.touches.length) { pince = null; glisse = null; }
+    }, { passive: true });
+
+    /* ── Souris ──────────────────────────────────────────────────────────
+       Après un tap, le navigateur rejoue la séquence en souris pour les pages
+       qui ne connaissent que la souris : mousedown, souvent un mousemove d'un
+       pixel, mouseup, click. Ce mousemove fantôme passait pour un
+       déplacement, levait le drapeau anti-glissement, et le clic qui suivait
+       — celui de la pastille « i » — se faisait avaler. D'où deux touches
+       nécessaires pour ouvrir la fiche.
+
+       On ignore donc la souris juste après un contact tactile, et on exige un
+       vrai déplacement avant de considérer qu'il y a glissement. */
+    var SOURIS_APRES_DOIGT = 700;   // ms
+    var sourisDepart = null;
+
+    function sourisSynthetique() { return Date.now() - dernierToucher < SOURIS_APRES_DOIGT; }
+
+    svg.addEventListener('mousedown', function (e) {
+      if (sourisSynthetique()) return;
+      if (e.button !== 0 || vue.w >= LARG) return;
+      sourisDepart = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY };
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!sourisDepart || sourisSynthetique()) return;
+      var r = svg.getBoundingClientRect();
+      vue.x -= (e.clientX - sourisDepart.x) * (vue.w / r.width);
+      vue.y -= (e.clientY - sourisDepart.y) * (vue.h / r.height);
+      sourisDepart.x = e.clientX; sourisDepart.y = e.clientY;
+      appliquer();
+    });
+    window.addEventListener('mouseup', function () { sourisDepart = null; });
+
+    svg.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var c = versImage(e.clientX, e.clientY);
+      var f = e.deltaY < 0 ? 1.2 : 1 / 1.2;
+      var w = Math.max(LARG / ZOOM_MAX, Math.min(LARG, vue.w / f));
+      var h = w * (HAUT / LARG);
+      vue.x = c.x - (c.x - vue.x) * (w / vue.w);
+      vue.y = c.y - (c.y - vue.y) * (h / vue.h);
+      vue.w = w; vue.h = h;
+      appliquer();
+    }, { passive: false });
+
+    svg.addEventListener('dblclick', function () {
+      vue = { x: 0, y: 0, w: LARG, h: HAUT };
+      appliquer();
+    });
+
+    appliquer();   // le viewBox vient désormais de l'état JS, dès le départ
+  }
+
+  /** Bascule entre la façade, la maquette et les cartes détaillées. */
   function changerVue(vue) {
-    if (vue !== 'plan' && vue !== 'liste') return;
+    if (['plan', 'maquette', 'liste'].indexOf(vue) === -1) return;
     etat.vue = vue;
     try { localStorage.setItem('nj-vue-lots', vue); } catch (e) {}
     document.querySelectorAll('[data-vue]').forEach(function (b) {
@@ -646,6 +1551,10 @@
       b.classList.toggle('is-active', actif);
       b.setAttribute('aria-pressed', actif ? 'true' : 'false');
     });
+    // La maquette porte désormais sa propre légende sous le titre de chaque
+    // immeuble : on masque la légende globale pour ne pas la doubler.
+    var legGlobale = document.getElementById('njLegende');
+    if (legGlobale) legGlobale.style.display = (vue === 'maquette') ? 'none' : '';
     afficherLots();
   }
 
@@ -654,7 +1563,9 @@
     var compteur = document.getElementById('njCompteur');
     compteur.textContent = etat.lots.length + ' ' +
       (etat.lots.length > 1 ? t('resultats') : t('resultat'));
-    if (etat.vue === 'plan') rendrePlan(); else rendreLots();
+    if (etat.vue === 'plan') rendrePlan();
+    else if (etat.vue === 'maquette') rendreMaquette();
+    else rendreLots();
   }
 
   function rendreLots() {
@@ -712,6 +1623,29 @@
                  '" aria-label="' + t('retirer') + ' ' + l.numero + '">×</button></span>';
         }).join('');
     document.getElementById('njSuivant').disabled = n === 0;
+    var vider = document.getElementById('njVider');
+    if (vider) vider.hidden = n === 0;
+  }
+
+  /** Vide toute la sélection en une fois (mise à jour en place : préserve le
+      plein écran de la maquette). */
+  function viderSelection() {
+    if (!etat.selection.length) return;
+    var ids = etat.selection.slice();
+    etat.selection = [];
+    enregistrerSelection();
+    ids.forEach(majCarte);   // retire les anneaux/coches des lots concernés
+    rendreBarreSelection();
+    majChoixMaquette();
+  }
+
+  /** Envoie la sélection : passe à l'étape « Ma sélection » (comparatif puis
+      mise en relation). Le canal éventuel est repris tel quel. */
+  function envoyerChoix() {
+    if (!etat.selection.length) return;
+    var canal = new URLSearchParams(window.location.search).get('canal');
+    window.location.href = 'ma-selection.html?projet=' + encodeURIComponent(etat.projet) +
+      (canal ? '&canal=' + encodeURIComponent(canal) : '');
   }
 
   /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -819,7 +1753,7 @@
     chargerSelection();
     try {
       var vueGardee = localStorage.getItem('nj-vue-lots');
-      if (vueGardee === 'plan' || vueGardee === 'liste') etat.vue = vueGardee;
+      if (['plan', 'maquette', 'liste'].indexOf(vueGardee) !== -1) etat.vue = vueGardee;
     } catch (e) {}
     document.querySelectorAll('[data-vue]').forEach(function (b) {
       b.addEventListener('click', function () { changerVue(this.dataset.vue); });
@@ -859,10 +1793,42 @@
     // aussi dans la fenetre de la fiche, hors de la grille.
     document.addEventListener('click', function (e) {
       // Un bouton de consultation ne doit pas déclencher la sélection.
-      var fiche = e.target.closest('.nj-carreau-info');
+      // getAttribute plutôt que dataset : la pastille de la maquette est un
+      // <g> SVG, et dataset n'y est pas garanti sur tous les navigateurs.
+      var fiche = e.target.closest('.nj-carreau-info, .nj-mq-info-btn');
       if (fiche) {
         e.stopPropagation();
-        ouvrirFiche(Number(fiche.dataset.fiche));
+        ouvrirFiche(Number(fiche.getAttribute('data-fiche')));
+        return;
+      }
+      var retourFiche = e.target.closest('[data-retour-fiche]');
+      if (retourFiche) {
+        e.stopPropagation();
+        ouvrirFiche(Number(retourFiche.getAttribute('data-retour-fiche')));
+        return;
+      }
+      // Retirer un lot (jeton × de la barre du bas OU du panneau « Mes choix »).
+      var retirer = e.target.closest('[data-retirer]');
+      if (retirer) {
+        e.stopPropagation();
+        basculerSelection(Number(retirer.getAttribute('data-retirer')), 'disponible');
+        return;
+      }
+      // Envoyer la sélection (bouton du panneau « Mes choix », visible aussi
+      // en plein écran, contrairement à la barre du bas).
+      var envoyer = e.target.closest('[data-envoyer-choix]');
+      if (envoyer) {
+        e.stopPropagation();
+        envoyerChoix();
+        return;
+      }
+      // Vider toute la sélection (panneau maquette ou fiche).
+      var viderChoix = e.target.closest('[data-vider-choix]');
+      if (viderChoix) {
+        e.stopPropagation();
+        var relance = viderChoix.getAttribute('data-vider-choix');
+        viderSelection();
+        if (relance && relance !== '1') ouvrirFiche(Number(relance));  // rafraîchit la fiche
         return;
       }
       var media = e.target.closest('.nj-media-btn');
@@ -871,27 +1837,59 @@
         ouvrirMedia(media.dataset.media, Number(media.dataset.lot));
         return;
       }
-      var carte = e.target.closest('.nj-lot, .nj-carreau');
-      if (carte) basculerSelection(Number(carte.dataset.id), carte.dataset.statut);
+      var choix = e.target.closest('[data-choix]');
+      if (choix) {
+        e.stopPropagation();
+        var lid = Number(choix.getAttribute('data-choix'));
+        basculerSelection(lid, choix.getAttribute('data-statut'));
+        // On rafraîchit toute la ligne d'actions (bouton choix + « Vider »)
+        // pour refléter le nouvel état.
+        var lotChoix = etat.lots.filter(function (l) { return l.id === lid; })[0];
+        var actions = choix.closest('.nj-fiche-actions');
+        if (lotChoix && actions) actions.innerHTML = boutonChoix(lotChoix) + boutonViderFiche(lotChoix);
+        else if (lotChoix) choix.outerHTML = boutonChoix(lotChoix);
+        return;
+      }
+      var agrandir = e.target.closest('[data-agrandir]');
+      if (agrandir) {
+        e.stopPropagation();
+        basculerPleinEcran(agrandir.closest('.nj-mq-imm'));
+        return;
+      }
+      var etage = e.target.closest('[data-etage]');
+      if (etage) {
+        majEtage(etage.getAttribute('data-imm'), etage.getAttribute('data-etage'));
+        return;
+      }
+      var carte = e.target.closest('.nj-lot, .nj-carreau, .nj-mq-lot');
+      if (carte) basculerSelection(Number(carte.getAttribute('data-id')),
+                                   carte.getAttribute('data-statut'));
     });
     document.getElementById('njGrille').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      var carte = e.target.closest('.nj-lot, .nj-carreau');
-      if (carte) { e.preventDefault(); basculerSelection(Number(carte.dataset.id), carte.dataset.statut); }
+      // La pastille d'info de la maquette est focusable : au clavier elle
+      // doit ouvrir la fiche, pas sélectionner le lot qui l'entoure.
+      var info = e.target.closest('.nj-mq-info-btn');
+      if (info) {
+        e.preventDefault();
+        ouvrirFiche(Number(info.getAttribute('data-fiche')));
+        return;
+      }
+      var carte = e.target.closest('.nj-lot, .nj-carreau, .nj-mq-lot');
+      if (carte) {
+        e.preventDefault();
+        basculerSelection(Number(carte.getAttribute('data-id')),
+                          carte.getAttribute('data-statut'));
+      }
     });
-    document.getElementById('njBarreListe').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-retirer]');
-      if (b) basculerSelection(Number(b.dataset.retirer), 'disponible');
-    });
+    /* Les jetons « × » (barre du bas et panneau maquette) sont gérés par la
+       délégation au niveau du document, pour ne pas double-basculer. */
 
     // Étape suivante : le comparatif puis la mise en relation. Le canal est
     // repris tel quel pour qu'une borne reste identifiée comme telle.
-    document.getElementById('njSuivant').addEventListener('click', function () {
-      if (!etat.selection.length) return;
-      var canal = new URLSearchParams(window.location.search).get('canal');
-      window.location.href = 'ma-selection.html?projet=' + encodeURIComponent(etat.projet) +
-        (canal ? '&canal=' + encodeURIComponent(canal) : '');
-    });
+    document.getElementById('njVider').addEventListener('click', viderSelection);
+
+    document.getElementById('njSuivant').addEventListener('click', envoyerChoix);
 
     document.getElementById('fProjet').addEventListener('change', function () {
       changerProjet(this.value);
@@ -901,11 +1899,75 @@
     document.getElementById('njMedia').addEventListener('click', function (e) {
       if (e.target === this) fermerMedia();   // clic sur le fond
     });
+    // Échap est géré nativement par <dialog> : on se raccroche à sa fermeture
+    // pour libérer l'iframe, sinon la visite 360° continuerait de tourner.
+    document.getElementById('njMedia').addEventListener('close', function () {
+      document.getElementById('njMediaCorps').innerHTML = '';
+      document.body.classList.remove('nj-fige');
+    });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !document.getElementById('njMedia').hidden) fermerMedia();
+      if (e.key === 'Escape' && document.getElementById('njMedia').open) fermerMedia();
     });
 
     demarrer();
+  }
+
+  /* ── Actions du bandeau : contact, bureau de vente, itinéraire ─────── */
+
+  /**
+   * Boutons repris de project.html, en haut de page. Le projet courant donne
+   * l'identifiant du bureau de vente et les coordonnées de l'itinéraire ;
+   * sans coordonnées, les deux boutons d'itinéraire ne sont pas rendus.
+   * Reconstruits à chaque changement de langue ou de projet.
+   */
+  function rendreActionsHero() {
+    var zone = document.getElementById('njHeroActions');
+    if (!zone) return;
+    var lang = langue();
+    var p = projetCourant();
+    var html = '<a class="nj-act-or" href="contact.html#' + lang + '">' +
+      t('contacter') + '</a>';
+    if (p) {
+      html += '<a href="bureaudevente.html?id=' + encodeURIComponent(p.id) +
+        '#' + lang + '">🏢 ' + t('visiterBureau') + '</a>';
+      if (p.lat && p.lng) {
+        html += '<a href="localisation.html?projet=' + encodeURIComponent(p.id) +
+          '#' + lang + '">' + t('quartier') + '</a>' +
+          '<button type="button" id="njItineraire">' + t('yAller') + '</button>' +
+          '<a class="nj-act-wa" id="njItineraireWa" href="#" target="_blank" rel="noopener">' +
+          t('partagerItineraire') + '</a>';
+      }
+    }
+    zone.innerHTML = html;
+
+    var btn = document.getElementById('njItineraire');
+    if (btn) btn.addEventListener('click', function () { ouvrirItineraire(false); });
+    var wa = document.getElementById('njItineraireWa');
+    if (wa) wa.addEventListener('click', function (e) {
+      e.preventDefault();
+      ouvrirItineraire(true);
+    });
+  }
+
+  /** Itinéraire depuis la position du visiteur, vers Google Maps ou WhatsApp. */
+  function ouvrirItineraire(versWhatsapp) {
+    var p = projetCourant();
+    if (!p) return;
+    if (!navigator.geolocation) { alert(t('geoIndispo')); return; }
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      var nom = menuText(p.name, langue());
+      var maps = 'https://www.google.com/maps/dir/?api=1' +
+        '&origin=' + encodeURIComponent(pos.coords.latitude + ',' + pos.coords.longitude) +
+        '&destination=' + encodeURIComponent(p.lat + ',' + p.lng) +
+        '&travelmode=driving';
+      var url = versWhatsapp
+        ? 'https://wa.me/?text=' +
+          encodeURIComponent(t('itineraireVers') + ' ' + nom + ' : ' + maps)
+        : maps;
+      window.open(url, '_blank', 'noopener');
+    }, function () {
+      alert(t('geoRefus'));
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
   }
 
   /** Applique la langue courante à tout le texte figé de la page. */
@@ -922,6 +1984,7 @@
     texte('lblProjet', t('projet'));
     texte('njVueLabel', t('vue'));
     texte('njVuePlan', t('vuePlan'));
+    texte('njVueMaquette', t('vueMaquette'));
     texte('njVueListe', t('vueListe'));
     texte('njMediaFermer', t('fermer'));
     texte('lblTypologie', t('typologie'));
@@ -933,6 +1996,7 @@
     texte('lblDispoSeuls', t('dispoSeuls'));
     texte('njReinit', t('reinit'));
     texte('njBarreLabel', t('selection'));
+    texte('njVider', t('viderSelection'));
 
     // La flèche suit le sens de lecture : ← en arabe, comme sur carte.html.
     var suivant = document.getElementById('njSuivant');
@@ -944,7 +2008,9 @@
       var nom = menuText(projet.name, lang);
       var lieu = menuText(projet.location, lang);
       texte('njSousTitre', lieu ? nom + ' — ' + lieu : nom);
+      texte('njProjetBandeau', nom);   // rappel du nom au-dessus des résultats
     }
+    rendreActionsHero();
 
     var fil = document.getElementById('njFil');
     if (fil) {

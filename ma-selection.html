@@ -7,7 +7,7 @@
 <title>Narjiss — Ma sélection</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=14">
+<link rel="stylesheet" href="shared/menu.css?v=17">
 <style>
 /* Étapes 4 et 5 du parcours. Mêmes repères visuels que disponibilites.html :
    le visiteur doit sentir qu'il avance dans un même tunnel. */
@@ -116,6 +116,32 @@
 }
 .nj-consent input { width: 22px; height: 22px; margin-top: .1rem; accent-color: var(--ocean-deep); flex: none; }
 
+/* Scan / import du dos de la CIN (remplissage automatique nom + prénom). */
+.nj-mrz {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .7rem;
+  border: 1.5px solid var(--ocean-deep); border-radius: 10px;
+  background: rgba(0, 106, 255, .05); padding: .8rem .9rem; margin-bottom: 1rem;
+}
+.nj-mrz-head { flex: 1 1 200px; min-width: 0; }
+.nj-mrz-head b { display: block; font-size: .92rem; color: var(--charcoal); }
+.nj-mrz-head span { display: block; font-size: .8rem; color: var(--muted); margin-top: .15rem; }
+.nj-mrz-pick {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 1rem;
+  border-radius: 9px; background: var(--accent-solid); color: var(--on-accent);
+  font-weight: 700; font-size: .88rem; cursor: pointer; white-space: nowrap;
+}
+.nj-mrz-pick input { display: none; }
+.nj-mrz-status { flex-basis: 100%; font-size: .82rem; color: var(--muted); min-height: 1.1rem; }
+.nj-mrz-status.ok { color: #14603a; font-weight: 700; }
+.nj-mrz-status.ko { color: #8d1f1f; }
+
+/* Mentions légales au-dessus des cases de consentement. */
+.nj-legal {
+  font-size: .8rem; line-height: 1.6; color: var(--muted);
+  background: var(--surface-raised); border: 1px solid var(--border-subtle);
+  border-radius: 10px; padding: .8rem .9rem; margin-bottom: .7rem;
+}
+
 .nj-btn {
   display: inline-block; min-height: 48px; padding: .8rem 1.4rem;
   background: var(--accent-solid); border: none; border-radius: 10px;
@@ -125,6 +151,11 @@
 .nj-btn-clair { background: none; border: 1px solid var(--border-medium); color: var(--text); }
 .nj-btn-wa { background: var(--wa); color: #06231A; }
 .nj-actions { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+/* Alternative « pas de choix immédiat » : enregistrer la fiche client complète. */
+.nj-fiche-complete {
+  margin-top: 1.2rem; padding-top: 1.1rem; border-top: 1px dashed var(--border-medium);
+}
+.nj-fiche-complete p { margin: 0 0 .6rem; font-size: .86rem; color: var(--muted); }
 
 .nj-erreur {
   margin-bottom: 1rem; padding: .7rem .9rem;
@@ -189,6 +220,19 @@
       <p class="nj-erreur" id="njErreur" role="alert" hidden></p>
       <input type="hidden" name="lots" id="fLots">
 
+      <!-- Scan / import du dos de la CIN : remplit nom + prénom tout seuls. -->
+      <div class="nj-mrz" id="njMrz">
+        <div class="nj-mrz-head">
+          <b id="lblMrzTitre">Remplissage automatique</b>
+          <span id="lblMrzAide">Photographiez ou importez le dos de votre CIN : le nom et le prénom se remplissent seuls.</span>
+        </div>
+        <label class="nj-mrz-pick">
+          <span id="lblMrzBtn">📷 Scanner ou importer le dos de la CIN</span>
+          <input type="file" accept="image/*" id="njMrzInput">
+        </label>
+        <span class="nj-mrz-status" id="njMrzStatus"></span>
+      </div>
+
       <div class="nj-grille2">
         <div class="nj-champ">
           <label for="fNom"><span id="lblNom">Nom</span> <span class="nj-oblig">*</span></label>
@@ -225,14 +269,29 @@
                   placeholder="Une question, une contrainte de financement, un horaire qui vous arrange…"></textarea>
       </div>
 
+      <div class="nj-legal" id="njLegal"></div>
+
       <label class="nj-consent" for="fConsent">
-        <input type="checkbox" id="fConsent" name="consentement" value="1" required>
-        <span id="lblConsentement">J'accepte que Narjiss Immobilière conserve ces informations pour me recontacter au sujet de cette sélection. Vous pouvez demander leur suppression à tout moment en nous écrivant.</span>
+        <input type="checkbox" id="fConsent" name="consentement" value="1" data-consent-requis="1" required>
+        <span id="lblConsentement">Je reconnais avoir été informé(e) de ce qui précède et je consens au traitement de mes données pour les finalités indiquées.</span>
+      </label>
+      <label class="nj-consent" for="fConsentContact">
+        <input type="checkbox" id="fConsentContact" name="consentement_contact" value="1" data-consent-requis="1">
+        <span id="lblConsentContact">J'accepte d'être recontacté(e) par Narjiss Immobilière (téléphone, e-mail ou WhatsApp) au sujet de cette sélection.</span>
+      </label>
+      <label class="nj-consent" for="fMarketing">
+        <input type="checkbox" id="fMarketing" name="marketing" value="1">
+        <span id="lblMarketing">J'accepte de recevoir les offres commerciales de Narjiss Immobilière (facultatif, sans effet sur ma demande).</span>
       </label>
 
       <div class="nj-actions">
-        <button type="submit" class="nj-btn" id="njEnvoyer">Envoyer ma demande</button>
+        <button type="submit" class="nj-btn" id="njEnvoyer" disabled>Envoyer ma demande</button>
         <a class="nj-btn nj-btn-clair" href="disponibilites.html" id="njRetour2">Retour aux logements</a>
+      </div>
+
+      <div class="nj-fiche-complete">
+        <p id="njFicheAide">Pas encore décidé ? Enregistrez vos coordonnées via la fiche client complète — un conseiller vous recontactera.</p>
+        <a class="nj-btn nj-btn-clair" id="njFicheComplete" href="fiche.html">📋 Remplir la fiche client complète →</a>
       </div>
     </form>
   </section>
@@ -241,7 +300,10 @@
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=14"></script>
-<script src="ma-selection.js?v=3"></script>
+<script src="assets/vendor/tesseract/tesseract.min.js"></script>
+<script src="assets/vendor/mrz/mrz-td1.js?v=20260724g"></script>
+<script src="assets/cin-mrz.js?v=1"></script>
+<script src="shared/menu.js?v=15"></script>
+<script src="ma-selection.js?v=4"></script>
 </body>
 </html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Localisation</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css?v=17">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* Version allégée de la section « Localisation » de project.html : la carte,
+   les POI du quartier, rien d'autre. Pas de dessin, pas de mesure, pas de
+   routage — uniquement Leaflet et le panneau de points d'intérêt, pour une
+   page qui s'ouvre vite depuis la borne du bureau de vente. */
+
+:root {
+  --ink: #1f2430;
+  --ivory: #f3f6fa;
+  --gold: #c15a00;
+  --bronze: #b45309;
+  --smoke: #ffffff;
+  --surface-2: #eef2f7;
+  --muted: #596273;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e4e8f0; --ivory: #0f131a; --gold: #ff9a3d;
+  --bronze: #ffb070; --smoke: #171c26; --surface-2: #1f2632; --muted: #9aa4b8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ink: #e4e8f0; --ivory: #0f131a; --gold: #ff9a3d;
+    --bronze: #ffb070; --smoke: #171c26; --surface-2: #1f2632; --muted: #9aa4b8;
+  }
+}
+
+body { background: var(--ivory); }
+
+.loc-hero {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: .55rem 0 .35rem;   /* en-tête compact : plus de place pour la carte */
+}
+.section-kicker {
+  color: var(--bronze);
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: 2.2px;
+  font-weight: 900;
+  margin-bottom: .2rem;
+}
+.loc-hero h1 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+  color: var(--ink);
+}
+html[dir=rtl] .loc-hero h1 { font-family: 'Noto Sans Arabic', serif; }
+.loc-hero .loc-lieu { margin: .3rem 0 0; color: var(--muted); }
+.loc-retour {
+  display: inline-flex; align-items: center; gap: .35rem;
+  min-height: 44px; padding: .5rem .9rem; margin-top: .8rem;
+  border: 1px solid var(--border-subtle); border-radius: 8px;
+  background: var(--smoke); color: var(--ocean-deep);
+  font-weight: 700; font-size: .88rem; text-decoration: none;
+}
+
+.loc-shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto 2.5rem; }
+/* La carte occupe la hauteur restante sous l'en-tête, sinon la page reste à
+   moitié vide sur un grand écran. --loc-carte est la hauteur réservée au
+   menu, au titre et à la marge basse. */
+:root { --loc-carte: calc(100vh - 200px); }
+.map-composition {
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(20,20,29,.15);
+  border: 1px solid rgba(20,20,29,.08);
+}
+.map-aside {
+  background: var(--surface-2);
+  color: var(--ink);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: var(--loc-carte);
+  min-height: 480px;
+  overflow: hidden;
+}
+.map-intro { padding: 1.2rem 1.3rem .9rem; border-bottom: 1px solid rgba(17,24,39,.08); }
+.map-intro p { margin-top: .7rem; color: var(--muted); line-height: 1.7; font-size: .88rem; }
+.coordinate { color: var(--gold); font-size: .82rem; margin-top: .8rem; font-weight: 800; }
+#projectMap { height: var(--loc-carte); min-height: 480px; width: 100%; z-index: 1; }
+
+.map-actions { padding: 1rem 1.2rem 1.2rem; border-top: 1px solid rgba(17,24,39,.08); display: grid; gap: .55rem; }
+.map-actions a {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: .6rem 1rem;
+  border: 1px solid rgba(0,174,239,.24); border-radius: 8px;
+  background: var(--smoke); color: var(--ocean-deep);
+  font-weight: 700; font-size: .88rem; text-decoration: none;
+}
+
+.poi-summary { overflow-y: auto; min-height: 0; }
+.poi-count { color: var(--ink); font-size: .9rem; font-weight: 700; padding: 1rem 1.2rem .7rem; }
+.poi-count span {
+  color: var(--gold); font-family: 'Playfair Display', serif;
+  font-size: 1.7rem; margin-right: .35rem;
+}
+html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
+.poi-legend-marker {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid white; box-shadow: 0 1px 4px rgba(20,20,29,.25);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: white; flex: 0 0 22px;
+}
+.poi-legend-marker .poi-google-svg { width: 14px; height: 14px; stroke-width: 2.8; }
+.poi-category-btn .poi-legend-marker { width: 24px; height: 24px; flex-basis: 24px; }
+.poi-category-btn .poi-legend-marker .poi-google-svg { width: 15px; height: 15px; }
+.poi-note { color: var(--muted); font-size: .78rem; line-height: 1.55; padding: 1rem 1.2rem; }
+
+.poi-controls {
+  padding: .85rem 1.2rem;
+  border-top: 1px solid rgba(17,24,39,.08);
+  border-bottom: 1px solid rgba(17,24,39,.08);
+  background: var(--smoke);
+}
+.poi-control-row { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.poi-control-row:last-child { margin-bottom: 0; }
+.poi-control-row label {
+  color: var(--muted); font-size: .68rem; letter-spacing: 1px; text-transform: uppercase;
+}
+.poi-sort,
+.poi-filter {
+  border: 1px solid rgba(17,24,39,.12); background: var(--surface-2); color: var(--ink);
+  border-radius: 7px; padding: .45rem .7rem; font: inherit; font-size: .78rem;
+  min-height: 36px;
+}
+.poi-sort { cursor: pointer; }
+.poi-sort.active { background: var(--gold); border-color: var(--gold); color: white; font-weight: 800; }
+.poi-filter option { background: var(--smoke); color: var(--ink); }
+
+.poi-category { border-bottom: 1px solid rgba(17,24,39,.08); }
+.poi-category-btn {
+  width: 100%; display: flex; align-items: center; gap: .55rem;
+  padding: .82rem 1.2rem; border: 0; background: transparent; color: var(--ink);
+  font: inherit; cursor: pointer; text-align: left; min-height: 44px;
+}
+html[dir=rtl] .poi-category-btn { text-align: right; }
+.poi-category-btn:hover,
+.poi-category-btn.active { background: rgba(0,174,239,.08); color: var(--ocean-deep); }
+.poi-category-btn .label { flex: 1; min-width: 0; }
+/* Le badge porte désormais seul le comptage par catégorie : il doit se lire
+   à deux mètres, comme le reste de la page. */
+.poi-category-btn .count {
+  min-width: 30px; padding: .16rem .5rem; border-radius: 999px;
+  background: rgba(0,174,239,.16); color: var(--ocean-deep);
+  font-size: .82rem; font-weight: 800; text-align: center;
+}
+.poi-category-btn .arrow { font-size: .62rem; transition: transform .18s; }
+.poi-category-btn.active .arrow { transform: rotate(90deg); }
+html[dir=rtl] .poi-category-btn.active .arrow { transform: rotate(-90deg); }
+.poi-list { display: none; background: var(--smoke); }
+.poi-list.show { display: block; }
+.poi-item {
+  display: grid; grid-template-columns: 7px 1fr; gap: .6rem; align-items: start;
+  width: 100%; border: 0; border-top: 1px solid rgba(17,24,39,.06);
+  background: transparent; color: var(--ink); padding: .68rem 1.2rem;
+  font: inherit; text-align: left; cursor: pointer; min-height: 44px;
+}
+html[dir=rtl] .poi-item { text-align: right; }
+.poi-item:hover { background: rgba(193,90,0,.08); }
+.poi-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin-top: .45rem; }
+.poi-name { font-weight: 700; font-size: .82rem; line-height: 1.25; }
+.poi-meta { color: var(--muted); font-size: .7rem; margin-top: .18rem; line-height: 1.4; }
+
+.project-popup { min-width: 190px; padding: .55rem .65rem; }
+.project-popup .popup-cat {
+  color: var(--ocean); font-size: .62rem; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.project-popup .popup-name {
+  color: var(--charcoal); font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 800; margin-top: .12rem;
+}
+.project-popup .popup-address,
+.project-popup .popup-meta { color: var(--muted); font-size: .74rem; margin-top: .22rem; }
+.project-popup .popup-phone a { color: var(--ocean); text-decoration: none; }
+
+.project-pin-marker {
+  position: relative; width: 24px; height: 24px; background: var(--gold);
+  border-radius: 50% 50% 50% 0; box-shadow: 0 5px 14px rgba(20,20,29,.28);
+  transform: rotate(-45deg);
+}
+.project-pin-marker::before {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 9px; height: 9px; background: var(--smoke);
+  border-radius: 50%; transform: translate(-50%, -50%);
+}
+.poi-google-marker {
+  width: 34px; height: 34px; border-radius: 50%; border: 3px solid white;
+  box-shadow: 0 2px 7px rgba(20,20,29,.35);
+  display: flex; align-items: center; justify-content: center; color: white;
+}
+.poi-google-svg {
+  width: 21px; height: 21px; display: block; color: white;
+  fill: none; stroke: currentColor; stroke-width: 2.4;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.poi-google-svg-fill { fill: currentColor; stroke: none; }
+
+@media (max-width: 900px) {
+  .map-composition { grid-template-columns: 1fr; }
+  .map-aside { height: auto; min-height: 0; }
+  .poi-summary { max-height: 420px; }
+  #projectMap { height: 420px; min-height: 0; }
+}
+
+/* Mode « embarqué » (iframe depuis le parcours client) : on ne garde que la
+   carte et le panneau POI, sans le menu du site ni l'en-tête. */
+.nj-embed #mainMenu,
+.nj-embed .loc-hero,
+.nj-embed #mainFooter,
+.nj-embed .map-actions,
+.nj-embed .loc-retour { display: none !important; }
+.nj-embed .loc-shell { padding: 0; margin: 0; max-width: none; }
+.nj-embed .map-composition { height: 100vh; min-height: 0; }
+.nj-embed #projectMap { height: 100vh; }
+@media (max-width: 900px) {
+  .nj-embed .map-composition { height: auto; }
+  .nj-embed #projectMap { height: 60vh; }
+}
+</style>
+<script>
+  /* Posé avant le rendu pour éviter tout clignotement du menu en mode iframe. */
+  (function () {
+    try { if (new URLSearchParams(location.search).has('embed'))
+      document.documentElement.classList.add('nj-embed'); } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<div id="mainMenu"></div>
+
+<section class="loc-hero">
+  <div class="section-kicker" id="locKicker">Localisation</div>
+  <h1 id="locNom">Projet</h1>
+  <p class="loc-lieu" id="locLieu"></p>
+  <a class="loc-retour" id="locRetour" href="disponibilites.html">← Retour aux disponibilités</a>
+</section>
+
+<div class="loc-shell">
+  <div class="map-composition">
+    <aside class="map-aside">
+      <div class="map-intro">
+        <h2 id="locTitre" style="margin:0;font-size:1.2rem;">Le projet dans son territoire</h2>
+        <p id="locTexte"></p>
+        <div class="coordinate"><span id="locGpsLabel">Coordonnées GPS</span> : <span id="locGps"></span></div>
+      </div>
+      <div class="poi-summary" id="poiSummary"></div>
+      <div class="map-actions">
+        <a id="locCarteGlobale" href="carte.html">Carte globale</a>
+        <a id="locFiche" href="project.html">Voir la fiche du projet</a>
+      </div>
+    </aside>
+    <div id="projectMap"></div>
+  </div>
+</div>
+
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js?v=15"></script>
+<script src="localisation.js?v=3"></script>
+</body>
+</html>

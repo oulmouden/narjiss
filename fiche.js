@@ -295,6 +295,18 @@
     sel.innerHTML = html;
   }
 
+  /* Pré-remplissage depuis l'URL : quand on arrive de « Ma sélection » (client
+     qui n'a pas encore choisi), on emporte les coordonnées déjà saisies pour
+     ne pas les redemander. On ne remplit que les champs vides. */
+  function prefillFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+    ['nom', 'prenom', 'telephone', 'email', 'ville'].forEach(function (k) {
+      var v = params.get(k);
+      if (v) setIfEmpty(k, v);
+    });
+    refreshRequired();
+  }
+
   /* ── Langue ─────────────────────────────────────────────────────────── */
   function applyLang(next) {
     lang = next;
@@ -603,6 +615,7 @@
     setupSignature();
     setupMrz();
     applyLang('fr');
+    prefillFromUrl();   // coordonnées venues de « Ma sélection », le cas échéant
     document.getElementById('ficheForm').addEventListener('submit', submitForm);
 
     var resetBtn = document.getElementById('resetBtn');

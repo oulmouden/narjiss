@@ -457,6 +457,40 @@
     return floorPlan.slice(0, floorPlan.lastIndexOf("/") + 1) + "PLAN DE MASSE.pdf";
   }
 
+  /* ─── Vidéos du projet ─────────────────────────────────────────────────────
+     Les fichiers vivent dans data/videos/<id>/ et sont déclarés dans
+     data/projects.json sous la clé "videos" (chaîne, ou objet
+     {src, poster, title}). Le navigateur ne sait pas lister un dossier : sans
+     déclaration, impossible de deviner ce qui a été tourné, donc on retombe
+     sur la vidéo institutionnelle de data/videos/generique/ — un projet sans
+     tournage montre quand même quelque chose plutôt qu'un onglet mort. */
+  var VIDEO_GENERIQUE = [{
+    src: "data/videos/generique/macharik-staging.mp4",
+    poster: "data/videos/generique/macharik-staging.jpg",
+    title: { fr: "Narjiss Immobilier", en: "Narjiss Immobilier", ar: "نرجس العقارية", es: "Narjiss Immobilier" },
+    generique: true
+  }];
+
+  function projectVideos(project) {
+    var raw = project.videos || (project.media && project.media.videos) || [];
+    var out = [];
+    for (var i = 0; i < raw.length; i++) {
+      var item = raw[i];
+      var src = (typeof item === "string") ? item : (item && item.src);
+      if (!src) continue;
+      // text() attend un objet {fr,en,ar,es} : un titre saisi en clair est
+      // enveloppé, sinon il ressortirait vide.
+      var titre = (typeof item === "object" && item.title) || "";
+      if (typeof titre === "string" && titre) titre = { fr: titre, en: titre, ar: titre, es: titre };
+      out.push({
+        src: src,
+        poster: (typeof item === "object" && item.poster) || "",
+        title: titre
+      });
+    }
+    return out.length ? out : VIDEO_GENERIQUE;
+  }
+
   function renderMediaTile(src, alt, extraClass, caption) {
     if (!src) return '<div class="media-tile ' + extraClass + '"></div>';
     return '<figure class="media-tile ' + extraClass + '">' +
@@ -906,16 +940,11 @@
       });
     }
 
-    var chips = "";
-    var keys = Object.keys(categories).slice(0, 8);
-    for (var j = 0; j < keys.length; j++) {
-      var key = keys[j];
-      chips += '<span class="poi-chip">' + poiLegendMarker(key) + '<span>' + categoryLabel(key, lang) + ' · ' + categories[key].count + '</span></span>';
-    }
+    // Pas de récapitulatif par catégorie ici : la liste dépliable ci-dessous
+    // porte déjà le compte de chaque catégorie dans son badge.
     var count = Math.max(0, pois.length - 1);
     var html =
       '<div class="poi-count"><span>' + count + '</span>' + t.mapPoiCount + '</div>' +
-      '<div class="poi-chips">' + chips + '</div>' +
       '<div class="poi-controls">' +
         '<div class="poi-control-row"><label>' + t.sortBy + '</label>' +
           '<button class="poi-sort' + (currentSort === "distance" ? " active" : "") + '" data-sort="distance">📏 ' + t.sortDist + '</button>' +
@@ -1246,6 +1275,29 @@
     }
   }
 
+  /**
+   * Molette : elle ne doit pas detourner le defilement de la page tant que le
+   * visiteur n'est pas entre dans la carte. On l'active des qu'il clique
+   * dedans (ou en plein ecran) et on la coupe quand la souris ressort.
+   */
+  function enableWheelZoomOnFocus(map) {
+    var container = map.getContainer();
+    map.scrollWheelZoom.disable();
+    container.addEventListener("click", function() { map.scrollWheelZoom.enable(); });
+    container.addEventListener("mouseenter", function() {
+      if (document.fullscreenElement) map.scrollWheelZoom.enable();
+    });
+    container.addEventListener("mouseleave", function() {
+      if (!document.fullscreenElement) map.scrollWheelZoom.disable();
+    });
+    document.addEventListener("fullscreenchange", function() {
+      if (!mapInstance) return;
+      if (document.fullscreenElement) mapInstance.scrollWheelZoom.enable();
+      else mapInstance.scrollWheelZoom.disable();
+      window.setTimeout(function() { mapInstance.invalidateSize(); }, 120);
+    });
+  }
+
   function installMapControls(lang) {
     if (!mapInstance || !window.L) return;
     var t = PAGE_UI[lang];
@@ -1522,6 +1574,7 @@
       }
     } catch (e) {}
     mapInstance = L.map("projectMap", mapOptions).setView([project.lat, project.lng], 14);
+    enableWheelZoomOnFocus(mapInstance);
     installMapControls(lang);
 
     updatePoiSummary([], lang, true);
@@ -1554,6 +1607,7 @@
       priceOnRequest: "Prix sur demande", typologiesKicker: "Biens", typologiesTitle: "Typologies disponibles",
       typologiesWord: "typologies", surfaceWord: "surfaces", rooms: "pièces", available: "disponibles",
       soldOut: "Complet", enquire: "Se renseigner", fillForm: "Remplir la fiche", brochure: "Brochure PDF",
+      seeUnits: "Disponibilités",
       deliveryLabel: "Livraison", titled: "Titre foncier", featuresKicker: "Standing",
       featuresTitle: "Équipements & caractéristiques", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilité", lotsAvailable: "lots disponibles", lastUnits: "Derniers lots",
@@ -1568,6 +1622,7 @@
       priceOnRequest: "Price on request", typologiesKicker: "Homes", typologiesTitle: "Available layouts",
       typologiesWord: "layouts", surfaceWord: "areas", rooms: "rooms", available: "available",
       soldOut: "Sold out", enquire: "Enquire", fillForm: "Fill the form", brochure: "PDF brochure",
+      seeUnits: "Availability",
       deliveryLabel: "Delivery", titled: "Land title", featuresKicker: "Standing",
       featuresTitle: "Amenities & features", availabilityKicker: "Stock",
       availabilityTitle: "Availability", lotsAvailable: "units available", lastUnits: "Last units",
@@ -1582,6 +1637,7 @@
       priceOnRequest: "السعر عند الطلب", typologiesKicker: "الوحدات", typologiesTitle: "الأنماط المتوفرة",
       typologiesWord: "أنماط", surfaceWord: "مساحات", rooms: "غرف", available: "متوفرة",
       soldOut: "مكتمل", enquire: "الاستفسار", fillForm: "ملء الاستمارة", brochure: "الكتيب PDF",
+      seeUnits: "عروض",
       deliveryLabel: "التسليم", titled: "محفّظ", featuresKicker: "التجهيزات",
       featuresTitle: "المرافق والمميزات", availabilityKicker: "المخزون",
       availabilityTitle: "التوفر", lotsAvailable: "وحدة متوفرة", lastUnits: "آخر الوحدات",
@@ -1596,6 +1652,7 @@
       priceOnRequest: "Precio a consultar", typologiesKicker: "Viviendas", typologiesTitle: "Tipologías disponibles",
       typologiesWord: "tipologías", surfaceWord: "superficies", rooms: "habitaciones", available: "disponibles",
       soldOut: "Completo", enquire: "Informarse", fillForm: "Rellenar la ficha", brochure: "Folleto PDF",
+      seeUnits: "Disponibilidad",
       deliveryLabel: "Entrega", titled: "Título de propiedad", featuresKicker: "Categoría",
       featuresTitle: "Equipamiento y características", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilidad", lotsAvailable: "lotes disponibles", lastUnits: "Últimos lotes",
@@ -1674,6 +1731,9 @@
     if (project.delivery && project.delivery.date) facts += fact(project.delivery.date, x.deliveryLabel);
 
     var fiche = '<a class="btn-luxe btn-dark" href="fiche.html?projet=' + encodeURIComponent(project.id) + '#' + lang + '">📝 ' + x.fillForm + '</a>';
+    // Vers le sélecteur de lots. La page gère elle-même le cas d'un projet
+    // dont la grille n'est pas encore prête, donc pas de condition ici.
+    var dispos = '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' + encodeURIComponent(project.id) + '#' + lang + '">🏢 ' + x.seeUnits + '</a>';
     var brochure = project.brochure_pdf ? '<a class="btn-luxe btn-glass" href="' + project.brochure_pdf + '" target="_blank" rel="noopener">📄 ' + x.brochure + '</a>' : "";
 
     return '<section class="section commercial-header">' +
@@ -1682,7 +1742,7 @@
         '<div class="commercial-badges">' + badges + '</div>' +
       '</div>' +
       (facts ? '<div class="quick-facts">' + facts + '</div>' : "") +
-      '<div class="commercial-actions">' + fiche + brochure + '</div>' +
+      '<div class="commercial-actions">' + fiche + dispos + brochure + '</div>' +
     '</section>';
   }
 
@@ -1860,13 +1920,19 @@
      plan) + barre d'onglets + vignettes de pièces. Remplace le media-wall. ─── */
 
   var MEDIA_UI = {
-    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tabApartment: "Visiter un appartement", tabPlanArch: "Plan architecte", tabPlanVis: "Plan visuel", tourMissing: "Visite 3D bientôt disponible.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
-    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tabApartment: "Visit an apartment", tabPlanArch: "Architect plan", tabPlanVis: "Visual plan", tourMissing: "3D tour coming soon.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
-    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tabApartment: "زيارة شقة", tabPlanArch: "مخطط معماري", tabPlanVis: "مخطط مرئي", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
-    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tabApartment: "Visitar un apartamento", tabPlanArch: "Plano arquitecto", tabPlanVis: "Plano visual", tourMissing: "Tour 3D próximamente.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
+    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tabApartment: "Visiter un appartement", tabPlanArch: "Plan architecte", tabPlanVis: "Plan visuel", tabVideos: "Vidéos", videoSoon: "Vidéo bientôt disponible pour ce projet.", videoGeneric: "Vidéo de présentation Narjiss", videoPrev: "Vidéo précédente", videoSound: "Activer le son", videoNext: "Vidéo suivante", tourMissing: "Visite 3D bientôt disponible.", mediaSoon: "Images 360° bientôt disponibles pour ce projet.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
+    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tabApartment: "Visit an apartment", tabPlanArch: "Architect plan", tabPlanVis: "Visual plan", tabVideos: "Videos", videoSoon: "Video coming soon for this project.", videoGeneric: "Narjiss presentation video", videoPrev: "Previous video", videoSound: "Unmute", videoNext: "Next video", tourMissing: "3D tour coming soon.", mediaSoon: "360° images coming soon for this project.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
+    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tabApartment: "زيارة شقة", tabPlanArch: "مخطط معماري", tabPlanVis: "مخطط مرئي", tabVideos: "فيديوهات", videoSoon: "الفيديو سيتوفر قريبا لهذا المشروع.", videoGeneric: "فيديو تعريفي بنرجس", videoPrev: "الفيديو السابق", videoSound: "تشغيل الصوت", videoNext: "الفيديو التالي", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", mediaSoon: "صور 360° ستتوفر قريبا لهذا المشروع.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
+    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tabApartment: "Visitar un apartamento", tabPlanArch: "Plano arquitecto", tabPlanVis: "Plano visual", tabVideos: "Vídeos", videoSoon: "Vídeo próximamente para este proyecto.", videoGeneric: "Vídeo de presentación Narjiss", videoPrev: "Vídeo anterior", videoSound: "Activar el sonido", videoNext: "Vídeo siguiente", tourMissing: "Tour 3D próximamente.", mediaSoon: "Imágenes 360° próximamente para este proyecto.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
   };
 
-  function renderHeroMedia(project, lang, t, name, location, topActions) {
+  /**
+   * Bandeau d'ouverture. `encart` s'insère entre le titre et la scène média :
+   * c'est par là que la carte remonte au-dessus des visuels, sans quoi elle
+   * resterait sous la ligne de flottaison, la scène faisant à elle seule
+   * jusqu'à 620 px de haut.
+   */
+  function renderHeroMedia(project, lang, t, name, location, topActions, encart) {
     var m = MEDIA_UI[lang];
     var panos = project.panoramas || [];
     var floor = projectFloorPlan(project);
@@ -1878,6 +1944,9 @@
     if (project.apartment_tour_url) tabs += '<button type="button" class="hero-tab" data-tab="apartment">🏠 ' + m.tabApartment + '</button>';
     if (project.plan_architecte_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-arch">📐 ' + m.tabPlanArch + '</button>';
     if (project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-vis">🖼️ ' + m.tabPlanVis + '</button>';
+    // Toujours proposé : sans vidéo propre au projet, la scène joue le film
+    // institutionnel plutôt que de masquer l'onglet.
+    tabs += '<button type="button" class="hero-tab" data-tab="videos">🎬 ' + m.tabVideos + '</button>';
     if (floor && !project.plan_architecte_url && !project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan">⌗ ' + m.tabPlan + '</button>';
 
     var thumbs = "";
@@ -1892,6 +1961,9 @@
         '<div class="property-toolbar-actions"><button type="button">♡ ' + saveLabel + '</button><button type="button">⇧ ' + shareLabel + '</button></div>' +
       '</div>' +
       '<div class="property-summary"><div><h1>' + name + '</h1><p>📍 ' + location + '</p></div><div class="hero-actions">' + topActions + '</div></div>' +
+    '</section>' +
+    (encart || "") +
+    '<section class="hero-media">' +
       '<div class="hero-stage-wrap">' +
         '<div id="heroStage" class="hero-stage"></div>' +
         (tabs ? '<div class="hero-tabs">' + tabs + '</div>' : "") +
@@ -1905,6 +1977,8 @@
     if (!stage) return;
     var m = MEDIA_UI[lang];
     var panos = project.panoramas || [];
+    var videos = projectVideos(project);
+    var videoIndex = 0;
     var viewer = null;
 
     function destroyViewer() { if (viewer) { try { viewer.destroy(); } catch (e) {} viewer = null; } }
@@ -1920,9 +1994,29 @@
       if (box) box.style.display = (tab === "p360") ? "" : "none";
     }
 
+    /** Rien à montrer : on l'annonce, plutôt que de laisser un cadre vide. */
+    function showVide() {
+      destroyViewer();
+      stage.innerHTML = '<div class="hero-note">' + m.mediaSoon + '</div>';
+    }
+
     function flatFallback(src) {
       destroyViewer();
+      if (!src) { showVide(); return; }
       stage.innerHTML = '<div class="hero-pan"><img src="' + src + '" alt=""></div><div class="hero-pan-note">' + m.flatNote + '</div>';
+      surveillerImage();
+    }
+
+    /**
+     * Une image absente du serveur laisserait une vignette cassée. On écoute
+     * donc son échec pour basculer sur le message. L'écouteur est posé après
+     * l'injection : un onerror inline dans innerHTML ne serait pas exécuté.
+     */
+    function surveillerImage() {
+      var img = stage.querySelector("img");
+      if (!img) return;
+      img.addEventListener("error", showVide);
+      if (img.complete && img.naturalWidth === 0) showVide();
     }
 
     function show360(index) {
@@ -1958,14 +2052,117 @@
       if (!project.apartment_tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
       stage.innerHTML = '<iframe class="hero-frame" src="' + project.apartment_tour_url + '" allowfullscreen></iframe>';
     }
-    function showPlanImage(url) {
+    /**
+     * Lecture automatique. Les navigateurs refusent l'autoplay sonore tant que
+     * la page n'a pas reçu de geste utilisateur ; ici l'onglet 🎬 vient d'être
+     * cliqué, donc le son passe le plus souvent. Sinon la promesse est
+     * rejetée : on relance en muet — une vidéo figée sur son poster ferait
+     * croire à un lecteur cassé — et on propose de rétablir le son.
+     */
+    function demarrerVideo(el) {
+      var essai;
+      try { essai = el.play(); } catch (e) { return; }
+      if (!essai || !essai.then) return;
+      essai["catch"](function() {
+        el.muted = true;
+        var muet;
+        try { muet = el.play(); } catch (e2) { return; }
+        if (muet && muet.then) muet["catch"](function() {});
+        var bar = stage.querySelector(".hero-video-bar");
+        if (!bar || bar.querySelector(".hero-video-sound")) return;
+        var bouton = document.createElement("button");
+        bouton.type = "button";
+        bouton.className = "hero-video-sound";
+        bouton.textContent = "🔇 " + m.videoSound;
+        bouton.addEventListener("click", function() {
+          el.muted = false;
+          el.play();
+          if (bouton.parentNode) bouton.parentNode.removeChild(bouton);
+        });
+        bar.appendChild(bouton);
+      });
+    }
+
+    /**
+     * Slider vidéo. Chaque changement de plan re-rend la scène : le <video>
+     * précédent disparaît avec le DOM, ce qui coupe la lecture — inutile de
+     * mettre en pause à la main. La barre d'infos est posée en haut, les
+     * contrôles natifs occupant déjà le bas du cadre.
+     */
+    function showVideos(index) {
       destroyViewer();
-      if (!url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
-      stage.innerHTML = '<a class="hero-plan" href="' + url + '" target="_blank" rel="noopener"><img src="' + url + '" alt="plan"></a>';
+      if (typeof index === "number") videoIndex = index;
+      if (!videos.length) { stage.innerHTML = '<div class="hero-note">' + m.videoSoon + '</div>'; return; }
+      if (videoIndex < 0) videoIndex = videos.length - 1;
+      if (videoIndex >= videos.length) videoIndex = 0;
+
+      var video = videos[videoIndex];
+      var titre = text(video.title, lang) || (video.generique ? m.videoGeneric : text(project.name, lang));
+      var poster = video.poster || mediaImage(project, 0);
+      var plusieurs = videos.length > 1;
+
+      var dots = "";
+      if (plusieurs) {
+        for (var d = 0; d < videos.length; d++) {
+          dots += '<button type="button" class="hero-video-dot' + (d === videoIndex ? " active" : "") +
+            '" data-video="' + d + '" aria-label="' + (d + 1) + '"></button>';
+        }
+      }
+
+      stage.innerHTML = '<div class="hero-video">' +
+        '<video id="heroVideo" controls playsinline preload="metadata"' +
+          (poster ? ' poster="' + poster + '"' : "") + ' src="' + video.src + '"></video>' +
+        (plusieurs
+          ? '<button type="button" class="hero-video-nav prev" id="heroVideoPrev" aria-label="' + m.videoPrev + '">‹</button>' +
+            '<button type="button" class="hero-video-nav next" id="heroVideoNext" aria-label="' + m.videoNext + '">›</button>'
+          : "") +
+        '<div class="hero-video-bar">' +
+          '<span class="hero-video-title">' + titre + '</span>' +
+          (plusieurs ? '<span class="hero-video-count">' + (videoIndex + 1) + " / " + videos.length + '</span>' : "") +
+          (dots ? '<span class="hero-video-dots">' + dots + '</span>' : "") +
+        '</div>' +
+      '</div>';
+
+      // Fichier absent du serveur : on remplace le lecteur par le message, en
+      // gardant la barre et les flèches pour passer à la vidéo suivante.
+      var el = document.getElementById("heroVideo");
+      if (el) {
+        el.addEventListener("error", function() {
+          var note = document.createElement("div");
+          note.className = "hero-note hero-video-note";
+          note.textContent = m.videoSoon;
+          if (el.parentNode) el.parentNode.replaceChild(note, el);
+        });
+        // Enchaîne sur la vidéo suivante en fin de lecture : le slider se
+        // déroule tout seul, comme une playlist.
+        if (plusieurs) el.addEventListener("ended", function() { showVideos(videoIndex + 1); });
+        demarrerVideo(el);
+      }
+
+      var prev = document.getElementById("heroVideoPrev");
+      var next = document.getElementById("heroVideoNext");
+      if (prev) prev.addEventListener("click", function() { showVideos(videoIndex - 1); });
+      if (next) next.addEventListener("click", function() { showVideos(videoIndex + 1); });
+      var dotEls = stage.querySelectorAll(".hero-video-dot");
+      for (var k = 0; k < dotEls.length; k++) {
+        (function(bouton) {
+          bouton.addEventListener("click", function() { showVideos(+bouton.getAttribute("data-video")); });
+        })(dotEls[k]);
+      }
+    }
+
+    function showPlanImage(url) {
+      afficherPlan(url, url);
     }
     function showPlan() {
+      afficherPlan(projectFloorPlan(project), projectMassPlanPdf(project));
+    }
+    function afficherPlan(url, lien) {
       destroyViewer();
-      stage.innerHTML = '<a class="hero-plan" href="' + projectMassPlanPdf(project) + '" target="_blank" rel="noopener"><img src="' + projectFloorPlan(project) + '" alt="plan"></a>';
+      if (!url) { showVide(); return; }
+      stage.innerHTML = '<a class="hero-plan" href="' + (lien || url) +
+        '" target="_blank" rel="noopener"><img src="' + url + '" alt=""></a>';
+      surveillerImage();
     }
 
     var tabEls = document.querySelectorAll(".hero-tab");
@@ -1979,6 +2176,7 @@
           else if (tab === "apartment") showApartment();
           else if (tab === "plan-arch") showPlanImage(project.plan_architecte_url);
           else if (tab === "plan-vis") showPlanImage(project.plan_visuel_url);
+          else if (tab === "videos") showVideos(videoIndex);
           else if (tab === "plan") showPlan();
         });
       })(tabEls[i]);
@@ -1990,8 +2188,25 @@
       })(thumbEls[j]);
     }
 
+    /* Le chemin du plan de masse est déduit du dossier du projet, il n'est
+       pas déclaré : rien ne garantit que le fichier existe. On le sonde pour
+       ne pas laisser un onglet qui ne mène nulle part. */
+    var ongletPlan = document.querySelector('.hero-tab[data-tab="plan"]');
+    if (ongletPlan) {
+      var sonde = new Image();
+      sonde.onerror = function() {
+        if (ongletPlan.parentNode) ongletPlan.parentNode.removeChild(ongletPlan);
+      };
+      sonde.src = projectFloorPlan(project);
+    }
+
+    // On ouvre sur le média le plus parlant disponible ; s'il n'y en a aucun,
+    // la scène annonce que les images arrivent, au lieu d'un cadre vide.
     if (panos.length) { markTab("p360"); show360(0); }
     else if (project.tour_url) { markTab("tour"); showTour(); }
+    else if (project.apartment_tour_url) { markTab("apartment"); showApartment(); }
+    else if (project.plan_architecte_url) { markTab("plan-arch"); showPlanImage(project.plan_architecte_url); }
+    else if (project.plan_visuel_url) { markTab("plan-vis"); showPlanImage(project.plan_visuel_url); }
     else { markTab("plan"); showPlan(); }
   }
 
@@ -2011,10 +2226,29 @@
       '<button class="btn-luxe btn-glass projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
       '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>';
 
+    /* La carte ouvre la page, juste après le bandeau commercial : le premier
+       réflexe du visiteur est de situer le bien et son quartier, avant même
+       de lire les typologies. Le bloc est monté ici puis inséré plus haut. */
+    var mapSection =
+      '<section class="section" id="projectMapSection">' +
+        '<div class="map-composition">' +
+          '<aside class="map-aside">' +
+            '<div class="map-intro"><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><p>' + t.mapText + '</p><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
+            '<div class="poi-summary" id="poiSummary"></div>' +
+            '<div class="map-actions">' +
+              '<button class="btn-luxe btn-gold projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
+              '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>' +
+              '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
+            '</div>' +
+          '</aside>' +
+          '<div id="projectMap"></div>' +
+        '</div>' +
+      '</section>';
+
     document.title = name + " - Narjiss";
     document.documentElement.style.setProperty("--project-gradient", gradient);
     document.getElementById("projectApp").innerHTML =
-      renderHeroMedia(project, lang, t, name, location, topActions) +
+      renderHeroMedia(project, lang, t, name, location, topActions, mapSection) +
       renderCommercialHeader(project, lang) +
       '<section class="section">' +
           '<div class="editorial-grid">' +
@@ -2035,20 +2269,6 @@
       renderAvailability(project, lang) +
       renderFeatures(project, lang) +
       renderSimulator(lang) +
-      '<section class="section" id="projectMapSection">' +
-        '<div class="map-composition">' +
-          '<aside class="map-aside">' +
-            '<div class="map-intro"><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><p>' + t.mapText + '</p><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
-            '<div class="poi-summary" id="poiSummary"></div>' +
-            '<div class="map-actions">' +
-              '<button class="btn-luxe btn-gold projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
-              '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>' +
-              '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
-            '</div>' +
-          '</aside>' +
-          '<div id="projectMap"></div>' +
-        '</div>' +
-      '</section>' +
       '<section class="section">' +
         '<div class="section-kicker">' + t.majorKicker + '</div>' +
         '<h2>' + t.majorTitle + ' ' + name + '</h2>' +
@@ -2066,6 +2286,19 @@
     setupRouteButtons(project, lang);
     setupSimulator(lang);
     installUnitPicker(project, lang);
+
+    /* Mode embarqué : on ne conserve que la section carte (réutilisée dans la
+       fiche d'un lot). La carte est déjà initialisée avec tous ses contrôles ;
+       on remonte simplement la section comme unique contenu, puis on force un
+       recalcul de taille. */
+    if (document.documentElement.classList.contains("pj-embed")) {
+      var sec = document.getElementById("projectMapSection");
+      var app = document.getElementById("projectApp");
+      if (sec && app) {
+        app.replaceChildren(sec);
+        if (mapInstance) setTimeout(function () { mapInstance.invalidateSize(); }, 250);
+      }
+    }
   }
 
   window.onLanguageChange = function(lang) {

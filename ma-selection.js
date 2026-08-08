@@ -14,6 +14,26 @@
   var CLE_SELECTION = 'nj-selection-lots';
   var etat = { projet: 'jawhara', ids: [], lots: [] };
 
+  /* Mentions légales du consentement (jamais tronquées). Reprises de fiche.html. */
+  var LEGAL = {
+    fr: "Les informations recueillies font l'objet d'un traitement par NARJISS IMMOBILIÈRE, responsable du traitement, " +
+        "aux fins du suivi de votre demande commerciale et de la constitution de votre dossier d'acquisition. Ce traitement " +
+        "est déclaré auprès de la CNDP conformément à la loi n° 09-08. Vos données sont conservées pendant la durée légale " +
+        "applicable, puis supprimées, et ne sont transmises à aucun tiers hors obligations légales. Vous disposez d'un droit " +
+        "d'accès, de rectification et d'opposition aux données vous concernant.",
+    en: "The information collected is processed by NARJISS IMMOBILIÈRE, as data controller, in order to follow up on your " +
+        "commercial request and build your acquisition file. This processing is declared to the CNDP in accordance with law " +
+        "no. 09-08. Your data is kept for the applicable legal period, then deleted, and is not shared with any third party " +
+        "except where required by law. You have a right to access, rectify and object to the data concerning you.",
+    ar: "تخضع المعلومات المجمّعة لمعالجة من طرف نرجس العقارية، المسؤولة عن المعالجة، من أجل تتبع طلبكم التجاري وتكوين ملف " +
+        "الاقتناء الخاص بكم. هذه المعالجة مصرّح بها لدى اللجنة الوطنية (CNDP) وفق القانون رقم 09-08. تُحفظ بياناتكم للمدة " +
+        "القانونية ثم تُحذف، ولا تُنقل لأي طرف ثالث خارج الالتزامات القانونية. لكم حق الاطلاع والتصحيح والاعتراض.",
+    es: "La información recogida es tratada por NARJISS IMMOBILIÈRE, responsable del tratamiento, con el fin de dar seguimiento " +
+        "a su solicitud comercial y constituir su expediente de adquisición. Este tratamiento está declarado ante la CNDP " +
+        "conforme a la ley n.º 09-08. Sus datos se conservan durante el plazo legal aplicable y luego se suprimen, y no se " +
+        "comunican a ningún tercero salvo obligación legal. Usted tiene derecho de acceso, rectificación y oposición."
+  };
+
   function $(sel) { return document.querySelector(sel); }
 
   function nombre(v) {
@@ -47,7 +67,15 @@
       visiteAide: 'Facultatif — nous confirmons le créneau par téléphone.',
       message: 'Votre message',
       messagePlaceholder: 'Une question, une contrainte de financement, un horaire qui vous arrange…',
-      consentement: "J'accepte que Narjiss Immobilière conserve ces informations pour me recontacter au sujet de cette sélection. Vous pouvez demander leur suppression à tout moment en nous écrivant.",
+      consentement: "Je reconnais avoir été informé(e) de ce qui précède et je consens au traitement de mes données pour les finalités indiquées.",
+      consentContact: "J'accepte d'être recontacté(e) par Narjiss Immobilière (téléphone, e-mail ou WhatsApp) au sujet de cette sélection.",
+      marketing: "J'accepte de recevoir les offres commerciales de Narjiss Immobilière (facultatif, sans effet sur ma demande).",
+      mrzTitre: "Remplissage automatique", mrzAide: "Photographiez ou importez le dos de votre CIN : le nom et le prénom se remplissent seuls.",
+      mrzBtn: "📷 Scanner ou importer le dos de la CIN", mrzReading: "Lecture en cours… gardez la carte bien à plat et nette.",
+      mrzOk: "Carte lue. Vérifiez le nom et le prénom remplis.", mrzKo: "Lecture impossible. Reprenez la photo (nette, MRZ visible) ou saisissez à la main.",
+      consentRequis: "Merci de cocher les consentements obligatoires avant d'envoyer.",
+      ficheComplete: "📋 Remplir la fiche client complète →",
+      ficheCompleteAide: "Pas encore décidé ? Enregistrez vos coordonnées via la fiche client complète — un conseiller vous recontactera.",
       envoyer: 'Envoyer ma demande', envoiEnCours: 'Envoi…', retour: 'Retour aux logements',
       videTitre: 'Votre sélection est vide.',
       videAide: "Retournez aux disponibilités pour choisir jusqu'à trois logements.",
@@ -83,7 +111,15 @@
       visiteAide: 'Optional — we confirm the slot by phone.',
       message: 'Your message',
       messagePlaceholder: 'A question, a financing constraint, a time that suits you…',
-      consentement: 'I agree that Narjiss Immobilière may keep this information to contact me about this shortlist. You can ask us to delete it at any time.',
+      consentement: "I acknowledge I have been informed of the above and consent to the processing of my data for the stated purposes.",
+      consentContact: "I agree to be contacted by Narjiss Immobilière (phone, e-mail or WhatsApp) about this shortlist.",
+      marketing: "I agree to receive commercial offers from Narjiss Immobilière (optional, no effect on my request).",
+      mrzTitre: "Automatic fill", mrzAide: "Photograph or import the back of your ID card: the name fills in automatically.",
+      mrzBtn: "📷 Scan or import the ID card back", mrzReading: "Reading… keep the card flat and sharp.",
+      mrzOk: "Card read. Check the filled name.", mrzKo: "Could not read. Retake the photo (sharp, MRZ visible) or type it in.",
+      consentRequis: "Please tick the required consents before sending.",
+      ficheComplete: "📋 Fill in the full client form →",
+      ficheCompleteAide: "Not decided yet? Save your details via the full client form — an adviser will get back to you.",
       envoyer: 'Send my request', envoiEnCours: 'Sending…', retour: 'Back to the homes',
       videTitre: 'Your shortlist is empty.',
       videAide: 'Go back to availability to pick up to three homes.',
@@ -121,7 +157,15 @@
       visiteAide: 'اختياري — نؤكد الموعد هاتفيا.',
       message: 'رسالتك',
       messagePlaceholder: 'سؤال، قيد تمويلي، أو وقت يناسبك…',
-      consentement: 'أوافق على أن تحتفظ نرجس للعقار بهذه المعلومات للتواصل معي بشأن هذا الاختيار. يمكنكم طلب حذفها في أي وقت بمراسلتنا.',
+      consentement: "أُقرّ بأنني أُطلعتُ على ما سبق وأوافق على معالجة بياناتي للأغراض المذكورة.",
+      consentContact: "أوافق على أن تتصل بي نرجس العقارية (هاتف أو بريد أو واتساب) بخصوص هذا الاختيار.",
+      marketing: "أوافق على تلقّي العروض التجارية من نرجس العقارية (اختياري، دون أثر على طلبي).",
+      mrzTitre: "التعبئة التلقائية", mrzAide: "صوّروا أو استوردوا ظهر بطاقتكم الوطنية: يُملأ الاسم تلقائياً.",
+      mrzBtn: "📷 مسح أو استيراد ظهر البطاقة", mrzReading: "جاري القراءة… أبقوا البطاقة مسطحة وواضحة.",
+      mrzOk: "تمت قراءة البطاقة. تحققوا من الاسم.", mrzKo: "تعذّرت القراءة. أعيدوا التصوير أو أدخلوا يدوياً.",
+      consentRequis: "يرجى تحديد الموافقات الإلزامية قبل الإرسال.",
+      ficheComplete: "📋 ملء بطاقة العميل الكاملة →",
+      ficheCompleteAide: "لم تقرروا بعد؟ سجّلوا بياناتكم عبر بطاقة العميل الكاملة — سيعاود مستشار الاتصال بكم.",
       envoyer: 'إرسال طلبي', envoiEnCours: 'جاري الإرسال…', retour: 'العودة إلى المساكن',
       videTitre: 'اختيارك فارغ.',
       videAide: 'ارجع إلى المتوفر لاختيار ثلاثة مساكن كحد أقصى.',
@@ -158,7 +202,15 @@
       visiteAide: 'Opcional — confirmamos la cita por teléfono.',
       message: 'Su mensaje',
       messagePlaceholder: 'Una pregunta, una limitación de financiación, un horario que le convenga…',
-      consentement: 'Acepto que Narjiss Immobilière conserve esta información para contactarme sobre esta selección. Puede solicitar su supresión en cualquier momento escribiéndonos.',
+      consentement: "Reconozco haber sido informado(a) de lo anterior y consiento el tratamiento de mis datos para los fines indicados.",
+      consentContact: "Acepto ser contactado(a) por Narjiss Immobilière (teléfono, correo o WhatsApp) sobre esta selección.",
+      marketing: "Acepto recibir ofertas comerciales de Narjiss Immobilière (opcional, sin efecto en mi solicitud).",
+      mrzTitre: "Relleno automático", mrzAide: "Fotografíe o importe el reverso de su DNI: el nombre se rellena solo.",
+      mrzBtn: "📷 Escanear o importar el reverso del DNI", mrzReading: "Leyendo… mantenga la tarjeta plana y nítida.",
+      mrzOk: "Tarjeta leída. Verifique el nombre.", mrzKo: "No se pudo leer. Repita la foto o escríbalo a mano.",
+      consentRequis: "Marque los consentimientos obligatorios antes de enviar.",
+      ficheComplete: "📋 Rellenar la ficha de cliente completa →",
+      ficheCompleteAide: "¿Aún no ha decidido? Guarde sus datos con la ficha de cliente completa — un asesor le contactará.",
       envoyer: 'Enviar mi solicitud', envoiEnCours: 'Enviando…', retour: 'Volver a las viviendas',
       videTitre: 'Su selección está vacía.',
       videAide: 'Vuelva a las disponibilidades para elegir hasta tres viviendas.',
@@ -326,11 +378,86 @@
 
   /* ── Étape 5 : envoi ───────────────────────────────────────────────── */
 
+  /* ── Scan / import du dos de la CIN (remplissage nom + prénom) ────────── */
+  function setStatutMrz(kind, msg) {
+    var el = $('#njMrzStatus');
+    if (!el) return;
+    el.className = 'nj-mrz-status' + (kind ? ' ' + kind : '');
+    el.textContent = msg || '';
+  }
+  function setupMrz() {
+    var input = $('#njMrzInput');
+    var box = $('#njMrz');
+    if (!input) return;
+    // Sans les libs (vieux navigateur), on masque : la saisie manuelle reste.
+    if (!(window.NarjissCIN && window.NarjissCIN.supported())) {
+      if (box) box.style.display = 'none';
+      return;
+    }
+    input.addEventListener('change', function () {
+      var file = this.files && this.files[0];
+      var self = this;
+      if (!file) return;
+      setStatutMrz('', t('mrzReading'));
+      window.NarjissCIN.scanFile(file).then(function (p) {
+        if (!p) { setStatutMrz('ko', t('mrzKo')); return; }
+        // On ne remplit que si le champ est vide : jamais écraser une saisie.
+        var nom = $('#fNom'), pre = $('#fPrenom');
+        if (nom && !nom.value && p.nom) nom.value = p.nom;
+        if (pre && !pre.value && p.prenom) pre.value = p.prenom;
+        setStatutMrz('ok', t('mrzOk'));
+      }).catch(function () {
+        setStatutMrz('ko', t('mrzKo'));
+      }).then(function () { self.value = ''; });   // reprise immédiate possible
+    });
+  }
+
+  /* ── Consentements : l'envoi n'est possible qu'une fois tous cochés ────── */
+  function consentementsOk() {
+    var reqs = document.querySelectorAll('[data-consent-requis]');
+    return Array.prototype.every.call(reqs, function (c) { return c.checked; });
+  }
+  function majBoutonEnvoi() {
+    var b = $('#njEnvoyer');
+    if (b) b.disabled = !consentementsOk();
+  }
+  function setupConsentements() {
+    document.querySelectorAll('[data-consent-requis]').forEach(function (c) {
+      c.addEventListener('change', majBoutonEnvoi);
+    });
+    majBoutonEnvoi();
+  }
+
+  /* Fiche client complète : en cas de non-choix immédiat, on enregistre quand
+     même le prospect. On bascule vers fiche.html en emportant le projet et les
+     coordonnées déjà saisies (pré-remplissage), sans exiger de sélection. */
+  function setupFicheComplete() {
+    var lien = $('#njFicheComplete');
+    if (!lien) return;
+    lien.addEventListener('click', function (e) {
+      e.preventDefault();
+      var p = new URLSearchParams();
+      p.set('projet', etat.projet);
+      [['nom', 'fNom'], ['prenom', 'fPrenom'], ['telephone', 'fTel'],
+       ['email', 'fEmail'], ['ville', 'fVille']].forEach(function (m) {
+        var el = $('#' + m[1]);
+        if (el && el.value.trim()) p.set(m[0], el.value.trim());
+      });
+      window.location.href = 'fiche.html?' + p.toString();
+    });
+  }
+
   function envoyer(e) {
     e.preventDefault();
     var bouton = $('#njEnvoyer');
     var erreur = $('#njErreur');
     erreur.hidden = true;
+    // Garde-fou (au cas où le bouton serait forcé) : consentements obligatoires.
+    if (!consentementsOk()) {
+      erreur.textContent = t('consentRequis');
+      erreur.hidden = false;
+      return;
+    }
     bouton.disabled = true;
     bouton.textContent = t('envoiEnCours');
 
@@ -410,6 +537,14 @@
     texte('lblVisiteAide', t('visiteAide'));
     texte('lblMessage', t('message'));
     texte('lblConsentement', t('consentement'));
+    texte('lblConsentContact', t('consentContact'));
+    texte('lblMarketing', t('marketing'));
+    texte('njLegal', LEGAL[langue()] || LEGAL.fr);
+    texte('lblMrzTitre', t('mrzTitre'));
+    texte('lblMrzAide', t('mrzAide'));
+    texte('lblMrzBtn', t('mrzBtn'));
+    texte('njFicheComplete', t('ficheComplete'));
+    texte('njFicheAide', t('ficheCompleteAide'));
     texte('njEnvoyer', t('envoyer'));
     texte('njRetour2', t('retour'));
     var msg = document.getElementById('fMessage');
@@ -442,6 +577,9 @@
       if (b) retirer(Number(b.dataset.retirer));
     });
     $('#njFormulaire').addEventListener('submit', envoyer);
+    setupMrz();
+    setupConsentements();
+    setupFicheComplete();
 
     // La visite n'est proposée qu'à partir de demain : personne ne confirme
     // un créneau pour le jour même depuis un formulaire.

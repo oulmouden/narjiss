@@ -7,7 +7,7 @@
 <title>Narjiss - Projet</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=14">
+<link rel="stylesheet" href="shared/menu.css?v=17">
 <link rel="stylesheet" href="assets/vendor/pannellum/pannellum.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
@@ -590,6 +590,31 @@ html[dir=rtl] .map-aside h3 {
 #projectMap { min-height: 680px; width: 100%; z-index: 1; }
 .map-composition.map-compact #projectMap { min-height: 380px; }
 .map-composition.map-compact .map-aside { max-height: 380px; }
+
+/* Plein écran : c'est la <section> entière qui passe en fullscreen. Sans ces
+   règles elle garde ses hauteurs fixes et le fond noir du navigateur occupe
+   le bas de l'écran. */
+#projectMapSection:fullscreen,
+#projectMapSection:-webkit-full-screen {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: var(--ivory);
+  overflow: hidden;
+}
+#projectMapSection:fullscreen .map-composition,
+#projectMapSection:-webkit-full-screen .map-composition {
+  height: 100vh;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+#projectMapSection:fullscreen .map-aside,
+#projectMapSection:-webkit-full-screen .map-aside { height: 100vh; max-height: none; }
+#projectMapSection:fullscreen #projectMap,
+#projectMapSection:-webkit-full-screen #projectMap { height: 100vh; min-height: 0; }
 .map-tool-btn {
   cursor: pointer;
   width: 30px;
@@ -621,23 +646,6 @@ html[dir=rtl] .map-aside h3 {
   margin-right: .35rem;
 }
 html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
-.poi-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .45rem;
-  padding: 0 1.2rem 1rem;
-}
-.poi-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: .28rem;
-  padding: .28rem .55rem;
-  border-radius: 999px;
-  background: var(--smoke);
-  color: var(--ocean-deep);
-  border: 1px solid rgba(0,174,239,.18);
-  font-size: .72rem;
-}
 .poi-legend-marker {
   width: 22px;
   height: 22px;
@@ -758,13 +766,17 @@ html[dir=rtl] .poi-category-btn { text-align: right; }
   color: var(--ocean-deep);
 }
 .poi-category-btn .label { flex: 1; min-width: 0; }
+/* Le badge porte désormais seul le comptage par catégorie (le récapitulatif
+   en pastilles au-dessus faisait doublon avec cette liste). */
 .poi-category-btn .count {
-  min-width: 24px;
-  padding: .08rem .4rem;
+  min-width: 30px;
+  padding: .16rem .5rem;
   border-radius: 999px;
-  background: rgba(0,174,239,.12);
+  background: rgba(0,174,239,.16);
   color: var(--ocean-deep);
-  font-size: .68rem;
+  font-size: .82rem;
+  font-weight: 800;
+  text-align: center;
 }
 .poi-category-btn .arrow {
   font-size: .62rem;
@@ -1085,17 +1097,27 @@ html[dir=rtl] .avail-num { text-align:left; }
 
 /* ─── Hero média (visualiseur 360 / visite 3D / plan) ─── */
 .hero-media { max-width:1600px; margin:0 auto; padding:0 1.25rem; }
-.hero-stage-wrap { position:relative; }
-.hero-stage { position:relative; width:100%; height:clamp(360px,60vh,620px); border-radius:16px; overflow:hidden; background:#0b1220; }
+/* La scène média s'aligne sur la largeur des autres sections plutôt que sur
+   les 1600 px du bandeau : un grand aplat pleine largeur écrase la page,
+   surtout quand il ne porte qu'un message d'attente. */
+/* .hero-media apporte déjà 20 px de marge de chaque côté : « 100% » vaut donc
+   ici « viewport − 40 px », exactement la largeur utile de .section. */
+.hero-stage-wrap { position:relative; width:min(1180px, 100%); margin:0 auto; }
+/* Fond doux, accordé au reste de la page et au thème nocturne. Le visualiseur
+   360° garde son fond sombre : c'est lui qui doit disparaître derrière
+   l'image, pas le cadre vide. */
+.hero-stage { position:relative; width:100%; height:clamp(360px,60vh,620px); border-radius:16px; overflow:hidden; background:var(--surface-2); }
 .hero-stage .pnlm-container { border-radius:16px; background:#0b1220; }
 .hero-frame { width:100%; height:100%; border:0; display:block; }
-.hero-pan { width:100%; height:100%; overflow-x:auto; overflow-y:hidden; background:#0b1220; }
+.hero-pan { width:100%; height:100%; overflow-x:auto; overflow-y:hidden; background:var(--surface-2); }
 .hero-pan img { height:100%; width:auto; max-width:none; display:block; }
 .hero-pan-note { position:absolute; left:0; right:0; bottom:0; background:rgba(11,18,32,.72); color:#fff; font-size:.8rem; padding:.45rem .7rem; text-align:center; }
 .hero-plan { display:block; width:100%; height:100%; background:var(--surface-2); }
 .hero-plan img { width:100%; height:100%; object-fit:contain; display:block; }
 .hero-flat { width:100%; height:100%; object-fit:cover; display:block; }
-.hero-note { display:grid; place-items:center; height:100%; color:#fff; font-weight:700; }
+/* Le fond n'est plus sombre : le message doit repasser en couleur de texte,
+   sinon il devient invisible (blanc sur clair). */
+.hero-note { display:grid; place-items:center; height:100%; padding:0 1.5rem; color:var(--muted); font-weight:700; text-align:center; }
 .hero-tabs { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.7rem; }
 .hero-tab { border:1px solid var(--line); background:var(--smoke); color:var(--ink,#1f2430); border-radius:999px; padding:.5rem .9rem; font:inherit; font-weight:700; cursor:pointer; }
 .hero-tab.active { background:var(--ink,#1f2430); color:var(--ivory,#fff); border-color:var(--ink,#1f2430); }
@@ -1104,14 +1126,57 @@ html[dir=rtl] .avail-num { text-align:left; }
 .hero-thumb img { width:100%; height:74px; object-fit:cover; display:block; }
 .hero-thumb span { display:block; padding:.35rem .4rem; font-size:.78rem; font-weight:700; color:var(--ink,#1f2430); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .hero-thumb.active { border-color:var(--ocean,#00AEEF); }
+/* Slider vidéo. Les films sont au format vertical (360x640) : le cadre laisse
+   donc de larges bandes sur les côtés. On les peint avec le fond de page
+   plutôt qu'en noir — un aplat sombre au milieu d'une page claire coupe la
+   lecture en deux. --surface-2 suit le thème, clair comme nocturne. */
+.hero-video { position:relative; width:100%; height:100%; background:var(--surface-2); }
+.hero-video video { width:100%; height:100%; object-fit:contain; display:block; background:var(--surface-2); }
+.hero-video-nav { position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; display:grid; place-items:center; border:1px solid var(--line); border-radius:999px; background:var(--smoke,#fff); color:var(--ink,#1f2430); font-size:1.7rem; line-height:1; cursor:pointer; opacity:.88; box-shadow:var(--shadow,0 4px 20px rgba(0,0,0,.08)); }
+.hero-video-nav:hover { opacity:1; }
+.hero-video-nav.prev { left:.6rem; }
+.hero-video-nav.next { right:.6rem; }
+/* En haut : les contrôles natifs du lecteur occupent déjà le bas du cadre.
+   Le dégradé part de la couleur du cadre, donc le texte reste lisible dans
+   les deux thèmes sans le forcer en blanc. */
+.hero-video-bar { position:absolute; left:0; right:0; top:0; display:flex; align-items:center; gap:.7rem; padding:.5rem .8rem 1.2rem; background:linear-gradient(to bottom, var(--surface-2) 35%, transparent); color:var(--ink,#1f2430); font-size:.85rem; pointer-events:none; }
+.hero-video-title { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hero-video-count { margin-inline-start:auto; opacity:.75; font-variant-numeric:tabular-nums; }
+.hero-video-dots { display:flex; gap:.35rem; pointer-events:auto; }
+.hero-video-dot { width:9px; height:9px; padding:0; border:0; border-radius:999px; background:var(--line); cursor:pointer; }
+.hero-video-dot.active { background:var(--ink,#1f2430); }
+/* Autoplay refusé avec le son : le bouton laisse le visiteur le rétablir. */
+.hero-video-sound { pointer-events:auto; border:1px solid var(--line); border-radius:999px; background:var(--smoke,#fff); color:var(--ink,#1f2430); font:inherit; font-size:.78rem; font-weight:700; padding:.25rem .6rem; cursor:pointer; }
+
+/* Mode embarqué (?embed=map) : la page ne montre QUE la section carte, pour
+   être réutilisée telle quelle dans le parcours client (fiche d'un lot). */
+.pj-embed #mainMenu, .pj-embed #mainFooter { display: none !important; }
+.pj-embed.project-shell, .pj-embed #projectApp { overflow: visible; }
+.pj-embed #projectApp { margin: 0; padding: 0; max-width: none; }
+.pj-embed #projectMapSection { margin: 0 !important; padding: 0 !important; }
+.pj-embed #projectMapSection .map-composition { height: 100vh; min-height: 0; }
+.pj-embed #projectMap { height: 100vh !important; min-height: 0 !important; }
+.pj-embed .map-aside { height: 100vh; max-height: none; }
+@media (max-width: 900px) {
+  .pj-embed #projectMapSection .map-composition { height: auto; }
+  .pj-embed #projectMap { height: 60vh !important; }
+  .pj-embed .map-aside { height: auto; }
+}
 </style>
+<script>
+  /* Posé avant le rendu pour éviter tout clignotement du reste de la page. */
+  (function () {
+    try { if (new URLSearchParams(location.search).has('embed'))
+      document.documentElement.classList.add('pj-embed'); } catch (e) {}
+  })();
+</script>
 </head>
 <body>
 <div id="mainMenu"></div>
 <main class="project-shell" id="projectApp"></main>
 <div id="mainFooter"></div>
-<script src="shared/menu.js?v=14"></script>
+<script src="shared/menu.js?v=15"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260802e"></script>
+<script src="project.js?v=20260808a"></script>
 </body>
 </html>

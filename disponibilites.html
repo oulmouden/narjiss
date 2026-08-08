@@ -7,24 +7,60 @@
 <title>Narjiss — Choisissez votre logement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=14">
+<link rel="stylesheet" href="shared/menu.css?v=17">
 <style>
 /* Étape 3 du parcours client. Dimensionné pour le grand écran tactile du
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
    seul, contrastes tenant à deux mètres de distance. */
 
 .nj-hero {
-  padding: 1.1rem 1.5rem .8rem;
+  padding: .55rem 1.5rem .45rem;   /* en-tête compact */
   background: linear-gradient(180deg, var(--sand) 0%, var(--bg) 100%);
   border-bottom: 1px solid var(--border-subtle);
   text-align: center;
 }
 .nj-hero h1 {
-  margin: 0 0 .25rem;
+  margin: 0 0 .15rem;
   font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-size: clamp(1.25rem, 2.4vw, 1.8rem);
   color: var(--charcoal);
 }
+/* Nom du projet, rappelé en tête des résultats : il reste visible quand on
+   fait défiler jusqu'au plan (l'en-tête, lui, disparaît). */
+.nj-projet-bandeau {
+  margin: 0 0 .6rem; font-family: var(--font-serif);
+  font-size: 1.15rem; font-weight: 700; color: var(--charcoal);
+}
+.nj-projet-bandeau:empty { display: none; }
+/* Actions reprises de project.html : contact, bureau de vente, itinéraire.
+   Cibles ≥ 44 px comme le reste de la page (borne tactile). */
+.nj-hero-actions {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem;
+  margin: .7rem 0 0;
+}
+.nj-hero-actions a,
+.nj-hero-actions button {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  min-height: 44px; padding: .6rem 1.1rem;
+  border: 1px solid var(--border-subtle); border-radius: 8px;
+  background: var(--surface); color: var(--ocean-deep);
+  font-family: inherit; font-size: .9rem; font-weight: 700;
+  text-decoration: none; cursor: pointer;
+  transition: transform .15s ease, background .15s ease, color .15s ease;
+}
+.nj-hero-actions .nj-act-or {
+  color: var(--sun); border-color: var(--sun);
+}
+.nj-hero-actions .nj-act-or:hover {
+  background: var(--sun); color: var(--on-accent); border-color: var(--sun);
+}
+.nj-hero-actions .nj-act-wa {
+  background: var(--wa); color: #fff; border-color: var(--wa);
+}
+.nj-hero-actions a:hover,
+.nj-hero-actions button:hover { transform: translateY(-2px); }
+html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
+
 .nj-fil {
   display: flex; justify-content: center; gap: .4rem;
   margin: .5rem 0 0; padding: 0; list-style: none;
@@ -283,14 +319,51 @@
 .nj-media-btn:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
 .nj-media-btn span { font-size: .9rem; line-height: 1; }
 
+/* Bouton « Ajouter à mes choix » de la fiche : action principale, pleine
+   largeur sous les documents. Vert quand le lot est déjà retenu. */
+.nj-fiche-choix {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  width: 100%; min-height: 46px; margin-top: .9rem; padding: .6rem 1rem;
+  border: 1px solid var(--accent-solid); border-radius: 10px;
+  background: var(--accent-solid); color: var(--on-accent);
+  font: inherit; font-size: .95rem; font-weight: 800; cursor: pointer;
+  transition: background .15s ease, color .15s ease, transform .12s ease;
+}
+.nj-fiche-choix:hover { transform: translateY(-1px); }
+.nj-fiche-choix:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.nj-fiche-choix.is-in {
+  background: var(--lot-dispo); border-color: var(--lot-dispo); color: #fff;
+}
+.nj-fiche-choix:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.nj-fiche-choix.is-off {
+  background: var(--surface-raised); border-color: var(--border-medium);
+  color: var(--muted); opacity: 1;
+}
+/* Ligne d'actions de la fiche : « Ajouter à mes choix » + « Vider ». */
+.nj-fiche-actions { display: flex; gap: .5rem; margin-top: .9rem; }
+.nj-fiche-actions .nj-fiche-choix { margin-top: 0; flex: 1; }
+.nj-fiche-vider {
+  flex: 0 0 auto; min-height: 46px; padding: 0 1rem;
+  background: transparent; border: 1px solid var(--border-medium); border-radius: 10px;
+  font: inherit; font-weight: 700; color: var(--muted); cursor: pointer;
+}
+.nj-fiche-vider:hover { border-color: var(--lot-vendu); color: var(--lot-vendu); }
+
 /* ── Fenêtre de consultation ────────────────────────────────────────── */
 body.nj-fige { overflow: hidden; }
+/* Le <dialog> occupe tout l'écran et sert lui-même de fond ; les valeurs par
+   défaut du navigateur (bordure, largeur ajustée au contenu, marge auto) sont
+   remises à zéro. Le voile sombre passe par ::backdrop, qui vit lui aussi dans
+   la couche supérieure. */
 .nj-media-fond {
   position: fixed; inset: 0; z-index: 10000;
-  display: flex; align-items: center; justify-content: center; padding: 1rem;
-  background: rgba(0, 0, 0, .68);
+  width: 100%; max-width: none; height: 100%; max-height: none;
+  margin: 0; border: 0; padding: 1rem;
+  background: transparent; color: inherit;
+  align-items: center; justify-content: center;
 }
-.nj-media-fond[hidden] { display: none; }
+.nj-media-fond[open] { display: flex; }
+.nj-media-fond::backdrop { background: rgba(0, 0, 0, .68); }
 .nj-media-boite {
   display: flex; flex-direction: column;
   width: min(1100px, 100%); max-height: 92vh;
@@ -314,14 +387,248 @@ body.nj-fige { overflow: hidden; }
   display: flex; align-items: center; justify-content: center;
   background: var(--surface-raised);
 }
-.nj-media-corps img { max-width: 100%; height: auto; display: block; }
+/* Un plan doit tenir en entier sans faire défiler : la fenêtre est plafonnée
+   à 92vh, on retranche l'en-tête et la note de bas de fenêtre. */
+.nj-media-corps { --nj-media-h: max(300px, calc(92vh - 118px)); }
+.nj-media-corps img {
+  display: block;
+  max-width: 100%; max-height: var(--nj-media-h);
+  width: auto; height: auto;
+}
 .nj-media-corps iframe { width: 100%; height: min(70vh, 620px); border: 0; display: block; }
 .nj-media-vide { padding: 3rem 1rem; color: var(--muted); text-align: center; }
+
+/* Comparateur de plans : le plan d'architecte est révélé par-dessus le plan
+   commercial au fil du curseur. Les deux images occupent exactement la même
+   boîte ; c'est un rognage (clip-path) qui découvre celle du dessus, jamais
+   un redimensionnement — les cotes restent donc lisibles des deux côtés. */
+/* La boîte épouse le plan du dessous, lui-même bridé en hauteur : le
+   comparateur tient donc toujours dans la fenêtre, sans défilement. */
+.nj-compare {
+  position: relative; max-width: 100%; max-height: var(--nj-media-h);
+  line-height: 0; touch-action: pan-y;
+}
+.nj-compare img {
+  display: block;
+  max-width: 100%; max-height: var(--nj-media-h);
+  width: auto; height: auto;
+  user-select: none; -webkit-user-drag: none;
+}
+.nj-compare .nj-compare-haut {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  /* --nj-x : position du curseur, en pourcentage */
+  clip-path: inset(0 calc(100% - var(--nj-x, 50%)) 0 0);
+}
+/* Trait de séparation, purement décoratif : le vrai contrôle est l'input. */
+.nj-compare-trait {
+  position: absolute; top: 0; bottom: 0; left: var(--nj-x, 50%);
+  width: 2px; margin-left: -1px; background: var(--sun);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .65); pointer-events: none;
+}
+.nj-compare-trait::after {
+  content: "⇔";
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--sun); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; line-height: 1; box-shadow: var(--shadow);
+}
+/* Le curseur natif porte l'accessibilité (clavier, lecteur d'écran) : on le
+   rend transparent et on l'étale sur toute l'image plutôt que de le cacher. */
+.nj-compare-range {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  margin: 0; padding: 0; background: none; border: 0;
+  appearance: none; -webkit-appearance: none; cursor: ew-resize;
+}
+.nj-compare-range::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 44px; height: 44px; border-radius: 50%; background: transparent;
+}
+.nj-compare-range::-moz-range-thumb {
+  width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent;
+}
+.nj-compare-range:focus-visible { outline: 3px solid var(--sun); outline-offset: -3px; }
+.nj-compare-lbl {
+  position: absolute; top: .6rem; z-index: 2;
+  padding: .2rem .6rem; border-radius: 999px;
+  background: rgba(0, 0, 0, .6); color: #fff;
+  font-size: .72rem; font-weight: 700; line-height: 1.6; pointer-events: none;
+}
+.nj-compare-lbl-g { left: .6rem; }
+.nj-compare-lbl-d { right: .6rem; }
 .nj-media-note {
   margin: 0; padding: .6rem 1.1rem;
   border-top: 1px solid var(--border-subtle);
   font-size: .78rem; color: var(--muted);
 }
+
+/* ── Maquette d'étage ───────────────────────────────────────────────────
+   Remplace la maquette physique que le conseiller pose sur son bureau : on
+   choisit un étage dans l'élévation à gauche, on voit le plateau à droite.
+   La position de chaque lot y traduit son orientation réelle (sur rue, sur
+   cour, traversant), ce qui est précisément ce que le client cherche. */
+.nj-mq-aide { margin: 0 0 1.1rem; font-size: .84rem; color: var(--muted); }
+.nj-mq-imm { margin-bottom: var(--space-xl); }
+.nj-mq-corps {
+  display: grid; grid-template-columns: 152px minmax(0, 1fr);
+  gap: var(--space-md); align-items: start; margin-top: .9rem;
+}
+.nj-mq-colonne { display: flex; flex-direction: column; gap: .7rem; min-width: 0; }
+/* Panneau « Mes choix » sous la liste des niveaux. */
+.nj-mq-choix {
+  background: var(--surface-raised); border: 1px solid var(--border-medium);
+  border-radius: 10px; padding: .55rem .6rem;
+}
+.nj-mq-choix-tete {
+  font-size: .7rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .03em; color: var(--muted); margin-bottom: .4rem;
+}
+.nj-mq-choix-compte { color: var(--accent-solid); }
+.nj-mq-choix-vide { margin: 0; font-size: .76rem; color: var(--muted); }
+.nj-mq-choix-liste { display: flex; flex-direction: column; gap: .3rem; }
+.nj-mq-choix-item {
+  display: flex; align-items: center; justify-content: space-between; gap: .25rem;
+  padding: .28rem .2rem .28rem .45rem; border-radius: 7px;
+  background: var(--surface); border: 1px solid var(--border-subtle);
+  font-size: .74rem; font-weight: 700; color: var(--text);
+}
+.nj-mq-choix-x {
+  border: none; background: transparent; color: var(--muted); cursor: pointer;
+  font-size: 1rem; line-height: 1; padding: 0 .25rem;
+}
+.nj-mq-choix-x:hover { color: var(--lot-vendu); }
+.nj-mq-choix-envoyer {
+  margin-top: .5rem; width: 100%; min-height: 38px; padding: .35rem;
+  background: var(--accent-solid); border: 1px solid var(--accent-solid); border-radius: 8px;
+  font: inherit; font-size: .78rem; font-weight: 800; color: var(--on-accent); cursor: pointer;
+}
+.nj-mq-choix-envoyer:hover { filter: brightness(1.05); }
+.nj-mq-choix-vider {
+  margin-top: .35rem; width: 100%; min-height: 34px; padding: .3rem;
+  background: transparent; border: 1px solid var(--border-medium); border-radius: 8px;
+  font: inherit; font-size: .74rem; font-weight: 700; color: var(--muted); cursor: pointer;
+}
+.nj-mq-choix-vider:hover { border-color: var(--lot-vendu); color: var(--lot-vendu); }
+@media (max-width: 760px) {
+  .nj-mq-colonne { gap: .5rem; }
+}
+@media (max-width: 760px) {
+  .nj-mq-corps { grid-template-columns: 1fr; }
+  .nj-mq-etages { flex-direction: row; flex-wrap: wrap; }
+  .nj-mq-etage { flex: 1 1 84px; }
+}
+
+/* Élévation : les étages empilés, le dernier en haut, comme la maquette. */
+.nj-mq-etages { display: flex; flex-direction: column; gap: 3px; }
+.nj-mq-etage {
+  display: grid; gap: .18rem;
+  min-height: 52px; padding: .45rem .6rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-medium); border-radius: 8px;
+  font: inherit; text-align: start; color: var(--text); cursor: pointer;
+}
+.nj-mq-etage:hover { border-color: var(--ocean); }
+.nj-mq-etage.is-active {
+  background: var(--accent-solid); border-color: var(--accent-solid); color: var(--on-accent);
+}
+.nj-mq-etage-nom { font-weight: 800; font-size: .95rem; line-height: 1; }
+.nj-mq-etage-note { font-size: .7rem; opacity: .8; line-height: 1; }
+.nj-mq-etage-jauge {
+  height: 4px; border-radius: 999px; background: var(--sand-dark); overflow: hidden;
+}
+.nj-mq-etage-jauge span { display: block; height: 100%; background: var(--lot-dispo); }
+.nj-mq-etage.is-active .nj-mq-etage-jauge { background: rgba(255, 255, 255, .35); }
+.nj-mq-etage.is-active .nj-mq-etage-jauge span { background: #fff; }
+
+/* Plateau */
+.nj-mq-plateau {
+  background: var(--surface); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: .7rem;
+}
+.nj-mq-plateau svg { display: block; width: 100%; height: auto; }
+
+.nj-mq-dalle { fill: var(--surface-raised); stroke: var(--border-medium); }
+.nj-mq-couloir { fill: var(--sand); }
+.nj-mq-noyau { fill: var(--sand-dark); }
+.nj-mq-cote {
+  fill: var(--muted); font-size: 15px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+/* Un lot : rectangle coloré par statut, mêmes teintes que les pastilles. */
+.nj-mq-lot { cursor: pointer; }
+.nj-mq-lot rect.nj-mq-fond { stroke-width: 2; }
+.nj-mq-lot .nj-mq-num { font-size: 26px; font-weight: 800; }
+.nj-mq-lot .nj-mq-info { font-size: 14px; font-weight: 600; opacity: .78; }
+.nj-mq-lot text { pointer-events: none; }
+
+.nj-mq-lot.nj-disponible rect.nj-mq-fond { fill: var(--lot-dispo-bg); stroke: var(--lot-dispo); }
+.nj-mq-lot.nj-disponible text { fill: var(--lot-dispo); }
+.nj-mq-lot.nj-optionne  rect.nj-mq-fond { fill: var(--lot-optionne-bg); stroke: var(--lot-optionne); }
+.nj-mq-lot.nj-optionne  text { fill: var(--lot-optionne); }
+.nj-mq-lot.nj-reserve   rect.nj-mq-fond { fill: var(--lot-reserve-bg); stroke: var(--lot-reserve); }
+.nj-mq-lot.nj-reserve   text { fill: var(--lot-reserve); }
+.nj-mq-lot.nj-vendu     rect.nj-mq-fond { fill: var(--lot-vendu-bg); stroke: var(--lot-vendu); }
+.nj-mq-lot.nj-vendu     text { fill: var(--lot-vendu); }
+.nj-mq-lot.nj-vendu, .nj-mq-lot.nj-bloque { opacity: var(--lot-vendu-opacite); cursor: default; }
+.nj-mq-lot.nj-bloque    rect.nj-mq-fond { fill: var(--lot-vendu-bg); stroke: var(--lot-vendu); }
+.nj-mq-lot.nj-bloque    text { fill: var(--lot-vendu); }
+
+.nj-mq-lot:hover rect.nj-mq-fond { stroke-width: 4; }
+.nj-mq-lot:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.nj-mq-lot.nj-choisi rect.nj-mq-fond { stroke: var(--sun); stroke-width: 5; }
+.nj-mq-coche { fill: var(--sun); }
+.nj-mq-coche text { fill: #fff; font-size: 18px; font-weight: 800; }
+
+/* Pastille « i » : ouvre la fiche sans déclencher la sélection. */
+/* Vue « vrai plan » : le plan d'architecte tracé dans le back-office remplace
+   le plateau schématique. Les contours reprennent exactement les couleurs de
+   statut du plateau, pour que le code de lecture ne change pas d'une vue à
+   l'autre. Le texte est cerné de blanc : sans cela il devient illisible sur
+   les zones chargées du plan (mobilier, cotes, hachures). */
+.nj-mq-reel { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; }
+.nj-mq-plan-aide { margin: .5rem 0 0; font-size: .8rem; color: var(--muted); text-align: center; }
+
+/* Bouton d'agrandissement, dans l'en-tête de l'immeuble. Cible ≥ 44 px : on
+   le vise au doigt sur la borne. */
+.nj-mq-agrandir {
+  min-height: 44px; padding: .4rem 1rem;
+  background: var(--surface); border: 1px solid var(--border-medium); border-radius: 999px;
+  font: inherit; font-size: .82rem; font-weight: 700; color: var(--ocean-deep); cursor: pointer;
+}
+.nj-mq-agrandir:hover { border-color: var(--sun); color: var(--sun); }
+
+/* Plein écran : devant le client, le plan prend tout. Les filtres et le menu
+   disparaissent d'eux-mêmes puisqu'on n'agrandit que la section de
+   l'immeuble ; le sélecteur d'étages reste, pour circuler dans le bâtiment
+   sans avoir à ressortir. */
+.nj-mq-imm:fullscreen {
+  display: flex; flex-direction: column;
+  margin: 0; padding: 1.2rem 1.5rem; background: var(--bg); overflow: auto;
+}
+/* Légende de la maquette, posée sous le titre de l'immeuble. Étant à
+   l'intérieur de la section, elle reste visible en plein écran (l'ancienne
+   légende globale, hors de la section agrandie, disparaissait). */
+.nj-mq-legende { margin: .1rem 0 .7rem; }
+.nj-mq-imm:fullscreen .nj-mq-legende { flex: 0 0 auto; margin: .2rem 0 .8rem; }
+.nj-mq-imm:fullscreen .nj-mq-corps { flex: 1; min-height: 0; }
+.nj-mq-imm:fullscreen .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
+.nj-mq-imm:fullscreen .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
+.nj-mq-imm:fullscreen .nj-mq-etage { min-height: 60px; }
+.nj-mq-lot polygon.nj-mq-forme { stroke-width: 4; fill-opacity: .42; }
+.nj-mq-lot.nj-disponible polygon.nj-mq-forme { fill: var(--lot-dispo); stroke: var(--lot-dispo); }
+.nj-mq-lot.nj-optionne   polygon.nj-mq-forme { fill: var(--lot-optionne); stroke: var(--lot-optionne); }
+.nj-mq-lot.nj-reserve    polygon.nj-mq-forme { fill: var(--lot-reserve); stroke: var(--lot-reserve); }
+.nj-mq-lot.nj-vendu      polygon.nj-mq-forme { fill: var(--lot-vendu); stroke: var(--lot-vendu); }
+.nj-mq-lot.nj-bloque     polygon.nj-mq-forme { fill: var(--lot-vendu); stroke: var(--lot-vendu); }
+.nj-mq-lot:hover polygon.nj-mq-forme { fill-opacity: .58; stroke-width: 6; }
+.nj-mq-lot.nj-choisi polygon.nj-mq-forme { stroke: var(--sun); stroke-width: 7; }
+.nj-mq-reel .nj-mq-num,
+.nj-mq-reel .nj-mq-info { paint-order: stroke; stroke: var(--surface); stroke-width: 5; }
+
+.nj-mq-info-btn circle { fill: var(--surface); stroke: var(--border-medium); stroke-width: 2; }
+.nj-mq-info-btn text { fill: var(--muted); font-size: 17px; font-weight: 800; }
+.nj-mq-info-btn:hover circle { stroke: var(--ocean); }
 
 /* ── Barre de sélection ────────────────────────────────────────────── */
 .nj-barre {
@@ -353,6 +660,21 @@ body.nj-fige { overflow: hidden; }
   font: inherit; font-weight: 700; color: var(--on-accent); white-space: nowrap; cursor: pointer;
 }
 .nj-suivant:disabled { background: var(--sand-dark); color: var(--muted); cursor: not-allowed; }
+/* Vider toute la sélection : action secondaire, discrète mais visible. */
+.nj-vider {
+  min-height: 46px; padding: 0 1rem;
+  background: transparent; border: 1px solid var(--border-medium); border-radius: 10px;
+  font: inherit; font-weight: 700; color: var(--muted); white-space: nowrap; cursor: pointer;
+}
+.nj-vider:hover { border-color: var(--lot-vendu); color: var(--lot-vendu); }
+/* Bouton « retour à la fiche » dans la fenêtre média. */
+.nj-media-retour {
+  display: inline-flex; align-items: center; gap: .4rem;
+  min-height: 40px; margin: 0 0 .8rem; padding: .45rem .9rem;
+  background: var(--surface-raised); border: 1px solid var(--border-medium);
+  border-radius: 8px; font: inherit; font-weight: 700; color: var(--text); cursor: pointer;
+}
+.nj-media-retour:hover { border-color: var(--ocean); color: var(--accent-solid); }
 
 @media (max-width: 700px) {
   .nj-barre { flex-wrap: wrap; }
@@ -374,6 +696,7 @@ body.nj-fige { overflow: hidden; }
 <section class="nj-hero">
   <h1 id="njTitre">Choisissez votre logement</h1>
   <p id="njSousTitre">Résidence Al Jawhara — Dcheira El Jihadia, Agadir</p>
+  <div class="nj-hero-actions" id="njHeroActions"></div>
   <ol class="nj-fil" id="njFil">
     <li>Vos critères</li>
     <li>Le projet</li>
@@ -425,11 +748,13 @@ body.nj-fige { overflow: hidden; }
   </aside>
 
   <main>
+    <h2 class="nj-projet-bandeau" id="njProjetBandeau"></h2>
     <div class="nj-resultats-tete">
       <p class="nj-compteur" id="njCompteur">…</p>
       <div class="nj-vue" role="group" aria-labelledby="njVueLabel">
         <span class="nj-vue-label" id="njVueLabel">Affichage</span>
         <button type="button" class="nj-vue-btn" data-vue="plan" id="njVuePlan" aria-pressed="true">Plan</button>
+        <button type="button" class="nj-vue-btn" data-vue="maquette" id="njVueMaquette" aria-pressed="false">Maquette</button>
         <button type="button" class="nj-vue-btn" data-vue="liste" id="njVueListe" aria-pressed="false">Liste</button>
       </div>
       <p class="nj-legende" id="njLegende">
@@ -446,11 +771,15 @@ body.nj-fige { overflow: hidden; }
 <div class="nj-barre" id="njBarre">
   <p class="nj-barre-titre"><span id="njBarreLabel">Ma sélection</span> <span id="njBarreCompte">0/3</span></p>
   <div class="nj-barre-liste" id="njBarreListe"></div>
-  <button type="button" class="nj-suivant" id="njSuivant" disabled>Parler à un conseiller →</button>
+  <button type="button" class="nj-vider" id="njVider" hidden>✕ Vider</button>
+  <button type="button" class="nj-suivant" id="njSuivant" disabled>Envoyer mes choix →</button>
 </div>
 
-<div class="nj-media-fond" id="njMedia" role="dialog" aria-modal="true"
-     aria-labelledby="njMediaTitre" hidden>
+<!-- <dialog> et non <div> : ouvert par showModal(), il est peint dans la
+     « couche supérieure » du navigateur, au-dessus de TOUT — y compris d'un
+     élément en plein écran. Un simple div à z-index 10000 passait derrière le
+     plan agrandi, car le plein écran ignore les z-index du reste de la page. -->
+<dialog class="nj-media-fond" id="njMedia" aria-labelledby="njMediaTitre">
   <div class="nj-media-boite">
     <header class="nj-media-tete">
       <h2 id="njMediaTitre"></h2>
@@ -459,13 +788,13 @@ body.nj-fige { overflow: hidden; }
     <div class="nj-media-corps" id="njMediaCorps"></div>
     <p class="nj-media-note" id="njMediaNote" hidden></p>
   </div>
-</div>
+</dialog>
 
 <p class="nj-sr" id="njLive" role="status" aria-live="polite"></p>
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=14"></script>
-<script src="disponibilites.js?v=14"></script>
+<script src="shared/menu.js?v=15"></script>
+<script src="disponibilites.js?v=40"></script>
 </body>
 </html>
