@@ -119,7 +119,69 @@ automatique à l'arrivée. Ré-exporter écrase `tour-bureau/` (ne jamais édite
 
 ---
 
-## 6. Rappels de conception (le « pourquoi »)
+## 6. Cache HTTP — à configurer une fois sur le VPS
+
+### Le problème
+
+Les fichiers JS et CSS portent un `?v=` que l'on incrémente à chaque
+modification : le navigateur les recharge donc tout seul. **Les fichiers
+`.html` n'en portent pas** — ils sont le point d'entrée, ils ne peuvent pas se
+versionner eux-mêmes.
+
+Conséquence observée en développement comme en production : après un
+déploiement, le navigateur exécute le **nouveau JS sur l'ancien HTML**. Un
+élément ajouté au balisage reste invisible, sans la moindre erreur en console,
+jusqu'à un `Ctrl+Shift+R` manuel. C'est intenable pour des visiteurs qui ne
+sauront jamais qu'il faut recharger de force.
+
+### Le correctif
+
+Servir les `.html` avec revalidation obligatoire, et garder le cache long pour
+les ressources versionnées. Le VPS tourne sous **nginx/CloudPanel** :
+`.htaccess` y est ignoré, la règle doit aller dans le vhost.
+
+CloudPanel → **Sites** → le site → **Vhost**, puis insérer dans le bloc
+`server { … }` :
+
+```nginx
+# Les pages ne portent pas de ?v= : le navigateur doit revalider a chaque
+# visite, sinon un deploiement reste invisible jusqu'a un rechargement force.
+# "no-cache" n'interdit pas la mise en cache : il impose la revalidation.
+# Un 304 ne coute quasiment rien quand la page n'a pas change.
+location ~* \.html$ {
+    add_header Cache-Control "no-cache, must-revalidate";
+}
+
+# Les ressources versionnees (?v=) peuvent au contraire etre gardees
+# longtemps : changer la version change l'URL, donc l'entree de cache.
+location ~* \.(js|css|jpg|jpeg|png|gif|webp|svg|woff2?|mp4)$ {
+    add_header Cache-Control "public, max-age=31536000";
+}
+```
+
+Puis recharger la configuration :
+
+```bash
+nginx -t && systemctl reload nginx
+```
+
+`nginx -t` valide la syntaxe **avant** le rechargement : sans lui, une faute de
+frappe coupe le site entier.
+
+### Vérifier
+
+```bash
+curl -sI https://www.narjiss.company/disponibilites.html | grep -i cache-control
+```
+
+Attendu : `Cache-Control: no-cache, must-revalidate`.
+
+> ⚠️ Tant que cette configuration n'est pas posée, **prévenir d'un
+> `Ctrl+Shift+R` après chaque déploiement** touchant un fichier `.html`.
+
+---
+
+## 7. Rappels de conception (le « pourquoi »)
 
 - La **copie de CNIE ne circule jamais** : ni par e-mail (notification = texte
   + lien admin), ni par URL publique (stockage hors `htdocs`, servi seulement

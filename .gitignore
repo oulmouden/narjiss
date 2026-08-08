@@ -69,3 +69,8 @@ outputs/
 
 # Dump de synchro prod généré (données, régénérable via tools/export-prod.php)
 sql/prod-sync.sql
+
+# Notes d'acces au serveur (URL phpMyAdmin, identifiants) — jamais versionnees
+data/phpmyadmin-serveur.txt
+data/*-serveur.txt
+data/acces-*.txt

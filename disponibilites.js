@@ -728,6 +728,7 @@
     document.getElementById('njMediaCorps').innerHTML = corps;
     majTitreProjet();
     majBoutonRetour(null);   // on EST sur la fiche : pas de retour vers elle-même
+    majBoutonPlein(false);
     document.getElementById('njMediaNote').hidden = true;
     ouvrirModale();
     document.body.classList.add('nj-fige');
@@ -744,6 +745,30 @@
     if (!el) return;
     var p = projetCourant();
     el.textContent = p ? menuText(p.name, langue()) : '';
+  }
+
+  /**
+   * Affiche ou masque le plein écran de la fenêtre de consultation.
+   *
+   * Réservé aux documents (plan, 360°, carte) : sur la fiche, qui tient en
+   * quelques lignes, agrandir n'apporterait rien.
+   */
+  function majBoutonPlein(actif) {
+    var b = document.getElementById('njMediaPlein');
+    if (!b) return;
+    b.hidden = !actif;
+    if (actif) majLibellePlein();
+  }
+
+  /** Accorde le libellé du bouton à l'état réel du plein écran. */
+  function majLibellePlein() {
+    var b = document.getElementById('njMediaPlein');
+    if (!b) return;
+    var plein = !!document.fullscreenElement;
+    var libelle = plein ? t('quitterPleinEcran') : t('pleinEcran');
+    b.textContent = (plein ? '✕ ' : '⛶ ') + libelle;
+    b.setAttribute('title', libelle);
+    b.setAttribute('aria-label', libelle);
   }
 
   /**
@@ -816,6 +841,7 @@
     // le contexte du lot.
     majBoutonRetour(lot.id);
     majTitreProjet();
+    majBoutonPlein(true);
 
     document.getElementById('njMediaTitre').textContent = titre;
     document.getElementById('njMediaCorps').innerHTML = corps;
@@ -842,6 +868,9 @@
 
   function fermerMedia() {
     var d = document.getElementById('njMedia');
+    // Sortir d'abord du plein écran : fermer le dialogue sans le faire
+    // laisserait le navigateur en plein écran sur une fenêtre disparue.
+    if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) {} }
     if (d.open) d.close();
     // Vider libère l'iframe : sans ça la visite 360° continue de tourner.
     document.getElementById('njMediaCorps').innerHTML = '';
@@ -1412,6 +1441,7 @@
     document.querySelectorAll('[data-agrandir]').forEach(function (b) {
       b.textContent = (plein ? '✕ ' + t('quitterPleinEcran') : '⛶ ' + t('pleinEcran'));
     });
+    majLibellePlein();   // même bascule, pour la fenêtre de consultation
     // Le plan reprend son cadrage entier : on ne veut pas entrer en plein
     // écran sur un détail zoomé de la vue précédente.
     document.querySelectorAll('.nj-mq-reel').forEach(recadrerPlan);
@@ -1949,6 +1979,11 @@
     });
 
     document.getElementById('njMediaFermer').addEventListener('click', fermerMedia);
+    // On agrandit la boîte, pas le corps seul : l'en-tête doit rester visible
+    // pour offrir la sortie, le retour à la fiche et le nom du projet.
+    document.getElementById('njMediaPlein').addEventListener('click', function () {
+      basculerPleinEcran(document.querySelector('.nj-media-boite'));
+    });
     document.getElementById('njMedia').addEventListener('click', function (e) {
       if (e.target === this) fermerMedia();   // clic sur le fond
     });
