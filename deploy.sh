@@ -13,7 +13,8 @@
 # Usage :
 #   bash deploy.sh code            # (défaut) code léger : html/js/css/json, shared, api, admin, data-json, kb
 #   bash deploy.sh images          # médias : images/ (sans les _orig-360 lourds)
-#   bash deploy.sh all             # code + images
+#   bash deploy.sh videos          # films des projets : data/videos/ (+ posters)
+#   bash deploy.sh all             # code + images + vidéos
 #   bash deploy.sh path <p> [...]  # déploie des chemins précis (fichiers ou dossiers)
 #   bash deploy.sh rm <remote> ... # supprime des fichiers SUR le VPS (chemins relatifs au docroot)
 #   bash deploy.sh verify          # compare le md5 local vs VPS de fichiers-clés (diagnostic)
@@ -77,6 +78,15 @@ build_images_list(){
        ! -path '*/_orig-360/*'
 }
 
+# Bucket VIDEOS : films des projets + générique, posters compris. Séparé des
+# images : plusieurs dizaines de Mo qu'on ne veut pas repousser à chaque
+# déploiement de code. `mindepth 2` : seuls les fichiers rangés dans un
+# sous-dossier de projet partent — ceux laissés en vrac à la racine de
+# data/videos ne sont rattachés à aucun projet et n'ont rien à faire en ligne.
+build_videos_list(){
+  find data/videos -mindepth 2 -type f 2>/dev/null ! -name '.gitkeep' ! -name 'README.md'
+}
+
 # --- Envoi d'une liste de fichiers via flux tar|ssh --------------------------
 send_list(){
   local label="$1"; shift
@@ -112,6 +122,7 @@ send_list(){
 # --- Commandes ---------------------------------------------------------------
 cmd_code(){   build_code_list   | send_list "code"; }
 cmd_images(){ build_images_list | send_list "images"; }
+cmd_videos(){ build_videos_list | send_list "videos"; }
 
 cmd_path(){
   [ "$#" -gt 0 ] || die "usage : deploy.sh path <fichier|dossier> [...]"
@@ -172,11 +183,12 @@ CMD="$1"; shift || true
 case "$CMD" in
   code)    cmd_code;;
   images)  cmd_images;;
-  all)     cmd_code; cmd_images;;
+  videos)  cmd_videos;;
+  all)     cmd_code; cmd_images; cmd_videos;;
   path)    cmd_path "$@";;
   rm)      cmd_rm "$@";;
   verify)  cmd_verify;;
-  *) die "commande inconnue : '$CMD' (code|images|all|path|rm|verify)";;
+  *) die "commande inconnue : '$CMD' (code|images|videos|all|path|rm|verify)";;
 esac
 
 info "${c_grn}Terminé.${c_0}"

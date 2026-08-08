@@ -13,6 +13,36 @@ require_once __DIR__ . '/../api/data.php';
 
 admin_require_login();
 
+/* Plutôt qu'une erreur 500 que rien n'explique, on nomme la cause exacte :
+   base injoignable et schéma non migré demandent des gestes différents. */
+$etatSchema = nj_lots_etat_schema();
+if ($etatSchema !== 'ok') {
+    admin_header('Lots');
+    ?>
+    <section class="panel">
+        <h1>Grille de commercialisation</h1>
+        <?php if ($etatSchema === 'sans-base'): ?>
+            <div class="error">PHP n'arrive pas à se connecter à la base de données.</div>
+            <p>Ce n'est pas la grille qui manque : c'est la connexion MySQL. Les
+               identifiants se trouvent dans <code>api/.env</code> sur le serveur
+               (jamais déployé depuis le poste de travail), et dans CloudPanel,
+               section <em>Databases</em>. Pour voir lesquels sont utilisés et d'où
+               ils viennent, en SSH depuis la racine du site :</p>
+            <pre style="background:#f4f6f9;padding:1rem;border-radius:6px;overflow:auto">php sql/etat.php</pre>
+        <?php else: ?>
+            <div class="error">La table <code>lots</code> n'existe pas encore sur cette base.</div>
+            <p>La connexion fonctionne, mais le schéma du parcours client n'a pas
+               été appliqué sur ce serveur. En SSH, depuis la racine du site :</p>
+            <pre style="background:#f4f6f9;padding:1rem;border-radius:6px;overflow:auto">php sql/migrer.php sql/001_parcours_client.sql
+php sql/migrer.php sql/003_lots_medias.sql</pre>
+            <p>Les migrations sont rejouables sans risque.</p>
+        <?php endif; ?>
+    </section>
+    <?php
+    admin_footer();
+    exit;
+}
+
 $projets = nj_projects();
 $projet  = (string) ($_GET['projet'] ?? ($_POST['projet'] ?? ''));
 if ($projet === '' || !isset($projets[$projet])) {

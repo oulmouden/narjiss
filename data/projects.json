@@ -14,6 +14,58 @@
         "plan_architecte_url": "jawhara/floorplan/plan-architecte.png",
         "plan_visuel_url": "jawhara/floorplan/plan-visuel.jpg",
         "brochure_pdf": "images/projects/jawhara/PLAN DE MASSE.pdf",
+        "videos": [
+            {
+                "src": "data/videos/jawhara/rachid-jawhara.mp4",
+                "poster": "data/videos/jawhara/rachid-jawhara.jpg",
+                "title": {
+                    "fr": "Presentation du projet",
+                    "en": "Project overview",
+                    "ar": "تقديم المشروع",
+                    "es": "Presentacion del proyecto"
+                }
+            },
+            {
+                "src": "data/videos/jawhara/rachid-jawhara2.mp4",
+                "poster": "data/videos/jawhara/rachid-jawhara2.jpg",
+                "title": {
+                    "fr": "Presentation (partie 2)",
+                    "en": "Overview (part 2)",
+                    "ar": "تقديم (الجزء 2)",
+                    "es": "Presentacion (parte 2)"
+                }
+            },
+            {
+                "src": "data/videos/jawhara/rachid-jawhara3.mp4",
+                "poster": "data/videos/jawhara/rachid-jawhara3.jpg",
+                "title": {
+                    "fr": "Presentation (partie 3)",
+                    "en": "Overview (part 3)",
+                    "ar": "تقديم (الجزء 3)",
+                    "es": "Presentacion (parte 3)"
+                }
+            },
+            {
+                "src": "data/videos/jawhara/rachid-jawhara3-date-livraison.mp4",
+                "poster": "data/videos/jawhara/rachid-jawhara3-date-livraison.jpg",
+                "title": {
+                    "fr": "Date de livraison",
+                    "en": "Delivery date",
+                    "ar": "تاريخ التسليم",
+                    "es": "Fecha de entrega"
+                }
+            },
+            {
+                "src": "data/videos/jawhara/rachid-jawhara-commerces.mp4",
+                "poster": "data/videos/jawhara/rachid-jawhara-commerces.jpg",
+                "title": {
+                    "fr": "Les commerces",
+                    "en": "Retail spaces",
+                    "ar": "المحلات التجارية",
+                    "es": "Los comercios"
+                }
+            }
+        ],
         "name": {
             "fr": "Residence Al Jawhara",
             "en": "Al Jawhara Residence",

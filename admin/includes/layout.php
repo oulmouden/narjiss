@@ -20,6 +20,7 @@ function admin_header(string $title): void
         <nav>
             <a href="projects.php">Projets</a>
             <a href="lots.php">Lots</a>
+            <a href="plan-zones.php">Zones des plans</a>
             <a href="fiches.php">Fiches clients</a>
             <a href="agents.php">Agents</a>
             <a href="audit.php">Audit</a>

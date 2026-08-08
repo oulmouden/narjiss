@@ -43,7 +43,7 @@ var MENU_UI = {
   ar: {
     home: "الرئيسية",
     projects: "المشاريع",
-    units: "التوفر",
+    units: "عروض",
     map: "الخريطة",
     about: "من نحن",
     contact: "اتصل بنا",

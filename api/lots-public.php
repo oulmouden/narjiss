@@ -171,7 +171,8 @@ try {
     $sql = 'SELECT id, immeuble, niveau, niveau_ordre, numero_lot, typologie,
                    surface_habitable, surface_balcon, surface_totale,
                    nb_chambres, nb_sdb, orientation, exposition, ascenseur,
-                   parking, prix_dh, prix_m2, statut, plan_fichier, notes
+                   parking, prix_dh, prix_m2, statut, plan_fichier,
+                   plan_architecte, plan_visuel, visite_360, notes
             FROM v_lots_publics
             WHERE ' . implode(' AND ', $where) . '
             ORDER BY immeuble, niveau_ordre, numero_lot';
@@ -244,6 +245,10 @@ echo json_encode([
             'prix_m2'     => (float) $l['prix_m2'],
             'statut'      => $l['statut'],
             'plan'        => $l['plan_fichier'],
+            // Documents propres au lot ; vides, le front retombe sur le projet.
+            'plan_architecte' => $l['plan_architecte'],
+            'plan_visuel' => $l['plan_visuel'],
+            'tour'        => $l['visite_360'],
             'notes'       => $l['notes'],
         ];
     }, $lots),

@@ -1,0 +1,325 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+andalusia;Malaga;RDC;MAL-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud;Oui;Aucun;694000;15087;Disponible;;;;andalusia/plans/malaga.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Malaga;RDC;MAL-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;ouest;Oui;Aucun;537000;14132;Disponible;;;;andalusia/plans/malaga.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Malaga;RDC;MAL-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;ouest;Oui;Aucun;605000;14756;Vendu;;;;andalusia/plans/malaga.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Malaga;RDC;MAL-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;nord-est;Oui;Aucun;837000;14431;Disponible;;;;andalusia/plans/malaga.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Malaga;1;MAL-1-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;box;737000;11338;Disponible;;;;andalusia/plans/malaga.jpeg;;Vue degagee sur les espaces verts
+andalusia;Malaga;1;MAL-1-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;exterieur;720000;11077;Disponible;;;;andalusia/plans/malaga.jpeg;;Balcon filant sur toute la facade
+andalusia;Malaga;1;MAL-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;Aucun;1088000;11826;Disponible;;;;andalusia/plans/malaga.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Malaga;1;MAL-1-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;sous-sol;672000;10839;Bloque;;;;andalusia/plans/malaga.jpeg;;Sejour traversant, tres lumineux
+andalusia;Malaga;1;MAL-1-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;sous-sol;851000;11819;Disponible;;;;andalusia/plans/malaga.jpeg;;Sejour traversant, tres lumineux
+andalusia;Malaga;1;MAL-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;box;834000;11914;Disponible;;;;andalusia/plans/malaga.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Malaga;1;MAL-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;644000;10733;Vendu;;;;andalusia/plans/malaga.jpeg;;Balcon filant sur toute la facade
+andalusia;Malaga;1;MAL-1-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;exterieur;728000;11030;Optionne;2026-09-15;;;andalusia/plans/malaga.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Malaga;2;MAL-2-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;sous-sol;758000;11662;Disponible;;;;andalusia/plans/malaga.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Malaga;2;MAL-2-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;box;755000;11615;Disponible;;;;andalusia/plans/malaga.jpeg;;Balcon filant sur toute la facade
+andalusia;Malaga;2;MAL-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1099000;11946;Disponible;;;;andalusia/plans/malaga.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Malaga;2;MAL-2-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;690000;11129;Disponible;;;;andalusia/plans/malaga.jpeg;;Rangements integres dans les deux chambres
+andalusia;Malaga;2;MAL-2-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;box;867000;12042;Disponible;;;;andalusia/plans/malaga.jpeg;;Balcon filant sur toute la facade
+andalusia;Malaga;2;MAL-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;Aucun;829000;11843;Optionne;2026-09-15;;;andalusia/plans/malaga.jpeg;;Vue degagee sur les espaces verts
+andalusia;Malaga;2;MAL-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;exterieur;650000;10833;Vendu;;;;andalusia/plans/malaga.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Malaga;2;MAL-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;sous-sol;751000;11379;Optionne;2026-09-20;;;andalusia/plans/malaga.jpeg;;Rangements integres dans les deux chambres
+andalusia;Malaga;3;MAL-3-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;Aucun;764000;11754;Disponible;;;;andalusia/plans/malaga.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Malaga;3;MAL-3-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;sous-sol;771000;11862;Disponible;;;;andalusia/plans/malaga.jpeg;;Vue degagee sur les espaces verts
+andalusia;Malaga;3;MAL-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;box;1148000;12478;Disponible;;;;andalusia/plans/malaga.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Malaga;3;MAL-3-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;sous-sol;700000;11290;Optionne;2026-09-24;;;andalusia/plans/malaga.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Malaga;3;MAL-3-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;859000;11931;Disponible;;;;andalusia/plans/malaga.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Malaga;3;MAL-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;Aucun;849000;12129;Vendu;;;;andalusia/plans/malaga.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Malaga;3;MAL-3-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;sous-sol;666000;11100;Disponible;;;;andalusia/plans/malaga.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Malaga;3;MAL-3-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;sous-sol;756000;11455;Optionne;2026-09-22;;;andalusia/plans/malaga.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Malaga;4;MAL-4-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;exterieur;789000;12138;Vendu;;;;andalusia/plans/malaga.jpeg;;Vue degagee sur les espaces verts
+andalusia;Malaga;4;MAL-4-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;box;769000;11831;Disponible;;;;andalusia/plans/malaga.jpeg;;Balcon filant sur toute la facade
+andalusia;Malaga;4;MAL-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;exterieur;1152000;12522;Disponible;;;;andalusia/plans/malaga.jpeg;;Sejour traversant, tres lumineux
+andalusia;Malaga;4;MAL-4-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;715000;11532;Disponible;;;;andalusia/plans/malaga.jpeg;;Vue degagee sur les espaces verts
+andalusia;Malaga;4;MAL-4-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;Aucun;887000;12319;Disponible;;;;andalusia/plans/malaga.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Malaga;4;MAL-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;box;869000;12414;Vendu;;;;andalusia/plans/malaga.jpeg;;Balcon filant sur toute la facade
+andalusia;Malaga;4;MAL-4-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;box;713000;11883;Disponible;;;;andalusia/plans/malaga.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Malaga;4;MAL-4-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;exterieur;794000;12030;Reserve;;;;andalusia/plans/malaga.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Almeria;RDC;ALM-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud;Oui;Aucun;699000;15196;Disponible;;;;andalusia/plans/almeria.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Almeria;RDC;ALM-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;sud;Oui;Aucun;536000;14105;Optionne;2026-09-17;;;andalusia/plans/almeria.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Almeria;RDC;ALM-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud-ouest;Oui;Aucun;581000;14171;Disponible;;;;andalusia/plans/almeria.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Almeria;RDC;ALM-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;nord-est;Oui;Aucun;830000;14310;Vendu;;;;andalusia/plans/almeria.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Almeria;1;ALM-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;box;726000;11169;Optionne;2026-09-12;;;andalusia/plans/almeria.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Almeria;1;ALM-1-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;sous-sol;741000;11400;Vendu;;;;andalusia/plans/almeria.jpeg;;Vue degagee sur les espaces verts
+andalusia;Almeria;1;ALM-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;Aucun;1103000;11989;Disponible;;;;andalusia/plans/almeria.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Almeria;1;ALM-1-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;Aucun;665000;10726;Disponible;;;;andalusia/plans/almeria.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Almeria;1;ALM-1-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;exterieur;839000;11653;Reserve;;;;andalusia/plans/almeria.jpeg;;Rangements integres dans les deux chambres
+andalusia;Almeria;1;ALM-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;exterieur;810000;11571;Disponible;;;;andalusia/plans/almeria.jpeg;;Sejour traversant, tres lumineux
+andalusia;Almeria;1;ALM-1-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;exterieur;658000;10967;Disponible;;;;andalusia/plans/almeria.jpeg;;Rangements integres dans les deux chambres
+andalusia;Almeria;1;ALM-1-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;sous-sol;724000;10970;Disponible;;;;andalusia/plans/almeria.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Almeria;2;ALM-2-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;box;747000;11492;Disponible;;;;andalusia/plans/almeria.jpeg;;Vue degagee sur les espaces verts
+andalusia;Almeria;2;ALM-2-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;sous-sol;741000;11400;Reserve;;;;andalusia/plans/almeria.jpeg;;Rangements integres dans les deux chambres
+andalusia;Almeria;2;ALM-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;sous-sol;1112000;12087;Vendu;;;;andalusia/plans/almeria.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Almeria;2;ALM-2-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;703000;11339;Disponible;;;;andalusia/plans/almeria.jpeg;;Vue degagee sur les espaces verts
+andalusia;Almeria;2;ALM-2-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;box;840000;11667;Disponible;;;;andalusia/plans/almeria.jpeg;;Sejour traversant, tres lumineux
+andalusia;Almeria;2;ALM-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;sous-sol;826000;11800;Disponible;;;;andalusia/plans/almeria.jpeg;;Balcon filant sur toute la facade
+andalusia;Almeria;2;ALM-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;box;666000;11100;Disponible;;;;andalusia/plans/almeria.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Almeria;2;ALM-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;sous-sol;741000;11227;Optionne;2026-09-17;;;andalusia/plans/almeria.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Almeria;3;ALM-3-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;exterieur;746000;11477;Optionne;2026-09-20;;;andalusia/plans/almeria.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Almeria;3;ALM-3-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;exterieur;748000;11508;Disponible;;;;andalusia/plans/almeria.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Almeria;3;ALM-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1140000;12391;Reserve;;;;andalusia/plans/almeria.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Almeria;3;ALM-3-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;Aucun;720000;11613;Optionne;2026-09-11;;;andalusia/plans/almeria.jpeg;;Balcon filant sur toute la facade
+andalusia;Almeria;3;ALM-3-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;Aucun;873000;12125;Disponible;;;;andalusia/plans/almeria.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Almeria;3;ALM-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;sous-sol;842000;12029;Vendu;;;;andalusia/plans/almeria.jpeg;;Vue degagee sur les espaces verts
+andalusia;Almeria;3;ALM-3-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;677000;11283;Disponible;;;;andalusia/plans/almeria.jpeg;;Rangements integres dans les deux chambres
+andalusia;Almeria;3;ALM-3-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;Aucun;791000;11985;Disponible;;;;andalusia/plans/almeria.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Almeria;4;ALM-4-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;Aucun;767000;11800;Optionne;2026-09-23;;;andalusia/plans/almeria.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Almeria;4;ALM-4-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;786000;12092;Disponible;;;;andalusia/plans/almeria.jpeg;;Rangements integres dans les deux chambres
+andalusia;Almeria;4;ALM-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;sous-sol;1167000;12685;Disponible;;;;andalusia/plans/almeria.jpeg;;Vue degagee sur les espaces verts
+andalusia;Almeria;4;ALM-4-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;box;718000;11581;Disponible;;;;andalusia/plans/almeria.jpeg;;Sejour traversant, tres lumineux
+andalusia;Almeria;4;ALM-4-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;900000;12500;Vendu;;;;andalusia/plans/almeria.jpeg;;Sejour traversant, tres lumineux
+andalusia;Almeria;4;ALM-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;Aucun;851000;12157;Optionne;2026-09-21;;;andalusia/plans/almeria.jpeg;;Rangements integres dans les deux chambres
+andalusia;Almeria;4;ALM-4-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;exterieur;715000;11917;Disponible;;;;andalusia/plans/almeria.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Almeria;4;ALM-4-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;sous-sol;775000;11742;Optionne;2026-09-15;;;andalusia/plans/almeria.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Denia;RDC;DEN-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud;Oui;Aucun;714000;15522;Disponible;;;;andalusia/plans/denia.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Denia;RDC;DEN-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;ouest;Oui;Aucun;545000;14342;Disponible;;;;andalusia/plans/denia.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Denia;RDC;DEN-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud-ouest;Oui;Aucun;585000;14268;Disponible;;;;andalusia/plans/denia.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Denia;RDC;DEN-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;nord-est;Oui;Aucun;813000;14017;Disponible;;;;andalusia/plans/denia.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Denia;1;DEN-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;box;746000;11477;Disponible;;;;andalusia/plans/denia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Denia;1;DEN-1-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;sous-sol;736000;11323;Reserve;;;;andalusia/plans/denia.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Denia;1;DEN-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;box;1110000;12065;Disponible;;;;andalusia/plans/denia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Denia;1;DEN-1-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;Aucun;682000;11000;Disponible;;;;andalusia/plans/denia.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Denia;1;DEN-1-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;box;855000;11875;Disponible;;;;andalusia/plans/denia.jpeg;;Balcon filant sur toute la facade
+andalusia;Denia;1;DEN-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;exterieur;824000;11771;Disponible;;;;andalusia/plans/denia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Denia;1;DEN-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;Aucun;653000;10883;Disponible;;;;andalusia/plans/denia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Denia;1;DEN-1-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;box;743000;11258;Disponible;;;;andalusia/plans/denia.jpeg;;Balcon filant sur toute la facade
+andalusia;Denia;2;DEN-2-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;sous-sol;733000;11277;Vendu;;;;andalusia/plans/denia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Denia;2;DEN-2-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;sous-sol;736000;11323;Vendu;;;;andalusia/plans/denia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Denia;2;DEN-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;Aucun;1097000;11924;Reserve;;;;andalusia/plans/denia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Denia;2;DEN-2-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;exterieur;683000;11016;Disponible;;;;andalusia/plans/denia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Denia;2;DEN-2-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;box;847000;11764;Reserve;;;;andalusia/plans/denia.jpeg;;Balcon filant sur toute la facade
+andalusia;Denia;2;DEN-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;Aucun;815000;11643;Disponible;;;;andalusia/plans/denia.jpeg;;Vue degagee sur les espaces verts
+andalusia;Denia;2;DEN-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;sous-sol;649000;10817;Optionne;2026-09-12;;;andalusia/plans/denia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Denia;2;DEN-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;exterieur;767000;11621;Disponible;;;;andalusia/plans/denia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Denia;3;DEN-3-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;exterieur;749000;11523;Disponible;;;;andalusia/plans/denia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Denia;3;DEN-3-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;sous-sol;758000;11662;Disponible;;;;andalusia/plans/denia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Denia;3;DEN-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;Aucun;1136000;12348;Vendu;;;;andalusia/plans/denia.jpeg;;Balcon filant sur toute la facade
+andalusia;Denia;3;DEN-3-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;box;689000;11113;Optionne;2026-09-23;;;andalusia/plans/denia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Denia;3;DEN-3-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;Aucun;874000;12139;Disponible;;;;andalusia/plans/denia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Denia;3;DEN-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;sous-sol;848000;12114;Optionne;2026-09-24;;;andalusia/plans/denia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Denia;3;DEN-3-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;sous-sol;682000;11367;Optionne;2026-09-24;;;andalusia/plans/denia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Denia;3;DEN-3-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;Aucun;769000;11652;Vendu;;;;andalusia/plans/denia.jpeg;;Balcon filant sur toute la facade
+andalusia;Denia;4;DEN-4-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;box;773000;11892;Vendu;;;;andalusia/plans/denia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Denia;4;DEN-4-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;sous-sol;788000;12123;Disponible;;;;andalusia/plans/denia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Denia;4;DEN-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;Aucun;1179000;12815;Reserve;;;;andalusia/plans/denia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Denia;4;DEN-4-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;box;717000;11565;Disponible;;;;andalusia/plans/denia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Denia;4;DEN-4-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;exterieur;892000;12389;Disponible;;;;andalusia/plans/denia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Denia;4;DEN-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;sous-sol;865000;12357;Disponible;;;;andalusia/plans/denia.jpeg;;Balcon filant sur toute la facade
+andalusia;Denia;4;DEN-4-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;Aucun;709000;11817;Reserve;;;;andalusia/plans/denia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Denia;4;DEN-4-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;sous-sol;781000;11833;Vendu;;;;andalusia/plans/denia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Lerida;RDC;LER-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud-est;Oui;Aucun;711000;15457;Disponible;;;;andalusia/plans/lerida.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Lerida;RDC;LER-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;sud;Oui;Aucun;545000;14342;Disponible;;;;andalusia/plans/lerida.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Lerida;RDC;LER-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud;Oui;Aucun;589000;14366;Disponible;;;;andalusia/plans/lerida.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Lerida;RDC;LER-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;est;Oui;Aucun;842000;14517;Reserve;;;;andalusia/plans/lerida.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Lerida;1;LER-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;exterieur;719000;11062;Vendu;;;;andalusia/plans/lerida.jpeg;;Vue degagee sur les espaces verts
+andalusia;Lerida;1;LER-1-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;box;723000;11123;Disponible;;;;andalusia/plans/lerida.jpeg;;Balcon filant sur toute la facade
+andalusia;Lerida;1;LER-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;Aucun;1067000;11598;Disponible;;;;andalusia/plans/lerida.jpeg;;Balcon filant sur toute la facade
+andalusia;Lerida;1;LER-1-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;box;682000;11000;Disponible;;;;andalusia/plans/lerida.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Lerida;1;LER-1-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;exterieur;859000;11931;Disponible;;;;andalusia/plans/lerida.jpeg;;Balcon filant sur toute la facade
+andalusia;Lerida;1;LER-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;box;822000;11743;Reserve;;;;andalusia/plans/lerida.jpeg;;Vue degagee sur les espaces verts
+andalusia;Lerida;1;LER-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;640000;10667;Optionne;2026-09-12;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;1;LER-1-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;sous-sol;754000;11424;Disponible;;;;andalusia/plans/lerida.jpeg;;Sejour traversant, tres lumineux
+andalusia;Lerida;2;LER-2-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;Aucun;753000;11585;Disponible;;;;andalusia/plans/lerida.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Lerida;2;LER-2-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;730000;11231;Disponible;;;;andalusia/plans/lerida.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Lerida;2;LER-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;Aucun;1143000;12424;Disponible;;;;andalusia/plans/lerida.jpeg;;Rangements integres dans les deux chambres
+andalusia;Lerida;2;LER-2-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;Aucun;686000;11065;Disponible;;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;2;LER-2-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;Aucun;869000;12069;Optionne;2026-09-19;;;andalusia/plans/lerida.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Lerida;2;LER-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;Aucun;839000;11986;Disponible;;;;andalusia/plans/lerida.jpeg;;Rangements integres dans les deux chambres
+andalusia;Lerida;2;LER-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;650000;10833;Reserve;;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;2;LER-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;Aucun;774000;11727;Bloque;;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;3;LER-3-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;sous-sol;769000;11831;Vendu;;;;andalusia/plans/lerida.jpeg;;Vue degagee sur les espaces verts
+andalusia;Lerida;3;LER-3-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;sous-sol;752000;11569;Disponible;;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;3;LER-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;exterieur;1162000;12630;Vendu;;;;andalusia/plans/lerida.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Lerida;3;LER-3-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;689000;11113;Disponible;;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;3;LER-3-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;exterieur;882000;12250;Optionne;2026-09-10;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;3;LER-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;sous-sol;871000;12443;Vendu;;;;andalusia/plans/lerida.jpeg;;Vue degagee sur les espaces verts
+andalusia;Lerida;3;LER-3-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;Aucun;666000;11100;Disponible;;;;andalusia/plans/lerida.jpeg;;Rangements integres dans les deux chambres
+andalusia;Lerida;3;LER-3-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;Aucun;760000;11515;Disponible;;;;andalusia/plans/lerida.jpeg;;Rangements integres dans les deux chambres
+andalusia;Lerida;4;LER-4-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;box;770000;11846;Vendu;;;;andalusia/plans/lerida.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Lerida;4;LER-4-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;box;793000;12200;Disponible;;;;andalusia/plans/lerida.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Lerida;4;LER-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1184000;12870;Disponible;;;;andalusia/plans/lerida.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Lerida;4;LER-4-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;sous-sol;723000;11661;Optionne;2026-09-14;;;andalusia/plans/lerida.jpeg;;Balcon filant sur toute la facade
+andalusia;Lerida;4;LER-4-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;889000;12347;Reserve;;;;andalusia/plans/lerida.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Lerida;4;LER-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;sous-sol;861000;12300;Vendu;;;;andalusia/plans/lerida.jpeg;;Sejour traversant, tres lumineux
+andalusia;Lerida;4;LER-4-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;Aucun;693000;11550;Disponible;;;;andalusia/plans/lerida.jpeg;;Balcon filant sur toute la facade
+andalusia;Lerida;4;LER-4-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;sous-sol;785000;11894;Disponible;;;;andalusia/plans/lerida.jpeg;;Sejour traversant, tres lumineux
+andalusia;Murcia;RDC;MUR-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud;Oui;Aucun;689000;14978;Reserve;;;;andalusia/plans/murcia.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Murcia;RDC;MUR-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;sud-ouest;Oui;Aucun;554000;14579;Vendu;;;;andalusia/plans/murcia.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Murcia;RDC;MUR-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud;Oui;Aucun;591000;14415;Vendu;;;;andalusia/plans/murcia.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Murcia;RDC;MUR-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;nord-est;Oui;Aucun;807000;13914;Disponible;;;;andalusia/plans/murcia.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Murcia;1;MUR-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;box;710000;10923;Optionne;2026-09-23;;;andalusia/plans/murcia.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Murcia;1;MUR-1-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;Aucun;727000;11185;Disponible;;;;andalusia/plans/murcia.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Murcia;1;MUR-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1080000;11739;Disponible;;;;andalusia/plans/murcia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Murcia;1;MUR-1-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;685000;11048;Disponible;;;;andalusia/plans/murcia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Murcia;1;MUR-1-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;Aucun;852000;11833;Vendu;;;;andalusia/plans/murcia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Murcia;1;MUR-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;exterieur;804000;11486;Disponible;;;;andalusia/plans/murcia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Murcia;1;MUR-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;646000;10767;Vendu;;;;andalusia/plans/murcia.jpeg;;Vue degagee sur les espaces verts
+andalusia;Murcia;1;MUR-1-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;exterieur;751000;11379;Vendu;;;;andalusia/plans/murcia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Murcia;2;MUR-2-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;Aucun;761000;11708;Vendu;;;;andalusia/plans/murcia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Murcia;2;MUR-2-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;742000;11415;Disponible;;;;andalusia/plans/murcia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Murcia;2;MUR-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;box;1140000;12391;Optionne;2026-09-28;;;andalusia/plans/murcia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Murcia;2;MUR-2-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;exterieur;681000;10984;Optionne;2026-09-21;;;andalusia/plans/murcia.jpeg;;Balcon filant sur toute la facade
+andalusia;Murcia;2;MUR-2-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;855000;11875;Disponible;;;;andalusia/plans/murcia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Murcia;2;MUR-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;sous-sol;838000;11971;Vendu;;;;andalusia/plans/murcia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Murcia;2;MUR-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;exterieur;673000;11217;Disponible;;;;andalusia/plans/murcia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Murcia;2;MUR-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;sous-sol;750000;11364;Disponible;;;;andalusia/plans/murcia.jpeg;;Vue degagee sur les espaces verts
+andalusia;Murcia;3;MUR-3-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;sous-sol;778000;11969;Disponible;;;;andalusia/plans/murcia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Murcia;3;MUR-3-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;764000;11754;Disponible;;;;andalusia/plans/murcia.jpeg;;Rangements integres dans les deux chambres
+andalusia;Murcia;3;MUR-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;exterieur;1156000;12565;Vendu;;;;andalusia/plans/murcia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Murcia;3;MUR-3-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;exterieur;696000;11226;Optionne;2026-09-11;;;andalusia/plans/murcia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Murcia;3;MUR-3-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;900000;12500;Disponible;;;;andalusia/plans/murcia.jpeg;;Balcon filant sur toute la facade
+andalusia;Murcia;3;MUR-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;exterieur;843000;12043;Optionne;2026-09-14;;;andalusia/plans/murcia.jpeg;;Vue degagee sur les espaces verts
+andalusia;Murcia;3;MUR-3-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;sous-sol;694000;11567;Disponible;;;;andalusia/plans/murcia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Murcia;3;MUR-3-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;sous-sol;770000;11667;Vendu;;;;andalusia/plans/murcia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Murcia;4;MUR-4-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;sous-sol;760000;11692;Disponible;;;;andalusia/plans/murcia.jpeg;;Sejour traversant, tres lumineux
+andalusia;Murcia;4;MUR-4-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;Aucun;794000;12215;Reserve;;;;andalusia/plans/murcia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Murcia;4;MUR-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;sous-sol;1190000;12935;Disponible;;;;andalusia/plans/murcia.jpeg;;Balcon filant sur toute la facade
+andalusia;Murcia;4;MUR-4-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;Aucun;707000;11403;Disponible;;;;andalusia/plans/murcia.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Murcia;4;MUR-4-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;box;911000;12653;Vendu;;;;andalusia/plans/murcia.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Murcia;4;MUR-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;exterieur;881000;12586;Disponible;;;;andalusia/plans/murcia.jpeg;;Vue degagee sur les espaces verts
+andalusia;Murcia;4;MUR-4-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;697000;11617;Disponible;;;;andalusia/plans/murcia.jpeg;;Vue degagee sur les espaces verts
+andalusia;Murcia;4;MUR-4-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;exterieur;809000;12258;Disponible;;;;andalusia/plans/murcia.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Ronda;RDC;RON-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud-est;Oui;Aucun;713000;15500;Reserve;;;;andalusia/plans/ronda.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Ronda;RDC;RON-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;sud;Oui;Aucun;562000;14789;Disponible;;;;andalusia/plans/ronda.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Ronda;RDC;RON-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud-ouest;Oui;Aucun;593000;14463;Reserve;;;;andalusia/plans/ronda.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Ronda;RDC;RON-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;nord;Oui;Aucun;824000;14207;Vendu;;;;andalusia/plans/ronda.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Ronda;1;RON-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;sous-sol;737000;11338;Disponible;;;;andalusia/plans/ronda.jpeg;;Balcon filant sur toute la facade
+andalusia;Ronda;1;RON-1-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;sous-sol;745000;11462;Disponible;;;;andalusia/plans/ronda.jpeg;;Balcon filant sur toute la facade
+andalusia;Ronda;1;RON-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;sous-sol;1071000;11641;Bloque;;;;andalusia/plans/ronda.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Ronda;1;RON-1-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;679000;10952;Disponible;;;;andalusia/plans/ronda.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Ronda;1;RON-1-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;863000;11986;Disponible;;;;andalusia/plans/ronda.jpeg;;Vue degagee sur les espaces verts
+andalusia;Ronda;1;RON-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;sous-sol;803000;11471;Vendu;;;;andalusia/plans/ronda.jpeg;;Sejour traversant, tres lumineux
+andalusia;Ronda;1;RON-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;sous-sol;661000;11017;Disponible;;;;andalusia/plans/ronda.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Ronda;1;RON-1-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;exterieur;752000;11394;Disponible;;;;andalusia/plans/ronda.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Ronda;2;RON-2-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;box;746000;11477;Reserve;;;;andalusia/plans/ronda.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Ronda;2;RON-2-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;731000;11246;Disponible;;;;andalusia/plans/ronda.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Ronda;2;RON-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;box;1097000;11924;Vendu;;;;andalusia/plans/ronda.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Ronda;2;RON-2-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;box;679000;10952;Disponible;;;;andalusia/plans/ronda.jpeg;;Sejour traversant, tres lumineux
+andalusia;Ronda;2;RON-2-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;sous-sol;880000;12222;Disponible;;;;andalusia/plans/ronda.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Ronda;2;RON-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;box;820000;11714;Vendu;;;;andalusia/plans/ronda.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Ronda;2;RON-2-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;box;650000;10833;Disponible;;;;andalusia/plans/ronda.jpeg;;Sejour traversant, tres lumineux
+andalusia;Ronda;2;RON-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;sous-sol;739000;11197;Disponible;;;;andalusia/plans/ronda.jpeg;;Vue degagee sur les espaces verts
+andalusia;Ronda;3;RON-3-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;sous-sol;763000;11738;Disponible;;;;andalusia/plans/ronda.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Ronda;3;RON-3-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;766000;11785;Optionne;2026-09-17;;;andalusia/plans/ronda.jpeg;;Rangements integres dans les deux chambres
+andalusia;Ronda;3;RON-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;Aucun;1138000;12370;Vendu;;;;andalusia/plans/ronda.jpeg;;Balcon filant sur toute la facade
+andalusia;Ronda;3;RON-3-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;sous-sol;712000;11484;Disponible;;;;andalusia/plans/ronda.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Ronda;3;RON-3-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;box;860000;11944;Vendu;;;;andalusia/plans/ronda.jpeg;;Sejour traversant, tres lumineux
+andalusia;Ronda;3;RON-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;exterieur;860000;12286;Disponible;;;;andalusia/plans/ronda.jpeg;;Balcon filant sur toute la facade
+andalusia;Ronda;3;RON-3-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;sous-sol;696000;11600;Reserve;;;;andalusia/plans/ronda.jpeg;;Rangements integres dans les deux chambres
+andalusia;Ronda;3;RON-3-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;Aucun;755000;11439;Disponible;;;;andalusia/plans/ronda.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Ronda;4;RON-4-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;exterieur;773000;11892;Disponible;;;;andalusia/plans/ronda.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Ronda;4;RON-4-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;sous-sol;796000;12246;Vendu;;;;andalusia/plans/ronda.jpeg;;Balcon filant sur toute la facade
+andalusia;Ronda;4;RON-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1152000;12522;Reserve;;;;andalusia/plans/ronda.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Ronda;4;RON-4-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;box;732000;11806;Disponible;;;;andalusia/plans/ronda.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Ronda;4;RON-4-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;sous-sol;891000;12375;Disponible;;;;andalusia/plans/ronda.jpeg;;Rangements integres dans les deux chambres
+andalusia;Ronda;4;RON-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;Aucun;874000;12486;Disponible;;;;andalusia/plans/ronda.jpeg;;Rangements integres dans les deux chambres
+andalusia;Ronda;4;RON-4-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;Aucun;689000;11483;Vendu;;;;andalusia/plans/ronda.jpeg;;Vue degagee sur les espaces verts
+andalusia;Ronda;4;RON-4-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;Aucun;774000;11727;Bloque;;;;andalusia/plans/ronda.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Tarifa;RDC;TAR-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud-est;Oui;Aucun;686000;14913;Reserve;;;;andalusia/plans/tarifa.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Tarifa;RDC;TAR-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;sud-ouest;Oui;Aucun;550000;14474;Disponible;;;;andalusia/plans/tarifa.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Tarifa;RDC;TAR-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud-ouest;Oui;Aucun;600000;14634;Optionne;2026-09-19;;;andalusia/plans/tarifa.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Tarifa;RDC;TAR-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;nord-est;Oui;Aucun;818000;14103;Disponible;;;;andalusia/plans/tarifa.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Tarifa;1;TAR-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;sous-sol;728000;11200;Disponible;;;;andalusia/plans/tarifa.jpeg;;Rangements integres dans les deux chambres
+andalusia;Tarifa;1;TAR-1-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;exterieur;725000;11154;Optionne;2026-09-19;;;andalusia/plans/tarifa.jpeg;;Vue degagee sur les espaces verts
+andalusia;Tarifa;1;TAR-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;exterieur;1100000;11957;Vendu;;;;andalusia/plans/tarifa.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Tarifa;1;TAR-1-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;sous-sol;691000;11145;Disponible;;;;andalusia/plans/tarifa.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Tarifa;1;TAR-1-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;box;858000;11917;Disponible;;;;andalusia/plans/tarifa.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Tarifa;1;TAR-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;sous-sol;817000;11671;Vendu;;;;andalusia/plans/tarifa.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Tarifa;1;TAR-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;Aucun;668000;11133;Disponible;;;;andalusia/plans/tarifa.jpeg;;Balcon filant sur toute la facade
+andalusia;Tarifa;1;TAR-1-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;Aucun;731000;11076;Disponible;;;;andalusia/plans/tarifa.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Tarifa;2;TAR-2-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;box;752000;11569;Vendu;;;;andalusia/plans/tarifa.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Tarifa;2;TAR-2-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;Aucun;730000;11231;Disponible;;;;andalusia/plans/tarifa.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Tarifa;2;TAR-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;sous-sol;1117000;12141;Disponible;;;;andalusia/plans/tarifa.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Tarifa;2;TAR-2-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;sous-sol;698000;11258;Disponible;;;;andalusia/plans/tarifa.jpeg;;Sejour traversant, tres lumineux
+andalusia;Tarifa;2;TAR-2-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;sous-sol;863000;11986;Optionne;2026-09-23;;;andalusia/plans/tarifa.jpeg;;Sejour traversant, tres lumineux
+andalusia;Tarifa;2;TAR-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;exterieur;838000;11971;Optionne;2026-09-17;;;andalusia/plans/tarifa.jpeg;;Balcon filant sur toute la facade
+andalusia;Tarifa;2;TAR-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;677000;11283;Disponible;;;;andalusia/plans/tarifa.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Tarifa;2;TAR-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;sous-sol;761000;11530;Reserve;;;;andalusia/plans/tarifa.jpeg;;Balcon filant sur toute la facade
+andalusia;Tarifa;3;TAR-3-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;sous-sol;776000;11938;Reserve;;;;andalusia/plans/tarifa.jpeg;;Sejour traversant, tres lumineux
+andalusia;Tarifa;3;TAR-3-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;Aucun;771000;11862;Reserve;;;;andalusia/plans/tarifa.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Tarifa;3;TAR-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1152000;12522;Disponible;;;;andalusia/plans/tarifa.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Tarifa;3;TAR-3-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;box;692000;11161;Disponible;;;;andalusia/plans/tarifa.jpeg;;Sejour traversant, tres lumineux
+andalusia;Tarifa;3;TAR-3-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;box;900000;12500;Vendu;;;;andalusia/plans/tarifa.jpeg;;Vue degagee sur les espaces verts
+andalusia;Tarifa;3;TAR-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;sous-sol;859000;12271;Vendu;;;;andalusia/plans/tarifa.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Tarifa;3;TAR-3-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;Aucun;671000;11183;Optionne;2026-09-15;;;andalusia/plans/tarifa.jpeg;;Vue degagee sur les espaces verts
+andalusia;Tarifa;3;TAR-3-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;sous-sol;760000;11515;Vendu;;;;andalusia/plans/tarifa.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Tarifa;4;TAR-4-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;sous-sol;781000;12015;Disponible;;;;andalusia/plans/tarifa.jpeg;;Sejour traversant, tres lumineux
+andalusia;Tarifa;4;TAR-4-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;exterieur;769000;11831;Vendu;;;;andalusia/plans/tarifa.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Tarifa;4;TAR-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1147000;12467;Reserve;;;;andalusia/plans/tarifa.jpeg;;Rangements integres dans les deux chambres
+andalusia;Tarifa;4;TAR-4-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;740000;11935;Disponible;;;;andalusia/plans/tarifa.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Tarifa;4;TAR-4-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;906000;12583;Disponible;;;;andalusia/plans/tarifa.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Tarifa;4;TAR-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;sous-sol;867000;12386;Disponible;;;;andalusia/plans/tarifa.jpeg;;Rangements integres dans les deux chambres
+andalusia;Tarifa;4;TAR-4-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;box;714000;11900;Disponible;;;;andalusia/plans/tarifa.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Tarifa;4;TAR-4-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;box;787000;11924;Vendu;;;;andalusia/plans/tarifa.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Toledo;RDC;TOL-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud-est;Oui;Aucun;707000;15370;Disponible;;;;andalusia/plans/toledo.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Toledo;RDC;TOL-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;sud;Oui;Aucun;538000;14158;Disponible;;;;andalusia/plans/toledo.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Toledo;RDC;TOL-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud;Oui;Aucun;596000;14537;Disponible;;;;andalusia/plans/toledo.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Toledo;RDC;TOL-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;nord;Oui;Aucun;822000;14172;Vendu;;;;andalusia/plans/toledo.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Toledo;1;TOL-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;box;729000;11215;Disponible;;;;andalusia/plans/toledo.jpeg;;Balcon filant sur toute la facade
+andalusia;Toledo;1;TOL-1-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;sous-sol;744000;11446;Vendu;;;;andalusia/plans/toledo.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Toledo;1;TOL-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;Aucun;1115000;12120;Vendu;;;;andalusia/plans/toledo.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Toledo;1;TOL-1-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;Aucun;684000;11032;Disponible;;;;andalusia/plans/toledo.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Toledo;1;TOL-1-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;sous-sol;839000;11653;Disponible;;;;andalusia/plans/toledo.jpeg;;Vue degagee sur les espaces verts
+andalusia;Toledo;1;TOL-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;box;822000;11743;Reserve;;;;andalusia/plans/toledo.jpeg;;Balcon filant sur toute la facade
+andalusia;Toledo;1;TOL-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;exterieur;661000;11017;Vendu;;;;andalusia/plans/toledo.jpeg;;Sejour traversant, tres lumineux
+andalusia;Toledo;1;TOL-1-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;sous-sol;739000;11197;Vendu;;;;andalusia/plans/toledo.jpeg;;Rangements integres dans les deux chambres
+andalusia;Toledo;2;TOL-2-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;Aucun;756000;11631;Reserve;;;;andalusia/plans/toledo.jpeg;;Rangements integres dans les deux chambres
+andalusia;Toledo;2;TOL-2-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;sous-sol;735000;11308;Disponible;;;;andalusia/plans/toledo.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Toledo;2;TOL-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;box;1109000;12054;Disponible;;;;andalusia/plans/toledo.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Toledo;2;TOL-2-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;exterieur;691000;11145;Optionne;2026-09-17;;;andalusia/plans/toledo.jpeg;;Balcon filant sur toute la facade
+andalusia;Toledo;2;TOL-2-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;841000;11681;Reserve;;;;andalusia/plans/toledo.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Toledo;2;TOL-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;exterieur;840000;12000;Disponible;;;;andalusia/plans/toledo.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Toledo;2;TOL-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;exterieur;679000;11317;Disponible;;;;andalusia/plans/toledo.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Toledo;2;TOL-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;Aucun;738000;11182;Reserve;;;;andalusia/plans/toledo.jpeg;;Rangements integres dans les deux chambres
+andalusia;Toledo;3;TOL-3-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;exterieur;776000;11938;Disponible;;;;andalusia/plans/toledo.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Toledo;3;TOL-3-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;772000;11877;Reserve;;;;andalusia/plans/toledo.jpeg;;Vue degagee sur les espaces verts
+andalusia;Toledo;3;TOL-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1158000;12587;Disponible;;;;andalusia/plans/toledo.jpeg;;Vue degagee sur les espaces verts
+andalusia;Toledo;3;TOL-3-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;sous-sol;719000;11597;Disponible;;;;andalusia/plans/toledo.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Toledo;3;TOL-3-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;sous-sol;877000;12181;Reserve;;;;andalusia/plans/toledo.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Toledo;3;TOL-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;Aucun;872000;12457;Optionne;2026-09-20;;;andalusia/plans/toledo.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Toledo;3;TOL-3-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;sous-sol;684000;11400;Optionne;2026-09-20;;;andalusia/plans/toledo.jpeg;;Rangements integres dans les deux chambres
+andalusia;Toledo;3;TOL-3-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;sous-sol;754000;11424;Disponible;;;;andalusia/plans/toledo.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Toledo;4;TOL-4-01;F3;65.0;8.0;73.0;2;1;Rue;sud-ouest;Oui;sous-sol;777000;11954;Disponible;;;;andalusia/plans/toledo.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Toledo;4;TOL-4-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;787000;12108;Disponible;;;;andalusia/plans/toledo.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Toledo;4;TOL-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;sous-sol;1194000;12978;Disponible;;;;andalusia/plans/toledo.jpeg;;Vue degagee sur les espaces verts
+andalusia;Toledo;4;TOL-4-04;F3;62.0;9.0;71.0;2;1;Cour;nord;Oui;box;718000;11581;Reserve;;;;andalusia/plans/toledo.jpeg;;Vue degagee sur les espaces verts
+andalusia;Toledo;4;TOL-4-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;box;891000;12375;Disponible;;;;andalusia/plans/toledo.jpeg;;Balcon filant sur toute la facade
+andalusia;Toledo;4;TOL-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;box;888000;12686;Reserve;;;;andalusia/plans/toledo.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Toledo;4;TOL-4-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;box;699000;11650;Disponible;;;;andalusia/plans/toledo.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Toledo;4;TOL-4-08;F3;66.0;9.0;75.0;2;1;Rue;sud-ouest;Oui;box;773000;11712;Disponible;;;;andalusia/plans/toledo.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Zaragoza;RDC;ZAR-RDC-C1;Commerce;46.0;0.0;46.0;0;1;Angle;sud-est;Oui;Aucun;713000;15500;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Local commercial d'angle, double vitrine
+andalusia;Zaragoza;RDC;ZAR-RDC-C2;Commerce;38.0;0.0;38.0;0;1;Rue;ouest;Oui;Aucun;551000;14500;Reserve;;;;andalusia/plans/zaragoza.jpeg;;Local commercial avec vitrine sur voie principale
+andalusia;Zaragoza;RDC;ZAR-RDC-C3;Commerce;41.0;0.0;41.0;0;1;Rue;sud;Oui;Aucun;601000;14659;Vendu;;;;andalusia/plans/zaragoza.jpeg;;Local commercial, reserve et sanitaire
+andalusia;Zaragoza;RDC;ZAR-RDC-B1;Bureau;58.0;0.0;58.0;0;1;Cour;est;Oui;Aucun;809000;13948;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Plateau de bureau modulable, entree independante
+andalusia;Zaragoza;1;ZAR-1-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;sous-sol;716000;11015;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Zaragoza;1;ZAR-1-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;box;720000;11077;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Rangements integres dans les deux chambres
+andalusia;Zaragoza;1;ZAR-1-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1111000;12076;Vendu;;;;andalusia/plans/zaragoza.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Zaragoza;1;ZAR-1-04;F3;62.0;9.0;71.0;2;1;Cour;nord-est;Oui;exterieur;673000;10855;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Balcon filant sur toute la facade
+andalusia;Zaragoza;1;ZAR-1-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;sous-sol;832000;11556;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Sejour traversant, tres lumineux
+andalusia;Zaragoza;1;ZAR-1-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;box;834000;11914;Reserve;;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;1;ZAR-1-07;F3;60.0;8.5;68.5;2;1;Cour;nord-est;Oui;exterieur;651000;10850;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Zaragoza;1;ZAR-1-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;exterieur;726000;11000;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;2;ZAR-2-01;F3;65.0;8.0;73.0;2;1;Rue;ouest;Oui;Aucun;749000;11523;Bloque;;;;andalusia/plans/zaragoza.jpeg;;Balcon filant sur toute la facade
+andalusia;Zaragoza;2;ZAR-2-02;F3;65.0;7.5;72.5;2;1;Rue;sud;Oui;sous-sol;729000;11215;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Zaragoza;2;ZAR-2-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;sous-sol;1131000;12293;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Rangements integres dans les deux chambres
+andalusia;Zaragoza;2;ZAR-2-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;sous-sol;689000;11113;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Vue degagee sur les espaces verts
+andalusia;Zaragoza;2;ZAR-2-05;F3;72.0;10.5;82.5;2;2;Double;est;Oui;Aucun;882000;12250;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Balcon filant sur toute la facade
+andalusia;Zaragoza;2;ZAR-2-06;F3;70.0;9.5;79.5;2;1;Jardin;sud;Oui;Aucun;820000;11714;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Balcon filant sur toute la facade
+andalusia;Zaragoza;2;ZAR-2-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;box;684000;11400;Vendu;;;;andalusia/plans/zaragoza.jpeg;;Rangements integres dans les deux chambres
+andalusia;Zaragoza;2;ZAR-2-08;F3;66.0;9.0;75.0;2;1;Rue;sud;Oui;box;761000;11530;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Sejour traversant, tres lumineux
+andalusia;Zaragoza;3;ZAR-3-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;exterieur;762000;11723;Vendu;;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;3;ZAR-3-02;F3;65.0;7.5;72.5;2;1;Rue;sud-ouest;Oui;sous-sol;760000;11692;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Sejour traversant, tres lumineux
+andalusia;Zaragoza;3;ZAR-3-03;F4;92.0;12.0;104.0;3;2;Angle;sud-est;Oui;exterieur;1142000;12413;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Zaragoza;3;ZAR-3-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;Aucun;689000;11113;Vendu;;;;andalusia/plans/zaragoza.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Zaragoza;3;ZAR-3-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;896000;12444;Reserve;;;;andalusia/plans/zaragoza.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Zaragoza;3;ZAR-3-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;exterieur;864000;12343;Optionne;2026-09-18;;;andalusia/plans/zaragoza.jpeg;;Vue degagee sur les espaces verts
+andalusia;Zaragoza;3;ZAR-3-07;F3;60.0;8.5;68.5;2;1;Cour;nord;Oui;Aucun;686000;11433;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Proche de l'entree pietonne et de la creche
+andalusia;Zaragoza;3;ZAR-3-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;box;781000;11833;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;4;ZAR-4-01;F3;65.0;8.0;73.0;2;1;Rue;sud;Oui;Aucun;785000;12077;Optionne;2026-09-23;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;4;ZAR-4-02;F3;65.0;7.5;72.5;2;1;Rue;ouest;Oui;sous-sol;769000;11831;Vendu;;;;andalusia/plans/zaragoza.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Zaragoza;4;ZAR-4-03;F4;92.0;12.0;104.0;3;2;Angle;sud;Oui;Aucun;1164000;12652;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;4;ZAR-4-04;F3;62.0;9.0;71.0;2;1;Cour;est;Oui;exterieur;705000;11371;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Suite parentale avec salle d'eau privative
+andalusia;Zaragoza;4;ZAR-4-05;F3;72.0;10.5;82.5;2;2;Double;ouest;Oui;sous-sol;910000;12639;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;4;ZAR-4-06;F3;70.0;9.5;79.5;2;1;Jardin;sud-est;Oui;sous-sol;858000;12257;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Etage eleve, calme, sans vis-a-vis
+andalusia;Zaragoza;4;ZAR-4-07;F3;60.0;8.5;68.5;2;1;Cour;est;Oui;Aucun;683000;11383;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Cuisine equipee, cellier attenant
+andalusia;Zaragoza;4;ZAR-4-08;F3;66.0;9.0;75.0;2;1;Rue;ouest;Oui;exterieur;790000;11970;Disponible;;;;andalusia/plans/zaragoza.jpeg;;Balcon filant sur toute la facade

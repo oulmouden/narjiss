@@ -136,11 +136,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 34px;
+  width: 30px;
+  height: 28px;
   padding: 0;
   border: 1px solid var(--border-medium);
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: inherit;
   font-size: 1.05rem;
@@ -198,9 +198,12 @@ body {
   body { padding-top: 64px; }
 }
 .nav-container {
-  max-width: 1200px;
+  /* 1200 px ne suffisaient pas : logo + nom du projet + six liens + langues
+     réclament près de 1400 px. C'est ce qui coupait « Residence Al Jawhara »
+     et faisait passer « À propos » sur deux lignes, même en plein écran. */
+  max-width: 1400px;
   margin: 0 auto;
-  padding: .7rem 1.5rem;
+  padding: .7rem 1.25rem;
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -277,33 +280,39 @@ html[dir=rtl] .nav-brand .brand-tag {
   letter-spacing: 0;
   text-transform: none;
 }
+/* Nom du projet en cours, à droite du logo. Corps réduit et laisse plus large
+   qu'avant : « Residence Al Jawhara » était coupé dès le deuxième mot. */
 .nav-project-label {
   min-width: 0;
-  max-width: 320px;
-  padding-left: 1rem;
+  max-width: 300px;
+  padding-left: .8rem;
   border-left: 1px solid rgba(17, 24, 39, .14);
   color: var(--sun);
   font-family: 'Playfair Display', serif;
-  font-size: 1.32rem;
+  font-size: 1.02rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.15;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 html[dir=rtl] .nav-project-label {
   padding-left: 0;
-  padding-right: 1rem;
+  padding-right: .8rem;
   border-left: none;
   border-right: 1px solid rgba(17, 24, 39, .14);
   font-family: 'Noto Sans Arabic', 'Outfit', sans-serif;
-  font-size: 1.18rem;
+  font-size: .95rem;
   font-weight: 800;
 }
 
 /* Liens du menu */
 .nav-links {
   display: flex;
+  /* Sans ce centrage, les enfants s'étirent en hauteur (valeur par défaut
+     « stretch ») : dès qu'un libellé passe sur deux lignes, les boutons de
+     langue s'allongent avec la rangée et paraissent bien plus gros. */
+  align-items: center;
   gap: .3rem;
   list-style: none;
   margin-left: auto;
@@ -315,10 +324,13 @@ html[dir=rtl] .nav-links { margin-left: 0; margin-right: auto; }
   gap: .35rem;
   color: var(--nav-link);
   text-decoration: none;
-  padding: .5rem .95rem;
+  padding: .5rem .72rem;
   border-radius: 8px;
-  font-size: .9rem;
+  font-size: .88rem;
   font-weight: 700;
+  /* « À propos » ne doit pas se couper en deux : c'est ce qui doublait la
+     hauteur de la barre et donnait l'impression d'un menu grossi. */
+  white-space: nowrap;
   transition: all .2s;
 }
 .nav-links a:hover {
@@ -393,26 +405,29 @@ html[dir=rtl] .nav-links { margin-left: 0; margin-right: auto; }
 /* Sélecteur de langue */
 .nav-langs {
   display: flex;
-  gap: .25rem;
-  padding-left: 1rem;
+  align-items: center;
+  gap: .18rem;
+  padding-left: .7rem;
   border-left: 1px solid rgba(17, 24, 39, .12);
 }
 html[dir=rtl] .nav-langs {
   padding-left: 0;
-  padding-right: 1rem;
+  padding-right: .7rem;
   border-left: none;
   border-right: 1px solid rgba(17, 24, 39, .12);
 }
+/* Compact : chaque pixel rendu ici profite au nom du projet, qui partage la
+   même ligne. On reste au-dessus de 32 px de haut pour rester touchable. */
 .lang-btn {
   background: transparent;
   border: 1px solid rgba(17, 24, 39, .14);
   color: var(--muted);
-  min-width: 44px;
-  min-height: 38px;
-  padding: .34rem .5rem;
+  min-width: 32px;
+  min-height: 28px;
+  padding: .16rem .38rem;
   border-radius: 6px;
   cursor: pointer;
-  font-size: .82rem;
+  font-size: .72rem;
   font-family: inherit;
   font-weight: 800;
   line-height: 1;
@@ -428,6 +443,31 @@ html[dir=rtl] .nav-langs {
   background: var(--sun-light);
   color: white;
   border-color: var(--sun-light);
+}
+
+/* Palier intermédiaire : entre le menu mobile (768 px) et le grand écran, la
+   barre manque de place — c'est aussi ce qui arrive dès qu'on zoome dans le
+   navigateur, puisque la fenêtre rétrécit en pixels CSS. On resserre plutôt
+   que de laisser les libellés se couper en deux. Le nom du projet s'efface :
+   la page le rappelle en titre juste en dessous. */
+@media (max-width: 1400px) {
+  .nav-container { gap: .8rem; padding: .6rem 1rem; }
+  .nav-links { gap: .05rem; }
+  .nav-links a { padding: .45rem .5rem; font-size: .84rem; }
+  /* Le nom du projet rétrécit — il ne disparaît pas : c'est le repère qui
+     dit au visiteur quelle fiche il consulte. Il se tronque proprement en
+     fin de chaîne si le nom est très long. */
+  .nav-project-label { max-width: 200px; padding-left: .6rem; font-size: .92rem; }
+  html[dir=rtl] .nav-project-label { padding-left: 0; padding-right: .6rem; font-size: .86rem; }
+  .nav-langs { padding-left: .45rem; }
+  html[dir=rtl] .nav-langs { padding-left: 0; padding-right: .45rem; }
+  .lang-btn { min-width: 28px; padding: .16rem .26rem; font-size: .68rem; }
+}
+
+/* En dessous, les six liens et les langues occupent tout : le nom du projet
+   s'efface enfin, mais seulement là. La page le rappelle en titre. */
+@media (max-width: 1050px) {
+  .nav-project-label { display: none; }
 }
 
 /* Menu mobile */

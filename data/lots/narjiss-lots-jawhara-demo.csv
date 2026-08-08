@@ -1,91 +1,143 @@
-﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;notes
-jawhara;A;RDC;A-RDC-01;Commerce;46.0;0.0;46.0;0;1;Angle;Sud-Ouest;Oui;Aucun;694000;15087;Disponible;;;Local commercial avec vitrine sur la voie principale
-jawhara;A;RDC;A-RDC-02;Commerce;46.0;0.0;46.0;0;1;Rue;Sud-Ouest;Oui;Aucun;687000;14935;Optionne;2026-08-14;;Local commercial avec vitrine sur la voie principale
-jawhara;A;RDC;A-RDC-03;Bureau;52.0;0.0;52.0;0;1;Rue;Sud;Oui;Aucun;643000;12365;Vendu;;;Plateau de bureau modulable, entree independante
-jawhara;A;RDC;A-RDC-04;F2;61.5;7.0;68.5;1;1;Jardin;Nord-Est;Oui;Exterieur;590000;9593;Disponible;;;Acces direct au jardin interieur, ideal pour une famille
-jawhara;A;RDC;A-RDC-05;F3;85.5;9.5;95.0;2;2;Jardin;Nord-Est;Oui;Exterieur;794000;9287;Reserve;;;Acces direct au jardin interieur, ideal pour une famille
-jawhara;A;RDC;A-RDC-06;F2;61.5;7.0;68.5;1;1;Cour;Nord;Oui;Exterieur;578000;9398;Vendu;;;
-jawhara;A;1;A-1-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;803000;9560;Vendu;;;
-jawhara;A;1;A-1-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;607000;9870;Disponible;;;
-jawhara;A;1;A-1-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;345000;10000;Vendu;;;
-jawhara;A;1;A-1-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;780000;9286;Vendu;;;
-jawhara;A;1;A-1-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1044000;9534;Reserve;;;Traversant : lumiere du matin et du soir
-jawhara;A;1;A-1-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;613000;9967;Vendu;;;Appartement d'angle, deux facades
-jawhara;A;2;A-2-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;819000;9750;Reserve;;;
-jawhara;A;2;A-2-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;619000;10065;Disponible;;;
-jawhara;A;2;A-2-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;352000;10203;Bloque;;;Logement temoin, non commercialise
-jawhara;A;2;A-2-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;795000;9464;Reserve;;;
-jawhara;A;2;A-2-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1064000;9717;Disponible;;;Traversant : lumiere du matin et du soir
-jawhara;A;2;A-2-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;625000;10163;Disponible;;;Appartement d'angle, deux facades
-jawhara;A;3;A-3-01;F3;84.0;9.5;93.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;835000;9940;Disponible;;;
-jawhara;A;3;A-3-02;F2;61.5;7.0;68.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;631000;10260;Vendu;;;
-jawhara;A;3;A-3-03;Studio;34.5;4.0;38.5;0;1;Cour;Nord;Oui;Sous-sol;358000;10377;Disponible;;;
-jawhara;A;3;A-3-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;810000;9643;Vendu;;;
-jawhara;A;3;A-3-05;F4;109.5;12.0;121.5;3;2;Double orientation;Est;Oui;Sous-sol;1085000;9909;Vendu;;;Traversant : lumiere du matin et du soir
-jawhara;A;3;A-3-06;F2;61.5;7.0;68.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;637000;10358;Disponible;;;Appartement d'angle, deux facades
-jawhara;A;4;A-4-01;Duplex;132.0;24.0;156.0;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1423000;10780;Vendu;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;A;4;A-4-02;F4;108.0;12.0;120.0;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1079000;9991;Reserve;;;Dernier etage, terrasse privative
-jawhara;A;4;A-4-03;F2;61.5;7.0;68.5;1;1;Cour;Nord;Oui;Sous-sol;630000;10244;Reserve;;;Dernier etage, terrasse privative
-jawhara;A;4;A-4-04;F3;84.0;9.5;93.5;2;2;Cour;Nord-Est;Oui;Sous-sol;833000;9917;Vendu;;;Dernier etage, terrasse privative
-jawhara;A;4;A-4-05;Duplex;133.5;24.0;157.5;4;3;Double orientation;Est;Oui;Sous-sol;1467000;10989;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;A;4;A-4-06;F3;84.0;9.5;93.5;2;2;Angle;Nord-Ouest;Oui;Sous-sol;867000;10321;Optionne;2026-08-09;;Dernier etage, terrasse privative
-jawhara;B;RDC;B-RDC-01;Commerce;46.5;0.0;46.5;0;1;Angle;Sud-Ouest;Oui;Aucun;708000;15226;Disponible;;;Local commercial avec vitrine sur la voie principale
-jawhara;B;RDC;B-RDC-02;Commerce;46.5;0.0;46.5;0;1;Rue;Sud-Ouest;Oui;Aucun;701000;15075;Disponible;;;Local commercial avec vitrine sur la voie principale
-jawhara;B;RDC;B-RDC-03;Bureau;52.5;0.0;52.5;0;1;Rue;Sud;Oui;Aucun;655000;12476;Disponible;;;Plateau de bureau modulable, entree independante
-jawhara;B;RDC;B-RDC-04;F2;62.0;7.0;69.0;1;1;Jardin;Nord-Est;Oui;Exterieur;600000;9677;Vendu;;;Acces direct au jardin interieur, ideal pour une famille
-jawhara;B;RDC;B-RDC-05;F3;86.0;9.5;95.5;2;2;Jardin;Nord-Est;Oui;Exterieur;806000;9372;Disponible;;;Acces direct au jardin interieur, ideal pour une famille
-jawhara;B;RDC;B-RDC-06;F2;62.0;7.0;69.0;1;1;Cour;Nord;Oui;Exterieur;589000;9500;Disponible;;;
-jawhara;B;1;B-1-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;816000;9657;Disponible;;;
-jawhara;B;1;B-1-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;618000;9968;Optionne;2026-08-14;;
-jawhara;B;1;B-1-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;353000;10086;Disponible;;;
-jawhara;B;1;B-1-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;792000;9373;Reserve;;;
-jawhara;B;1;B-1-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1059000;9627;Disponible;;;Traversant : lumiere du matin et du soir
-jawhara;B;1;B-1-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;624000;10065;Disponible;;;Appartement d'angle, deux facades
-jawhara;B;2;B-2-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;832000;9846;Disponible;;;
-jawhara;B;2;B-2-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;631000;10177;Disponible;;;
-jawhara;B;2;B-2-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;360000;10286;Bloque;;;Logement temoin, non commercialise
-jawhara;B;2;B-2-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;808000;9562;Disponible;;;
-jawhara;B;2;B-2-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1080000;9818;Disponible;;;Traversant : lumiere du matin et du soir
-jawhara;B;2;B-2-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;637000;10274;Disponible;;;Appartement d'angle, deux facades
-jawhara;B;3;B-3-01;F3;84.5;9.5;94.0;2;2;Rue;Sud-Ouest;Oui;Sous-sol;848000;10036;Disponible;;;
-jawhara;B;3;B-3-02;F2;62.0;7.0;69.0;1;1;Rue;Sud-Ouest;Oui;Sous-sol;643000;10371;Disponible;;;
-jawhara;B;3;B-3-03;Studio;35.0;4.0;39.0;0;1;Cour;Nord;Oui;Sous-sol;367000;10486;Optionne;2026-08-27;;
-jawhara;B;3;B-3-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;823000;9740;Vendu;;;
-jawhara;B;3;B-3-05;F4;110.0;12.0;122.0;3;2;Double orientation;Est;Oui;Sous-sol;1101000;10009;Vendu;;;Traversant : lumiere du matin et du soir
-jawhara;B;3;B-3-06;F2;62.0;7.0;69.0;1;1;Angle;Nord-Ouest;Oui;Sous-sol;649000;10468;Disponible;;;Appartement d'angle, deux facades
-jawhara;B;4;B-4-01;Duplex;132.5;24.0;156.5;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1442000;10883;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;B;4;B-4-02;F4;108.5;12.0;120.5;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1095000;10092;Disponible;;;Dernier etage, terrasse privative
-jawhara;B;4;B-4-03;F2;62.0;7.0;69.0;1;1;Cour;Nord;Oui;Sous-sol;642000;10355;Optionne;2026-08-14;;Dernier etage, terrasse privative
-jawhara;B;4;B-4-04;F3;84.5;9.5;94.0;2;2;Cour;Nord-Est;Oui;Sous-sol;847000;10024;Disponible;;;Dernier etage, terrasse privative
-jawhara;B;4;B-4-05;Duplex;134.0;24.0;158.0;4;3;Double orientation;Est;Oui;Sous-sol;1487000;11097;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;B;4;B-4-06;F3;84.5;9.5;94.0;2;2;Angle;Nord-Ouest;Oui;Sous-sol;880000;10414;Disponible;;;Dernier etage, terrasse privative
-jawhara;C;RDC;C-RDC-01;Commerce;47.0;0.0;47.0;0;1;Angle;Sud-Ouest;Oui;Aucun;730000;15532;Disponible;;;Local commercial avec vitrine sur la voie principale
-jawhara;C;RDC;C-RDC-02;Commerce;47.0;0.0;47.0;0;1;Rue;Sud-Ouest;Oui;Aucun;723000;15383;Disponible;;;Local commercial avec vitrine sur la voie principale
-jawhara;C;RDC;C-RDC-03;Bureau;53.0;0.0;53.0;0;1;Rue;Sud;Oui;Aucun;675000;12736;Disponible;;;Plateau de bureau modulable, entree independante
-jawhara;C;RDC;C-RDC-04;F2;62.5;7.0;69.5;1;1;Jardin;Nord-Est;Oui;Exterieur;617000;9872;Disponible;;;Acces direct au jardin interieur, ideal pour une famille
-jawhara;C;RDC;C-RDC-05;F3;86.5;9.5;96.0;2;2;Jardin;Nord-Est;Oui;Exterieur;827000;9561;Optionne;2026-08-09;;Acces direct au jardin interieur, ideal pour une famille
-jawhara;C;RDC;C-RDC-06;F2;62.5;7.0;69.5;1;1;Cour;Nord;Oui;Exterieur;605000;9680;Disponible;;;
-jawhara;C;1;C-1-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;837000;9847;Disponible;;;
-jawhara;C;1;C-1-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;636000;10176;Disponible;;;
-jawhara;C;1;C-1-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;366000;10310;Disponible;;;
-jawhara;C;1;C-1-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;813000;9565;Disponible;;;
-jawhara;C;1;C-1-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1085000;9819;Vendu;;;Traversant : lumiere du matin et du soir
-jawhara;C;1;C-1-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;642000;10272;Disponible;;;Appartement d'angle, deux facades
-jawhara;C;2;C-2-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;853000;10035;Disponible;;;
-jawhara;C;2;C-2-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;648000;10368;Disponible;;;
-jawhara;C;2;C-2-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;373000;10507;Bloque;;;Logement temoin, non commercialise
-jawhara;C;2;C-2-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;829000;9753;Disponible;;;
-jawhara;C;2;C-2-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1106000;10009;Disponible;;;Traversant : lumiere du matin et du soir
-jawhara;C;2;C-2-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;655000;10480;Disponible;;;Appartement d'angle, deux facades
-jawhara;C;3;C-3-01;F3;85.0;9.5;94.5;2;2;Rue;Sud-Ouest;Oui;Sous-sol;870000;10235;Disponible;;;
-jawhara;C;3;C-3-02;F2;62.5;7.0;69.5;1;1;Rue;Sud-Ouest;Oui;Sous-sol;661000;10576;Disponible;;;
-jawhara;C;3;C-3-03;Studio;35.5;4.0;39.5;0;1;Cour;Nord;Oui;Sous-sol;380000;10704;Disponible;;;
-jawhara;C;3;C-3-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;845000;9941;Disponible;;;
-jawhara;C;3;C-3-05;F4;110.5;12.0;122.5;3;2;Double orientation;Est;Oui;Sous-sol;1127000;10199;Disponible;;;Traversant : lumiere du matin et du soir
-jawhara;C;3;C-3-06;F2;62.5;7.0;69.5;1;1;Angle;Nord-Ouest;Oui;Sous-sol;667000;10672;Disponible;;;Appartement d'angle, deux facades
-jawhara;C;4;C-4-01;Duplex;133.0;24.0;157.0;4;3;Rue;Sud-Ouest;Oui;Sous-sol;1476000;11098;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;C;4;C-4-02;F4;109.0;12.0;121.0;3;2;Rue;Sud-Ouest;Oui;Sous-sol;1122000;10294;Disponible;;;Dernier etage, terrasse privative
-jawhara;C;4;C-4-03;F2;62.5;7.0;69.5;1;1;Cour;Nord;Oui;Sous-sol;660000;10560;Disponible;;;Dernier etage, terrasse privative
-jawhara;C;4;C-4-04;F3;85.0;9.5;94.5;2;2;Cour;Nord-Est;Oui;Sous-sol;868000;10212;Reserve;;;Dernier etage, terrasse privative
-jawhara;C;4;C-4-05;Duplex;134.5;24.0;158.5;4;3;Double orientation;Est;Oui;Sous-sol;1522000;11316;Disponible;;;Duplex avec terrasse privative, vue degagee sur l'Atlas
-jawhara;C;4;C-4-06;F3;85.0;9.5;94.5;2;2;Angle;Nord-Ouest;Oui;Sous-sol;903000;10624;Disponible;;;Dernier etage, terrasse privative
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+jawhara;A;RDC;A-RDC-01;Commerce;29.0;0.0;29.0;0;1;angle;sud;Oui;Aucun;476000;16414;Bloque;;;;jawhara/plans/immeuble-A.jpg;;Local en pied d'immeuble, forte visibilite
+jawhara;A;RDC;A-RDC-02;Commerce;29.7;0.0;29.7;0;1;rue;sud-ouest;Oui;Aucun;462000;15556;Optionne;2026-09-19;;;jawhara/plans/immeuble-A.jpg;;Local en pied d'immeuble, forte visibilite
+jawhara;A;RDC;A-RDC-03;Commerce;38.9;0.0;38.9;0;1;rue;sud;Oui;Aucun;607000;15604;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;A;RDC;A-RDC-04;Commerce;44.1;0.0;44.1;0;1;rue;ouest;Oui;Aucun;679000;15397;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-05;Commerce;30.7;0.0;30.7;0;1;rue;ouest;Oui;Aucun;481000;15668;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Local en pied d'immeuble, forte visibilite
+jawhara;A;RDC;A-RDC-06;Commerce;55.4;0.0;55.4;0;1;rue;sud-ouest;Oui;Aucun;863000;15578;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;A;RDC;A-RDC-07;Commerce;40.4;0.0;40.4;0;1;rue;ouest;Oui;Aucun;598000;14802;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-08;Commerce;41.0;0.0;41.0;0;1;rue;sud-ouest;Oui;Aucun;617000;15049;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;A;RDC;A-RDC-09;Commerce;45.6;0.0;45.6;0;1;rue;sud;Oui;Aucun;707000;15504;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-10;Commerce;56.6;0.0;56.6;0;1;rue;sud;Oui;Aucun;852000;15053;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-11;Commerce;30.1;0.0;30.1;0;1;rue;ouest;Oui;Aucun;455000;15116;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;A;RDC;A-RDC-12;Commerce;52.8;0.0;52.8;0;1;rue;sud-ouest;Oui;Aucun;795000;15057;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-13;Commerce;54.1;0.0;54.1;0;1;rue;sud-ouest;Oui;Aucun;818000;15120;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Local avec reserve et sanitaire
+jawhara;A;RDC;A-RDC-14;Commerce;52.7;0.0;52.7;0;1;rue;sud-ouest;Oui;Aucun;807000;15313;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local en pied d'immeuble, forte visibilite
+jawhara;A;RDC;A-RDC-15;Commerce;51.1;0.0;51.1;0;1;rue;sud;Oui;Aucun;766000;14990;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-16;Commerce;34.3;0.0;34.3;0;1;rue;ouest;Oui;Aucun;512000;14927;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-17;Commerce;41.9;0.0;41.9;0;1;rue;sud;Oui;Aucun;652000;15561;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;A;RDC;A-RDC-18;Commerce;34.1;0.0;34.1;0;1;rue;ouest;Oui;Aucun;518000;15191;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;RDC;A-RDC-19;Commerce;40.2;0.0;40.2;0;1;rue;sud;Oui;Aucun;625000;15547;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local en pied d'immeuble, forte visibilite
+jawhara;A;RDC;A-RDC-20;Commerce;50.6;0.0;50.6;0;1;rue;sud-ouest;Oui;Aucun;794000;15692;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;A;RDC;A-RDC-21;Commerce;56.9;0.0;56.9;0;1;rue;ouest;Oui;Aucun;867000;15237;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;A;RDC;A-RDC-22;Commerce;42.0;0.0;42.0;0;1;angle;sud-est;Oui;Aucun;668000;15905;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Local d'angle, double vitrine
+jawhara;A;1;A-1-01;F3;80.5;11.1;91.6;2;1;angle;sud-est;Oui;box;1024000;12720;Optionne;2026-09-24;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;1;A-1-02;F4;97.1;14.5;111.6;3;2;angle;sud;Oui;sous-sol;1225000;12616;Optionne;2026-09-15;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;A;1;A-1-03;F3;68.5;9.3;77.8;2;1;jardin;sud-est;Oui;exterieur;828000;12088;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;1;A-1-04;F3;73.9;9.9;83.8;2;1;double;ouest;Oui;exterieur;912000;12341;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Rangements integres dans les chambres
+jawhara;A;1;A-1-05;F3;72.1;10.9;83.0;2;1;angle;sud-est;Oui;sous-sol;896000;12427;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Rangements integres dans les chambres
+jawhara;A;1;A-1-06;F3;75.9;11.5;87.4;2;1;double;est;Oui;box;947000;12477;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Vue sur les espaces verts interieurs
+jawhara;A;1;A-1-07;F3;73.5;8.1;81.6;2;1;rue;ouest;Oui;sous-sol;865000;11769;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Proche de la creche et de la place
+jawhara;A;1;A-1-08;F2;53.1;7.9;61.0;1;1;angle;sud-est;Oui;Aucun;682000;12844;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;1;A-1-09;F3;80.6;11.2;91.8;2;1;rue;sud-ouest;Oui;box;934000;11588;Optionne;2026-09-16;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;1;A-1-10;F3;81.1;10.8;91.9;2;1;double;est;Oui;sous-sol;982000;12109;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;A;1;A-1-11;F3;69.1;9.0;78.1;2;1;angle;sud;Oui;box;883000;12779;Optionne;2026-09-17;;;jawhara/plans/immeuble-A.jpg;;Proche de la creche et de la place
+jawhara;A;1;A-1-12;F3;73.4;9.1;82.5;2;1;cour;nord;Oui;exterieur;839000;11431;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Vue sur les espaces verts interieurs
+jawhara;A;1;A-1-13;F3;68.5;10.0;78.5;2;1;angle;sud;Oui;Aucun;839000;12248;Optionne;2026-09-27;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;A;1;A-1-14;F3;71.6;10.9;82.5;2;1;angle;sud-est;Oui;exterieur;922000;12877;Bloque;;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;1;A-1-15;F4;94.2;14.9;109.1;3;2;jardin;sud;Oui;box;1144000;12144;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;1;A-1-16;F2;61.2;5.0;66.2;1;1;angle;sud-est;Oui;Aucun;772000;12614;Optionne;2026-09-26;;;jawhara/plans/immeuble-A.jpg;;Proche de la creche et de la place
+jawhara;A;1;A-1-17;F3;69.5;10.9;80.4;2;1;angle;sud-est;Oui;Aucun;895000;12878;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Vue sur les espaces verts interieurs
+jawhara;A;1;A-1-18;F3;73.8;7.7;81.5;2;1;rue;sud;Oui;exterieur;881000;11938;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;1;A-1-19;F4;94.6;13.1;107.7;3;2;jardin;sud-est;Oui;box;1162000;12283;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Suite parentale avec salle d'eau
+jawhara;A;1;A-1-20;F2;59.7;6.2;65.9;1;1;angle;sud-est;Oui;sous-sol;766000;12831;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Vue sur les espaces verts interieurs
+jawhara;A;2;A-2-01;F3;80.5;11.1;91.6;2;1;angle;sud;Oui;box;1061000;13180;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;A;2;A-2-02;F4;97.1;14.5;111.6;3;2;angle;sud-est;Oui;box;1216000;12523;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Suite parentale avec salle d'eau
+jawhara;A;2;A-2-03;F3;68.5;9.3;77.8;2;1;jardin;sud;Oui;sous-sol;859000;12540;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;2;A-2-04;F3;73.9;9.9;83.8;2;1;double;est;Oui;exterieur;911000;12327;Optionne;2026-09-23;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;2;A-2-05;F3;72.1;10.9;83.0;2;1;angle;sud;Oui;sous-sol;911000;12635;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;2;A-2-06;F3;75.9;11.5;87.4;2;1;double;ouest;Oui;Aucun;971000;12793;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;2;A-2-07;F3;73.5;8.1;81.6;2;1;rue;sud;Oui;Aucun;884000;12027;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Suite parentale avec salle d'eau
+jawhara;A;2;A-2-08;F2;53.1;7.9;61.0;1;1;angle;sud;Oui;sous-sol;669000;12599;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Balcon filant sur toute la facade
+jawhara;A;2;A-2-09;F3;80.6;11.2;91.8;2;1;rue;ouest;Oui;box;995000;12345;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Vue sur les espaces verts interieurs
+jawhara;A;2;A-2-10;F3;81.1;10.8;91.9;2;1;double;est;Oui;box;997000;12293;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Rangements integres dans les chambres
+jawhara;A;2;A-2-11;F3;69.1;9.0;78.1;2;1;angle;sud-est;Oui;Aucun;899000;13010;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;A;2;A-2-12;F3;73.4;9.1;82.5;2;1;cour;est;Oui;Aucun;835000;11376;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;2;A-2-13;F3;68.5;10.0;78.5;2;1;angle;sud-est;Oui;exterieur;882000;12876;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Suite parentale avec salle d'eau
+jawhara;A;2;A-2-14;F3;71.6;10.9;82.5;2;1;angle;sud;Oui;exterieur;899000;12556;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;2;A-2-15;F4;94.2;14.9;109.1;3;2;jardin;sud;Oui;box;1195000;12686;Optionne;2026-09-26;;;jawhara/plans/immeuble-A.jpg;;Suite parentale avec salle d'eau
+jawhara;A;2;A-2-16;F2;61.2;5.0;66.2;1;1;angle;sud-est;Oui;box;777000;12696;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Proche de la creche et de la place
+jawhara;A;2;A-2-17;F3;69.5;10.9;80.4;2;1;angle;sud;Oui;box;897000;12906;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;A;2;A-2-18;F3;73.8;7.7;81.5;2;1;rue;sud;Oui;exterieur;880000;11924;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;A;2;A-2-19;F4;94.6;13.1;107.7;3;2;jardin;sud-est;Oui;sous-sol;1207000;12759;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Rangements integres dans les chambres
+jawhara;A;2;A-2-20;F2;59.7;6.2;65.9;1;1;angle;sud;Oui;box;750000;12563;Optionne;2026-09-19;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;3;A-3-01;F3;80.5;11.1;91.6;2;1;angle;sud;Oui;exterieur;1062000;13193;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Balcon filant sur toute la facade
+jawhara;A;3;A-3-02;F4;97.1;14.5;111.6;3;2;angle;sud;Oui;sous-sol;1290000;13285;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Suite parentale avec salle d'eau
+jawhara;A;3;A-3-03;F3;68.5;9.3;77.8;2;1;jardin;sud;Oui;Aucun;900000;13139;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Vue sur les espaces verts interieurs
+jawhara;A;3;A-3-04;F3;73.9;9.9;83.8;2;1;double;ouest;Oui;sous-sol;976000;13207;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;3;A-3-05;F3;72.1;10.9;83.0;2;1;angle;sud;Oui;exterieur;960000;13315;Optionne;2026-09-26;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;3;A-3-06;F3;75.9;11.5;87.4;2;1;double;ouest;Oui;sous-sol;969000;12767;Reserve;;;;jawhara/plans/immeuble-A.jpg;;Balcon filant sur toute la facade
+jawhara;A;3;A-3-07;F3;73.5;8.1;81.6;2;1;rue;sud-ouest;Oui;exterieur;899000;12231;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Rangements integres dans les chambres
+jawhara;A;3;A-3-08;F2;53.1;7.9;61.0;1;1;angle;sud;Oui;sous-sol;702000;13220;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Rangements integres dans les chambres
+jawhara;A;3;A-3-09;F3;80.6;11.2;91.8;2;1;rue;sud-ouest;Oui;sous-sol;1019000;12643;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Balcon filant sur toute la facade
+jawhara;A;3;A-3-10;F3;81.1;10.8;91.9;2;1;double;ouest;Oui;sous-sol;1036000;12774;Bloque;;;;jawhara/plans/immeuble-A.jpg;;Suite parentale avec salle d'eau
+jawhara;A;3;A-3-11;F3;69.1;9.0;78.1;2;1;angle;sud;Oui;exterieur;883000;12779;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Proche de la creche et de la place
+jawhara;A;3;A-3-12;F3;73.4;9.1;82.5;2;1;cour;nord;Oui;exterieur;873000;11894;Vendu;;;;jawhara/plans/immeuble-A.jpg;;Sejour traversant, tres lumineux
+jawhara;A;3;A-3-13;F3;68.5;10.0;78.5;2;1;angle;sud;Oui;Aucun;897000;13095;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Rangements integres dans les chambres
+jawhara;A;3;A-3-14;F3;71.6;10.9;82.5;2;1;angle;sud-est;Oui;box;951000;13282;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;3;A-3-15;F4;94.2;14.9;109.1;3;2;jardin;sud;Oui;exterieur;1185000;12580;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Proche de la creche et de la place
+jawhara;A;3;A-3-16;F2;61.2;5.0;66.2;1;1;angle;sud;Oui;Aucun;801000;13088;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;A;3;A-3-17;F3;69.5;10.9;80.4;2;1;angle;sud;Oui;sous-sol;931000;13396;Optionne;2026-09-25;;;jawhara/plans/immeuble-A.jpg;;Vue sur les espaces verts interieurs
+jawhara;A;3;A-3-18;F3;73.8;7.7;81.5;2;1;rue;sud;Oui;Aucun;903000;12236;Optionne;2026-09-26;;;jawhara/plans/immeuble-A.jpg;;Balcon filant sur toute la facade
+jawhara;A;3;A-3-19;F4;94.6;13.1;107.7;3;2;jardin;sud-est;Oui;sous-sol;1219000;12886;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Balcon filant sur toute la facade
+jawhara;A;3;A-3-20;F2;59.7;6.2;65.9;1;1;angle;sud;Oui;Aucun;797000;13350;Disponible;;;;jawhara/plans/immeuble-A.jpg;;Cuisine equipee avec cellier
+jawhara;B;RDC;B-RDC-01;Commerce;45.8;0.0;45.8;0;1;angle;sud-est;Oui;Aucun;710000;15502;Vendu;;;;jawhara/plans/immeuble-B.jpg;;Local en pied d'immeuble, forte visibilite
+jawhara;B;RDC;B-RDC-02;Commerce;47.5;0.0;47.5;0;1;angle;sud;Oui;Aucun;779000;16400;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Local commercial avec vitrine sur voie principale
+jawhara;B;1;B-1-01;F2;56.6;6.9;63.5;1;1;angle;sud;Oui;sous-sol;723000;12774;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Cuisine equipee avec cellier
+jawhara;B;1;B-1-02;F3;79.6;11.0;90.6;2;1;jardin;sud;Oui;exterieur;964000;12111;Optionne;2026-09-14;;;jawhara/plans/immeuble-B.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;B;1;B-1-03;F2;55.2;8.0;63.2;1;1;double;ouest;Oui;exterieur;687000;12446;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Vue sur les espaces verts interieurs
+jawhara;B;1;B-1-04;F2;60.4;8.0;68.4;1;1;jardin;sud-est;Oui;box;759000;12566;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Cuisine equipee avec cellier
+jawhara;B;1;B-1-05;F3;81.4;10.7;92.1;2;1;cour;nord;Oui;box;911000;11192;Reserve;;;;jawhara/plans/immeuble-B.jpg;;Balcon filant sur toute la facade
+jawhara;B;1;B-1-06;F2;54.1;5.2;59.3;1;1;rue;ouest;Oui;Aucun;640000;11830;Vendu;;;;jawhara/plans/immeuble-B.jpg;;Suite parentale avec salle d'eau
+jawhara;B;1;B-1-07;F2;55.9;5.8;61.7;1;1;angle;sud-est;Oui;Aucun;707000;12648;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Cuisine equipee avec cellier
+jawhara;B;1;B-1-08;F2;52.7;6.7;59.4;1;1;cour;nord;Oui;exterieur;610000;11575;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Rangements integres dans les chambres
+jawhara;B;1;B-1-09;F3;80.2;10.4;90.6;2;1;angle;sud-est;Oui;exterieur;1006000;12544;Reserve;;;;jawhara/plans/immeuble-B.jpg;;Proche de la creche et de la place
+jawhara;B;2;B-2-01;F2;56.6;6.9;63.5;1;1;angle;sud-est;Oui;box;707000;12491;Vendu;;;;jawhara/plans/immeuble-B.jpg;;Vue sur les espaces verts interieurs
+jawhara;B;2;B-2-02;F3;79.6;11.0;90.6;2;1;jardin;sud;Oui;sous-sol;987000;12399;Optionne;2026-09-20;;;jawhara/plans/immeuble-B.jpg;;Vue sur les espaces verts interieurs
+jawhara;B;2;B-2-03;F2;55.2;8.0;63.2;1;1;double;ouest;Oui;Aucun;713000;12917;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Balcon filant sur toute la facade
+jawhara;B;2;B-2-04;F2;60.4;8.0;68.4;1;1;jardin;sud-est;Oui;sous-sol;776000;12848;Reserve;;;;jawhara/plans/immeuble-B.jpg;;Sejour traversant, tres lumineux
+jawhara;B;2;B-2-05;F3;81.4;10.7;92.1;2;1;cour;nord-est;Oui;exterieur;981000;12052;Vendu;;;;jawhara/plans/immeuble-B.jpg;;Cuisine equipee avec cellier
+jawhara;B;2;B-2-06;F2;54.1;5.2;59.3;1;1;rue;sud;Oui;Aucun;661000;12218;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Balcon filant sur toute la facade
+jawhara;B;2;B-2-07;F2;55.9;5.8;61.7;1;1;angle;sud-est;Oui;box;721000;12898;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Sejour traversant, tres lumineux
+jawhara;B;2;B-2-08;F2;52.7;6.7;59.4;1;1;cour;nord;Oui;sous-sol;619000;11746;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Balcon filant sur toute la facade
+jawhara;B;2;B-2-09;F3;80.2;10.4;90.6;2;1;angle;sud-est;Oui;box;1005000;12531;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Rangements integres dans les chambres
+jawhara;B;3;B-3-01;F2;56.6;6.9;63.5;1;1;angle;sud-est;Oui;box;746000;13180;Vendu;;;;jawhara/plans/immeuble-B.jpg;;Cuisine equipee avec cellier
+jawhara;B;3;B-3-02;F3;79.6;11.0;90.6;2;1;jardin;sud-est;Oui;Aucun;1013000;12726;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Vue sur les espaces verts interieurs
+jawhara;B;3;B-3-03;F2;55.2;8.0;63.2;1;1;double;est;Oui;sous-sol;723000;13098;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Etage eleve, calme, sans vis-a-vis
+jawhara;B;3;B-3-04;F2;60.4;8.0;68.4;1;1;jardin;sud-est;Oui;exterieur;763000;12632;Reserve;;;;jawhara/plans/immeuble-B.jpg;;Suite parentale avec salle d'eau
+jawhara;B;3;B-3-05;F3;81.4;10.7;92.1;2;1;cour;nord;Oui;Aucun;970000;11916;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Vue sur les espaces verts interieurs
+jawhara;B;3;B-3-06;F2;54.1;5.2;59.3;1;1;rue;sud;Oui;Aucun;672000;12421;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Sejour traversant, tres lumineux
+jawhara;B;3;B-3-07;F2;55.9;5.8;61.7;1;1;angle;sud;Oui;sous-sol;747000;13363;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Sejour traversant, tres lumineux
+jawhara;B;3;B-3-08;F2;52.7;6.7;59.4;1;1;cour;nord;Oui;exterieur;634000;12030;Optionne;2026-09-17;;;jawhara/plans/immeuble-B.jpg;;Cuisine equipee avec cellier
+jawhara;B;3;B-3-09;F3;80.2;10.4;90.6;2;1;angle;sud;Oui;box;1079000;13454;Disponible;;;;jawhara/plans/immeuble-B.jpg;;Balcon filant sur toute la facade
+jawhara;C;RDC;C-RDC-01;Commerce;35.4;0.0;35.4;0;1;angle;sud-est;Oui;Aucun;561000;15847;Vendu;;;;jawhara/plans/immeuble-C.jpg;;Local d'angle, double vitrine
+jawhara;C;RDC;C-RDC-02;Commerce;51.8;0.0;51.8;0;1;rue;sud-ouest;Oui;Aucun;811000;15656;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Local d'angle, double vitrine
+jawhara;C;RDC;C-RDC-03;Commerce;41.0;0.0;41.0;0;1;rue;ouest;Oui;Aucun;609000;14854;Optionne;2026-09-20;;;jawhara/plans/immeuble-C.jpg;;Local avec reserve et sanitaire
+jawhara;C;RDC;C-RDC-04;Commerce;39.8;0.0;39.8;0;1;angle;sud;Oui;Aucun;629000;15804;Vendu;;;;jawhara/plans/immeuble-C.jpg;;Local d'angle, double vitrine
+jawhara;C;1;C-1-01;F4;98.6;12.6;111.2;3;2;angle;sud;Oui;sous-sol;1233000;12505;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Balcon filant sur toute la facade
+jawhara;C;1;C-1-02;F2;52.5;8.0;60.5;1;1;cour;nord-est;Oui;sous-sol;605000;11524;Optionne;2026-09-16;;;jawhara/plans/immeuble-C.jpg;;Proche de la creche et de la place
+jawhara;C;1;C-1-03;F4;100.0;12.9;112.9;3;2;double;ouest;Oui;Aucun;1232000;12320;Reserve;;;;jawhara/plans/immeuble-C.jpg;;Vue sur les espaces verts interieurs
+jawhara;C;1;C-1-04;F4;100.7;14.5;115.2;3;2;jardin;sud-est;Oui;sous-sol;1224000;12155;Optionne;2026-09-11;;;jawhara/plans/immeuble-C.jpg;;Sejour traversant, tres lumineux
+jawhara;C;1;C-1-05;F3;75.2;8.9;84.1;2;1;jardin;sud-est;Oui;exterieur;915000;12168;Optionne;2026-09-14;;;jawhara/plans/immeuble-C.jpg;;Suite parentale avec salle d'eau
+jawhara;C;1;C-1-06;F3;71.7;8.8;80.5;2;1;jardin;sud;Oui;sous-sol;875000;12204;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Sejour traversant, tres lumineux
+jawhara;C;1;C-1-07;F3;81.0;8.2;89.2;2;1;rue;ouest;Oui;Aucun;954000;11778;Reserve;;;;jawhara/plans/immeuble-C.jpg;;Suite parentale avec salle d'eau
+jawhara;C;1;C-1-08;F3;74.3;10.9;85.2;2;1;jardin;sud;Oui;Aucun;905000;12180;Vendu;;;;jawhara/plans/immeuble-C.jpg;;Balcon filant sur toute la facade
+jawhara;C;1;C-1-09;F3;74.2;8.0;82.2;2;1;angle;sud;Oui;Aucun;940000;12668;Reserve;;;;jawhara/plans/immeuble-C.jpg;;Suite parentale avec salle d'eau
+jawhara;C;2;C-2-01;F4;98.6;12.6;111.2;3;2;angle;sud;Oui;exterieur;1262000;12799;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Suite parentale avec salle d'eau
+jawhara;C;2;C-2-02;F2;52.5;8.0;60.5;1;1;cour;nord-est;Oui;sous-sol;598000;11390;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Suite parentale avec salle d'eau
+jawhara;C;2;C-2-03;F4;100.0;12.9;112.9;3;2;double;ouest;Oui;sous-sol;1236000;12360;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Sejour traversant, tres lumineux
+jawhara;C;2;C-2-04;F4;100.7;14.5;115.2;3;2;jardin;sud;Oui;box;1292000;12830;Optionne;2026-09-12;;;jawhara/plans/immeuble-C.jpg;;Sejour traversant, tres lumineux
+jawhara;C;2;C-2-05;F3;75.2;8.9;84.1;2;1;jardin;sud-est;Oui;Aucun;920000;12234;Vendu;;;;jawhara/plans/immeuble-C.jpg;;Rangements integres dans les chambres
+jawhara;C;2;C-2-06;F3;71.7;8.8;80.5;2;1;jardin;sud-est;Oui;box;920000;12831;Reserve;;;;jawhara/plans/immeuble-C.jpg;;Rangements integres dans les chambres
+jawhara;C;2;C-2-07;F3;81.0;8.2;89.2;2;1;rue;sud;Oui;exterieur;993000;12259;Reserve;;;;jawhara/plans/immeuble-C.jpg;;Sejour traversant, tres lumineux
+jawhara;C;2;C-2-08;F3;74.3;10.9;85.2;2;1;jardin;sud-est;Oui;sous-sol;929000;12503;Vendu;;;;jawhara/plans/immeuble-C.jpg;;Cuisine equipee avec cellier
+jawhara;C;2;C-2-09;F3;74.2;8.0;82.2;2;1;angle;sud;Oui;sous-sol;938000;12642;Vendu;;;;jawhara/plans/immeuble-C.jpg;;Sejour traversant, tres lumineux
+jawhara;C;3;C-3-01;F4;98.6;12.6;111.2;3;2;angle;sud-est;Oui;exterieur;1312000;13306;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Rangements integres dans les chambres
+jawhara;C;3;C-3-02;F2;52.5;8.0;60.5;1;1;cour;est;Oui;Aucun;631000;12019;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Suite parentale avec salle d'eau
+jawhara;C;3;C-3-03;F4;100.0;12.9;112.9;3;2;double;est;Oui;sous-sol;1260000;12600;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Vue sur les espaces verts interieurs
+jawhara;C;3;C-3-04;F4;100.7;14.5;115.2;3;2;jardin;sud;Oui;sous-sol;1307000;12979;Disponible;;;;jawhara/plans/immeuble-C.jpg;;Cuisine equipee avec cellier
+jawhara;C;3;C-3-05;F3;75.2;8.9;84.1;2;1;jardin;sud;Oui;exterieur;981000;13045;Optionne;2026-09-28;;;jawhara/plans/immeuble-C.jpg;;Proche de la creche et de la place
+jawhara;C;3;C-3-06;F3;71.7;8.8;80.5;2;1;jardin;sud;Oui;sous-sol;939000;13096;Vendu;;;;jawhara/plans/immeuble-C.jpg;;Sejour traversant, tres lumineux
+jawhara;C;3;C-3-07;F3;81.0;8.2;89.2;2;1;rue;sud;Oui;sous-sol;990000;12222;Optionne;2026-09-14;;;jawhara/plans/immeuble-C.jpg;;Cuisine equipee avec cellier
+jawhara;C;3;C-3-08;F3;74.3;10.9;85.2;2;1;jardin;sud-est;Oui;sous-sol;939000;12638;Optionne;2026-09-17;;;jawhara/plans/immeuble-C.jpg;;Proche de la creche et de la place
+jawhara;C;3;C-3-09;F3;74.2;8.0;82.2;2;1;angle;sud;Oui;sous-sol;991000;13356;Optionne;2026-09-15;;;jawhara/plans/immeuble-C.jpg;;Vue sur les espaces verts interieurs

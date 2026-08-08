@@ -210,6 +210,10 @@ function nj_lots_lire_csv(string $chemin): array
             'statut'            => $statut,
             'date_fin_option'   => $fin_option,
             'plan_fichier'      => mb_substr(trim((string) ($row['plan_fichier'] ?? '')), 0, 255),
+            // Documents propres au lot. Vides = on retombe sur ceux du projet.
+            'plan_architecte'   => mb_substr(trim((string) ($row['plan_architecte'] ?? '')), 0, 255),
+            'plan_visuel'       => mb_substr(trim((string) ($row['plan_visuel'] ?? '')), 0, 255),
+            'visite_360'        => mb_substr(trim((string) ($row['visite_360'] ?? '')), 0, 255),
             'notes'             => mb_substr(trim((string) ($row['notes'] ?? '')), 0, 500),
             'ligne_csv'         => $numero_ligne,
         ];
@@ -296,12 +300,14 @@ function nj_lots_importer(array $lignes, string $projet, string $fichier, string
               (projet, immeuble, niveau, niveau_ordre, numero_lot, typologie,
                surface_habitable, surface_balcon, nb_chambres, nb_sdb,
                orientation, exposition, ascenseur, parking, prix_dh, statut,
-               date_fin_option, plan_fichier, notes, created_at)
+               date_fin_option, plan_fichier, plan_architecte, plan_visuel,
+               visite_360, notes, created_at)
             VALUES
               (:projet, :immeuble, :niveau, :niveau_ordre, :numero_lot, :typologie,
                :surface_habitable, :surface_balcon, :nb_chambres, :nb_sdb,
                :orientation, :exposition, :ascenseur, :parking, :prix_dh, :statut,
-               :date_fin_option, :plan_fichier, :notes, NOW())
+               :date_fin_option, :plan_fichier, :plan_architecte, :plan_visuel,
+               :visite_360, :notes, NOW())
             ON DUPLICATE KEY UPDATE
               immeuble = VALUES(immeuble), niveau = VALUES(niveau),
               niveau_ordre = VALUES(niveau_ordre), typologie = VALUES(typologie),
@@ -312,7 +318,11 @@ function nj_lots_importer(array $lignes, string $projet, string $fichier, string
               ascenseur = VALUES(ascenseur), parking = VALUES(parking),
               prix_dh = VALUES(prix_dh), statut = VALUES(statut),
               date_fin_option = VALUES(date_fin_option),
-              plan_fichier = VALUES(plan_fichier), notes = VALUES(notes)';
+              plan_fichier = VALUES(plan_fichier),
+              plan_architecte = VALUES(plan_architecte),
+              plan_visuel = VALUES(plan_visuel),
+              visite_360 = VALUES(visite_360),
+              notes = VALUES(notes)';
 
     $pdo->beginTransaction();
     try {
@@ -436,4 +446,40 @@ function nj_lot_statut_libelle(string $statut): string
         'disponible' => 'Disponible', 'optionne' => 'Optionné', 'reserve' => 'Réservé',
         'vendu' => 'Vendu', 'bloque' => 'Bloqué',
     ][$statut] ?? $statut;
+}
+
+/**
+ * Pourquoi la grille est-elle inaccessible ?
+ *
+ * Trois causes donnent le même écran vide, et il faut les distinguer sous
+ * peine d'envoyer l'exploitant sur une fausse piste :
+ *   'ok'         tout va bien ;
+ *   'sans-base'  PHP n'atteint pas MySQL (identifiants api/.env) ;
+ *   'sans-table' la base répond mais le schéma n'a pas été migré.
+ */
+function nj_lots_etat_schema(): string
+{
+    static $etat = null;
+    if ($etat !== null) return $etat;
+    try {
+        $pdo = nj_db();
+    } catch (Throwable $e) {
+        return $etat = 'sans-base';
+    }
+    try {
+        $st = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?'
+        );
+        $st->execute(['lots']);
+        return $etat = ((int) $st->fetchColumn() > 0) ? 'ok' : 'sans-table';
+    } catch (Throwable $e) {
+        return $etat = 'sans-base';
+    }
+}
+
+/** Raccourci : la grille est-elle exploitable ? */
+function nj_lots_schema_present(): bool
+{
+    return nj_lots_etat_schema() === 'ok';
 }

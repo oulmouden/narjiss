@@ -58,3 +58,11 @@ jawhara/Tour/Untitled 2_Windows.exe
 jawhara/Tour/Untitled 2.tar.bz2
 *.exe
 *.tar.bz2
+
+# Médias vidéo lourds — déployés via `deploy.sh videos`, hors dépôt git
+data/videos/
+
+# Sauvegardes opérationnelles (zones de plans, lots) — jamais versionnées
+data/backups/
+outputs/plan-zones/backups/
+outputs/

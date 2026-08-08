@@ -1,10 +1,15 @@
 <?php
 /**
- * admin/lots-import.php — import d'une grille de lots au format CSV.
+ * admin/lots-import.php — import d'une grille de lots, CSV ou classeur Excel.
  *
  * Déroulé en deux temps, volontairement : on téléverse, on regarde ce qui va
  * changer, puis seulement on confirme. Un import de grille écrase des prix et
  * des disponibilités ; il ne doit jamais partir à l'aveugle.
+ *
+ * Un .xlsx est converti en CSV dès la réception (feuille « Lots »), puis suit
+ * exactement le même chemin qu'un CSV : analyse, aperçu, confirmation. Si le
+ * serveur n'a pas les extensions nécessaires, seul le CSV est accepté et le
+ * formulaire le dit.
  */
 
 declare(strict_types=1);
@@ -12,11 +17,23 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/layout.php';
 require_once __DIR__ . '/../api/lots-lib.php';
+require_once __DIR__ . '/../api/xlsx-lib.php';
 require_once __DIR__ . '/../api/data.php';
 
 admin_require_login();
 
+// Même garde que sur admin/lots.php : importer dans une table absente ne
+// donnerait qu'une erreur 500 au moment de la confirmation.
+if (!nj_lots_schema_present()) {
+    header('Location: lots.php');
+    exit;
+}
+
 const NJ_IMPORT_TAILLE_MAX = 4 * 1024 * 1024;   // 4 Mo : très large pour du CSV
+
+/** Extensions acceptées, selon ce que le serveur sait lire. */
+$xlsxOk     = nj_xlsx_supporte();
+$extensions = $xlsxOk ? ['csv', 'txt', 'xlsx'] : ['csv', 'txt'];
 
 $projets = nj_projects();
 $projet  = (string) ($_GET['projet'] ?? ($_POST['projet'] ?? ''));
@@ -51,13 +68,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $erreurs[] = 'Aucun fichier reçu, ou téléversement interrompu.';
         } elseif ((int) $f['size'] > NJ_IMPORT_TAILLE_MAX) {
             $erreurs[] = 'Fichier trop volumineux (maximum 4 Mo).';
-        } elseif (!in_array(strtolower((string) pathinfo((string) $f['name'], PATHINFO_EXTENSION)), ['csv', 'txt'], true)) {
-            $erreurs[] = 'Format non accepté : exportez la feuille « Lots » en CSV depuis Excel.';
+        } elseif (!in_array(strtolower((string) pathinfo((string) $f['name'], PATHINFO_EXTENSION)), $extensions, true)) {
+            $erreurs[] = $xlsxOk
+                ? 'Format non accepté : déposez le classeur .xlsx, ou la feuille « Lots » exportée en CSV.'
+                : 'Format non accepté : exportez la feuille « Lots » en CSV depuis Excel.';
         } else {
             $tmp = nj_import_tmp();
-            if (!move_uploaded_file((string) $f['tmp_name'], $tmp)) {
+            $estXlsx = strtolower((string) pathinfo((string) $f['name'], PATHINFO_EXTENSION)) === 'xlsx';
+            // Le classeur est converti ici et une seule fois : tout l'aval
+            // (aperçu, confirmation) ne connaît que le CSV temporaire.
+            $depose = $estXlsx
+                ? move_uploaded_file((string) $f['tmp_name'], $tmp . '.xlsx')
+                : move_uploaded_file((string) $f['tmp_name'], $tmp);
+
+            if (!$depose) {
                 $erreurs[] = 'Impossible de conserver le fichier le temps de l\'analyse.';
+            } elseif ($estXlsx && ($msg = nj_xlsx_vers_csv($tmp . '.xlsx', $tmp, 'Lots')) !== null) {
+                @unlink($tmp . '.xlsx');
+                $erreurs[] = $msg;
             } else {
+                if ($estXlsx) @unlink($tmp . '.xlsx');
                 $_SESSION['nj_import_nom'] = (string) $f['name'];
                 $lu = nj_lots_lire_csv($tmp);
                 $erreurs = array_merge($erreurs, $lu['erreurs']);
@@ -131,10 +161,16 @@ admin_header('Importer des lots');
                 <?php endforeach; ?>
             </select>
         </label>
-        <label>Fichier CSV
-            <input type="file" name="fichier" accept=".csv,text/csv" required>
+        <label><?= $xlsxOk ? 'Classeur Excel ou CSV' : 'Fichier CSV' ?>
+            <input type="file" name="fichier" required
+                   accept="<?= $xlsxOk ? '.xlsx,.csv,text/csv' : '.csv,text/csv' ?>">
             <small class="file-hint">
-                Export de la feuille « Lots » du classeur Excel, séparateur point-virgule ou virgule.
+                <?php if ($xlsxOk): ?>
+                    Déposez le classeur <code>.xlsx</code> : sa feuille « Lots » est lue directement.
+                    Un CSV exporté de cette feuille est aussi accepté (séparateur point-virgule ou virgule).
+                <?php else: ?>
+                    Export de la feuille « Lots » du classeur Excel, séparateur point-virgule ou virgule.
+                <?php endif; ?>
                 Colonnes obligatoires : <?= implode(', ', NJ_LOT_COLONNES_REQUISES) ?>.
             </small>
         </label>
