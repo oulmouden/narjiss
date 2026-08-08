@@ -66,3 +66,6 @@ data/videos/
 data/backups/
 outputs/plan-zones/backups/
 outputs/
+
+# Dump de synchro prod généré (données, régénérable via tools/export-prod.php)
+sql/prod-sync.sql
