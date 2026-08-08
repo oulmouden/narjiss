@@ -19,7 +19,7 @@
    * personne ne vient rafraîchir — continue d'afficher l'ancienne image.
    * À incrémenter à chaque remplacement d'un plan.
    */
-  var MEDIA_V = '2';
+  var MEDIA_V = '3';
 
   function versionne(url) {
     if (!url) return url;
@@ -669,6 +669,25 @@
     });
   }
 
+  /* Œil des listes de choix. En SVG plutôt qu'en emoji : le « × » voisin est
+     un caractère texte qui suit la couleur du bouton, et un emoji aurait imposé
+     sa propre teinte, différente selon la plateforme. */
+  function oeilSvg() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" ' +
+      'fill="none" stroke="currentColor" stroke-width="1.8"/>' +
+      '<circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/>' +
+      '</svg>';
+  }
+
+  /* Bouton « voir » d'un lot choisi. Il porte data-fiche et la classe partagée
+     nj-choix-voir : la délégation de clic existante ouvre déjà la fiche. */
+  function boutonVoirChoix(lot, classe) {
+    var libelle = t('detailsLot') + ' ' + lot.numero;
+    return '<button type="button" class="' + classe + ' nj-choix-voir" data-fiche="' + lot.id +
+      '" title="' + libelle + '" aria-label="' + libelle + '">' + oeilSvg() + '</button>';
+  }
+
   function bouton(type, id, icone, libelle) {
     return '<button type="button" class="nj-media-btn" data-media="' + type +
       '" data-lot="' + id + '"><span aria-hidden="true">' + icone + '</span>' +
@@ -707,10 +726,40 @@
     document.getElementById('njMediaTitre').textContent =
       lot.typologie.toUpperCase() + ' · ' + lot.numero;
     document.getElementById('njMediaCorps').innerHTML = corps;
+    majTitreProjet();
+    majBoutonRetour(null);   // on EST sur la fiche : pas de retour vers elle-même
     document.getElementById('njMediaNote').hidden = true;
     ouvrirModale();
     document.body.classList.add('nj-fige');
     document.getElementById('njMediaFermer').focus();
+  }
+
+  /**
+   * Rappelle le projet dans l'en-tête de la fenêtre. Sur la carte du quartier
+   * surtout, rien à l'écran ne dit de quelle résidence il s'agit : la référence
+   * du lot seule (« F2 · A-2-08 ») ne suffit pas à situer le visiteur.
+   */
+  function majTitreProjet() {
+    var el = document.getElementById('njMediaProjet');
+    if (!el) return;
+    var p = projetCourant();
+    el.textContent = p ? menuText(p.name, langue()) : '';
+  }
+
+  /**
+   * Affiche ou masque le retour vers la fiche, dans l'en-tête de la fenêtre.
+   * La fenêtre est partagée par la fiche et les médias : sans ce masquage, la
+   * fiche proposerait un retour vers elle-même.
+   */
+  function majBoutonRetour(lotId) {
+    var b = document.getElementById('njMediaRetour');
+    if (!b) return;
+    if (lotId == null) { b.hidden = true; b.removeAttribute('data-retour-fiche'); return; }
+    b.textContent = '← ' + t('retourFiche');
+    b.setAttribute('data-retour-fiche', lotId);
+    b.setAttribute('title', t('retourFiche'));
+    b.setAttribute('aria-label', t('retourFiche'));
+    b.hidden = false;
   }
 
   /** Ouvre la fenêtre de consultation sur un document donné. */
@@ -753,19 +802,21 @@
       // project.html (carte complète : recherche d'adresse, fonds de carte,
       // plein écran, itinéraire, POI…) en mode embarqué. Même carte que le
       // reste du parcours client, donc parfaitement cohérente.
+      // project.html n'a pas de ?v= dans son URL : sans ce marqueur, le
+      // navigateur resservirait indéfiniment la version en cache de la page
+      // embarquée, y compris après un déploiement.
       corps = '<iframe title="' + t('carte') + '" loading="lazy" allow="fullscreen" ' +
         'allowfullscreen src="project.html?id=' + encodeURIComponent(etat.projet) +
-        '&amp;embed=map"></iframe>';
+        '&amp;embed=map&amp;v=' + MEDIA_V + '"></iframe>';
       note = t('mediaProjet');
     }
 
     // Le média a été ouvert depuis la fiche « Info » : on offre un retour vers
     // elle, sinon « Fermer » renvoie tout au plan de l'immeuble et fait perdre
     // le contexte du lot.
-    corps = '<button type="button" class="nj-media-retour" data-retour-fiche="' + lot.id +
-      '">← ' + t('retourFiche') + '</button>' + corps;
+    majBoutonRetour(lot.id);
+    majTitreProjet();
 
-    var d2 = document.getElementById('njMedia');
     document.getElementById('njMediaTitre').textContent = titre;
     document.getElementById('njMediaCorps').innerHTML = corps;
     activerComparateur();
@@ -925,6 +976,7 @@
     }
     var liste = choisis.map(function (l) {
       return '<span class="nj-mq-choix-item">' + l.typologie.toUpperCase() + ' ' + l.numero +
+        boutonVoirChoix(l, 'nj-mq-choix-voir') +
         '<button type="button" class="nj-mq-choix-x" data-retirer="' + l.id +
         '" aria-label="' + t('retirer') + ' ' + l.numero + '">×</button></span>';
     }).join('');
@@ -1619,6 +1671,7 @@
       : choisis.map(function (l) {
           return '<span class="nj-jeton">' + l.typologie.toUpperCase() + ' ' + l.numero +
                  ' · ' + montant(l.prix) + ' ' + t('dh') +
+                 boutonVoirChoix(l, 'nj-jeton-voir') +
                  '<button type="button" class="nj-jeton-x" data-retirer="' + l.id +
                  '" aria-label="' + t('retirer') + ' ' + l.numero + '">×</button></span>';
         }).join('');
@@ -1795,7 +1848,7 @@
       // Un bouton de consultation ne doit pas déclencher la sélection.
       // getAttribute plutôt que dataset : la pastille de la maquette est un
       // <g> SVG, et dataset n'y est pas garanti sur tous les navigateurs.
-      var fiche = e.target.closest('.nj-carreau-info, .nj-mq-info-btn');
+      var fiche = e.target.closest('.nj-carreau-info, .nj-mq-info-btn, .nj-choix-voir');
       if (fiche) {
         e.stopPropagation();
         ouvrirFiche(Number(fiche.getAttribute('data-fiche')));

@@ -29,10 +29,20 @@ $w("-- =====================================================================\n")
 $w("SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS = 0;\nSTART TRANSACTION;\n\n");
 
 /* ── 1. Schéma ───────────────────────────────────────────────────────── */
-$w("-- Colonnes médias de `lots` (MariaDB : IF NOT EXISTS => rejouable)\n");
-$w("ALTER TABLE `lots` ADD COLUMN IF NOT EXISTS `plan_architecte` varchar(255) DEFAULT NULL;\n");
-$w("ALTER TABLE `lots` ADD COLUMN IF NOT EXISTS `plan_visuel` varchar(255) DEFAULT NULL;\n");
-$w("ALTER TABLE `lots` ADD COLUMN IF NOT EXISTS `visite_360` varchar(255) DEFAULT NULL;\n\n");
+/* Colonnes médias de `lots`. On n'écrit pas « ADD COLUMN IF NOT EXISTS » :
+   c'est une extension MariaDB, et la prod tourne sous MySQL, qui répond #1064.
+   Le test sur information_schema puis PREPARE passe sur les deux moteurs tout
+   en gardant l'idempotence — le dump doit rester rejouable. */
+$w("-- Colonnes médias de `lots` (test explicite : MySQL ne connaît pas ADD COLUMN IF NOT EXISTS)\n");
+foreach (['plan_architecte', 'plan_visuel', 'visite_360'] as $colonne) {
+    $w("SET @nj := (SELECT COUNT(*) FROM information_schema.COLUMNS"
+        . " WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'lots' AND COLUMN_NAME = '$colonne');\n");
+    // « DO 0 » = requête neutre : PREPARE exige une commande valide même quand il n'y a rien à faire.
+    $w("SET @nj_sql := IF(@nj = 0,"
+        . " 'ALTER TABLE `lots` ADD COLUMN `$colonne` varchar(255) DEFAULT NULL',"
+        . " 'DO 0');\n");
+    $w("PREPARE nj_stmt FROM @nj_sql;\nEXECUTE nj_stmt;\nDEALLOCATE PREPARE nj_stmt;\n\n");
+}
 
 // Table plan_zones (schéma réel, rendu idempotent)
 $createPz = $db->query('SHOW CREATE TABLE `plan_zones`')->fetch(PDO::FETCH_ASSOC)['Create Table'];
@@ -51,12 +61,23 @@ try {
 }
 
 /* ── 2. Données (ciblées) ────────────────────────────────────────────── */
-$dump = function ($table) use ($db, $w, $inList) {
+/* Colonnes calculées (surface_totale, prix_m2) : `SELECT *` les renvoie, mais
+   un INSERT qui leur donne une valeur est refusé (#3105). On les retire donc
+   de la liste — le moteur les recalcule à l'insertion. */
+$generees = function ($table) use ($db) {
+    $st = $db->prepare("SELECT COLUMN_NAME FROM information_schema.COLUMNS
+                         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?
+                           AND EXTRA LIKE '%GENERATED%'");
+    $st->execute([$table]);
+    return $st->fetchAll(PDO::FETCH_COLUMN);
+};
+
+$dump = function ($table) use ($db, $w, $inList, $generees) {
     $rows = $db->query("SELECT * FROM `$table` WHERE projet IN ($inList) ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
     $w("-- $table : " . count($rows) . " lignes pour ces projets\n");
     $w("DELETE FROM `$table` WHERE projet IN ($inList);\n");
     if ($rows) {
-        $cols = array_keys($rows[0]);
+        $cols = array_values(array_diff(array_keys($rows[0]), $generees($table)));
         $colList = '`' . implode('`, `', $cols) . '`';
         foreach (array_chunk($rows, 100) as $chunk) {
             $lignes = [];

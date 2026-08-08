@@ -77,6 +77,10 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
   gap: var(--space-lg); align-items: start;
   max-width: 1500px; margin: 0 auto; padding: var(--space-lg) var(--space-md) 7rem;
 }
+/* Un élément de grille a min-width:auto — sa piste ne peut donc pas devenir
+   plus étroite que son contenu. Un seul enfant trop large élargissait ainsi
+   toute la page. On autorise explicitement le rétrécissement. */
+.nj-shell > * { min-width: 0; }
 @media (max-width: 900px) { .nj-shell { grid-template-columns: 1fr; } }
 
 /* ── Filtres ───────────────────────────────────────────────────────── */
@@ -102,8 +106,11 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
   font-size: .78rem; font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: .03em;
 }
+/* min-width:0 est indispensable ici : un <select> réclame par défaut la
+   largeur de sa plus longue <option> (« Bayt Al Mawada — Données en cours de
+   mise à jour » faisait 403px), et width:100% seul ne l'en empêche pas. */
 .nj-champ select, .nj-champ input[type=range] {
-  width: 100%; min-height: 44px;
+  width: 100%; min-width: 0; min-height: 44px;
   font-family: inherit; font-size: .95rem; color: var(--text);
 }
 .nj-champ select {
@@ -126,7 +133,7 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 /* ── Résultats ─────────────────────────────────────────────────────── */
 .nj-resultats-tete {
   display: flex; align-items: baseline; justify-content: space-between;
-  gap: 1rem; margin-bottom: .9rem;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: .9rem;
 }
 .nj-compteur { font-size: 1.05rem; font-weight: 700; color: var(--charcoal); }
 .nj-legende { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .75rem; }
@@ -134,7 +141,9 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 .nj-legende i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 
 /* ── Bascule d'affichage ────────────────────────────────────────────── */
-.nj-vue { display: flex; align-items: center; gap: .4rem; }
+/* La bascule passe à la ligne plutôt que de déborder : sur un écran étroit,
+   « Affichage · Plan · Maquette · Liste » réclame près de 300px. */
+.nj-vue { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; min-width: 0; }
 .nj-vue-label {
   font-size: .72rem; font-weight: 700; color: var(--muted);
   text-transform: uppercase; letter-spacing: .04em;
@@ -371,11 +380,38 @@ body.nj-fige { overflow: hidden; }
   box-shadow: var(--shadow-lg); overflow: hidden;
 }
 .nj-media-tete {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  display: flex; align-items: center; gap: .6rem;
   padding: .8rem 1.1rem; border-bottom: 1px solid var(--border-subtle);
 }
+/* Le bloc de titres pousse « Fermer » à droite ; le retour reste collé à
+   gauche. « space-between » aurait au contraire dispersé les trois éléments. */
+.nj-media-titres {
+  display: flex; align-items: baseline; gap: .5rem;
+  margin-inline-end: auto; min-width: 0;
+}
+/* Le nom du projet domine : sur la carte du quartier, c'est lui le sujet —
+   la référence du lot ne sert plus qu'à rappeler d'où l'on vient. */
+.nj-media-projet {
+  font-family: var(--font-serif); font-size: 1.35rem; font-weight: 700;
+  color: var(--charcoal); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.nj-media-projet:empty { display: none; }
 .nj-media-tete h2 {
-  margin: 0; font-family: var(--font-serif); font-size: 1.15rem; color: var(--charcoal);
+  margin: 0;
+  font-family: var(--font-serif); font-size: .98rem; font-weight: 600;
+  color: var(--muted); white-space: nowrap; flex: none;
+}
+/* Le nom du projet précède la référence : c'est elle qui disparaît en premier
+   quand la barre devient étroite. */
+@media (max-width: 560px) {
+  /* Masquée à l'œil mais pas au lecteur d'écran : c'est elle que
+     aria-labelledby désigne pour nommer la fenêtre. */
+  .nj-media-tete h2 {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .nj-media-projet { font-size: 1.05rem; }
 }
 .nj-media-fermer {
   min-height: 40px; padding: .35rem 1rem;
@@ -487,16 +523,25 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-choix-vide { margin: 0; font-size: .76rem; color: var(--muted); }
 .nj-mq-choix-liste { display: flex; flex-direction: column; gap: .3rem; }
 .nj-mq-choix-item {
-  display: flex; align-items: center; justify-content: space-between; gap: .25rem;
+  display: flex; align-items: center; gap: .25rem;
   padding: .28rem .2rem .28rem .45rem; border-radius: 7px;
   background: var(--surface); border: 1px solid var(--border-subtle);
   font-size: .74rem; font-weight: 700; color: var(--text);
 }
+/* Les deux boutons restent collés à droite. « space-between » sur trois enfants
+   aurait au contraire écarté l'œil du × de la même distance que du libellé. */
+.nj-mq-choix-item .nj-mq-choix-voir { margin-inline-start: auto; }
 .nj-mq-choix-x {
   border: none; background: transparent; color: var(--muted); cursor: pointer;
   font-size: 1rem; line-height: 1; padding: 0 .25rem;
 }
 .nj-mq-choix-x:hover { color: var(--lot-vendu); }
+.nj-mq-choix-voir {
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; background: transparent; color: var(--muted); cursor: pointer;
+  padding: 0 .15rem;
+}
+.nj-mq-choix-voir:hover { color: var(--accent-solid); }
 .nj-mq-choix-envoyer {
   margin-top: .5rem; width: 100%; min-height: 38px; padding: .35rem;
   background: var(--accent-solid); border: 1px solid var(--accent-solid); border-radius: 8px;
@@ -654,6 +699,15 @@ body.nj-fige { overflow: hidden; }
   background: var(--lot-vendu-bg); font-size: 1rem; line-height: 1; color: var(--muted); cursor: pointer;
 }
 .nj-jeton-x:hover { background: var(--sun); color: var(--on-accent); }
+.nj-jeton-voir {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border: none; border-radius: 50%;
+  background: var(--surface); color: var(--muted); cursor: pointer; padding: 0;
+}
+.nj-jeton-voir:hover { background: var(--accent-solid); color: var(--on-accent); }
+/* Dimension posée ici : le SVG n'a pas de taille intrinsèque et occuperait
+   sinon toute la largeur disponible du bouton. */
+.nj-choix-voir svg { width: 15px; height: 15px; display: block; }
 .nj-suivant {
   min-height: 46px; padding: 0 1.3rem;
   background: var(--accent-solid); border: none; border-radius: 10px;
@@ -667,14 +721,22 @@ body.nj-fige { overflow: hidden; }
   font: inherit; font-weight: 700; color: var(--muted); white-space: nowrap; cursor: pointer;
 }
 .nj-vider:hover { border-color: var(--lot-vendu); color: var(--lot-vendu); }
-/* Bouton « retour à la fiche » dans la fenêtre média. */
+/* Bouton « retour à la fiche », en tête de la fenêtre média. Compact : il
+   partage la barre avec le titre du lot et le bouton Fermer. */
 .nj-media-retour {
-  display: inline-flex; align-items: center; gap: .4rem;
-  min-height: 40px; margin: 0 0 .8rem; padding: .45rem .9rem;
+  display: inline-flex; align-items: center; gap: .3rem;
+  min-height: 32px; margin: 0; padding: .25rem .6rem;
   background: var(--surface-raised); border: 1px solid var(--border-medium);
-  border-radius: 8px; font: inherit; font-weight: 700; color: var(--text); cursor: pointer;
+  border-radius: 8px; font: inherit; font-size: .82rem; font-weight: 700;
+  color: var(--text); white-space: nowrap; cursor: pointer; flex: none;
 }
+.nj-media-retour[hidden] { display: none; }
 .nj-media-retour:hover { border-color: var(--ocean); color: var(--accent-solid); }
+/* Sur mobile la barre est étroite : le libellé s'efface, la flèche suffit. */
+@media (max-width: 560px) {
+  .nj-media-retour { font-size: 0; padding: .25rem .5rem; }
+  .nj-media-retour::before { content: '←'; font-size: .95rem; }
+}
 
 @media (max-width: 700px) {
   .nj-barre { flex-wrap: wrap; }
@@ -779,10 +841,17 @@ body.nj-fige { overflow: hidden; }
      « couche supérieure » du navigateur, au-dessus de TOUT — y compris d'un
      élément en plein écran. Un simple div à z-index 10000 passait derrière le
      plan agrandi, car le plein écran ignore les z-index du reste de la page. -->
-<dialog class="nj-media-fond" id="njMedia" aria-labelledby="njMediaTitre">
+<dialog class="nj-media-fond" id="njMedia" aria-labelledby="njMediaProjet njMediaTitre">
   <div class="nj-media-boite">
     <header class="nj-media-tete">
-      <h2 id="njMediaTitre"></h2>
+      <!-- Le retour vit dans l'en-tête, pas dans le corps : placé au-dessus du
+           document, il devenait un élément flex à part entière et réservait
+           toute une colonne à gauche du plan. -->
+      <button type="button" class="nj-media-retour" id="njMediaRetour" hidden></button>
+      <div class="nj-media-titres">
+        <span class="nj-media-projet" id="njMediaProjet"></span>
+        <h2 id="njMediaTitre"></h2>
+      </div>
       <button type="button" class="nj-media-fermer" id="njMediaFermer">Fermer</button>
     </header>
     <div class="nj-media-corps" id="njMediaCorps"></div>
@@ -795,6 +864,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=15"></script>
-<script src="disponibilites.js?v=40"></script>
+<script src="disponibilites.js?v=44"></script>
 </body>
 </html>

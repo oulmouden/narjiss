@@ -63,7 +63,7 @@ body { background: var(--ivory); }
 .property-toolbar {
   width: min(1600px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 1rem 0;
+  padding: .5rem 0 .25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -188,11 +188,11 @@ body { background: var(--ivory); }
 .property-summary {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 1.4rem 0 1.5rem;
+  padding: .7rem 0 .8rem;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 1.4rem;
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
 }
 .property-summary h1 {
   margin: 0;
@@ -328,6 +328,22 @@ html[dir=rtl] .hero-title {
   font-size: 1rem;
 }
 .hero-actions { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: flex-end; }
+/* Barre d'actions au-dessus de la carte : une seule ligne compacte. Les quatre
+   boutons empilés sur deux rangs poussaient la carte hors de l'écran. */
+.property-summary .hero-actions {
+  flex-wrap: nowrap;
+  gap: .4rem;
+}
+.property-summary .hero-actions .btn-luxe {
+  min-height: 34px;
+  padding: .38rem .7rem;
+  font-size: .78rem;
+  white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .property-summary { grid-template-columns: 1fr; }
+  .property-summary .hero-actions { flex-wrap: wrap; justify-content: flex-start; }
+}
 .btn-luxe {
   display: inline-flex;
   align-items: center;
@@ -406,7 +422,7 @@ html[dir=rtl] .signature-value { font-family: 'Noto Sans Arabic', serif; }
 .section {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 2.2rem 0;
+  padding: 1rem 0;
 }
 .section-kicker {
   color: var(--bronze);
@@ -563,22 +579,26 @@ html[dir=rtl] .atelier-card h3 { font-family: 'Noto Sans Arabic', serif; line-he
   box-shadow: 0 24px 70px rgba(20,20,29,.15);
   border: 1px solid rgba(20,20,29,.08);
 }
+/* Hauteur indexée sur la fenêtre plutôt que fixée à 680px : sur un écran
+   courant, la liste des POI se retrouvait réduite à deux ou trois lignes
+   visibles. Le plafond en px évite qu'elle s'étire démesurément sur un
+   très grand moniteur. */
 .map-aside {
   background: var(--surface-2);
   color: var(--ink);
   display: grid;
   grid-template-rows: auto 1fr auto;
-  max-height: 680px;
+  max-height: min(860px, 82vh);
   overflow: hidden;
 }
 .map-intro {
-  padding: 1.35rem 1.5rem 1rem;
+  padding: .85rem 1.1rem .7rem;
   border-bottom: 1px solid rgba(17,24,39,.08);
 }
 .map-aside h3 {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(1.8rem, 2.8vw, 2.45rem);
-  line-height: 1.08;
+  font-size: clamp(1.25rem, 1.9vw, 1.6rem);
+  line-height: 1.14;
 }
 html[dir=rtl] .map-aside h3 {
   font-family: 'Noto Sans Arabic', serif;
@@ -586,8 +606,8 @@ html[dir=rtl] .map-aside h3 {
   line-height: 1.28;
 }
 .map-aside p { margin-top: 1rem; color: var(--muted); line-height: 1.75; }
-.coordinate { color: var(--gold); font-size: .82rem; margin-top: 1rem; font-weight: 800; }
-#projectMap { min-height: 680px; width: 100%; z-index: 1; }
+.coordinate { color: var(--gold); font-size: .82rem; margin-top: .5rem; font-weight: 800; }
+#projectMap { min-height: min(860px, 82vh); width: 100%; z-index: 1; }
 .map-composition.map-compact #projectMap { min-height: 380px; }
 .map-composition.map-compact .map-aside { max-height: 380px; }
 
@@ -635,14 +655,14 @@ html[dir=rtl] .map-aside h3 {
 }
 .poi-count {
   color: var(--ink);
-  font-size: .9rem;
+  font-size: .85rem;
   font-weight: 700;
-  padding: 1rem 1.2rem .7rem;
+  padding: .6rem 1rem .45rem;
 }
 .poi-count span {
   color: var(--gold);
   font-family: 'Playfair Display', serif;
-  font-size: 1.7rem;
+  font-size: 1.3rem;
   margin-right: .35rem;
 }
 html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
@@ -679,14 +699,15 @@ html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
   padding: 1rem 1.2rem;
 }
 .map-actions {
-  padding: 1rem 1.2rem 1.2rem;
+  padding: .65rem 1rem .75rem;
   border-top: 1px solid rgba(17,24,39,.08);
   display: grid;
   gap: .55rem;
 }
 .map-actions .btn-luxe {
   width: 100%;
-  min-height: 42px;
+  min-height: 38px;
+  font-size: .85rem;
 }
 .btn-whatsapp {
   display: inline-flex;
@@ -1151,10 +1172,22 @@ html[dir=rtl] .avail-num { text-align:left; }
 /* Mode embarqué (?embed=map) : la page ne montre QUE la section carte, pour
    être réutilisée telle quelle dans le parcours client (fiche d'un lot). */
 .pj-embed #mainMenu, .pj-embed #mainFooter { display: none !important; }
+/* Le body réserve 68px en haut pour le menu fixe. Le menu étant masqué ici,
+   cette réserve ne faisait qu'ajouter une bande blanche — et pousser la
+   composition en 100vh hors du cadre, d'où une barre de défilement. */
+.pj-embed body { padding: 0 !important; margin: 0 !important; }
 .pj-embed.project-shell, .pj-embed #projectApp { overflow: visible; }
 .pj-embed #projectApp { margin: 0; padding: 0; max-width: none; }
-.pj-embed #projectMapSection { margin: 0 !important; padding: 0 !important; }
-.pj-embed #projectMapSection .map-composition { height: 100vh; min-height: 0; }
+/* .section retient une largeur de calc(100% - 40px) : dans une fenêtre déjà
+   étroite, ces 40px sont autant de carte en moins. */
+.pj-embed #projectMapSection {
+  margin: 0 !important; padding: 0 !important;
+  width: 100% !important; max-width: none !important;
+}
+.pj-embed #projectMapSection .map-composition {
+  height: 100vh; min-height: 0;
+  border: 0; border-radius: 0; box-shadow: none;
+}
 .pj-embed #projectMap { height: 100vh !important; min-height: 0 !important; }
 .pj-embed .map-aside { height: 100vh; max-height: none; }
 @media (max-width: 900px) {
@@ -1177,6 +1210,6 @@ html[dir=rtl] .avail-num { text-align:left; }
 <div id="mainFooter"></div>
 <script src="shared/menu.js?v=15"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260808a"></script>
+<script src="project.js?v=20260808b"></script>
 </body>
 </html>

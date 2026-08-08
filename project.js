@@ -1936,8 +1936,6 @@
     var m = MEDIA_UI[lang];
     var panos = project.panoramas || [];
     var floor = projectFloorPlan(project);
-    var saveLabel = lang === "en" ? "Save" : lang === "es" ? "Guardar" : lang === "ar" ? "حفظ" : "Sauvegarder";
-    var shareLabel = lang === "en" ? "Share" : lang === "es" ? "Compartir" : lang === "ar" ? "مشاركة" : "Partager";
 
     var tabs = "";
     if (panos.length) tabs += '<button type="button" class="hero-tab" data-tab="p360">🌐 ' + m.tab360 + '</button>';
@@ -1958,7 +1956,6 @@
     return '<section class="hero-media">' +
       '<div class="property-toolbar">' +
         '<a href="explorer.html#' + lang + '">← ' + t.backProjects + '</a>' +
-        '<div class="property-toolbar-actions"><button type="button">♡ ' + saveLabel + '</button><button type="button">⇧ ' + shareLabel + '</button></div>' +
       '</div>' +
       '<div class="property-summary"><div><h1>' + name + '</h1><p>📍 ' + location + '</p></div><div class="hero-actions">' + topActions + '</div></div>' +
     '</section>' +
@@ -2233,11 +2230,13 @@
       '<section class="section" id="projectMapSection">' +
         '<div class="map-composition">' +
           '<aside class="map-aside">' +
-            '<div class="map-intro"><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><p>' + t.mapText + '</p><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
+            /* Ni paragraphe d'intro ni boutons « itinéraire »/« WhatsApp » ici :
+               ils sont déjà au-dessus de la carte, dans .hero-actions. Chaque
+               ligne retirée de l'encadré est autant de hauteur rendue à la
+               liste des POI, qui est le contenu utile de cette colonne. */
+            '<div class="map-intro"><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
             '<div class="poi-summary" id="poiSummary"></div>' +
             '<div class="map-actions">' +
-              '<button class="btn-luxe btn-gold projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
-              '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>' +
               '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
             '</div>' +
           '</aside>' +
@@ -2250,24 +2249,8 @@
     document.getElementById("projectApp").innerHTML =
       renderHeroMedia(project, lang, t, name, location, topActions, mapSection) +
       renderCommercialHeader(project, lang) +
-      '<section class="section">' +
-          '<div class="editorial-grid">' +
-          '<div>' +
-            '<div class="section-kicker">' + t.overviewKicker + '</div>' +
-            '<h2>' + t.overviewTitle + '</h2>' +
-            '<p class="lead-copy">' + text(project.description, lang) + '</p>' +
-          '</div>' +
-          '<div class="atelier-card">' +
-            '<div class="atelier-content">' +
-              '<h3>' + t.atelierTitle + '</h3>' +
-              '<p>' + location + '</p>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</section>' +
       renderTypologies(project, lang) +
       renderAvailability(project, lang) +
-      renderFeatures(project, lang) +
       renderSimulator(lang) +
       '<section class="section">' +
         '<div class="section-kicker">' + t.majorKicker + '</div>' +
