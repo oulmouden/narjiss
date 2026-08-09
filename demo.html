@@ -177,48 +177,62 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 #njScene:fullscreen { width: 100vw; height: 100vh; inset: 0; }
 #njScene:-webkit-full-screen { width: 100vw; height: 100vh; inset: 0; }
 #njSceneCadre { width: 100%; height: 100%; border: 0; display: block; }
-/* Rappel du projet ouvert, posé par la démo elle-même. La page interne
-   affiche déjà son titre, mais il défile avec le contenu : au bout de deux
-   minutes de présentation, plus rien à l'écran ne dit ce qu'on regarde. */
-#njSceneTitre {
+/* Barre de la démo, en BAS de la scène. Elle était en haut et recouvrait le
+   menu de la page chargée : le haut de l'écran appartient au contenu. Le nom
+   du projet et le retour y tiennent ensemble — la page interne affiche bien
+   son titre, mais il défile, et après deux minutes de présentation plus rien
+   ne dit ce qu'on regarde. */
+#njSceneBarre {
   position: fixed;
-  left: 50%; top: .9rem;
+  left: 50%; bottom: 1rem;
   z-index: 52;
   transform: translateX(-50%);
-  padding: .35rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  max-width: calc(100% - 2rem);
+  padding: .4rem .5rem .4rem 1.1rem;
   border-radius: 999px;
-  background: rgba(12,16,28,.78);
-  color: #fff;
-  font-family: var(--font-serif, 'Playfair Display'), serif;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-  box-shadow: 0 12px 30px rgba(0,0,0,.35);
-  pointer-events: none;
-  white-space: nowrap;
-  opacity: .9;
-}
-#njRetourCarte {
-  position: fixed;
-  left: 50%; bottom: 1.1rem;
-  z-index: 52;
-  transform: translateX(-50%);
-  padding: .5rem 1.1rem;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(12,16,28,.82);
-  color: #fff;
-  font-family: 'Outfit', sans-serif;
-  font-size: .85rem;
-  font-weight: 700;
+  background: rgba(12,16,28,.8);
   box-shadow: 0 14px 36px rgba(0,0,0,.42);
-  cursor: pointer;
-  opacity: .55;
+  opacity: .62;
   transition: opacity .25s ease;
 }
-/* Discret pendant la présentation, franc quand on le cherche : il ne doit pas
-   attirer l'œil au milieu d'une visite 360°. */
-#njRetourCarte:hover, #njRetourCarte:focus-visible { opacity: 1; }
+/* Discrète pendant la présentation, franche quand on la cherche : elle ne
+   doit pas attirer l'œil au milieu d'une visite 360°. */
+#njSceneBarre:hover, #njSceneBarre:focus-within { opacity: 1; }
+#njSceneTitre {
+  color: #fff;
+  font-family: var(--font-serif, 'Playfair Display'), serif;
+  font-size: .98rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#njRetourCarte {
+  flex: none;
+  padding: .35rem .9rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,.16);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+#njRetourCarte:hover { background: rgba(255,255,255,.32); }
+/* Le plein écran peut être refusé (réglage du navigateur, fenêtre non
+   focalisée) : on le dit plutôt que de laisser croire à une panne. */
+#njSceneAide {
+  color: rgba(255,255,255,.75);
+  font-family: 'Outfit', sans-serif;
+  font-size: .74rem;
+  white-space: nowrap;
+}
+#njSceneAide[hidden] { display: none; }
 
 /* ── Loupe de la pastille ───────────────────────────────────────────────── */
 .nj-nom { overflow: hidden; text-overflow: ellipsis; }
@@ -357,9 +371,16 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
      l'hôte, la démo garde le plein écran ET permet de revenir à la carte pour
      enchaîner sur un autre projet. -->
 <div id="njScene" hidden>
-  <iframe id="njSceneCadre" title="Projet" allow="fullscreen; geolocation; xr-spatial-tracking; gyroscope" allowfullscreen></iframe>
-  <div id="njSceneTitre"></div>
-  <button type="button" id="njRetourCarte"></button>
+  <!-- Pas d'attribut allowfullscreen : « allow » le remplace et Chrome
+       avertit quand les deux coexistent. -->
+  <iframe id="njSceneCadre" title="Projet" allow="fullscreen; geolocation; xr-spatial-tracking; gyroscope"></iframe>
+  <!-- Barre unique en bas : le haut appartient au menu de la page chargée,
+       et un rappel pose par-dessus le recouvrait. -->
+  <div id="njSceneBarre">
+    <span id="njSceneTitre"></span>
+    <button type="button" id="njRetourCarte"></button>
+    <span id="njSceneAide" hidden></span>
+  </div>
 </div>
 
 <p id="njAccroche">Agadir</p>
@@ -373,13 +394,17 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 
   var LANGUES = {
     fr: { accroche: 'Agadir', invite: 'Cliquez sur un projet pour commencer', passer: 'Passer ⏎',
-          zoomer: 'Zoomer sur le projet', retour: '← Retour à la carte' },
+          zoomer: 'Zoomer sur le projet', retour: '← Retour à la carte',
+          pleinEcranRefuse: 'Plein écran refusé — appuyez sur F11' },
     en: { accroche: 'Agadir', invite: 'Click a project to begin', passer: 'Skip ⏎',
-          zoomer: 'Zoom to project', retour: '← Back to map' },
+          zoomer: 'Zoom to project', retour: '← Back to map',
+          pleinEcranRefuse: 'Full screen blocked — press F11' },
     ar: { accroche: 'أكادير', invite: 'انقر على مشروع للبدء', passer: 'تخطي ⏎',
-          zoomer: 'تكبير المشروع', retour: '← العودة إلى الخريطة' },
+          zoomer: 'تكبير المشروع', retour: '← العودة إلى الخريطة',
+          pleinEcranRefuse: 'تم رفض ملء الشاشة — اضغط F11' },
     es: { accroche: 'Agadir', invite: 'Haga clic en un proyecto para empezar', passer: 'Saltar ⏎',
-          zoomer: 'Acercar al proyecto', retour: '← Volver al mapa' }
+          zoomer: 'Acercar al proyecto', retour: '← Volver al mapa',
+          pleinEcranRefuse: 'Pantalla completa denegada — pulse F11' }
   };
 
   // Le projet mis en avant : c'est le seul dont tous les médias immersifs
@@ -684,14 +709,23 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
        navigateur n'accorde le plein écran que pendant le bref instant qui
        suit un geste utilisateur ; toute opération intercalée risque de
        consommer cette autorisation. */
+    var aide = $('njSceneAide');
+    aide.hidden = true;
+    var refus = function () {
+      // Un refus n'est pas bloquant : la scène couvre déjà toute la fenêtre.
+      // Seules les barres du navigateur subsistent, et F11 les enlève.
+      aide.textContent = t('pleinEcranRefuse');
+      aide.hidden = false;
+    };
     var demande = scene.requestFullscreen || scene.webkitRequestFullscreen;
-    if (demande) {
+    if (!demande) { refus(); }
+    else {
       try {
         var promesse = demande.call(scene);
-        // Une demande refusée rejette une promesse : sans ce catch, la console
-        // se remplit d'erreurs non interceptées à chaque ouverture.
-        if (promesse && promesse.catch) promesse.catch(function () {});
-      } catch (e) {}
+        // Une demande refusée rejette une promesse : sans interception, la
+        // console se remplit d'erreurs à chaque ouverture.
+        if (promesse && promesse.catch) promesse.catch(refus);
+      } catch (e) { refus(); }
     }
 
     /* &v= : project.html n'a pas de marqueur de version dans son URL. Sans
