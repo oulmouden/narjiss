@@ -478,11 +478,18 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
         title: nom
       }).addTo(carte);
 
+      /* Écouteur natif posé sur l'élément, et non m.on('click') : le plein
+         écran n'est accordé qu'à l'intérieur d'un geste utilisateur, et le
+         passage par le système d'événements de Leaflet fait perdre cette
+         « activation » — le navigateur ouvrait alors la scène en fenêtré.
+         disableClickPropagation empêche par ailleurs la carte de réagir. */
       (function (id, m, libelle) {
-        m.on('click', function (e) {
-          // La loupe cadre, elle ne navigue pas.
-          if (e.originalEvent && e.originalEvent.target.closest('.nj-loupe')) {
-            L.DomEvent.stop(e);
+        var conteneur = m.getElement();
+        if (!conteneur) return;
+        L.DomEvent.disableClickPropagation(conteneur);
+        conteneur.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          if (ev.target.closest('.nj-loupe')) {
             carte.flyTo(m.getLatLng(), ZOOM_RAPPROCHE, { duration: 1.8 });
             return;
           }
@@ -666,19 +673,32 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
    */
   function ouvrirProjet(id, nom) {
     var scene = $('njScene');
+
+    /* L'élément doit être affiché AVANT la demande : un élément masqué ne
+       peut pas passer en plein écran. */
+    $('njSceneTitre').textContent = nom || '';
+    scene.hidden = false;
+    $('njRetourCarte').textContent = t('retour');
+
+    /* Puis la demande, immédiatement — avant de charger le cadre. Le
+       navigateur n'accorde le plein écran que pendant le bref instant qui
+       suit un geste utilisateur ; toute opération intercalée risque de
+       consommer cette autorisation. */
+    var demande = scene.requestFullscreen || scene.webkitRequestFullscreen;
+    if (demande) {
+      try {
+        var promesse = demande.call(scene);
+        // Une demande refusée rejette une promesse : sans ce catch, la console
+        // se remplit d'erreurs non interceptées à chaque ouverture.
+        if (promesse && promesse.catch) promesse.catch(function () {});
+      } catch (e) {}
+    }
+
     /* &v= : project.html n'a pas de marqueur de version dans son URL. Sans
        lui, le cadre resservirait indéfiniment la copie en cache du
        navigateur, y compris après un déploiement. */
     $('njSceneCadre').src = 'project.html?id=' + encodeURIComponent(id) +
       '&v=' + VERSION + '#' + langue;
-    $('njSceneTitre').textContent = nom || '';
-    scene.hidden = false;
-    $('njRetourCarte').textContent = t('retour');
-
-    // Le clic sur la pastille fait office de geste utilisateur : c'est la
-    // seule fenêtre où le navigateur accepte une demande de plein écran.
-    var demande = scene.requestFullscreen || scene.webkitRequestFullscreen;
-    if (demande) { try { demande.call(scene); } catch (e) {} }
   }
 
   function fermerScene() {
