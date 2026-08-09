@@ -415,18 +415,26 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     fr: { accroche: 'Agadir', invite: 'Cliquez sur un projet pour commencer', passer: 'Passer ⏎',
           zoomer: 'Zoomer sur le projet', retour: '← Retour à la carte',
           dispos: 'Disponibilités →',
+          retourProjet: '← Retour au projet', voirChoix: 'Voir mes choix →',
+          retourLots: '← Retour aux logements',
           pleinEcranRefuse: 'Plein écran refusé — appuyez sur F11' },
     en: { accroche: 'Agadir', invite: 'Click a project to begin', passer: 'Skip ⏎',
           zoomer: 'Zoom to project', retour: '← Back to map',
           dispos: 'Availability →',
+          retourProjet: '← Back to project', voirChoix: 'View my selection →',
+          retourLots: '← Back to the units',
           pleinEcranRefuse: 'Full screen blocked — press F11' },
     ar: { accroche: 'أكادير', invite: 'انقر على مشروع للبدء', passer: 'تخطي ⏎',
           zoomer: 'تكبير المشروع', retour: '← العودة إلى الخريطة',
           dispos: 'العروض →',
+          retourProjet: '← العودة إلى المشروع', voirChoix: 'عرض اختياراتي →',
+          retourLots: '← العودة إلى المساكن',
           pleinEcranRefuse: 'تم رفض ملء الشاشة — اضغط F11' },
     es: { accroche: 'Agadir', invite: 'Haga clic en un proyecto para empezar', passer: 'Saltar ⏎',
           zoomer: 'Acercar al proyecto', retour: '← Volver al mapa',
           dispos: 'Disponibilidad →',
+          retourProjet: '← Volver al proyecto', voirChoix: 'Ver mi selección →',
+          retourLots: '← Volver a las viviendas',
           pleinEcranRefuse: 'Pantalla completa denegada — pulse F11' }
   };
 
@@ -451,6 +459,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
   var projetOuvert = null;   // projet affiché dans la scène
+  var etapeScene = 'projet'; // 'projet' | 'dispos' | 'choix' — pilote la barre
 
   function t(cle) { return (LANGUES[langue] || LANGUES.fr)[cle]; }
   function $(id) { return document.getElementById(id); }
@@ -749,11 +758,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
        peut pas passer en plein écran. */
     $('njSceneTitre').textContent = nom || '';
     scene.hidden = false;
-    $('njRetourCarte').textContent = t('retour');
-    // Le projet ouvert est retenu : le bouton « Disponibilités » doit savoir
-    // sur quelle grille de lots brancher la suite de la démonstration.
+    // Le projet ouvert est retenu : les étapes suivantes (disponibilités,
+    // mes choix) doivent savoir sur quel projet brancher la démonstration.
     projetOuvert = id;
-    $('njVersDispos').textContent = t('dispos');
 
     /* Puis la demande, immédiatement — avant de charger le cadre. Le
        navigateur n'accorde le plein écran que pendant le bref instant qui
@@ -778,16 +785,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       } catch (e) { refus(); }
     }
 
-    /* localisation.html en mode « embed » plutôt que project.html : la
-       démonstration montre le projet DANS SON ENVIRONNEMENT — carte, POI du
-       quartier, repères — et non sa fiche commerciale. Cette page est déjà
-       conçue sans menu ni pied de page, donc pleine par construction : elle
-       occupe tout le cadre même quand le navigateur refuse le plein écran.
-
-       &v= : la page n'a pas de marqueur de version dans son URL. Sans lui,
-       le cadre resservirait la copie en cache, y compris après déploiement. */
-    $('njSceneCadre').src = 'localisation.html?projet=' + encodeURIComponent(id) +
-      '&embed=1&v=' + VERSION + '#' + langue;
+    chargerEtape('projet');
   }
 
   function fermerScene() {
@@ -796,6 +794,42 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     // Vider la source libère la page : sans ça une visite 360° continuerait
     // de tourner derrière la carte.
     $('njSceneCadre').removeAttribute('src');
+  }
+
+  /**
+   * La barre de la scène suit l'étape affichée : ses deux boutons reculent
+   * d'un cran et avancent d'un cran, plutôt que de répéter « Retour à la
+   * carte / Disponibilités » quelle que soit la page — incohérent dès la
+   * grille de lots ouverte. Au bout du parcours (« mes choix »), il n'y a
+   * plus rien vers quoi avancer : le bouton d'action s'efface.
+   */
+  function majBarreScene() {
+    var retours = { projet: 'retour', dispos: 'retourProjet', choix: 'retourLots' };
+    var actions = { projet: 'dispos', dispos: 'voirChoix' };
+    $('njRetourCarte').textContent = t(retours[etapeScene] || 'retour');
+    var action = actions[etapeScene];
+    $('njVersDispos').hidden = !action;
+    if (action) $('njVersDispos').textContent = t(action);
+  }
+
+  /**
+   * Charge une étape du parcours dans le cadre de la scène.
+   *
+   * « projet » ouvre localisation.html plutôt que project.html : la
+   * démonstration montre le projet DANS SON ENVIRONNEMENT — carte, POI du
+   * quartier, repères — et non sa fiche commerciale. Ces pages sont servies
+   * en mode « embed » : sans menu ni pied de page, pleines par construction.
+   *
+   * &v= : ces pages n'ont pas de marqueur de version dans leur URL. Sans lui,
+   * le cadre resservirait la copie en cache, y compris après déploiement.
+   */
+  function chargerEtape(etape) {
+    if (!projetOuvert) return;
+    etapeScene = etape;
+    majBarreScene();
+    var pages = { projet: 'localisation.html', dispos: 'disponibilites.html', choix: 'ma-selection.html' };
+    $('njSceneCadre').src = pages[etape] + '?projet=' + encodeURIComponent(projetOuvert) +
+      '&embed=1&v=' + VERSION + '#' + langue;
   }
 
   function sceneOuverte() { return !$('njScene').hidden; }
@@ -836,7 +870,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   window.njDemo = {
     rejouer: function () { reinitialiser(); jouer(); },
     finir: function () { etatFinal(); },
-    carte: function () { return carte; }
+    carte: function () { return carte; },
+    ouvrir: function (id, nom) { ouvrirProjet(id, nom); },
+    etape: function (e) { chargerEtape(e); }
   };
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -845,21 +881,31 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     // « Passer » et Échap/Entrée/Espace : indispensables quand on répète la
     // démonstration vingt fois, ou qu'un client arrive en avance.
     $('njPasser').addEventListener('click', etatFinal);
-    $('njRetourCarte').addEventListener('click', fermerScene);
-    /* Suite du parcours : on reste dans la scène, donc en plein écran s'il a
-       été accordé. Naviguer aurait tout fait retomber. */
+    /* Les deux boutons de la barre reculent et avancent d'UN cran dans le
+       parcours (carte ← projet ← dispos ← choix). On reste dans la scène,
+       donc en plein écran s'il a été accordé : naviguer aurait tout fait
+       retomber. */
+    $('njRetourCarte').addEventListener('click', function () {
+      if (etapeScene === 'dispos') { chargerEtape('projet'); return; }
+      if (etapeScene === 'choix')  { chargerEtape('dispos'); return; }
+      fermerScene();
+    });
     $('njVersDispos').addEventListener('click', function () {
-      if (!projetOuvert) return;
-      $('njSceneCadre').src = 'disponibilites.html?projet=' + encodeURIComponent(projetOuvert) +
-        '&embed=1&v=' + VERSION + '#' + langue;
+      chargerEtape(etapeScene === 'dispos' ? 'choix' : 'dispos');
     });
 
     /* Certaines pages portent leur propre barre en bas : on relève la nôtre
        pour ne pas la recouvrir. Le test se fait au chargement du cadre, la
-       page n'étant pas connue à l'avance. */
+       page n'étant pas connue à l'avance. On vérifie que la barre est
+       réellement AFFICHÉE : en mode scène, les disponibilités la masquent
+       (les choix vivent dans le panneau de gauche). */
     $('njSceneCadre').addEventListener('load', function () {
       var propre = false;
-      try { propre = !!$('njSceneCadre').contentDocument.querySelector('.nj-barre'); } catch (e) {}
+      try {
+        var doc = $('njSceneCadre').contentDocument;
+        var barre = doc.querySelector('.nj-barre');
+        propre = !!(barre && doc.defaultView.getComputedStyle(barre).display !== 'none');
+      } catch (e) {}
       $('njSceneBarre').classList.toggle('nj-barre-haute', propre);
     });
     document.addEventListener('keydown', function (e) {

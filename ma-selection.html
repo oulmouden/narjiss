@@ -181,7 +181,25 @@
   background: var(--lot-dispo-bg); color: var(--lot-dispo);
   font-size: .7rem; font-weight: 800; text-transform: uppercase;
 }
+
+/* ── Mode « embarqué » (?embed) ────────────────────────────────────────────
+   Ouvert dans la scène de la démonstration, après les disponibilités : on ne
+   garde que le comparatif et le formulaire. Le menu, le titre et le pied de
+   page appartiennent au site, pas à la projection. Même patron que
+   disponibilites.html. */
+.nj-embed #mainMenu,
+.nj-embed .nj-hero,
+.nj-embed #mainFooter { display: none !important; }
+.nj-embed body { padding: 0 !important; margin: 0 !important; }
+.nj-embed .nj-shell { padding-top: 1.2rem; }
 </style>
+<script>
+  /* Posé avant le rendu pour éviter tout clignotement du menu en mode scène. */
+  (function () {
+    try { if (new URLSearchParams(location.search).has('embed'))
+      document.documentElement.classList.add('nj-embed'); } catch (e) {}
+  })();
+</script>
 </head>
 <body>
 
