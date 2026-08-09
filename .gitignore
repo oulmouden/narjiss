@@ -8,6 +8,7 @@ venv/
 
 # Archives et fichiers générés
 *.zip
+*.7z
 *.log
 *.tmp
 *.bak

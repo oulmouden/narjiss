@@ -9,7 +9,6 @@ HotspotPanoramaOverlayArea_A4669C17_BCF2_F56C_4178_5410681CC2AE.toolTip = Vers c
 HotspotPanoramaOverlayArea_A5C1F8D3_BCFE_5EE4_41E6_BA0ADB8CDD91.toolTip = Vers la cuisine
 HotspotPanoramaOverlayArea_A6A7D5E4_BCD1_B6AC_41DB_900FE3D80FD8.toolTip = Vers la ve réelle
 HotspotPanoramaOverlayArea_A5F06244_BCF1_ADEC_41DF_72D6C5A1E94D.toolTip = Vers le salon
-HotspotPanoramaOverlayArea_A6C734ED_BCEE_D6BC_41E2_FEF432390280.toolTip = vers le couloir extérieur
 HotspotPanoramaOverlayArea_A6033A4F_BCF3_BDFC_41E1_9CFEAB4850E1.toolTip = vers le couloir extérieur
 
 ## Media
@@ -17,10 +16,10 @@ HotspotPanoramaOverlayArea_A6033A4F_BCF3_BDFC_41E1_9CFEAB4850E1.toolTip = vers l
 ### Floorplan
 
 ### Image
-imlevel_9B29682B_BC31_DDA4_41CF_F6770C172650.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_0.webp
-imlevel_9B29982B_BC31_DDA4_41E2_0F0A259CD457.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_1.webp
-imlevel_9B29882B_BC31_DDA4_41E2_A268856789E2.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_2.webp
-imlevel_9B29B82B_BC31_DDA4_41A3_77879190E36E.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_3.webp
+imlevel_F0F7DC6A_E813_9164_41E7_772E02CAA200.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_0.webp
+imlevel_F0F7DC6A_E813_9164_41EB_E70492D4A2D3.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_1.webp
+imlevel_F0F7EC6A_E813_9164_41E2_E2E6A34598FA.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_2.webp
+imlevel_F0F71C6A_E813_9164_41B0_D71D0CE1961D.url = media/map_AC9F1D02_B472_D764_41DC_E68869294782_fr_3.webp
 
 ### Subtitle
 panorama_ADD719FA_B42E_5EA7_41CF_D147AB6A037B.subtitle = Image actuelle
@@ -52,34 +51,47 @@ panorama_ADD7ECCE_B42E_56FC_41D4_5C2624427F2E.label = chambre enfants-virtuelle
 panorama_ADD7E00A_B42E_AD64_41C1_F0C2ADA23274.label = chambre parentale
 panorama_ADD72339_B42E_B3A4_41D5_20B72B17A2BE.label = chambre parentale virtuelle
 map_AC9F1D02_B472_D764_41DC_E68869294782.label = plan3_jawhara
+video_FE651163_E8EE_909C_41E0_C6939439FABA.label = rachid-bureau-jawhara
+video_FEAF5CC5_E817_91A7_41EC_3307BDF66A1B.label = rachid-jawhara
+video_FDA70C93_E815_91A1_41D5_922D37F262E2.label = rachid-jawhara
+video_FDF3EC49_E81E_F0AE_41C9_4B6BE6E1A91A.label = rachid-jawhara
+video_FC39C8BF_E812_91E4_41E2_BA2F76C9F3DC.label = rachid-jawhara3
+video_FC68FE79_E82E_9160_41E6_905000DAD5B5.label = rachid-jawhara3
+
+### Video
+videolevel_FDFF0F7C_E81D_8F66_41BA_FEAB84F33432.url = media/video_FC39C8BF_E812_91E4_41E2_BA2F76C9F3DC_fr.mp4
+videolevel_FDFF0F7C_E81D_8F66_41BA_FEAB84F33432.posterURL = media/video_FC39C8BF_E812_91E4_41E2_BA2F76C9F3DC_poster_fr.jpg
+videolevel_FE865D60_E832_B360_41EC_1ED389090384.url = media/video_FC68FE79_E82E_9160_41E6_905000DAD5B5_fr.mp4
+videolevel_FE865D60_E832_B360_41EC_1ED389090384.posterURL = media/video_FC68FE79_E82E_9160_41E6_905000DAD5B5_poster_fr.jpg
+videolevel_FE81BC77_E832_B160_41EC_E78F96A9BCB2.url = media/video_FDA70C93_E815_91A1_41D5_922D37F262E2_fr.mp4
+videolevel_FE81BC77_E832_B160_41EC_E78F96A9BCB2.posterURL = media/video_FDA70C93_E815_91A1_41D5_922D37F262E2_poster_fr.jpg
+videolevel_FDDF11FD_E812_9361_4186_7910ACE7E93C.url = media/video_FDF3EC49_E81E_F0AE_41C9_4B6BE6E1A91A_fr.mp4
+videolevel_FDDF11FD_E812_9361_4186_7910ACE7E93C.posterURL = media/video_FDF3EC49_E81E_F0AE_41C9_4B6BE6E1A91A_poster_fr.jpg
+videolevel_FDEACE80_E81D_919D_41A5_E167352AF4FC.url = media/video_FE651163_E8EE_909C_41E0_C6939439FABA_fr.mp4
+videolevel_FDEACE80_E81D_919D_41A5_E167352AF4FC.posterURL = media/video_FE651163_E8EE_909C_41E0_C6939439FABA_poster_fr.jpg
+videolevel_FDF90093_E81D_B1A2_41DD_902757548F93.url = media/video_FEAF5CC5_E817_91A7_41EC_3307BDF66A1B_fr.mp4
+videolevel_FDF90093_E81D_B1A2_41DD_902757548F93.posterURL = media/video_FEAF5CC5_E817_91A7_41EC_3307BDF66A1B_poster_fr.jpg
+
+### Video Subtitles
 
 ## Skin
 
 ### Button
-Button_9E60A789_BF74_CC54_4195_FDD694FEA581_mobile.label = Amenities
-Button_9E60A789_BF74_CC54_4195_FDD694FEA581.pressedLabel = Amenities
 Button_9E60A789_BF74_CC54_4195_FDD694FEA581_mobile.pressedLabel = Amenities
-Button_9E60A789_BF74_CC54_4195_FDD694FEA581.label = Amenities
-Button_F01877F7_C7BF_4BBD_41BB_741602CF73DC.label = BACK
+Button_9E60A789_BF74_CC54_4195_FDD694FEA581_mobile.label = Amenities
 Button_F01877F7_C7BF_4BBD_41BB_741602CF73DC_mobile.label = BACK
 Button_9E61C78C_BF74_CC6C_41D5_5413C0B6EFC7_mobile.label = Exterior Area
-Button_9E61C78C_BF74_CC6C_41D5_5413C0B6EFC7.label = Exterior Area
 Button_9E61578A_BF74_CC54_41D0_C54E5933CA42_mobile.label = Extra Rooms
-Button_9E61578A_BF74_CC54_41D0_C54E5933CA42.label = Extra Rooms
 Button_9E61D78D_BF74_CC6C_41CD_0C36B72D93B2_mobile.label = Others
-Button_9E61D78D_BF74_CC6C_41CD_0C36B72D93B2.label = Others
-Button_7DBCA382_7065_343F_41DB_48D975E3D9EC.label = PANORAMA LIST
 Button_7DBCA382_7065_343F_41DB_48D975E3D9EC_mobile.label = PANORAMA LIST
-Button_9E674786_BF74_CC5C_41BB_6474239E3CB2_mobile.pressedLabel = Reception
 Button_9E674786_BF74_CC5C_41BB_6474239E3CB2_mobile.label = Reception
-Button_9E67E788_BF74_CC54_41D0_56F2C1A46A69.label = Rooms
+Button_9E674786_BF74_CC5C_41BB_6474239E3CB2_mobile.pressedLabel = Reception
 Button_9E67E788_BF74_CC54_41D0_56F2C1A46A69_mobile.label = Rooms
 
 ### Multiline Text
-HTMLText_DC319146_C473_208B_41B4_BDAD25BF866B.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:1.97vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="font-size:1.97vmin;font-family:'Montserrat Black';">{{subtitle}}</SPAN></SPAN></DIV></div>
+HTMLText_DC319146_C473_208B_41B4_BDAD25BF866B.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:1.9699999999999998vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="font-size:1.97vmin;font-family:'Montserrat Black';">{{subtitle}}</SPAN></SPAN></DIV></div>
 HTMLText_DA3037D7_C45D_24A9_41C6_11069F8D7AF4.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:2.62vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="font-size:2.62vmin;font-family:'Montserrat Black';">{{subtitle}}</SPAN></SPAN></DIV></div>
 HTMLText_DA3037D7_C45D_24A9_41C6_11069F8D7AF4_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:3.61vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="font-size:3.61vmin;font-family:'Montserrat Black';">{{subtitle}}</SPAN></SPAN></DIV></div>
-HTMLText_7DB2E382_7065_343F_41C2_951F708170F1.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:14px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:14px;font-family:'Montserrat';">COMPANY NAME</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:12px;font-family:'Montserrat';">www.loremipsum.com</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:12px;font-family:'Montserrat';">info@loremipsum.com</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:12px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:12px;font-family:'Montserrat';">Tlf.: +11 111 111 111</SPAN></SPAN></DIV></div>
 HTMLText_7DB2E382_7065_343F_41C2_951F708170F1_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-align:left;font-size:24px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:24px;font-family:'Montserrat';">COMPANY NAME</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:20px;font-family:'Montserrat';">www.loremipsum.com</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:20px;font-family:'Montserrat';">info@loremipsum.com</SPAN></SPAN></DIV><DIV STYLE="text-align:left;font-size:20px;"><SPAN STYLE="display:inline-block; letter-spacing:0px; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:20px;font-family:'Montserrat';">Tlf.: +11 111 111 111</SPAN></SPAN></DIV></div>
 HTMLText_D9F0B796_C45D_64AB_41C2_9F9C8C6BB833_mobile.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-shadow:0px 0px 9px rgba(0,0,0,1);text-align:left;font-size:10.28vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:10.28vmin;font-family:'Montserrat';">{{title}}</SPAN></SPAN></DIV></div>
 HTMLText_DC317147_C473_2089_41E1_A2A60EF4B565.html = <div style="text-align:left; color:#000; "><DIV STYLE="text-shadow:0px 0px 9px rgba(0,0,0,1);text-align:left;font-size:4.37vmin;"><SPAN STYLE="display:inline-block; letter-spacing:0vmin; white-space:pre-wrap;color:#000000;font-family:Arial, Helvetica, sans-serif;"><SPAN STYLE="color:#ffffff;font-size:4.37vmin;font-family:'Montserrat';">{{title}}</SPAN></SPAN></DIV></div>
