@@ -4,6 +4,8 @@
       loadingTitle: "Projet introuvable",
       loadingText: "Ce projet n'existe pas encore dans la collection Narjiss.",
       backProjects: "Retour aux projets",
+      fullscreen: "Plein écran", exitFullscreen: "Quitter le plein écran",
+      illustration: "Image d’illustration",
       eyebrowLive: "Collection privee - Disponible",
       eyebrowSoon: "Collection privee - Avant-premiere",
       heroCopyLive: "Une experience immobiliere composee comme un dossier d'agence premium: contexte, reperes, visite et acces direct a l'exploration detaillee.",
@@ -72,6 +74,8 @@
       loadingTitle: "Project not found",
       loadingText: "This project is not yet part of the Narjiss collection.",
       backProjects: "Back to projects",
+      fullscreen: "Full screen", exitFullscreen: "Exit full screen",
+      illustration: "Illustrative image",
       eyebrowLive: "Private collection - Available",
       eyebrowSoon: "Private collection - Preview",
       heroCopyLive: "A real estate experience composed like a premium agency dossier: context, landmarks, tour and direct access to detailed exploration.",
@@ -140,6 +144,8 @@
       loadingTitle: "المشروع غير موجود",
       loadingText: "هذا المشروع غير مضاف بعد إلى مجموعة نرجس.",
       backProjects: "العودة إلى المشاريع",
+      fullscreen: "ملء الشاشة", exitFullscreen: "إنهاء ملء الشاشة",
+      illustration: "صورة توضيحية",
       eyebrowLive: "مجموعة خاصة - متاح",
       eyebrowSoon: "مجموعة خاصة - قريبا",
       heroCopyLive: "تجربة عقارية مصممة كملف وكالة راقية: سياق، معالم، زيارة ورابط مباشر للاستكشاف المفصل.",
@@ -208,6 +214,8 @@
       loadingTitle: "Proyecto no encontrado",
       loadingText: "Este proyecto todavia no forma parte de la coleccion Narjiss.",
       backProjects: "Volver a proyectos",
+      fullscreen: "Pantalla completa", exitFullscreen: "Salir de pantalla completa",
+      illustration: "Imagen ilustrativa",
       eyebrowLive: "Coleccion privada - Disponible",
       eyebrowSoon: "Coleccion privada - Avance",
       heroCopyLive: "Una experiencia inmobiliaria compuesta como un dossier de agencia premium: contexto, referencias, visita y acceso directo a la exploracion detallada.",
@@ -444,17 +452,84 @@
     return gallery[index] || fallbacks[index] || gallery[0] || imgs.hero || imgs.logo || "";
   }
 
+  /* .jpg et non .png : l'optimisation média a converti tous les plans, les
+     .png d'origine ne subsistent que dans images/projects/_originaux/. Le
+     chemin n'est pas déclaré dans projects.json, il est déduit — la faute
+     d'extension cassait donc le plan des treize projets d'un coup. */
   function projectFloorPlan(project) {
     var imagePath = project.images && (project.images.triptych || project.images.logo);
     if (imagePath && imagePath.indexOf("/") >= 0) {
-      return imagePath.slice(0, imagePath.lastIndexOf("/") + 1) + "floorplan.png";
+      return imagePath.slice(0, imagePath.lastIndexOf("/") + 1) + "floorplan.jpg";
     }
-    return "images/projects/" + (project.folder || project.id) + "/floorplan.png";
+    return "images/projects/" + (project.folder || project.id) + "/floorplan.jpg";
   }
 
   function projectMassPlanPdf(project) {
     var floorPlan = projectFloorPlan(project);
     return floorPlan.slice(0, floorPlan.lastIndexOf("/") + 1) + "PLAN DE MASSE.pdf";
+  }
+
+  /* ─── Repli sur le projet générique ────────────────────────────────────────
+     Tous les projets n'ont pas encore leur reportage photo. Plutôt qu'un cadre
+     brisé, on ressert le fichier de même nom depuis images/projects/
+     projet-generique/, garni du contenu de Jawhara.
+
+     Le repli se déclenche à l'erreur de chargement, pas avant : le navigateur
+     ne sait pas lister un dossier, et sonder chaque image par une requête
+     préalable doublerait les allers-retours réseau pour rien. */
+
+  var DOSSIER_GENERIQUE = "images/projects/projet-generique/";
+
+  /**
+   * Traduit un chemin d'image de projet vers son équivalent générique.
+   * Renvoie "" quand il n'y a rien à tenter : chemin hors images/projects/,
+   * ou déjà générique — sans quoi un fichier manquant des DEUX côtés
+   * relancerait le même chargement à l'infini.
+   */
+  function cheminGenerique(url) {
+    if (!url) return "";
+    var propre = url.split("?")[0];
+    if (propre.indexOf("images/projects/") < 0) return "";
+    if (propre.indexOf(DOSSIER_GENERIQUE) >= 0) return "";
+    return DOSSIER_GENERIQUE + propre.slice(propre.lastIndexOf("/") + 1);
+  }
+
+  /**
+   * Un seul écouteur pour toute la page, en phase de capture : les événements
+   * « error » d'une image ne remontent pas, mais ils descendent. On attrape
+   * donc aussi les <img> insérées après coup, sans avoir à câbler chaque
+   * point de rendu.
+   */
+  document.addEventListener("error", function (e) {
+    var el = e.target;
+    if (!el || el.tagName !== "IMG" || el.dataset.repliTente) return;
+    var repli = cheminGenerique(el.getAttribute("src") || "");
+    if (!repli) return;
+    el.dataset.repliTente = "1";
+    // Stoppe l'événement : sans ça, le gestionnaire propre à l'image
+    // conclurait à l'absence de média alors qu'on vient de trouver un repli.
+    e.stopPropagation();
+    // Le bandeau n'est posé qu'une fois le repli EFFECTIVEMENT chargé : si le
+    // générique manque lui aussi, autant ne rien annoncer.
+    el.addEventListener("load", function () { marquerRepli(el); }, { once: true });
+    el.src = repli;
+  }, true);
+
+  /**
+   * Signale une image d'illustration empruntée au projet générique.
+   *
+   * Un <img> est un élément remplacé : il n'accepte ni ::before ni ::after. Le
+   * bandeau est donc porté par le parent, à qui l'on confie le libellé traduit.
+   */
+  function marquerRepli(el) {
+    var hote = el.parentElement;
+    if (!hote || hote.classList.contains("media-generique")) return;
+    var t = PAGE_UI[getLangFromHash()] || PAGE_UI.fr;
+    hote.classList.add("media-generique");
+    hote.setAttribute("data-illustration", t.illustration);
+    // Doublé dans le texte alternatif : le bandeau est purement visuel, un
+    // lecteur d'écran ne le rencontrerait jamais.
+    el.alt = (el.alt ? el.alt + " — " : "") + t.illustration;
   }
 
   /* ─── Vidéos du projet ─────────────────────────────────────────────────────
@@ -1259,7 +1334,42 @@
     });
   }
 
+  /**
+   * Bascule le plein écran de la section carte.
+   *
+   * Même cible que le contrôle ⛶ de la barre Leaflet : c'est la SECTION qu'on
+   * agrandit, pas le seul #projectMap, pour emporter la colonne des POI avec
+   * elle — une carte plein écran sans sa liste de commodités perdrait la
+   * moitié de son intérêt.
+   */
+  function toggleMapFullscreen() {
+    var target = document.getElementById("projectMapSection") || document.getElementById("projectMap");
+    if (!target) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (target.requestFullscreen) target.requestFullscreen();
+    else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+    window.setTimeout(function() { if (mapInstance) mapInstance.invalidateSize(); }, 250);
+  }
+
+  /** Accorde les libellés « plein écran » à l'état réel du navigateur. */
+  function refreshFullscreenLabels(lang) {
+    var t = PAGE_UI[lang] || PAGE_UI.fr;
+    var plein = !!document.fullscreenElement;
+    var btns = document.querySelectorAll(".projectMapFullscreen");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].textContent = (plein ? "✕ " + t.exitFullscreen : "⛶ " + t.fullscreen);
+    }
+  }
+
   function setupRouteButtons(project, lang) {
+    var fullBtns = document.querySelectorAll(".projectMapFullscreen");
+    for (var f = 0; f < fullBtns.length; f++) {
+      fullBtns[f].addEventListener("click", toggleMapFullscreen);
+    }
+    document.addEventListener("fullscreenchange", function() {
+      refreshFullscreenLabels(lang);
+    });
+
     var routeBtns = document.querySelectorAll(".projectCurrentRoute");
     for (var i = 0; i < routeBtns.length; i++) {
       routeBtns[i].addEventListener("click", function() {
@@ -1953,10 +2063,9 @@
       thumbs += '<button type="button" class="hero-thumb" data-index="' + i + '"><img src="' + panos[i].src + '" alt="' + room + '" loading="lazy"><span>' + room + '</span></button>';
     }
 
+    /* Plus de .property-toolbar : le retour aux projets a rejoint la barre
+       d'actions, cette ligne ne portait plus rien d'autre. */
     return '<section class="hero-media">' +
-      '<div class="property-toolbar">' +
-        '<a href="explorer.html#' + lang + '">← ' + t.backProjects + '</a>' +
-      '</div>' +
       '<div class="property-summary"><div><h1>' + name + '</h1><p>📍 ' + location + '</p></div><div class="hero-actions">' + topActions + '</div></div>' +
     '</section>' +
     (encart || "") +
@@ -2125,6 +2234,18 @@
       var el = document.getElementById("heroVideo");
       if (el) {
         el.addEventListener("error", function() {
+          /* Fichier declare mais absent du serveur : on tente d'abord le film
+             institutionnel, deja servi aux projets sans tournage. Le message
+             ne s'affiche que si celui-la manque aussi. */
+          var generique = VIDEO_GENERIQUE[0] && VIDEO_GENERIQUE[0].src;
+          if (generique && !el.dataset.repliTente && el.getAttribute("src") !== generique) {
+            el.dataset.repliTente = "1";
+            el.setAttribute("src", generique);
+            el.load();
+            demarrerVideo(el);
+            marquerRepli(el);   // meme bandeau que pour les images
+            return;
+          }
           var note = document.createElement("div");
           note.className = "hero-note hero-video-note";
           note.textContent = m.videoSoon;
@@ -2190,8 +2311,12 @@
        ne pas laisser un onglet qui ne mène nulle part. */
     var ongletPlan = document.querySelector('.hero-tab[data-tab="plan"]');
     if (ongletPlan) {
+      // La sonde n'est pas dans le DOM : l'écouteur global ne la voit pas,
+      // elle tente donc le repli générique elle-même avant de conclure.
       var sonde = new Image();
+      var repliSonde = cheminGenerique(projectFloorPlan(project));
       sonde.onerror = function() {
+        if (repliSonde) { var r = repliSonde; repliSonde = ""; sonde.src = r; return; }
         if (ongletPlan.parentNode) ongletPlan.parentNode.removeChild(ongletPlan);
       };
       sonde.src = projectFloorPlan(project);
@@ -2218,10 +2343,15 @@
     var name = text(project.name, lang);
     var location = text(project.location, lang);
     var gradient = gradients[PROJECTS.indexOf(project) % gradients.length];
-    var topActions = '<a class="btn-luxe btn-gold" href="contact.html#' + lang + '">' + t.contactAdvisor + '</a>' +
+    /* Une seule barre au-dessus de la carte : le retour aux projets occupait
+       auparavant sa propre ligne, pour un unique lien. Il ouvre désormais la
+       série, là où le regard le cherche de toute façon en premier. */
+    var topActions = '<a class="btn-luxe btn-glass" href="explorer.html#' + lang + '">← ' + t.backProjects + '</a>' +
+      '<a class="btn-luxe btn-gold" href="contact.html#' + lang + '">' + t.contactAdvisor + '</a>' +
       '<a class="btn-luxe btn-glass" href="bureaudevente.html?id=' + encodeURIComponent(project.id) + '#' + lang + '">🏢 ' + t.visitSalesOffice + '</a>' +
       '<button class="btn-luxe btn-glass projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
-      '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>';
+      '<a class="btn-luxe btn-whatsapp projectWhatsappRoute" href="#" target="_blank" rel="noopener">' + t.shareWhatsapp + '</a>' +
+      '<button class="btn-luxe btn-glass projectMapFullscreen" type="button">⛶ ' + t.fullscreen + '</button>';
 
     /* La carte ouvre la page, juste après le bandeau commercial : le premier
        réflexe du visiteur est de situer le bien et son quartier, avant même

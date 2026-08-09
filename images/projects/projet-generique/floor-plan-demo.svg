@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700">
+  <rect width="900" height="700" fill="#f8fbff"/>
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#dbe7f8" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="700" fill="url(#grid)"/>
+  <g fill="none" stroke="#2563eb" stroke-width="8" stroke-linejoin="round">
+    <rect x="120" y="95" width="660" height="500"/>
+    <path d="M120 300h250V95"/>
+    <path d="M370 300h410"/>
+    <path d="M565 300v295"/>
+    <path d="M120 455h445"/>
+    <path d="M370 455v140"/>
+    <path d="M650 300v150h130"/>
+  </g>
+  <g fill="#1f2430" font-family="Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="245" y="205" font-size="24">Salon</text>
+    <text x="565" y="205" font-size="24">Suite</text>
+    <text x="245" y="390" font-size="24">Cuisine</text>
+    <text x="245" y="535" font-size="24">Entree</text>
+    <text x="470" y="535" font-size="24">SDB</text>
+    <text x="670" y="470" font-size="24">Chambre</text>
+    <text x="710" y="382" font-size="20">Balcon</text>
+  </g>
+  <g fill="#c15a00">
+    <rect x="115" y="292" width="16" height="58" rx="8"/>
+    <rect x="362" y="292" width="58" height="16" rx="8"/>
+    <rect x="557" y="442" width="16" height="58" rx="8"/>
+    <rect x="642" y="292" width="58" height="16" rx="8"/>
+  </g>
+  <text x="450" y="650" fill="#596273" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">Plan exemple - a remplacer par le floor plan officiel Jawhara</text>
+</svg>
