@@ -253,6 +253,40 @@ html[dir=rtl] .poi-item { text-align: right; }
   font-weight: 800;
 }
 
+/* ── Trajet vers un repère ─────────────────────────────────────────────────
+   Le tracé se dessine sous les yeux du visiteur. L'animation porte sur
+   stroke-dashoffset, avec la longueur réelle du chemin publiée par le script :
+   c'est le navigateur qui dessine, sans minuterie à entretenir. */
+.nj-trace { stroke-linecap: round; }
+.nj-trace-anime {
+  stroke-dasharray: var(--nj-longueur);
+  stroke-dashoffset: var(--nj-longueur);
+  animation: njTracer 1.1s ease-out forwards;
+}
+@keyframes njTracer { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .nj-trace-anime { animation: none; stroke-dashoffset: 0; }
+}
+
+/* Actions de l'étiquette : zoomer, et tracer le trajet depuis la résidence. */
+.popup-actions { display: flex; gap: .3rem; margin-top: .5rem; }
+.popup-action {
+  flex: 1;
+  min-height: 32px;
+  padding: .3rem .5rem;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gold);
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.popup-action:hover { background: var(--gold); color: #fff; }
+
 /* Repère dans la liste : l'emoji tient lieu de pastille de couleur. */
 .repere-item { grid-template-columns: 26px 1fr; align-items: center; }
 .repere-emoji { font-size: 1.15rem; line-height: 1; text-align: center; }
@@ -341,6 +375,6 @@ html[dir=rtl] .poi-item { text-align: right; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=16"></script>
-<script src="localisation.js?v=8"></script>
+<script src="localisation.js?v=11"></script>
 </body>
 </html>

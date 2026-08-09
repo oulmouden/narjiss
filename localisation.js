@@ -31,7 +31,8 @@
       filterMax: "Filtre", allDistances: "Toutes", minWalk: "min à pied",
       walk: "à pied", drive: "en voiture",
       reperes: "Repères",
-      jeuQuartier: "Quartier", jeuReperes: "Repères", reperesCount: " repères de la ville"
+      jeuQuartier: "Quartier", jeuReperes: "Repères", reperesCount: " repères de la ville",
+      popupZoom: "Zoomer", popupTrace: "Trajet"
     },
     en: {
       kicker: "Location",
@@ -51,7 +52,8 @@
       filterMax: "Filter", allDistances: "All", minWalk: "min walk",
       walk: "walk", drive: "drive",
       reperes: "Landmarks",
-      jeuQuartier: "Neighbourhood", jeuReperes: "Landmarks", reperesCount: " city landmarks"
+      jeuQuartier: "Neighbourhood", jeuReperes: "Landmarks", reperesCount: " city landmarks",
+      popupZoom: "Zoom in", popupTrace: "Route"
     },
     ar: {
       kicker: "الموقع",
@@ -71,7 +73,8 @@
       filterMax: "تصفية", allDistances: "الكل", minWalk: "دقيقة مشيا",
       walk: "مشيا", drive: "بالسيارة",
       reperes: "معالم",
-      jeuQuartier: "الحي", jeuReperes: "معالم", reperesCount: " من معالم المدينة"
+      jeuQuartier: "الحي", jeuReperes: "معالم", reperesCount: " من معالم المدينة",
+      popupZoom: "تكبير", popupTrace: "المسار"
     },
     es: {
       kicker: "Localización",
@@ -91,7 +94,8 @@
       filterMax: "Filtro", allDistances: "Todas", minWalk: "min a pie",
       walk: "a pie", drive: "en coche",
       reperes: "Referencias",
-      jeuQuartier: "Barrio", jeuReperes: "Referencias", reperesCount: " referencias de la ciudad"
+      jeuQuartier: "Barrio", jeuReperes: "Referencias", reperesCount: " referencias de la ciudad",
+      popupZoom: "Acercar", popupTrace: "Trayecto"
     }
   };
 
@@ -350,6 +354,13 @@
 
   function distanceMeta(poi) {
     if (!poi._distance) return '';
+    /* Sur un repère, seule la voiture a un sens : annoncer « 15 min à pied »
+       pour l'aéroport ou « 2 h de marche » pour la marina décrédibilise le
+       reste des chiffres. Le quartier, lui, se juge d'abord au temps de
+       marche. */
+    if (modeListe === 'reperes') {
+      return formatDistance(poi._distance) + ' · ' + poi._driving + ' min ' + t().drive;
+    }
     return formatDistance(poi._distance) + ' · ' + poi._walking + ' min ' + t().walk +
       ' · ' + poi._driving + ' min ' + t().drive;
   }
@@ -439,7 +450,7 @@
       poiIconSvg(style.icon) + '</span>';
   }
 
-  function makePopup(poi, l) {
+  function makePopup(poi, l, index) {
     var u = UI[l] || UI.fr;
     var cat = poi.cat === 'home' ? u.yourResidence : categoryLabel(poi.cat, l);
     var note = poi.note
@@ -451,12 +462,64 @@
         poi.tel.replace(/\s/g, '') + '">' + poi.tel + '</a></div>'
       : '';
     var hours = poi.horaires ? '<div class="popup-meta">' + poi.horaires + '</div>' : '';
+    /* Actions dans l'étiquette : le visiteur qui vient d'ouvrir un point veut
+       souvent s'en approcher, et sur un repère, voir ce qui le sépare de la
+       résidence. Les mettre ici évite de repartir chercher la liste. */
+    var actions = '';
+    if (poi.cat !== 'home' && typeof index === 'number') {
+      actions = '<div class="popup-actions">' +
+        '<button type="button" class="popup-action" data-zoom="' + index + '">⌖ ' + u.popupZoom + '</button>' +
+        (modeListe === 'reperes'
+          ? '<button type="button" class="popup-action" data-trace="' + index + '">↝ ' + u.popupTrace + '</button>'
+          : '') +
+      '</div>';
+    }
     return '<div class="project-popup">' +
       '<div class="popup-cat">' + cat + '</div>' +
       '<div class="popup-name">' + (poi.nom || cat) + '</div>' +
       (poi.adresse ? '<div class="popup-address">📍 ' + poi.adresse + '</div>' : '') +
-      note + phone + hours +
+      note + phone + hours + actions +
     '</div>';
+  }
+
+  /* ── Trajet vers un repère ─────────────────────────────────────────────────
+     Une ligne à vol d'oiseau, tracée sous les yeux du visiteur. Pas de calcul
+     d'itinéraire routier : les distances affichées partout sur cette page sont
+     déjà des distances directes (Haversine), une route sinueuse les
+     contredirait. La ligne dit exactement ce que dit le chiffre. */
+
+  var traceCourante = null;
+
+  function effacerTrace() {
+    if (traceCourante && mapInstance) mapInstance.removeLayer(traceCourante);
+    traceCourante = null;
+  }
+
+  function tracerVersRepere(index) {
+    if (!mapInstance || !homePoi) return;
+    var poi = currentPois[index];
+    if (!poi || poi.cat === 'home') return;
+    effacerTrace();
+
+    var depart = L.latLng(homePoi.lat, homePoi.lng);
+    var arrivee = L.latLng(poi.lat, poi.lng);
+    traceCourante = L.polyline([depart, arrivee], {
+      className: 'nj-trace', color: '#c15a00', weight: 4, opacity: .95
+    }).addTo(mapInstance);
+
+    /* L'animation part de la longueur réelle du tracé, connue seulement une
+       fois le chemin SVG posé. On la publie en variable CSS : le dessin se
+       fait alors par le navigateur, sans minuterie à entretenir. */
+    var chemin = traceCourante.getElement && traceCourante.getElement();
+    if (chemin && chemin.getTotalLength) {
+      var longueur = chemin.getTotalLength();
+      chemin.style.setProperty('--nj-longueur', longueur);
+      chemin.classList.add('nj-trace-anime');
+    }
+
+    // Les deux extrémités visibles : le trajet n'a de sens qu'entier.
+    mapInstance.flyToBounds(L.latLngBounds([depart, arrivee]).pad(0.25),
+      { maxZoom: 16, duration: 1.1 });
   }
 
   /** Ouvrir une catégorie n'affiche que ses marqueurs ; la refermer les rend tous. */
@@ -488,6 +551,15 @@
     var marker = markerMap[index];
     if (!marker || !mapInstance) return;
     if (!mapInstance.hasLayer(marker)) marker.addTo(mapInstance);
+    /* Sur un repère, choisir dans la liste trace le trajet depuis la
+       résidence : c'est ce qu'on vient y chercher — la distance, montrée
+       plutôt qu'écrite. Zoomer à 17 sur un aéroport à 12 km ferait au
+       contraire perdre la résidence de vue. */
+    if (modeListe === 'reperes') {
+      marker.openPopup();
+      tracerVersRepere(index);
+      return;
+    }
     mapInstance.setView(marker.getLatLng(), 17);
     marker.openPopup();
   }
@@ -704,7 +776,7 @@
       var marker = L.marker([poi.lat, poi.lng], {
         icon: makeIcon(poi, isHome),
         zIndexOffset: isHome ? 1000 : 0
-      }).bindPopup(makePopup(poi, l));
+      }).bindPopup(makePopup(poi, l, m));
       marker._cat = poi.cat;
       marker.addTo(mapInstance);
       mapMarkers.push(marker);
@@ -789,6 +861,21 @@
     });
     mapInstance.addControl(new CtrlPlein());
 
+    /* Les boutons de l'étiquette vivent dans un fragment que Leaflet détruit
+       et reconstruit à chaque ouverture : on délègue depuis le conteneur de la
+       carte plutôt que de recâbler un écouteur à chaque popup. */
+    mapInstance.getContainer().addEventListener('click', function (e) {
+      var zoom = e.target.closest('[data-zoom]');
+      if (zoom) {
+        var iz = parseInt(zoom.getAttribute('data-zoom'), 10);
+        var mz = markerMap[iz];
+        if (mz) mapInstance.flyTo(mz.getLatLng(), 17, { duration: 1 });
+        return;
+      }
+      var trace = e.target.closest('[data-trace]');
+      if (trace) tracerVersRepere(parseInt(trace.getAttribute('data-trace'), 10));
+    });
+
     var summary = document.getElementById('poiSummary');
     if (summary) summary.innerHTML = '<div class="poi-note">' + UI[l].poiLoading + '</div>';
 
@@ -802,7 +889,14 @@
 
     loadProjectReperes(project, l)
       .then(function (r) { jeuxCharges.reperes = r && r.length ? r : null; })
-      .catch(function () { jeuxCharges.reperes = null; });
+      .catch(function () { jeuxCharges.reperes = null; })
+      .then(function () {
+        /* Les deux chargements courent en parallèle et le panneau se dessine
+           dès que le quartier est prêt — souvent avant les repères. Sans ce
+           repeint, l'onglet « Repères » n'apparaissait jamais : au moment de
+           construire la bascule, le jeu était encore inconnu. */
+        if (jeuxCharges.quartier) updatePoiSummary(currentPois, l, true);
+      });
 
     loadProjectPois(project, l).then(function (pois) {
       if (!pois.length) throw new Error('Empty CSV');
@@ -831,6 +925,7 @@
 
   function afficherJeu(mode, l) {
     if (mode === 'reperes' && !jeuxCharges.reperes) mode = 'quartier';
+    effacerTrace();   // un trajet ne survit pas au changement de jeu
     modeListe = mode;
     var jeu = mode === 'reperes' ? jeuxCharges.reperes : jeuxCharges.quartier;
     if (!projetAffiche || !jeu) return;
