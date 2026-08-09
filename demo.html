@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narjiss — Démonstration</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css?v=17">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   Acte 0 de la démonstration commerciale.
+
+   Page à part entière, et non une option de carte.html : l'intro est faite
+   pour une projection devant un client, pas pour un visiteur qui cherche un
+   bien. La mêler à la carte publique imposerait à tout le monde une animation
+   que l'on ne veut jouer qu'une fois, sur scène.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+html, body { height: 100%; margin: 0; overflow: hidden; }
+
+/* La carte occupe tout l'écran : aucun cadre, aucun titre. Le client doit
+   avoir l'impression de regarder le territoire, pas un site web. */
+#demoMap {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: #0b1020;
+}
+
+/* Le menu est présent dès le départ — donc mesurable — mais invisible : c'est
+   ainsi qu'on peut viser la position RÉELLE du logo pour l'atterrissage,
+   plutôt que de la coder en dur et de la voir se décaler au premier
+   changement de mise en page. */
+#mainMenu {
+  position: relative;
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .8s ease;
+}
+#mainMenu.nj-pose { opacity: 1; pointer-events: auto; }
+
+/* ── Rideau ─────────────────────────────────────────────────────────────── */
+#njRideau {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: radial-gradient(circle at 50% 45%, #16213e 0%, #070a14 70%);
+  transition: opacity 1.6s ease, background 1.6s ease;
+}
+#njRideau.nj-leve { opacity: 0; pointer-events: none; }
+
+/* ── Logo volant ────────────────────────────────────────────────────────────
+   Deux éléments imbriqués, et non un seul : l'enveloppe se déplace
+   horizontalement à vitesse constante pendant que le noyau tombe avec une
+   accélération. La composition des deux dessine la courbe. Une seule
+   transition n'aurait produit qu'une ligne droite, et offset-path n'est pas
+   assez répandu pour une démo qui doit marcher sur la machine du client. */
+#njVol {
+  position: fixed;
+  z-index: 35;
+  left: 0; top: 0;
+  pointer-events: none;
+  transition: transform 1.7s linear;
+}
+#njVolNoyau {
+  transition: transform 1.7s cubic-bezier(.55, 0, .85, .35);
+}
+#njVolLogo {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  transform-origin: left center;
+  transition: transform 1.7s cubic-bezier(.4, 0, .2, 1), opacity .35s ease;
+}
+#njVolLogo img {
+  width: 118px; height: 118px;
+  border-radius: 18px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.55);
+}
+#njVolTexte {
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+#njVolTexte b {
+  display: block;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--sun, #e8a33d);
+}
+#njVolTexte span {
+  display: block;
+  font-size: .95rem;
+  letter-spacing: .42em;
+  opacity: .8;
+}
+#njVolLogo.nj-efface { opacity: 0; }
+
+/* ── Accroche ───────────────────────────────────────────────────────────── */
+#njAccroche {
+  position: fixed;
+  left: 50%; top: 62%;
+  z-index: 36;
+  transform: translate(-50%, 0);
+  color: rgba(255,255,255,.82);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0;
+  transition: opacity .9s ease;
+  pointer-events: none;
+}
+#njAccroche.nj-visible { opacity: 1; }
+
+/* ── Invite finale ──────────────────────────────────────────────────────── */
+#njInvite {
+  position: fixed;
+  left: 50%; bottom: 2.2rem;
+  z-index: 38;
+  transform: translateX(-50%);
+  padding: .7rem 1.5rem;
+  border-radius: 999px;
+  background: rgba(12,16,28,.82);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: .95rem;
+  font-weight: 600;
+  box-shadow: 0 16px 44px rgba(0,0,0,.4);
+  opacity: 0;
+  transition: opacity .7s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#njInvite.nj-visible { opacity: 1; }
+
+/* ── Mention « passer » ─────────────────────────────────────────────────── */
+#njPasser {
+  position: fixed;
+  right: 1.1rem; bottom: 1.1rem;
+  z-index: 39;
+  padding: .4rem .8rem;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  background: rgba(12,16,28,.55);
+  color: rgba(255,255,255,.8);
+  font-family: 'Outfit', sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .4s ease;
+}
+#njPasser:hover { color: #fff; border-color: rgba(255,255,255,.6); }
+#njPasser[hidden] { display: none; }
+
+/* Attribution obligatoire, mais assourdie : présente et lisible de près,
+   invisible depuis le fond de la salle. */
+.leaflet-control-attribution {
+  background: rgba(12,16,28,.45) !important;
+  color: rgba(255,255,255,.55) !important;
+  font-size: .62rem !important;
+  padding: 1px 6px !important;
+}
+.leaflet-control-attribution a { color: rgba(255,255,255,.7) !important; }
+
+/* ── Pastilles de projet ─────────────────────────────────────────────────
+   Reprises telles quelles de carte.html : la démonstration doit montrer le
+   site tel qu'il est, pas une variante inventée pour l'occasion. */
+.project-name-marker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 180px;
+  min-width: 92px;
+  min-height: 34px;
+  padding: .34rem .75rem;
+  background: var(--sun);
+  color: white;
+  border: 2px solid var(--sun);
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(17,24,39,.28);
+  font-family: 'Outfit', sans-serif;
+  font-size: .78rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.project-name-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--sun);
+  border-right: 2px solid var(--sun);
+  border-bottom: 2px solid var(--sun);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Chute des pastilles, décalée dans le temps par un délai calculé en JS. */
+@keyframes njChute {
+  from { opacity: 0; transform: translateY(-38px) scale(.75); }
+  60%  { opacity: 1; transform: translateY(5px) scale(1.04); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.nj-tombe .project-name-marker {
+  animation: njChute .62s cubic-bezier(.34, 1.4, .5, 1) backwards;
+}
+
+/* La cible du scénario respire, pour que le regard du client s'y pose sans
+   qu'on ait à la désigner du doigt. */
+@keyframes njBattement {
+  0%, 100% { box-shadow: 0 8px 22px rgba(17,24,39,.28), 0 0 0 0 rgba(232,163,61,.55); }
+  50%      { box-shadow: 0 8px 22px rgba(17,24,39,.28), 0 0 0 16px rgba(232,163,61,0); }
+}
+.nj-cible .project-name-marker {
+  animation: njBattement 1.9s ease-out infinite;
+  z-index: 500;
+}
+
+/* Une animation d'ouverture est un argument de vente, pas une obligation :
+   qui a demandé moins de mouvement obtient la carte, directement. */
+@media (prefers-reduced-motion: reduce) {
+  #njVol, #njVolNoyau, #njVolLogo, #njRideau, #mainMenu { transition: none !important; }
+  .nj-tombe .project-name-marker, .nj-cible .project-name-marker { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="demoMap"></div>
+
+<div id="mainMenu"></div>
+
+<div id="njRideau"></div>
+
+<div id="njVol"><div id="njVolNoyau"><div id="njVolLogo">
+  <img src="images/logo-narjiss.jpg" alt="Narjiss Immobilière">
+  <div id="njVolTexte"><b>NARJISS</b><span>IMMOBILIERE</span></div>
+</div></div></div>
+
+<p id="njAccroche">Agadir</p>
+<div id="njInvite"></div>
+<button type="button" id="njPasser">Passer ⏎</button>
+
+<script src="shared/menu.js?v=15"></script>
+<script>
+(function () {
+  'use strict';
+
+  var LANGUES = {
+    fr: { accroche: 'Agadir', invite: 'Cliquez sur un projet pour commencer', passer: 'Passer ⏎' },
+    en: { accroche: 'Agadir', invite: 'Click a project to begin', passer: 'Skip ⏎' },
+    ar: { accroche: 'أكادير', invite: 'انقر على مشروع للبدء', passer: 'تخطي ⏎' },
+    es: { accroche: 'Agadir', invite: 'Haga clic en un proyecto para empezar', passer: 'Saltar ⏎' }
+  };
+
+  // Le projet mis en avant : c'est le seul dont tous les médias immersifs
+  // existent (360°, vidéos, visite 3D, grille de lots).
+  var PROJET_VEDETTE = 'jawhara';
+
+  var carte = null, pastilles = [], langue = 'fr';
+  var minuteries = [], termine = false;
+
+  function t(cle) { return (LANGUES[langue] || LANGUES.fr)[cle]; }
+  function $(id) { return document.getElementById(id); }
+
+  /* Un seul registre de minuteries : « passer » doit pouvoir toutes les
+     annuler d'un coup, sinon une étape en retard viendrait réécrire l'état
+     final quelques secondes après qu'on l'a atteint. */
+  function plusTard(ms, fn) { minuteries.push(window.setTimeout(fn, ms)); }
+  function toutAnnuler() { minuteries.forEach(clearTimeout); minuteries = []; }
+
+  function mouvementReduit() {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+    catch (e) { return false; }
+  }
+
+  /* ── Carte ─────────────────────────────────────────────────────────────── */
+
+  function projetsAgadir() {
+    // Le cadrage final se déduit des projets réellement présents autour
+    // d'Agadir : ajouter un projet demain recadrera la vue tout seul.
+    return (window.PROJECTS || []).filter(function (p) {
+      return p.lat > 30.0 && p.lat < 30.8 && p.lng > -9.9 && p.lng < -9.2;
+    });
+  }
+
+  function creerCarte() {
+    carte = L.map('demoMap', {
+      zoomControl: false,
+      maxZoom: 22, zoomSnap: .25
+    }).setView([31.5, -8], 5.4);
+
+    // L'attribution reste : l'imagerie satellite d'Esri est sous licence, et
+    // la retirer parce que c'est « juste une démo » n'est pas une option. Elle
+    // est simplement rendue discrète par le CSS.
+    carte.attributionControl.setPrefix('');
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '© Esri', maxNativeZoom: 19, maxZoom: 22
+    }).addTo(carte);
+  }
+
+  function poserPastilles(anime) {
+    var liste = window.PROJECTS || [];
+    for (var i = 0; i < liste.length; i++) {
+      var p = liste[i];
+      if (typeof p.lat !== 'number' || typeof p.lng !== 'number') continue;
+
+      var nom = (p.name && (p.name[langue] || p.name.fr)) || p.id;
+      var vedette = p.id === PROJET_VEDETTE;
+      var classes = (anime ? 'nj-tombe ' : '') + (vedette ? 'nj-cible' : '');
+
+      var icone = L.divIcon({
+        html: '<div class="project-name-marker">' + nom + '</div>',
+        iconSize: [180, 42], iconAnchor: [90, 40], className: classes
+      });
+
+      var marqueur = L.marker([p.lat, p.lng], {
+        icon: icone,
+        zIndexOffset: vedette ? 2000 : 1000,
+        keyboard: true,
+        title: nom
+      }).addTo(carte);
+
+      (function (id) {
+        marqueur.on('click', function () {
+          window.location.href = 'project.html?id=' + encodeURIComponent(id) + '#' + langue;
+        });
+      })(p.id);
+
+      // Le décalage de chute est porté par l'élément, pas par une règle CSS :
+      // le nombre de projets n'est pas connu à l'écriture de la feuille.
+      if (anime) {
+        var el = marqueur.getElement();
+        if (el) el.style.animationDelay = (i * 90) + 'ms';
+      }
+      pastilles.push(marqueur);
+    }
+  }
+
+  function cadrerAgadir(duree) {
+    var proches = projetsAgadir();
+    if (!proches.length) { carte.flyTo([30.42, -9.6], 12, { duration: duree }); return; }
+    var groupe = L.featureGroup(proches.map(function (p) { return L.marker([p.lat, p.lng]); }));
+    carte.flyToBounds(groupe.getBounds().pad(0.55), { duration: duree });
+  }
+
+  /* ── Vol du logo ───────────────────────────────────────────────────────── */
+
+  /**
+   * Place l'ensemble volant à un point donné de l'écran.
+   * On sépare X (enveloppe) et Y (noyau) pour que leurs courbes de temps
+   * puissent différer — c'est ce décalage qui produit la trajectoire arquée.
+   */
+  function placerVol(x, y, echelle) {
+    $('njVol').style.transform = 'translateX(' + x + 'px)';
+    $('njVolNoyau').style.transform = 'translateY(' + y + 'px)';
+    $('njVolLogo').style.transform = 'scale(' + echelle + ')';
+  }
+
+  /** Position d'arrivée : celle du vrai logo du menu, mesurée à l'instant. */
+  function cibleMenu() {
+    var logo = document.querySelector('#mainMenu .logo-image, #mainMenu .logo img, #mainMenu img');
+    if (!logo) return { x: 24, y: 18, echelle: .34 };
+    var r = logo.getBoundingClientRect();
+    return { x: r.left, y: r.top, echelle: Math.max(.22, r.width / 118) };
+  }
+
+  function departVol() {
+    return {
+      x: window.innerWidth / 2 - 190,
+      y: window.innerHeight / 2 - 100,
+      echelle: 1
+    };
+  }
+
+  /* ── Déroulé ───────────────────────────────────────────────────────────── */
+
+  function etatFinal() {
+    if (termine) return;
+    termine = true;
+    toutAnnuler();
+
+    $('njRideau').classList.add('nj-leve');
+    $('njVolLogo').classList.add('nj-efface');
+    $('njAccroche').classList.remove('nj-visible');
+    $('mainMenu').classList.add('nj-pose');
+    $('njPasser').hidden = true;
+
+    if (!pastilles.length) poserPastilles(false);
+    cadrerAgadir(mouvementReduit() ? 0 : .8);
+
+    $('njInvite').textContent = t('invite');
+    $('njInvite').classList.add('nj-visible');
+  }
+
+  function jouer() {
+    var depart = departVol();
+    placerVol(depart.x, depart.y, depart.echelle);
+
+    // Sans mouvement : on saute directement à la carte cadrée.
+    if (mouvementReduit()) { etatFinal(); return; }
+
+    // 1. Le nom s'installe sous le logo.
+    plusTard(700, function () {
+      $('njAccroche').textContent = t('accroche');
+      $('njAccroche').classList.add('nj-visible');
+    });
+
+    // 2. Le rideau se lève : le territoire apparaît derrière la marque.
+    plusTard(1700, function () { $('njRideau').classList.add('nj-leve'); });
+
+    // 3. Le logo s'envole vers sa place définitive.
+    plusTard(2000, function () {
+      $('njAccroche').classList.remove('nj-visible');
+      var cible = cibleMenu();
+      placerVol(cible.x, cible.y, cible.echelle);
+    });
+
+    // 4. Descente sur Agadir, engagée pendant le vol : les deux mouvements
+    //    se répondent au lieu de se succéder.
+    plusTard(2350, function () { cadrerAgadir(2.6); });
+
+    // 5. Le logo se pose : le vrai menu prend le relais du logo volant.
+    plusTard(3700, function () {
+      $('mainMenu').classList.add('nj-pose');
+      $('njVolLogo').classList.add('nj-efface');
+    });
+
+    // 6. Les projets tombent un à un.
+    plusTard(4900, function () { poserPastilles(true); });
+
+    // 7. L'invite, une fois la dernière pastille posée.
+    plusTard(6100, function () {
+      termine = true;
+      $('njPasser').hidden = true;
+      $('njInvite').textContent = t('invite');
+      $('njInvite').classList.add('nj-visible');
+    });
+  }
+
+  /* ── Amorçage ──────────────────────────────────────────────────────────── */
+
+  window.onLanguageChange = function (lang) {
+    langue = lang;
+    $('njPasser').textContent = t('passer');
+    if (termine) {
+      $('njInvite').textContent = t('invite');
+      // Les noms de projet sont dans les pastilles : on les repose traduits.
+      pastilles.forEach(function (m) { carte.removeLayer(m); });
+      pastilles = [];
+      poserPastilles(false);
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    creerCarte();
+
+    // « Passer » et Échap/Entrée/Espace : indispensables quand on répète la
+    // démonstration vingt fois, ou qu'un client arrive en avance.
+    $('njPasser').addEventListener('click', etatFinal);
+    document.addEventListener('keydown', function (e) {
+      if (['Escape', 'Enter', ' '].indexOf(e.key) >= 0) { e.preventDefault(); etatFinal(); }
+    });
+
+    // initPage charge data/projects.json, installe le menu, puis appelle
+    // onLanguageChange : les pastilles ont besoin des deux.
+    initPage('map', '');
+
+    // ?direct=1 pour ouvrir sur la carte cadrée, sans intro.
+    var direct = new URLSearchParams(location.search).has('direct');
+    var lancer = function () { if (direct) etatFinal(); else jouer(); };
+
+    // On attend les projets : sans eux, ni pastilles ni cadrage d'Agadir.
+    var essais = 0;
+    (function attendreProjets() {
+      if (window.PROJECTS && window.PROJECTS.length) { lancer(); return; }
+      if (++essais > 60) { lancer(); return; }   // au pire, l'intro joue seule
+      window.setTimeout(attendreProjets, 100);
+    })();
+  });
+})();
+</script>
+</body>
+</html>
