@@ -119,7 +119,7 @@ automatique à l'arrivée. Ré-exporter écrase `tour-bureau/` (ne jamais édite
 
 ---
 
-## 6. Cache HTTP — à configurer une fois sur le VPS
+## 6. Cache HTTP
 
 ### Le problème
 
@@ -128,38 +128,53 @@ modification : le navigateur les recharge donc tout seul. **Les fichiers
 `.html` n'en portent pas** — ils sont le point d'entrée, ils ne peuvent pas se
 versionner eux-mêmes.
 
-Conséquence observée en développement comme en production : après un
-déploiement, le navigateur exécute le **nouveau JS sur l'ancien HTML**. Un
-élément ajouté au balisage reste invisible, sans la moindre erreur en console,
-jusqu'à un `Ctrl+Shift+R` manuel. C'est intenable pour des visiteurs qui ne
-sauront jamais qu'il faut recharger de force.
+Quand une page est servie en cache long, le navigateur exécute le **nouveau JS
+sur l'ancien HTML**. Un élément ajouté au balisage reste alors invisible, sans
+la moindre erreur en console, jusqu'à un `Ctrl+Shift+R` manuel. Intenable pour
+des visiteurs qui ne sauront jamais qu'il faut recharger de force.
 
-### Le correctif
+### En production : déjà réglé (vérifié le 9 août 2026)
 
-Servir les `.html` avec revalidation obligatoire, et garder le cache long pour
-les ressources versionnées. Le VPS tourne sous **nginx/CloudPanel** :
-`.htaccess` y est ignoré, la règle doit aller dans le vhost.
-
-CloudPanel → **Sites** → le site → **Vhost**, puis insérer dans le bloc
-`server { … }` :
+Le vhost CloudPanel du site pose déjà la règle, sans intervention de notre
+part :
 
 ```nginx
-# Les pages ne portent pas de ?v= : le navigateur doit revalider a chaque
-# visite, sinon un deploiement reste invisible jusqu'a un rechargement force.
-# "no-cache" n'interdit pas la mise en cache : il impose la revalidation.
-# Un 304 ne coute quasiment rien quand la page n'a pas change.
 location ~* \.html$ {
-    add_header Cache-Control "no-cache, must-revalidate";
+    add_header Cache-Control "no-cache";
+    try_files $uri =404;
 }
+```
 
-# Les ressources versionnees (?v=) peuvent au contraire etre gardees
-# longtemps : changer la version change l'URL, donc l'entree de cache.
+`no-cache` n'interdit pas la mise en cache : il impose la **revalidation**. Le
+navigateur redemande au serveur si la page a changé ; un `304` ne coûte quasiment
+rien quand ce n'est pas le cas. C'est exactement le comportement recherché.
+
+> ⚠️ **Ne pas ajouter un second bloc `location ~* \.html$`** : nginx refuse de
+> démarrer sur une `duplicate location`. `nginx -t` l'attraperait, mais autant
+> ne pas y toucher — il n'y a rien à corriger.
+
+Vérification :
+
+```bash
+curl -sI https://www.narjiss.company/disponibilites.html | grep -i cache-control
+```
+
+Attendu : `Cache-Control: no-cache`.
+
+### Reste éventuellement à faire : le cache long des ressources
+
+À l'inverse des pages, les fichiers versionnés peuvent être gardés très
+longtemps — changer le `?v=` change l'URL, donc l'entrée de cache. Si le vhost
+ne contient aucun bloc pour ces extensions, l'ajouter apporte un gain de
+performance (aucun effet sur la fraîcheur du contenu) :
+
+```nginx
 location ~* \.(js|css|jpg|jpeg|png|gif|webp|svg|woff2?|mp4)$ {
     add_header Cache-Control "public, max-age=31536000";
 }
 ```
 
-Puis recharger la configuration :
+Puis :
 
 ```bash
 nginx -t && systemctl reload nginx
@@ -168,16 +183,11 @@ nginx -t && systemctl reload nginx
 `nginx -t` valide la syntaxe **avant** le rechargement : sans lui, une faute de
 frappe coupe le site entier.
 
-### Vérifier
+### En local (XAMPP/Apache)
 
-```bash
-curl -sI https://www.narjiss.company/disponibilites.html | grep -i cache-control
-```
-
-Attendu : `Cache-Control: no-cache, must-revalidate`.
-
-> ⚠️ Tant que cette configuration n'est pas posée, **prévenir d'un
-> `Ctrl+Shift+R` après chaque déploiement** touchant un fichier `.html`.
+Aucune règle de ce type n'est posée : après modification d'un `.html`, prévoir
+un `Ctrl+Shift+R`. C'est la cause la plus fréquente d'un « je ne vois pas le
+changement » en développement.
 
 ---
 
