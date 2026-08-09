@@ -11,6 +11,8 @@ var MENU_UI = {
     map: "Carte",
     about: "À propos",
     contact: "Contact",
+    demo: "Démo",
+    infos: "Infos",
     brand_tag: "Immobiliere",
     footer_about: "À propos",
     footer_navigation: "Navigation",
@@ -29,6 +31,8 @@ var MENU_UI = {
     map: "Map",
     about: "About",
     contact: "Contact",
+    demo: "Demo",
+    infos: "Info",
     brand_tag: "Real Estate",
     footer_about: "About",
     footer_navigation: "Navigation",
@@ -47,6 +51,8 @@ var MENU_UI = {
     map: "الخريطة",
     about: "من نحن",
     contact: "اتصل بنا",
+    demo: "عرض توضيحي",
+    infos: "معلومات",
     brand_tag: "للعقار",
     footer_about: "من نحن",
     footer_navigation: "التنقل",
@@ -65,6 +71,8 @@ var MENU_UI = {
     map: "Mapa",
     about: "Acerca de",
     contact: "Contacto",
+    demo: "Demo",
+    infos: "Info",
     brand_tag: "Inmobiliaria",
     footer_about: "Acerca de",
     footer_navigation: "Navegación",
@@ -672,8 +680,21 @@ function buildMenuHTML(activePage, basePath) {
           '<li><a href="' + basePath + 'explorer.html' + langHash + '"' + (activePage === 'projects' ? ' class="active"' : '') + '><span class="nav-project-icon" aria-hidden="true"><span class="nav-project-explorer"></span><span class="nav-project-pin"></span></span>' + t.projects + '</a></li>' +
           '<li><a href="' + basePath + 'disponibilites.html' + langHash + '"' + (activePage === 'units' ? ' class="active"' : '') + '>🔑 ' + t.units + '</a></li>' +
           '<li><a href="' + basePath + 'carte.html' + langHash + '"' + (activePage === 'map' ? ' class="active"' : '') + '>🗺️ ' + t.map + '</a></li>' +
-          '<li><a href="' + basePath + 'apropos.html' + langHash + '"' + (activePage === 'about' ? ' class="active"' : '') + '>ℹ️ ' + t.about + '</a></li>' +
-          '<li><a href="' + basePath + 'contact.html' + langHash + '"' + (activePage === 'contact' ? ' class="active"' : '') + '>✉️ ' + t.contact + '</a></li>' +
+          '<li><a href="' + basePath + 'demo.html' + langHash + '"' + (activePage === 'demo' ? ' class="active"' : '') + '>▶️ ' + t.demo + '</a></li>' +
+          /* « À propos » et « Contact » réunis sous un seul point d'entrée :
+             ajouter « Démo » à six entrées de premier niveau aurait fait
+             passer la barre sur deux lignes. Un <details> plutôt qu'un menu
+             maison — il s'ouvre au clavier et se referme tout seul, sans une
+             ligne de JavaScript. */
+          '<li class="nav-groupe">' +
+            '<details class="nav-details">' +
+              '<summary' + (activePage === 'about' || activePage === 'contact' ? ' class="active"' : '') + '>ℹ️ ' + t.infos + '</summary>' +
+              '<ul class="nav-sous-menu">' +
+                '<li><a href="' + basePath + 'apropos.html' + langHash + '"' + (activePage === 'about' ? ' class="active"' : '') + '>' + t.about + '</a></li>' +
+                '<li><a href="' + basePath + 'contact.html' + langHash + '"' + (activePage === 'contact' ? ' class="active"' : '') + '>' + t.contact + '</a></li>' +
+              '</ul>' +
+            '</details>' +
+          '</li>' +
           '<div class="nav-langs">' +
             '<button class="lang-btn' + (currentLang === 'fr' ? ' active' : '') + '" data-lang="fr">FR</button>' +
             '<button class="lang-btn' + (currentLang === 'en' ? ' active' : '') + '" data-lang="en">EN</button>' +

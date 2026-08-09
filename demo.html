@@ -7,7 +7,7 @@
 <title>Narjiss — Démonstration</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=17">
+<link rel="stylesheet" href="shared/menu.css?v=18">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -211,6 +211,24 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   transform: translateX(-50%) rotate(45deg);
 }
 
+/* Douze projets tiennent dans dix kilomètres : à l'échelle d'Agadir, dix
+   paires d'étiquettes se recouvraient et six projets seulement restaient
+   lisibles. Celles qui se gênent sont remontées, et un fil les rattache à
+   leur emplacement réel — décaler sans relier aurait menti sur la position. */
+.project-name-marker { transform: translateY(calc(-1 * var(--nj-decalage, 0px))); }
+.nj-fil-repere {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 2px;
+  height: var(--nj-decalage, 0px);
+  margin-top: 4px;
+  background: var(--sun);
+  opacity: .75;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 /* Chute des pastilles, décalée dans le temps par un délai calculé en JS. */
 @keyframes njChute {
   from { opacity: 0; transform: translateY(-38px) scale(.75); }
@@ -218,7 +236,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .nj-tombe .project-name-marker {
-  animation: njChute .62s cubic-bezier(.34, 1.4, .5, 1) backwards;
+  animation: njChute .9s cubic-bezier(.34, 1.4, .5, 1) backwards;
 }
 
 /* La cible du scénario respire, pour que le regard du client s'y pose sans
@@ -257,7 +275,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 <div id="njInvite"></div>
 <button type="button" id="njPasser">Passer ⏎</button>
 
-<script src="shared/menu.js?v=15"></script>
+<script src="shared/menu.js?v=16"></script>
 <script>
 (function () {
   'use strict';
@@ -273,8 +291,13 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   // existent (360°, vidéos, visite 3D, grille de lots).
   var PROJET_VEDETTE = 'jawhara';
 
+  // Intervalle entre deux pastilles. Devant un client, chaque apparition doit
+  // pouvoir être commentée : à 90 ms les douze projets tombaient en une
+  // seconde, on n'avait pas le temps de les nommer.
+  var CADENCE_PASTILLE = 300;
+
   var carte = null, pastilles = [], langue = 'fr';
-  var minuteries = [], termine = false;
+  var minuteries = [], termine = false, premierRendu = true;
 
   function t(cle) { return (LANGUES[langue] || LANGUES.fr)[cle]; }
   function $(id) { return document.getElementById(id); }
@@ -314,6 +337,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: '© Esri', maxNativeZoom: 19, maxZoom: 22
     }).addTo(carte);
+
+    // Le décalage dépend des positions à l'écran : il est donc recalculé à
+    // chaque déplacement, sans quoi un zoom manuel du présentateur laisserait
+    // les étiquettes désolidarisées de leurs points.
+    carte.on('moveend zoomend', demelerPastilles);
   }
 
   function poserPastilles(anime) {
@@ -327,7 +355,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       var classes = (anime ? 'nj-tombe ' : '') + (vedette ? 'nj-cible' : '');
 
       var icone = L.divIcon({
-        html: '<div class="project-name-marker">' + nom + '</div>',
+        html: '<div class="project-name-marker"><span class="nj-fil-repere"></span>' + nom + '</div>',
         iconSize: [180, 42], iconAnchor: [90, 40], className: classes
       });
 
@@ -348,10 +376,52 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       // le nombre de projets n'est pas connu à l'écriture de la feuille.
       if (anime) {
         var el = marqueur.getElement();
-        if (el) el.style.animationDelay = (i * 90) + 'ms';
+        if (el) el.style.animationDelay = (i * CADENCE_PASTILLE) + 'ms';
       }
       pastilles.push(marqueur);
     }
+  }
+
+  /**
+   * Écarte verticalement les étiquettes qui se recouvrent.
+   *
+   * On ne décale qu'en hauteur : le fil de rappel reste alors une simple
+   * verticale, sans calcul d'angle, et l'œil suit sans effort. Les étiquettes
+   * les plus au nord sont posées d'abord, pour que l'ordre du résultat ne
+   * dépende pas de l'ordre de projects.json.
+   */
+  function demelerPastilles() {
+    var elements = [];
+    pastilles.forEach(function (m) {
+      var el = m.getElement();
+      if (!el) return;
+      var label = el.querySelector('.project-name-marker');
+      if (!label) return;
+      label.style.setProperty('--nj-decalage', '0px');   // repartir à plat
+      elements.push({ el: el, label: label, point: carte.latLngToContainerPoint(m.getLatLng()) });
+    });
+    elements.sort(function (a, b) { return a.point.y - b.point.y; });
+
+    var poses = [];
+    var seChevauchent = function (a, b) {
+      return !(a.x2 < b.x1 || b.x2 < a.x1 || a.y2 < b.y1 || b.y2 < a.y1);
+    };
+
+    elements.forEach(function (e) {
+      var r = e.label.getBoundingClientRect();
+      var demi = r.width / 2, h = r.height;
+      var base = { x1: e.point.x - demi, x2: e.point.x + demi, y1: e.point.y - h, y2: e.point.y };
+
+      var decalage = 0, pas = h + 8, essais = 0;
+      var candidat = base;
+      while (essais < 8 && poses.some(function (p) { return seChevauchent(candidat, p); })) {
+        essais++;
+        decalage = essais * pas;
+        candidat = { x1: base.x1, x2: base.x2, y1: base.y1 - decalage, y2: base.y2 - decalage };
+      }
+      poses.push(candidat);
+      e.label.style.setProperty('--nj-decalage', decalage + 'px');
+    });
   }
 
   function cadrerAgadir(duree) {
@@ -446,10 +516,13 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     // 6. Les projets tombent un à un.
     plusTard(4900, function () { poserPastilles(true); });
 
-    // 7. L'invite, une fois la dernière pastille posée.
-    plusTard(6100, function () {
+    // 7. L'invite, une fois la DERNIÈRE pastille posée : le délai se calcule
+    //    sur le nombre de projets, il ne peut pas être une constante.
+    var finCascade = 4900 + ((window.PROJECTS || []).length * CADENCE_PASTILLE) + 900;
+    plusTard(finCascade, function () {
       termine = true;
       $('njPasser').hidden = true;
+      demelerPastilles();   // les douze sont posées : on les rend toutes lisibles
       $('njInvite').textContent = t('invite');
       $('njInvite').classList.add('nj-visible');
     });
@@ -457,16 +530,43 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 
   /* ── Amorçage ──────────────────────────────────────────────────────────── */
 
+  /** Remet la scène à zéro pour un nouveau départ. */
+  function reinitialiser() {
+    toutAnnuler();
+    termine = false;
+    pastilles.forEach(function (m) { carte.removeLayer(m); });
+    pastilles = [];
+    $('njRideau').classList.remove('nj-leve');
+    $('njVolLogo').classList.remove('nj-efface');
+    $('njInvite').classList.remove('nj-visible');
+    $('njAccroche').classList.remove('nj-visible');
+    $('mainMenu').classList.remove('nj-pose');
+    $('njPasser').hidden = false;
+    $('njPasser').textContent = t('passer');
+    // Sans transition : le retour au point de départ ne doit pas se voir.
+    carte.setView([31.5, -8], 5.4, { animate: false });
+  }
+
+  /**
+   * Changer de langue relance la démonstration dans cette langue — c'est
+   * l'usage attendu : on choisit sa langue, la présentation démarre. Le
+   * premier appel vient d'initPage et ne doit rien déclencher, sinon l'intro
+   * jouerait deux fois au chargement.
+   */
   window.onLanguageChange = function (lang) {
     langue = lang;
     $('njPasser').textContent = t('passer');
-    if (termine) {
-      $('njInvite').textContent = t('invite');
-      // Les noms de projet sont dans les pastilles : on les repose traduits.
-      pastilles.forEach(function (m) { carte.removeLayer(m); });
-      pastilles = [];
-      poserPastilles(false);
-    }
+    if (premierRendu) { premierRendu = false; return; }
+    reinitialiser();
+    jouer();
+  };
+
+  // Poignée de pilotage : utile pour régler la mise en scène depuis la
+  // console, et socle du futur mode kiosque.
+  window.njDemo = {
+    rejouer: function () { reinitialiser(); jouer(); },
+    finir: function () { etatFinal(); },
+    carte: function () { return carte; }
   };
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -481,7 +581,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 
     // initPage charge data/projects.json, installe le menu, puis appelle
     // onLanguageChange : les pastilles ont besoin des deux.
-    initPage('map', '');
+    initPage('demo', '');
 
     // ?direct=1 pour ouvrir sur la carte cadrée, sans intro.
     var direct = new URLSearchParams(location.search).has('direct');
