@@ -784,7 +784,32 @@ body.nj-fige { overflow: hidden; }
   position: absolute; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
 }
+
+/* ── Mode « embarqué » (?embed) ────────────────────────────────────────────
+   Ouvert dans la scène de la démonstration : on ne garde que ce qui sert à
+   choisir un lot. Le menu, le titre, le fil d'Ariane et le pied de page
+   appartiennent au site, pas à la projection — et le plan y gagne la moitié
+   de la hauteur. */
+.nj-embed #mainMenu,
+.nj-embed .nj-hero,
+.nj-embed #mainFooter { display: none !important; }
+/* Le body réserve 68px pour le menu fixe, masqué ici : sans cette remise à
+   zéro, une bande blanche pousse toute la page vers le bas. */
+.nj-embed body { padding: 0 !important; margin: 0 !important; }
+.nj-embed .nj-shell {
+  max-width: none;
+  /* 7rem en bas dans la version normale : place pour la barre de sélection.
+     On la conserve, elle reste affichée. */
+  padding: .8rem 1rem 7rem;
+}
 </style>
+<script>
+  /* Posé avant le rendu pour éviter tout clignotement du menu en mode scène. */
+  (function () {
+    try { if (new URLSearchParams(location.search).has('embed'))
+      document.documentElement.classList.add('nj-embed'); } catch (e) {}
+  })();
+</script>
 </head>
 <body>
 
@@ -900,6 +925,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=16"></script>
-<script src="disponibilites.js?v=47"></script>
+<script src="disponibilites.js?v=48"></script>
 </body>
 </html>

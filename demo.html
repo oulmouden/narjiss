@@ -201,6 +201,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 /* Discrète pendant la présentation, franche quand on la cherche : elle ne
    doit pas attirer l'œil au milieu d'une visite 360°. */
 #njSceneBarre:hover, #njSceneBarre:focus-within { opacity: 1; }
+/* La page des disponibilités porte sa propre barre en bas (« Ma sélection »,
+   « Envoyer mes choix »). On monte la nôtre au-dessus plutôt que de la poser
+   dessus : deux barres superposées, on ne sait plus laquelle on vise. */
+#njSceneBarre.nj-barre-haute { bottom: 5.6rem; }
 #njSceneTitre {
   color: #fff;
   font-family: var(--font-serif, 'Playfair Display'), serif;
@@ -442,7 +446,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 
   // Marqueur de version pour la page chargée dans la scène. À incrémenter
   // quand project.html change, sinon le cadre resservira l'ancienne copie.
-  var VERSION = '7';
+  var VERSION = '8';
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
@@ -847,7 +851,16 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     $('njVersDispos').addEventListener('click', function () {
       if (!projetOuvert) return;
       $('njSceneCadre').src = 'disponibilites.html?projet=' + encodeURIComponent(projetOuvert) +
-        '&v=' + VERSION + '#' + langue;
+        '&embed=1&v=' + VERSION + '#' + langue;
+    });
+
+    /* Certaines pages portent leur propre barre en bas : on relève la nôtre
+       pour ne pas la recouvrir. Le test se fait au chargement du cadre, la
+       page n'étant pas connue à l'avance. */
+    $('njSceneCadre').addEventListener('load', function () {
+      var propre = false;
+      try { propre = !!$('njSceneCadre').contentDocument.querySelector('.nj-barre'); } catch (e) {}
+      $('njSceneBarre').classList.toggle('nj-barre-haute', propre);
     });
     document.addEventListener('keydown', function (e) {
       // Quand un projet est ouvert, Échap le referme au lieu d'agir sur
