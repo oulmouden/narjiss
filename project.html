@@ -653,6 +653,23 @@ html[dir=rtl] .map-aside h3 {
   font-weight: 800;
 }
 .map-tool-btn:hover { background: var(--surface-2); }
+
+/* Nom du projet dans la colonne de la carte : masqué dans la page, où il est
+   déjà affiché plus haut, et révélé en plein écran — la carte occupe alors
+   tout l'écran et plus rien n'indique de quel projet il s'agit. */
+.map-projet { display: none; }
+#projectMapSection:fullscreen .map-projet,
+#projectMapSection:-webkit-full-screen .map-projet {
+  display: block;
+  margin-bottom: .35rem;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.3rem, 2vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--gold);
+}
+html[dir=rtl] #projectMapSection:fullscreen .map-projet { font-family: 'Noto Sans Arabic', serif; }
+
 .poi-summary {
   overflow-y: auto;
   min-height: 0;
@@ -1242,6 +1259,6 @@ html[dir=rtl] .media-generique::after { left: auto; right: .5rem; }
 <div id="mainFooter"></div>
 <script src="shared/menu.js?v=16"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260809c"></script>
+<script src="project.js?v=20260809d"></script>
 </body>
 </html>

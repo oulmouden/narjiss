@@ -2364,7 +2364,11 @@
                ils sont déjà au-dessus de la carte, dans .hero-actions. Chaque
                ligne retirée de l'encadré est autant de hauteur rendue à la
                liste des POI, qui est le contenu utile de cette colonne. */
-            '<div class="map-intro"><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
+            /* Le nom du projet n'apparaît qu'en plein écran : là, la carte
+               occupe tout et plus rien à l'écran ne dit ce qu'on regarde.
+               Dans la page, il est déjà au-dessus — l'afficher deux fois
+               alourdirait une colonne déjà dense. */
+            '<div class="map-intro"><div class="map-projet">' + name + '</div><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
             '<div class="poi-summary" id="poiSummary"></div>' +
             '<div class="map-actions">' +
               '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
