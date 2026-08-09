@@ -316,12 +316,21 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   left: 50%;
   top: 100%;
   width: 2px;
-  height: var(--nj-decalage, 0px);
+  height: var(--nj-fil, 0px);
   margin-top: 4px;
   background: var(--sun);
   opacity: .75;
   transform: translateX(-50%);
   pointer-events: none;
+}
+/* Étiquette descendue sous son point : le fil part alors vers le haut. Une
+   hauteur négative n'existant pas en CSS, la distance est portée par une
+   variable propre et c'est l'ancrage du fil qui bascule. */
+.nj-decale-bas .nj-fil-repere {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 4px;
 }
 
 /* Chute des pastilles, décalée dans le temps par un délai calculé en JS. */
@@ -541,12 +550,19 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   /**
    * Écarte verticalement les étiquettes qui se recouvrent.
    *
-   * On ne décale qu'en hauteur : le fil de rappel reste alors une simple
+   * Le décalage reste vertical : le fil de rappel est alors une simple
    * verticale, sans calcul d'angle, et l'œil suit sans effort. Les étiquettes
-   * les plus au nord sont posées d'abord, pour que l'ordre du résultat ne
-   * dépende pas de l'ordre de projects.json.
+   * les plus au nord sont posées d'abord, pour que le résultat ne dépende pas
+   * de l'ordre de projects.json.
+   *
+   * Les positions sont essayées en alternance au-dessus puis en dessous, et
+   * bornées à la zone utile : ne pousser que vers le haut envoyait les
+   * étiquettes déjà hautes derrière le menu, où elles devenaient illisibles.
    */
   function demelerPastilles() {
+    var MARGE_HAUT = 84;    // hauteur du menu
+    var MARGE_BAS = 76;     // bandeau d'invite en bas d'écran
+
     var elements = [];
     pastilles.forEach(function (m) {
       var el = m.getElement();
@@ -554,29 +570,44 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       var label = el.querySelector('.project-name-marker');
       if (!label) return;
       label.style.setProperty('--nj-decalage', '0px');   // repartir à plat
+      label.style.setProperty('--nj-fil', '0px');
+      label.classList.remove('nj-decale-bas');
       elements.push({ el: el, label: label, point: carte.latLngToContainerPoint(m.getLatLng()) });
     });
     elements.sort(function (a, b) { return a.point.y - b.point.y; });
 
     var poses = [];
+    /* Marge de 6 px : sans elle, deux étiquettes pouvaient se retrouver
+       exactement bord à bord — aucun texte masqué, mais l'œil les lit comme
+       un bloc. */
     var seChevauchent = function (a, b) {
-      return !(a.x2 < b.x1 || b.x2 < a.x1 || a.y2 < b.y1 || b.y2 < a.y1);
+      return !(a.x2 < b.x1 || b.x2 < a.x1 || a.y2 + 6 < b.y1 || b.y2 + 6 < a.y1);
     };
+    var hauteurVue = carte.getSize().y;
 
     elements.forEach(function (e) {
       var r = e.label.getBoundingClientRect();
-      var demi = r.width / 2, h = r.height;
+      var demi = r.width / 2, h = r.height, pas = h + 8;
       var base = { x1: e.point.x - demi, x2: e.point.x + demi, y1: e.point.y - h, y2: e.point.y };
 
-      var decalage = 0, pas = h + 8, essais = 0;
-      var candidat = base;
-      while (essais < 8 && poses.some(function (p) { return seChevauchent(candidat, p); })) {
-        essais++;
-        decalage = essais * pas;
-        candidat = { x1: base.x1, x2: base.x2, y1: base.y1 - decalage, y2: base.y2 - decalage };
+      // 0, puis +1 pas, −1 pas, +2 pas… : on s'éloigne le moins possible du
+      // point réel, et jamais toujours du même côté.
+      var offres = [0];
+      for (var k = 1; k <= 6; k++) { offres.push(k * pas, -k * pas); }
+
+      var retenu = 0, candidat = base;
+      for (var i = 0; i < offres.length; i++) {
+        var d = offres[i];
+        var essai = { x1: base.x1, x2: base.x2, y1: base.y1 - d, y2: base.y2 - d };
+        if (essai.y1 < MARGE_HAUT || essai.y2 > hauteurVue - MARGE_BAS) continue;
+        if (poses.some(function (p) { return seChevauchent(essai, p); })) continue;
+        retenu = d; candidat = essai; break;
       }
+
       poses.push(candidat);
-      e.label.style.setProperty('--nj-decalage', decalage + 'px');
+      e.label.style.setProperty('--nj-decalage', retenu + 'px');
+      e.label.style.setProperty('--nj-fil', Math.abs(retenu) + 'px');
+      e.label.classList.toggle('nj-decale-bas', retenu < 0);
     });
   }
 
