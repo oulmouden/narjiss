@@ -1678,7 +1678,11 @@
     if (!window.L) return;
     var mapOptions = { scrollWheelZoom: false, maxZoom: 22 };
     try {
-      if (L.Control && L.Control.Fullscreen) {
+      /* Le greffon expose L.Control.FullScreen — S majuscule — et la fabrique
+         L.control.fullscreen. Le test portait sur « Fullscreen », donc
+         toujours faux : le contrôle n'a jamais été installé. On accepte les
+         deux graphies, la casse ayant déjà changé entre deux versions. */
+      if (L.Control && (L.Control.FullScreen || L.Control.Fullscreen)) {
         mapOptions.fullscreenControl = true;
         mapOptions.fullscreenControlOptions = { position: "topleft" };
       }
