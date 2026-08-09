@@ -220,17 +220,72 @@ html[dir=rtl] .poi-item { text-align: right; }
   #projectMap { height: 420px; min-height: 0; }
 }
 
-/* Mode « embarqué » (iframe depuis le parcours client) : on ne garde que la
-   carte et le panneau POI, sans le menu du site ni l'en-tête. */
+/* ── Repères ───────────────────────────────────────────────────────────────
+   Bande horizontale sous la carte : aéroport, plage, gare… Horizontale et non
+   en colonne, pour se lire d'un balayage du regard pendant qu'on commente la
+   carte, sans disputer sa place au panneau des commodités. */
+.reperes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  padding: .7rem .9rem;
+  background: var(--smoke);
+  border: 1px solid rgba(17,24,39,.1);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+}
+.reperes[hidden] { display: none; }
+.reperes-titre {
+  color: var(--bronze, var(--gold));
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-inline-end: .3rem;
+}
+.repere {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .35rem;
+  padding: .3rem .65rem;
+  background: var(--surface-2, rgba(17,24,39,.05));
+  border-radius: 999px;
+  font-size: .8rem;
+  white-space: nowrap;
+}
+.repere-icone { font-size: .95rem; }
+.repere-nom { font-weight: 700; color: var(--ink); }
+.repere-dist { color: var(--gold); font-weight: 800; font-size: .76rem; }
+
+/* Mode « embarqué » (iframe depuis le parcours client ou la démonstration) :
+   on ne garde que la carte, le panneau POI et les repères, sans le menu du
+   site ni l'en-tête. */
 .nj-embed #mainMenu,
 .nj-embed .loc-hero,
 .nj-embed #mainFooter,
 .nj-embed .map-actions,
 .nj-embed .loc-retour { display: none !important; }
-.nj-embed .loc-shell { padding: 0; margin: 0; max-width: none; }
-.nj-embed .map-composition { height: 100vh; min-height: 0; }
-.nj-embed #projectMap { height: 100vh; }
+/* Le body réserve 68px pour le menu fixe. Le menu étant masqué ici, cette
+   réserve ne faisait qu'ajouter une bande blanche en haut et pousser la
+   colonne d'autant hors du cadre. */
+.nj-embed body { padding: 0 !important; margin: 0 !important; }
+.nj-embed, .nj-embed body { overflow: hidden; }
+/* Colonne flexible plutôt qu'un calc() sur la hauteur de la bande : celle-ci
+   dépend de la largeur disponible, qui dépend de la hauteur de la carte, qui
+   dépendrait de la bande. Mesurer l'une pour dimensionner l'autre créait une
+   boucle — la carte s'était retrouvée à 218px pour une bande annoncée à 502.
+   Ici la bande prend ce qu'il lui faut, la carte prend le reste. */
+.nj-embed .loc-shell {
+  padding: 0; margin: 0; max-width: none;
+  display: flex; flex-direction: column; height: 100vh;
+}
+.nj-embed .map-composition { flex: 1 1 auto; min-height: 0; height: auto; }
+.nj-embed .map-aside { height: auto; min-height: 0; }
+.nj-embed #projectMap { height: 100%; min-height: 0; }
+.nj-embed .reperes { flex: 0 0 auto; border-radius: 0; border-left: 0; border-right: 0; }
 @media (max-width: 900px) {
+  .nj-embed .loc-shell { height: auto; }
   .nj-embed .map-composition { height: auto; }
   .nj-embed #projectMap { height: 60vh; }
 }
@@ -270,11 +325,15 @@ html[dir=rtl] .poi-item { text-align: right; }
     </aside>
     <div id="projectMap"></div>
   </div>
+  <!-- Repères : aéroport, plage, gare… Ils répondent à « où suis-je »,
+       là où la colonne de gauche répond à « qu'ai-je en bas de chez moi ».
+       Masquée tant que le CSV n'a pas répondu. -->
+  <div class="reperes" id="reperes" hidden></div>
 </div>
 
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=16"></script>
-<script src="localisation.js?v=3"></script>
+<script src="localisation.js?v=5"></script>
 </body>
 </html>

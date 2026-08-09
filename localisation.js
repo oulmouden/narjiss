@@ -29,7 +29,8 @@
       rating: "Note", reviews: "avis",
       sortBy: "Tri", sortDist: "Distance", sortName: "Nom",
       filterMax: "Filtre", allDistances: "Toutes", minWalk: "min à pied",
-      walk: "à pied", drive: "en voiture"
+      walk: "à pied", drive: "en voiture",
+      reperes: "Repères"
     },
     en: {
       kicker: "Location",
@@ -47,7 +48,8 @@
       rating: "Rating", reviews: "reviews",
       sortBy: "Sort", sortDist: "Distance", sortName: "Name",
       filterMax: "Filter", allDistances: "All", minWalk: "min walk",
-      walk: "walk", drive: "drive"
+      walk: "walk", drive: "drive",
+      reperes: "Landmarks"
     },
     ar: {
       kicker: "الموقع",
@@ -65,7 +67,8 @@
       rating: "التقييم", reviews: "تقييم",
       sortBy: "الترتيب", sortDist: "المسافة", sortName: "الاسم",
       filterMax: "تصفية", allDistances: "الكل", minWalk: "دقيقة مشيا",
-      walk: "مشيا", drive: "بالسيارة"
+      walk: "مشيا", drive: "بالسيارة",
+      reperes: "معالم"
     },
     es: {
       kicker: "Localización",
@@ -83,7 +86,8 @@
       rating: "Nota", reviews: "reseñas",
       sortBy: "Orden", sortDist: "Distancia", sortName: "Nombre",
       filterMax: "Filtro", allDistances: "Todas", minWalk: "min a pie",
-      walk: "a pie", drive: "en coche"
+      walk: "a pie", drive: "en coche",
+      reperes: "Referencias"
     }
   };
 
@@ -288,6 +292,80 @@
         return response.text();
       });
     }).then(parseCSV);
+  }
+
+  /* ── Repères ──────────────────────────────────────────────────────────────
+     Les lieux qui situent un projet d'un coup d'œil : aéroport, plage, gare,
+     centre-ville. Ils vivent dans un CSV distinct des commodités de quartier
+     (<projet>_major_<langue>.csv), parce qu'ils répondent à une autre
+     question — non pas « qu'ai-je en bas de chez moi » mais « où suis-je ». */
+
+  function loadProjectReperes(project, l) {
+    var base = projectDataBase(project);
+    var primary = base.folder + '/' + base.slug + '_major_' + l + '.csv';
+    var fallback = base.folder + '/' + base.slug + '_major_fr.csv';
+    return fetch(primary).then(function (r) {
+      if (!r.ok) throw new Error('CSV reperes introuvable');
+      return r.text();
+    }).catch(function () {
+      if (primary === fallback) throw new Error('CSV reperes introuvable');
+      return fetch(fallback).then(function (r) {
+        if (!r.ok) throw new Error('CSV reperes introuvable');
+        return r.text();
+      });
+    }).then(parseCSV);
+  }
+
+  function renderReperes(project, l) {
+    var zone = document.getElementById('reperes');
+    if (!zone) return;   // la bande est facultative : la page vit sans
+
+    loadProjectReperes(project, l).then(function (pois) {
+      // Le repère « home » donne l'origine des distances ; à défaut, les
+      // coordonnées déclarées du projet.
+      var origine = null;
+      for (var i = 0; i < pois.length; i++) if (pois[i].cat === 'home') { origine = pois[i]; break; }
+      if (!origine) origine = { lat: project.lat, lng: project.lng };
+
+      var items = [];
+      for (var j = 0; j < pois.length; j++) {
+        var p = pois[j];
+        if (p.cat === 'home') continue;
+        if (typeof p.lat !== 'number' || typeof p.lng !== 'number') continue;
+        p._distance = haversineDistance(origine.lat, origine.lng, p.lat, p.lng);
+        items.push(p);
+      }
+      items.sort(function (a, b) { return a._distance - b._distance; });
+
+      if (!items.length) { zone.hidden = true; majHauteurReperes(); return; }
+      zone.hidden = false;
+      zone.innerHTML = '<span class="reperes-titre">' + t().reperes + '</span>' +
+        items.map(function (p) {
+          return '<span class="repere">' +
+                   '<span class="repere-icone" aria-hidden="true">' + (p.emoji || '📍') + '</span>' +
+                   '<span class="repere-nom">' + (p.nom || '') + '</span>' +
+                   '<span class="repere-dist">' + formatDistance(p._distance) + '</span>' +
+                 '</span>';
+        }).join('');
+      majHauteurReperes();
+    }).catch(function () {
+      // Tous les projets n'ont pas de fichier de repères : on masque la bande
+      // plutôt que d'afficher un cadre vide.
+      zone.hidden = true;
+      majHauteurReperes();
+    });
+  }
+
+  /**
+   * La bande apparaît ou disparaît : la carte doit reprendre ses mesures.
+   *
+   * Sa hauteur n'est plus publiée dans une variable CSS — la mise en page est
+   * une colonne flexible où la bande prend ce qu'il lui faut et la carte le
+   * reste. Mesurer l'une pour dimensionner l'autre créait une boucle, la
+   * hauteur de la bande dépendant elle-même de la largeur disponible.
+   */
+  function majHauteurReperes() {
+    if (mapInstance) window.setTimeout(function () { mapInstance.invalidateSize(); }, 60);
   }
 
   /* ── Distances ─────────────────────────────────────────────────────── */
@@ -734,7 +812,10 @@
     }
     appliquerLangue();
     var project = findProject();
-    if (project) renderMap(project, lang());
+    if (project) {
+      renderMap(project, lang());
+      renderReperes(project, lang());   // le CSV des repères suit la langue
+    }
   };
 
   document.addEventListener('DOMContentLoaded', function () {

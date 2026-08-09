@@ -432,7 +432,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 
   // Marqueur de version pour la page chargée dans la scène. À incrémenter
   // quand project.html change, sinon le cadre resservira l'ancienne copie.
-  var VERSION = '5';
+  var VERSION = '6';
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
@@ -759,11 +759,16 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       } catch (e) { refus(); }
     }
 
-    /* &v= : project.html n'a pas de marqueur de version dans son URL. Sans
-       lui, le cadre resservirait indéfiniment la copie en cache du
-       navigateur, y compris après un déploiement. */
-    $('njSceneCadre').src = 'project.html?id=' + encodeURIComponent(id) +
-      '&v=' + VERSION + '#' + langue;
+    /* localisation.html en mode « embed » plutôt que project.html : la
+       démonstration montre le projet DANS SON ENVIRONNEMENT — carte, POI du
+       quartier, repères — et non sa fiche commerciale. Cette page est déjà
+       conçue sans menu ni pied de page, donc pleine par construction : elle
+       occupe tout le cadre même quand le navigateur refuse le plein écran.
+
+       &v= : la page n'a pas de marqueur de version dans son URL. Sans lui,
+       le cadre resservirait la copie en cache, y compris après déploiement. */
+    $('njSceneCadre').src = 'localisation.html?projet=' + encodeURIComponent(id) +
+      '&embed=1&v=' + VERSION + '#' + langue;
   }
 
   function fermerScene() {
