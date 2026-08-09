@@ -30,7 +30,8 @@
       sortBy: "Tri", sortDist: "Distance", sortName: "Nom",
       filterMax: "Filtre", allDistances: "Toutes", minWalk: "min à pied",
       walk: "à pied", drive: "en voiture",
-      reperes: "Repères"
+      reperes: "Repères",
+      jeuQuartier: "Quartier", jeuReperes: "Repères", reperesCount: " repères de la ville"
     },
     en: {
       kicker: "Location",
@@ -49,7 +50,8 @@
       sortBy: "Sort", sortDist: "Distance", sortName: "Name",
       filterMax: "Filter", allDistances: "All", minWalk: "min walk",
       walk: "walk", drive: "drive",
-      reperes: "Landmarks"
+      reperes: "Landmarks",
+      jeuQuartier: "Neighbourhood", jeuReperes: "Landmarks", reperesCount: " city landmarks"
     },
     ar: {
       kicker: "الموقع",
@@ -68,7 +70,8 @@
       sortBy: "الترتيب", sortDist: "المسافة", sortName: "الاسم",
       filterMax: "تصفية", allDistances: "الكل", minWalk: "دقيقة مشيا",
       walk: "مشيا", drive: "بالسيارة",
-      reperes: "معالم"
+      reperes: "معالم",
+      jeuQuartier: "الحي", jeuReperes: "معالم", reperesCount: " من معالم المدينة"
     },
     es: {
       kicker: "Localización",
@@ -87,7 +90,8 @@
       sortBy: "Orden", sortDist: "Distancia", sortName: "Nombre",
       filterMax: "Filtro", allDistances: "Todas", minWalk: "min a pie",
       walk: "a pie", drive: "en coche",
-      reperes: "Referencias"
+      reperes: "Referencias",
+      jeuQuartier: "Barrio", jeuReperes: "Referencias", reperesCount: " referencias de la ciudad"
     }
   };
 
@@ -172,6 +176,11 @@
   var currentPois = [];
   var currentSort = 'distance';
   var maxDistanceFilter = 0;
+  // Jeu affiché : 'quartier' (commodités) ou 'reperes' (aéroport, plage…).
+  var modeListe = 'quartier';
+  var jeuxCharges = { quartier: null, reperes: null };
+  var projetAffiche = null;
+  var premierJeuAffiche = false;   // le tout premier cadrage est sec, les suivants volent
   var projectId = '';
 
   /* ── Helpers ───────────────────────────────────────────────────────── */
@@ -316,57 +325,6 @@
     }).then(parseCSV);
   }
 
-  function renderReperes(project, l) {
-    var zone = document.getElementById('reperes');
-    if (!zone) return;   // la bande est facultative : la page vit sans
-
-    loadProjectReperes(project, l).then(function (pois) {
-      // Le repère « home » donne l'origine des distances ; à défaut, les
-      // coordonnées déclarées du projet.
-      var origine = null;
-      for (var i = 0; i < pois.length; i++) if (pois[i].cat === 'home') { origine = pois[i]; break; }
-      if (!origine) origine = { lat: project.lat, lng: project.lng };
-
-      var items = [];
-      for (var j = 0; j < pois.length; j++) {
-        var p = pois[j];
-        if (p.cat === 'home') continue;
-        if (typeof p.lat !== 'number' || typeof p.lng !== 'number') continue;
-        p._distance = haversineDistance(origine.lat, origine.lng, p.lat, p.lng);
-        items.push(p);
-      }
-      items.sort(function (a, b) { return a._distance - b._distance; });
-
-      if (!items.length) { zone.hidden = true; majHauteurReperes(); return; }
-      zone.hidden = false;
-      zone.innerHTML = '<span class="reperes-titre">' + t().reperes + '</span>' +
-        items.map(function (p) {
-          return '<span class="repere">' +
-                   '<span class="repere-icone" aria-hidden="true">' + (p.emoji || '📍') + '</span>' +
-                   '<span class="repere-nom">' + (p.nom || '') + '</span>' +
-                   '<span class="repere-dist">' + formatDistance(p._distance) + '</span>' +
-                 '</span>';
-        }).join('');
-      majHauteurReperes();
-    }).catch(function () {
-      // Tous les projets n'ont pas de fichier de repères : on masque la bande
-      // plutôt que d'afficher un cadre vide.
-      zone.hidden = true;
-      majHauteurReperes();
-    });
-  }
-
-  /**
-   * La bande apparaît ou disparaît : la carte doit reprendre ses mesures.
-   *
-   * Sa hauteur n'est plus publiée dans une variable CSS — la mise en page est
-   * une colonne flexible où la bande prend ce qu'il lui faut et la carte le
-   * reste. Mesurer l'une pour dimensionner l'autre créait une boucle, la
-   * hauteur de la bande dépendant elle-même de la largeur disponible.
-   */
-  function majHauteurReperes() {
-    if (mapInstance) window.setTimeout(function () { mapInstance.invalidateSize(); }, 60);
-  }
 
   /* ── Distances ─────────────────────────────────────────────────────── */
 
@@ -452,6 +410,18 @@
         className: 'project-home-marker-icon'
       });
     }
+    /* Repères : l'emoji du CSV plutôt qu'une icône de la palette. Aéroport,
+       marina, stade ou musée n'y figurent pas et tomberaient tous sur la même
+       pastille grise — or ce sont justement eux qu'on veut distinguer. */
+    if (modeListe === 'reperes') {
+      return L.divIcon({
+        html: '<div class="repere-marker">' + (poi.emoji || '📍') + '</div>',
+        iconSize: [38, 38],
+        iconAnchor: [19, 19],
+        popupAnchor: [0, -19],
+        className: 'repere-marker-icon'
+      });
+    }
     var style = poiMarkerStyle(poi.cat);
     return L.divIcon({
       html: '<div class="poi-google-marker" style="background:' + style.color + '">' +
@@ -524,6 +494,44 @@
 
   /* ── Panneau latéral ───────────────────────────────────────────────── */
 
+  /**
+   * Les deux onglets du panneau. Le bouton « Repères » reste absent quand le
+   * projet n'a pas de fichier : proposer un onglet vide serait pire que ne
+   * rien proposer.
+   */
+  function basculeJeuxHTML(l) {
+    var u = UI[l] || UI.fr;
+    if (!jeuxCharges.reperes) return '';
+    return '<div class="poi-jeux" role="tablist">' +
+      '<button type="button" class="poi-jeu' + (modeListe === 'quartier' ? ' active' : '') +
+        '" data-jeu="quartier" role="tab" aria-selected="' + (modeListe === 'quartier') + '">' +
+        u.jeuQuartier + '</button>' +
+      '<button type="button" class="poi-jeu' + (modeListe === 'reperes' ? ' active' : '') +
+        '" data-jeu="reperes" role="tab" aria-selected="' + (modeListe === 'reperes') + '">' +
+        u.jeuReperes + '</button>' +
+    '</div>';
+  }
+
+  /** Repères : liste plate, triée par distance. Les regrouper par catégorie
+      donnerait onze rubriques d'un seul élément. */
+  function reperesListeHTML(pois, l) {
+    var items = [];
+    for (var i = 0; i < pois.length; i++) {
+      if (pois[i].cat === 'home') continue;
+      items.push({ poi: pois[i], idx: i });
+    }
+    items.sort(function (a, b) {
+      if (currentSort === 'name') return a.poi.nom.localeCompare(b.poi.nom);
+      return (a.poi._distance || 0) - (b.poi._distance || 0);
+    });
+    return '<div class="poi-list show">' + items.map(function (it) {
+      return '<button class="poi-item repere-item" data-idx="' + it.idx + '">' +
+        '<span class="repere-emoji" aria-hidden="true">' + (it.poi.emoji || '📍') + '</span><span>' +
+        '<span class="poi-name">' + it.poi.nom + '</span>' +
+        '<span class="poi-meta">' + distanceMeta(it.poi) + '</span></span></button>';
+    }).join('') + '</div>';
+  }
+
   function updatePoiSummary(pois, l, hasCsv) {
     var box = document.getElementById('poiSummary');
     if (!box) return;
@@ -555,8 +563,9 @@
     // Pas de récapitulatif par catégorie ici : la liste dépliable ci-dessous
     // porte déjà le compte de chaque catégorie dans son badge.
     var count = Math.max(0, pois.length - 1);
-    var html =
-      '<div class="poi-count"><span>' + count + '</span>' + u.poiCount + '</div>' +
+    var html = basculeJeuxHTML(l) +
+      '<div class="poi-count"><span>' + count + '</span>' +
+      (modeListe === 'reperes' ? u.reperesCount : u.poiCount) + '</div>' +
       '<div class="poi-controls">' +
         '<div class="poi-control-row"><label>' + u.sortBy + '</label>' +
           '<button class="poi-sort' + (currentSort === 'distance' ? ' active' : '') + '" data-sort="distance">📏 ' + u.sortDist + '</button>' +
@@ -572,6 +581,16 @@
           '</select>' +
         '</div>' +
       '</div>';
+
+    if (modeListe === 'reperes') {
+      // Pas de catégories dépliables ni de filtre par temps de marche : on ne
+      // rejoint pas l'aéroport à pied.
+      box.innerHTML = basculeJeuxHTML(l) +
+        '<div class="poi-count"><span>' + count + '</span>' + u.reperesCount + '</div>' +
+        reperesListeHTML(pois, l);
+      brancherPanneau(box, l);
+      return;
+    }
 
     for (var k = 0; k < order.length; k++) {
       var cat = order[k];
@@ -597,6 +616,18 @@
     }
 
     box.innerHTML = html;
+    brancherPanneau(box, l);
+  }
+
+  /** Écouteurs du panneau. Extrait de updatePoiSummary : les deux modes en ont
+      besoin, et la liste est reconstruite à chaque tri, filtre ou bascule. */
+  function brancherPanneau(box, l) {
+    var jeuBtns = box.querySelectorAll('.poi-jeu');
+    for (var g = 0; g < jeuBtns.length; g++) {
+      jeuBtns[g].addEventListener('click', function () {
+        afficherJeu(this.getAttribute('data-jeu'), l);
+      });
+    }
 
     var sortBtns = box.querySelectorAll('.poi-sort');
     for (var s = 0; s < sortBtns.length; s++) {
@@ -628,7 +659,7 @@
 
   /* ── Carte ─────────────────────────────────────────────────────────── */
 
-  function renderPois(project, pois, l) {
+  function renderPois(project, pois, l, anime) {
     if (!mapInstance || !window.L) return;
     for (var i = 0; i < mapMarkers.length; i++) mapInstance.removeLayer(mapMarkers[i]);
     mapMarkers = [];
@@ -681,7 +712,13 @@
       bounds.extend([poi.lat, poi.lng]);
     }
 
-    if (bounds.isValid()) mapInstance.fitBounds(bounds.pad(0.18), { maxZoom: 15 });
+    /* Au premier rendu on cadre sec ; à chaque bascule on VOLE vers le nouveau
+       cadrage. Le mouvement est l'argument : il montre qu'on change d'échelle,
+       du quartier à la ville. Un saut donnerait deux images sans lien. */
+    if (bounds.isValid()) {
+      if (anime) mapInstance.flyToBounds(bounds.pad(0.18), { maxZoom: 15, duration: 1.2 });
+      else mapInstance.fitBounds(bounds.pad(0.18), { maxZoom: 15 });
+    }
   }
 
   function renderMap(project, l) {
@@ -755,14 +792,51 @@
     var summary = document.getElementById('poiSummary');
     if (summary) summary.innerHTML = '<div class="poi-note">' + UI[l].poiLoading + '</div>';
 
+    /* Les deux jeux sont chargés d'emblée, mais un seul est affiché : la
+       bascule doit être instantanée devant un client, pas attendre un
+       téléchargement. Les repères sont facultatifs — leur absence désactive
+       simplement le bouton. */
+    jeuxCharges = { quartier: null, reperes: null };
+    premierJeuAffiche = false;
+    projetAffiche = project;
+
+    loadProjectReperes(project, l)
+      .then(function (r) { jeuxCharges.reperes = r && r.length ? r : null; })
+      .catch(function () { jeuxCharges.reperes = null; });
+
     loadProjectPois(project, l).then(function (pois) {
       if (!pois.length) throw new Error('Empty CSV');
-      renderPois(project, pois, l);
-      updatePoiSummary(currentPois, l, true);
+      jeuxCharges.quartier = pois;
+      afficherJeu(modeListe, l);
     }).catch(function () {
       renderPois(project, [], l);
       updatePoiSummary(currentPois, l, false);
     });
+  }
+
+  /**
+   * Bascule entre les commodités du quartier et les repères de la ville.
+   *
+   * Les deux jeux n'ont pas la même échelle : une pharmacie est à 300 m,
+   * l'aéroport à 12 km. Les afficher ensemble imposait un zoom de compromis,
+   * trop large pour lire le quartier et trop serré pour situer la ville.
+   * Séparés, chaque bascule recadre la carte sur ce qu'elle montre —
+   * renderPois s'en charge déjà.
+   */
+  // Poignée de lecture, utile pour régler la mise en scène depuis la console.
+  window.njLoc = {
+    carte: function () { return mapInstance; },
+    mode: function () { return modeListe; }
+  };
+
+  function afficherJeu(mode, l) {
+    if (mode === 'reperes' && !jeuxCharges.reperes) mode = 'quartier';
+    modeListe = mode;
+    var jeu = mode === 'reperes' ? jeuxCharges.reperes : jeuxCharges.quartier;
+    if (!projetAffiche || !jeu) return;
+    renderPois(projetAffiche, jeu, l, premierJeuAffiche);
+    premierJeuAffiche = true;
+    updatePoiSummary(currentPois, l, true);
   }
 
   /* ── Textes de la page ─────────────────────────────────────────────── */
@@ -814,7 +888,6 @@
     var project = findProject();
     if (project) {
       renderMap(project, lang());
-      renderReperes(project, lang());   // le CSV des repères suit la langue
     }
   };
 

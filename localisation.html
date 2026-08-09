@@ -220,43 +220,55 @@ html[dir=rtl] .poi-item { text-align: right; }
   #projectMap { height: 420px; min-height: 0; }
 }
 
-/* ── Repères ───────────────────────────────────────────────────────────────
-   Bande horizontale sous la carte : aéroport, plage, gare… Horizontale et non
-   en colonne, pour se lire d'un balayage du regard pendant qu'on commente la
-   carte, sans disputer sa place au panneau des commodités. */
-.reperes {
+/* ── Bascule quartier / repères ────────────────────────────────────────────
+   Deux onglets en tête du panneau plutôt qu'une bande séparée : les deux jeux
+   répondent à la même question de mise en situation, à deux échelles. Les
+   montrer ensemble imposait un zoom de compromis — trop large pour lire le
+   quartier, trop serré pour situer la ville. */
+.poi-jeux {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .5rem;
-  padding: .7rem .9rem;
-  background: var(--smoke);
-  border: 1px solid rgba(17,24,39,.1);
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
+  gap: .3rem;
+  padding: .7rem .9rem .55rem;
+  border-bottom: 1px solid rgba(17,24,39,.08);
 }
-.reperes[hidden] { display: none; }
-.reperes-titre {
-  color: var(--bronze, var(--gold));
-  font-size: .7rem;
-  font-weight: 900;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  margin-inline-end: .3rem;
-}
-.repere {
-  display: inline-flex;
-  align-items: baseline;
-  gap: .35rem;
-  padding: .3rem .65rem;
-  background: var(--surface-2, rgba(17,24,39,.05));
+.poi-jeu {
+  flex: 1;
+  min-height: 40px;
+  padding: .45rem .6rem;
+  border: 1px solid var(--border-medium, rgba(17,24,39,.14));
   border-radius: 999px;
-  font-size: .8rem;
-  white-space: nowrap;
+  background: var(--smoke);
+  color: var(--muted);
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
 }
-.repere-icone { font-size: .95rem; }
-.repere-nom { font-weight: 700; color: var(--ink); }
-.repere-dist { color: var(--gold); font-weight: 800; font-size: .76rem; }
+.poi-jeu:hover { border-color: var(--gold); color: var(--gold); }
+.poi-jeu.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+  font-weight: 800;
+}
+
+/* Repère dans la liste : l'emoji tient lieu de pastille de couleur. */
+.repere-item { grid-template-columns: 26px 1fr; align-items: center; }
+.repere-emoji { font-size: 1.15rem; line-height: 1; text-align: center; }
+
+/* Marqueur de repère sur la carte : plus grand qu'un POI de quartier, et
+   porteur de son emoji — aéroport, marina ou stade n'ont pas d'icône dans la
+   palette et tomberaient tous sur la même pastille grise. */
+.repere-marker {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--smoke);
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 14px rgba(20,20,29,.3);
+  font-size: 1.15rem;
+}
 
 /* Mode « embarqué » (iframe depuis le parcours client ou la démonstration) :
    on ne garde que la carte, le panneau POI et les repères, sans le menu du
@@ -283,7 +295,6 @@ html[dir=rtl] .poi-item { text-align: right; }
 .nj-embed .map-composition { flex: 1 1 auto; min-height: 0; height: auto; }
 .nj-embed .map-aside { height: auto; min-height: 0; }
 .nj-embed #projectMap { height: 100%; min-height: 0; }
-.nj-embed .reperes { flex: 0 0 auto; border-radius: 0; border-left: 0; border-right: 0; }
 @media (max-width: 900px) {
   .nj-embed .loc-shell { height: auto; }
   .nj-embed .map-composition { height: auto; }
@@ -325,15 +336,11 @@ html[dir=rtl] .poi-item { text-align: right; }
     </aside>
     <div id="projectMap"></div>
   </div>
-  <!-- Repères : aéroport, plage, gare… Ils répondent à « où suis-je »,
-       là où la colonne de gauche répond à « qu'ai-je en bas de chez moi ».
-       Masquée tant que le CSV n'a pas répondu. -->
-  <div class="reperes" id="reperes" hidden></div>
 </div>
 
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=16"></script>
-<script src="localisation.js?v=5"></script>
+<script src="localisation.js?v=8"></script>
 </body>
 </html>
