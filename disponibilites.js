@@ -1483,6 +1483,7 @@
    * déplace le plan.
    */
   function recadrerPlan(svg) {
+    if (svg.njRecadrer) { svg.njRecadrer(); return; }
     var vb = svg.getAttribute('data-vb0');
     if (!vb) return;
     svg.setAttribute('viewBox', vb);
@@ -1498,14 +1499,31 @@
     var vue = { x: 0, y: 0, w: LARG, h: HAUT };
     var ZOOM_MAX = 6;
 
+    /* Aspect réel de l'élément à l'écran. En mode scène ou en plein écran, le
+       SVG est étiré à la hauteur du panneau : son aspect ne suit plus celui de
+       l'image, et cadrer l'image entière laissait le plan flotter au centre,
+       entre deux bandes vides. Le cadrage « entier » est donc la plus grande
+       fenêtre DE CET ASPECT qui tienne dans l'image (remplissage « cover ») :
+       le plan occupe tout le panneau, le glissement montre le reste. Sur la
+       page normale, l'élément suit l'aspect de l'image : rien ne change. */
+    function ratioEcran() {
+      var r = svg.getBoundingClientRect();
+      return (r.width > 1 && r.height > 1) ? r.height / r.width : HAUT / LARG;
+    }
+    function largeurMax() { return Math.min(LARG, HAUT / ratioEcran()); }
+    function cadrageEntier() {
+      var w = largeurMax(), h = w * ratioEcran();
+      return { x: (LARG - w) / 2, y: (HAUT - h) / 2, w: w, h: h };
+    }
+
     // Redondant avec la feuille de style, mais posé aussi ici : si la règle
     // CSS ne s'applique pas, le navigateur s'approprie le pincement et nos
     // gestes ne voient jamais le second doigt.
     svg.style.touchAction = 'none';
 
     function appliquer() {
-      vue.w = Math.max(LARG / ZOOM_MAX, Math.min(LARG, vue.w));
-      vue.h = vue.w * (HAUT / LARG);
+      vue.w = Math.max(LARG / ZOOM_MAX, Math.min(largeurMax(), vue.w));
+      vue.h = vue.w * ratioEcran();
       vue.x = Math.max(0, Math.min(LARG - vue.w, vue.x));
       vue.y = Math.max(0, Math.min(HAUT - vue.h, vue.y));
       svg.setAttribute('viewBox', vue.x + ' ' + vue.y + ' ' + vue.w + ' ' + vue.h);
@@ -1561,8 +1579,8 @@
       var t = e.touches;
       if (pince && t.length >= 2) {
         var ratio = ecart(t) / pince.d;
-        var w = Math.max(LARG / ZOOM_MAX, Math.min(LARG, pince.w / ratio));
-        var h = w * (HAUT / LARG);
+        var w = Math.max(LARG / ZOOM_MAX, Math.min(largeurMax(), pince.w / ratio));
+        var h = w * ratioEcran();
         // Recalculé depuis l'instantané de départ, jamais de proche en
         // proche : sinon les arrondis font dériver le plan sous les doigts.
         vue.x = pince.cx - (pince.cx - pince.x) * (w / pince.w);
@@ -1630,8 +1648,8 @@
       e.preventDefault();
       var c = versImage(e.clientX, e.clientY);
       var f = e.deltaY < 0 ? 1.2 : 1 / 1.2;
-      var w = Math.max(LARG / ZOOM_MAX, Math.min(LARG, vue.w / f));
-      var h = w * (HAUT / LARG);
+      var w = Math.max(LARG / ZOOM_MAX, Math.min(largeurMax(), vue.w / f));
+      var h = w * ratioEcran();
       vue.x = c.x - (c.x - vue.x) * (w / vue.w);
       vue.y = c.y - (c.y - vue.y) * (h / vue.h);
       vue.w = w; vue.h = h;
@@ -1639,11 +1657,25 @@
     }, { passive: false });
 
     svg.addEventListener('dblclick', function () {
-      vue = { x: 0, y: 0, w: LARG, h: HAUT };
+      vue = cadrageEntier();
       appliquer();
     });
 
+    /* Recadrage extérieur (redimensionnement, changement d'étage en plein
+       écran, mode scène) : repartir du cadrage entier de l'aspect COURANT. */
+    svg.njRecadrer = function () { vue = cadrageEntier(); appliquer(); };
+
+    vue = cadrageEntier();
     appliquer();   // le viewBox vient désormais de l'état JS, dès le départ
+
+    /* Au premier rendu, l'élément n'est parfois pas encore mesurable (le
+       panneau étiré n'a pas sa taille) : le cadrage retombe sur l'aspect de
+       l'image, d'où un plan flottant au centre. On recadre à la frame
+       suivante, une fois la mise en page stabilisée — aucune interaction ne
+       peut s'être glissée entre-temps. */
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      if (svg.isConnected) { vue = cadrageEntier(); appliquer(); }
+    }); });
   }
 
   /** Bascule entre la façade, la maquette et les cartes détaillées. */

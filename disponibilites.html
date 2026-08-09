@@ -787,21 +787,39 @@ body.nj-fige { overflow: hidden; }
 
 /* ── Mode « embarqué » (?embed) ────────────────────────────────────────────
    Ouvert dans la scène de la démonstration : on ne garde que ce qui sert à
-   choisir un lot. Le menu, le titre, le fil d'Ariane et le pied de page
-   appartiennent au site, pas à la projection — et le plan y gagne la moitié
-   de la hauteur. */
+   choisir un lot, et chaque immeuble adopte D'OFFICE la mise en page du
+   bouton « Plein écran » (mêmes règles que .nj-mq-imm:fullscreen), sans
+   dépendre de l'API Fullscreen — capricieuse dans un cadre. Le plan prend
+   toute la hauteur ; l'élévation des étages et « Mes choix » restent à
+   gauche. Filtres, aide, bouton d'agrandissement et barre du bas relèvent
+   de la version site : masqués ici, comme en vrai plein écran. */
 .nj-embed #mainMenu,
 .nj-embed .nj-hero,
-.nj-embed #mainFooter { display: none !important; }
+.nj-embed #mainFooter,
+.nj-embed .nj-filtres,
+.nj-embed .nj-mq-aide,
+.nj-embed .nj-mq-agrandir,
+.nj-embed .nj-barre { display: none !important; }
 /* Le body réserve 68px pour le menu fixe, masqué ici : sans cette remise à
    zéro, une bande blanche pousse toute la page vers le bas. */
 .nj-embed body { padding: 0 !important; margin: 0 !important; }
+/* Le body du site est en flex colonne : avec « margin: 0 auto », la coquille
+   devenait un item flex rétréci à son contenu, centré entre deux grands
+   vides. On l'étale explicitement sur toute la largeur. */
 .nj-embed .nj-shell {
-  max-width: none;
-  /* 7rem en bas dans la version normale : place pour la barre de sélection.
-     On la conserve, elle reste affichée. */
-  padding: .8rem 1rem 7rem;
+  display: block; width: 100%; max-width: none; margin: 0; padding: 0;
 }
+/* Un immeuble = un écran (reprise des règles :fullscreen ci-dessus). */
+.nj-embed .nj-mq-imm {
+  display: flex; flex-direction: column; box-sizing: border-box;
+  min-height: 100vh; min-height: 100svh;
+  margin: 0; padding: 1rem 1.2rem; background: var(--bg);
+}
+.nj-embed .nj-mq-legende { flex: 0 0 auto; margin: .2rem 0 .8rem; }
+.nj-embed .nj-mq-corps { flex: 1; min-height: 0; }
+.nj-embed .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
+.nj-embed .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
+.nj-embed .nj-mq-etage { min-height: 60px; }
 </style>
 <script>
   /* Posé avant le rendu pour éviter tout clignotement du menu en mode scène. */
@@ -925,6 +943,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=16"></script>
-<script src="disponibilites.js?v=48"></script>
+<script src="disponibilites.js?v=49"></script>
 </body>
 </html>
