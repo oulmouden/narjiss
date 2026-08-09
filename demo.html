@@ -170,6 +170,27 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 }
 #njScene[hidden] { display: none; }
 #njSceneCadre { width: 100%; height: 100%; border: 0; display: block; }
+/* Rappel du projet ouvert, posé par la démo elle-même. La page interne
+   affiche déjà son titre, mais il défile avec le contenu : au bout de deux
+   minutes de présentation, plus rien à l'écran ne dit ce qu'on regarde. */
+#njSceneTitre {
+  position: fixed;
+  left: 50%; top: .9rem;
+  z-index: 52;
+  transform: translateX(-50%);
+  padding: .35rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(12,16,28,.78);
+  color: #fff;
+  font-family: var(--font-serif, 'Playfair Display'), serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: .9;
+}
 #njRetourCarte {
   position: fixed;
   left: 50%; bottom: 1.1rem;
@@ -330,6 +351,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
      enchaîner sur un autre projet. -->
 <div id="njScene" hidden>
   <iframe id="njSceneCadre" title="Projet" allow="fullscreen; geolocation; xr-spatial-tracking; gyroscope" allowfullscreen></iframe>
+  <div id="njSceneTitre"></div>
   <button type="button" id="njRetourCarte"></button>
 </div>
 
@@ -366,6 +388,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   // Zoom atteint par la loupe. 18 plutôt que le maximum absolu (22) : au-delà
   // de 19, l'imagerie satellite est interpolée et devient floue.
   var ZOOM_RAPPROCHE = 18;
+
+  // Marqueur de version pour la page chargée dans la scène. À incrémenter
+  // quand project.html change, sinon le cadre resservira l'ancienne copie.
+  var VERSION = '3';
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
@@ -445,7 +471,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
         title: nom
       }).addTo(carte);
 
-      (function (id, m) {
+      (function (id, m, libelle) {
         m.on('click', function (e) {
           // La loupe cadre, elle ne navigue pas.
           if (e.originalEvent && e.originalEvent.target.closest('.nj-loupe')) {
@@ -453,15 +479,21 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
             carte.flyTo(m.getLatLng(), ZOOM_RAPPROCHE, { duration: 1.8 });
             return;
           }
-          ouvrirProjet(id);
+          ouvrirProjet(id, libelle);
         });
-      })(p.id, marqueur);
+      })(p.id, marqueur, nom);
 
-      // Le décalage de chute est porté par l'élément, pas par une règle CSS :
-      // le nombre de projets n'est pas connu à l'écriture de la feuille.
+      /* Le décalage de chute est posé sur l'élément, pas dans la feuille de
+         style : le nombre de projets n'est pas connu à l'écriture du CSS.
+
+         Il doit viser .project-name-marker et NON le conteneur renvoyé par
+         getElement() : l'animation est déclarée sur l'enfant. Posé sur le
+         parent, le délai n'avait aucun effet et les douze pastilles tombaient
+         toutes en même temps. */
       if (anime) {
-        var el = marqueur.getElement();
-        if (el) el.style.animationDelay = (i * CADENCE_PASTILLE) + 'ms';
+        var conteneur = marqueur.getElement();
+        var label = conteneur && conteneur.querySelector('.project-name-marker');
+        if (label) label.style.animationDelay = (i * CADENCE_PASTILLE) + 'ms';
       }
       pastilles.push(marqueur);
     }
@@ -625,9 +657,14 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
    * conserve — et permet de revenir choisir un autre projet, ce qu'un aller
    * simple aurait interdit.
    */
-  function ouvrirProjet(id) {
+  function ouvrirProjet(id, nom) {
     var scene = $('njScene');
-    $('njSceneCadre').src = 'project.html?id=' + encodeURIComponent(id) + '#' + langue;
+    /* &v= : project.html n'a pas de marqueur de version dans son URL. Sans
+       lui, le cadre resservirait indéfiniment la copie en cache du
+       navigateur, y compris après un déploiement. */
+    $('njSceneCadre').src = 'project.html?id=' + encodeURIComponent(id) +
+      '&v=' + VERSION + '#' + langue;
+    $('njSceneTitre').textContent = nom || '';
     scene.hidden = false;
     $('njRetourCarte').textContent = t('retour');
 
