@@ -161,6 +161,59 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 #njPasser:hover { color: #fff; border-color: rgba(255,255,255,.6); }
 #njPasser[hidden] { display: none; }
 
+/* ── Scène projet ───────────────────────────────────────────────────────── */
+#njScene {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--bg, #fff);
+}
+#njScene[hidden] { display: none; }
+#njSceneCadre { width: 100%; height: 100%; border: 0; display: block; }
+#njRetourCarte {
+  position: fixed;
+  left: 50%; bottom: 1.1rem;
+  z-index: 52;
+  transform: translateX(-50%);
+  padding: .5rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(12,16,28,.82);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: .85rem;
+  font-weight: 700;
+  box-shadow: 0 14px 36px rgba(0,0,0,.42);
+  cursor: pointer;
+  opacity: .55;
+  transition: opacity .25s ease;
+}
+/* Discret pendant la présentation, franc quand on le cherche : il ne doit pas
+   attirer l'œil au milieu d'une visite 360°. */
+#njRetourCarte:hover, #njRetourCarte:focus-visible { opacity: 1; }
+
+/* ── Loupe de la pastille ───────────────────────────────────────────────── */
+.nj-nom { overflow: hidden; text-overflow: ellipsis; }
+.nj-loupe {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px; height: 21px;
+  margin-inline-start: .4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.28);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: .82rem;
+  line-height: 1;
+  cursor: zoom-in;
+  transition: background .18s ease, transform .18s ease;
+}
+.nj-loupe:hover { background: rgba(255,255,255,.55); transform: scale(1.15); }
+
 /* Attribution obligatoire, mais assourdie : présente et lisible de près,
    invisible depuis le fond de la salle. */
 .leaflet-control-attribution {
@@ -271,6 +324,15 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   <div id="njVolTexte"><b>NARJISS</b><span>IMMOBILIERE</span></div>
 </div></div></div>
 
+<!-- Le projet s'ouvre ici, en cadre intégré, plutôt que par une navigation :
+     le navigateur quitte le plein écran dès qu'il change de page. En restant
+     l'hôte, la démo garde le plein écran ET permet de revenir à la carte pour
+     enchaîner sur un autre projet. -->
+<div id="njScene" hidden>
+  <iframe id="njSceneCadre" title="Projet" allow="fullscreen; geolocation; xr-spatial-tracking; gyroscope" allowfullscreen></iframe>
+  <button type="button" id="njRetourCarte"></button>
+</div>
+
 <p id="njAccroche">Agadir</p>
 <div id="njInvite"></div>
 <button type="button" id="njPasser">Passer ⏎</button>
@@ -281,10 +343,14 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   'use strict';
 
   var LANGUES = {
-    fr: { accroche: 'Agadir', invite: 'Cliquez sur un projet pour commencer', passer: 'Passer ⏎' },
-    en: { accroche: 'Agadir', invite: 'Click a project to begin', passer: 'Skip ⏎' },
-    ar: { accroche: 'أكادير', invite: 'انقر على مشروع للبدء', passer: 'تخطي ⏎' },
-    es: { accroche: 'Agadir', invite: 'Haga clic en un proyecto para empezar', passer: 'Saltar ⏎' }
+    fr: { accroche: 'Agadir', invite: 'Cliquez sur un projet pour commencer', passer: 'Passer ⏎',
+          zoomer: 'Zoomer sur le projet', retour: '← Retour à la carte' },
+    en: { accroche: 'Agadir', invite: 'Click a project to begin', passer: 'Skip ⏎',
+          zoomer: 'Zoom to project', retour: '← Back to map' },
+    ar: { accroche: 'أكادير', invite: 'انقر على مشروع للبدء', passer: 'تخطي ⏎',
+          zoomer: 'تكبير المشروع', retour: '← العودة إلى الخريطة' },
+    es: { accroche: 'Agadir', invite: 'Haga clic en un proyecto para empezar', passer: 'Saltar ⏎',
+          zoomer: 'Acercar al proyecto', retour: '← Volver al mapa' }
   };
 
   // Le projet mis en avant : c'est le seul dont tous les médias immersifs
@@ -293,8 +359,13 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 
   // Intervalle entre deux pastilles. Devant un client, chaque apparition doit
   // pouvoir être commentée : à 90 ms les douze projets tombaient en une
-  // seconde, on n'avait pas le temps de les nommer.
-  var CADENCE_PASTILLE = 300;
+  // seconde, on n'avait pas le temps de les nommer. À 600 ms, la douzaine
+  // s'étale sur sept secondes — le rythme d'une phrase par projet.
+  var CADENCE_PASTILLE = 600;
+
+  // Zoom atteint par la loupe. 18 plutôt que le maximum absolu (22) : au-delà
+  // de 19, l'imagerie satellite est interpolée et devient floue.
+  var ZOOM_RAPPROCHE = 18;
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
@@ -354,8 +425,16 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       var vedette = p.id === PROJET_VEDETTE;
       var classes = (anime ? 'nj-tombe ' : '') + (vedette ? 'nj-cible' : '');
 
+      /* Deux actions distinctes sur une même pastille : le nom ouvre le
+         projet, la loupe s'en approche. Les séparer évite qu'un geste de
+         cadrage fasse basculer la présentation sur une autre page. */
       var icone = L.divIcon({
-        html: '<div class="project-name-marker"><span class="nj-fil-repere"></span>' + nom + '</div>',
+        html: '<div class="project-name-marker">' +
+                '<span class="nj-fil-repere"></span>' +
+                '<span class="nj-nom">' + nom + '</span>' +
+                '<button type="button" class="nj-loupe" tabindex="-1" ' +
+                  'aria-label="' + t('zoomer') + ' — ' + nom + '" title="' + t('zoomer') + '">⌖</button>' +
+              '</div>',
         iconSize: [180, 42], iconAnchor: [90, 40], className: classes
       });
 
@@ -366,11 +445,17 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
         title: nom
       }).addTo(carte);
 
-      (function (id) {
-        marqueur.on('click', function () {
-          window.location.href = 'project.html?id=' + encodeURIComponent(id) + '#' + langue;
+      (function (id, m) {
+        m.on('click', function (e) {
+          // La loupe cadre, elle ne navigue pas.
+          if (e.originalEvent && e.originalEvent.target.closest('.nj-loupe')) {
+            L.DomEvent.stop(e);
+            carte.flyTo(m.getLatLng(), ZOOM_RAPPROCHE, { duration: 1.8 });
+            return;
+          }
+          ouvrirProjet(id);
         });
-      })(p.id);
+      })(p.id, marqueur);
 
       // Le décalage de chute est porté par l'élément, pas par une règle CSS :
       // le nombre de projets n'est pas connu à l'écriture de la feuille.
@@ -530,6 +615,38 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 
   /* ── Amorçage ──────────────────────────────────────────────────────────── */
 
+  /* ── Scène projet ──────────────────────────────────────────────────────── */
+
+  /**
+   * Ouvre un projet par-dessus la carte, en plein écran.
+   *
+   * En cadre intégré et non par une navigation : le navigateur quitte le
+   * plein écran dès qu'il change de document. En restant l'hôte, la démo le
+   * conserve — et permet de revenir choisir un autre projet, ce qu'un aller
+   * simple aurait interdit.
+   */
+  function ouvrirProjet(id) {
+    var scene = $('njScene');
+    $('njSceneCadre').src = 'project.html?id=' + encodeURIComponent(id) + '#' + langue;
+    scene.hidden = false;
+    $('njRetourCarte').textContent = t('retour');
+
+    // Le clic sur la pastille fait office de geste utilisateur : c'est la
+    // seule fenêtre où le navigateur accepte une demande de plein écran.
+    var demande = scene.requestFullscreen || scene.webkitRequestFullscreen;
+    if (demande) { try { demande.call(scene); } catch (e) {} }
+  }
+
+  function fermerScene() {
+    if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) {} }
+    $('njScene').hidden = true;
+    // Vider la source libère la page : sans ça une visite 360° continuerait
+    // de tourner derrière la carte.
+    $('njSceneCadre').removeAttribute('src');
+  }
+
+  function sceneOuverte() { return !$('njScene').hidden; }
+
   /** Remet la scène à zéro pour un nouveau départ. */
   function reinitialiser() {
     toutAnnuler();
@@ -575,8 +692,20 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     // « Passer » et Échap/Entrée/Espace : indispensables quand on répète la
     // démonstration vingt fois, ou qu'un client arrive en avance.
     $('njPasser').addEventListener('click', etatFinal);
+    $('njRetourCarte').addEventListener('click', fermerScene);
     document.addEventListener('keydown', function (e) {
+      // Quand un projet est ouvert, Échap le referme au lieu d'agir sur
+      // l'intro, qui est de toute façon terminée à ce stade.
+      if (sceneOuverte()) {
+        if (e.key === 'Escape') { fermerScene(); }
+        return;
+      }
       if (['Escape', 'Enter', ' '].indexOf(e.key) >= 0) { e.preventDefault(); etatFinal(); }
+    });
+    // Sortir du plein écran par la touche du navigateur doit aussi refermer
+    // la scène, sinon le projet resterait affiché en fenêtré par-dessus la carte.
+    document.addEventListener('fullscreenchange', function () {
+      if (!document.fullscreenElement && sceneOuverte()) fermerScene();
     });
 
     // initPage charge data/projects.json, installe le menu, puis appelle
