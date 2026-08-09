@@ -33,7 +33,7 @@
     filtres: {},
     selection: [],
     avecDonnees: null,  // ids des projets ayant une grille, null tant qu'inconnu
-    vue: 'plan',        // 'plan' (façade), 'maquette' (plateau) ou 'liste'
+    vue: 'maquette',    // 'maquette' (plateau, par défaut), 'liste' ou 'plan' (façade)
     etage: {},          // étage affiché dans la maquette, par immeuble
     zones: null,        // numero_lot -> {plan, points}, null tant qu'inconnu
     plansZones: null,   // chemin de plan -> {largeur, hauteur}
@@ -73,10 +73,10 @@
       enPreparationTitre: 'Les disponibilités de ce projet arrivent bientôt.',
       enPreparationAide: 'La grille des lots est en cours de préparation. Nos conseillers peuvent déjà répondre à vos questions.',
       contacter: 'Contacter un conseiller', voirFiche: 'Voir la fiche du projet',
-      visiterBureau: 'Visiter notre bureau de vente',
-      yAller: 'Y aller depuis ma position',
-      partagerItineraire: "Envoyer l'itinéraire par WhatsApp",
-      quartier: '📍 Le quartier et ses commodités',
+      visiterBureau: 'Bureau de vente',
+      yAller: 'Itinéraire',
+      partagerItineraire: 'Itinéraire WhatsApp',
+      quartier: '📍 Le quartier',
       itineraireVers: 'Itinéraire vers',
       geoIndispo: "La géolocalisation n'est pas disponible dans ce navigateur.",
       geoRefus: "Impossible de récupérer votre position. Vérifiez l'autorisation de localisation.",
@@ -120,10 +120,10 @@
       enPreparationTitre: 'Availability for this project is coming soon.',
       enPreparationAide: 'The unit list is being prepared. Our advisers can already answer your questions.',
       contacter: 'Contact an adviser', voirFiche: 'View the project page',
-      visiterBureau: 'Visit our sales office',
-      yAller: 'Go from my current location',
-      partagerItineraire: 'Send route via WhatsApp',
-      quartier: '📍 The neighbourhood and its amenities',
+      visiterBureau: 'Sales office',
+      yAller: 'Directions',
+      partagerItineraire: 'Route via WhatsApp',
+      quartier: '📍 The neighbourhood',
       itineraireVers: 'Route to',
       geoIndispo: 'Geolocation is not available in this browser.',
       geoRefus: 'Unable to get your location. Please check location permission.',
@@ -167,10 +167,10 @@
       enPreparationTitre: 'ستتوفر قائمة هذا المشروع قريبا.',
       enPreparationAide: 'قائمة الوحدات قيد الإعداد. يمكن لمستشارينا الإجابة عن أسئلتكم منذ الآن.',
       contacter: 'الاتصال بمستشار', voirFiche: 'عرض بطاقة المشروع',
-      visiterBureau: 'زيارة مكتب البيع',
-      yAller: 'اذهب من موقعي الحالي',
-      partagerItineraire: 'إرسال المسار عبر واتساب',
-      quartier: '📍 الحي ومرافقه',
+      visiterBureau: 'مكتب البيع',
+      yAller: 'المسار',
+      partagerItineraire: 'المسار عبر واتساب',
+      quartier: '📍 الحي',
       itineraireVers: 'المسار نحو',
       geoIndispo: 'تحديد الموقع غير متاح في هذا المتصفح.',
       geoRefus: 'تعذر الحصول على موقعك. تحقق من إذن تحديد الموقع.',
@@ -214,10 +214,10 @@
       enPreparationTitre: 'Las disponibilidades de este proyecto llegarán pronto.',
       enPreparationAide: 'La lista de lotes se está preparando. Nuestros asesores ya pueden responder a sus preguntas.',
       contacter: 'Contactar con un asesor', voirFiche: 'Ver la ficha del proyecto',
-      visiterBureau: 'Visitar nuestra oficina de venta',
-      yAller: 'Ir desde mi ubicación actual',
-      partagerItineraire: 'Enviar ruta por WhatsApp',
-      quartier: '📍 El barrio y sus servicios',
+      visiterBureau: 'Oficina de venta',
+      yAller: 'Cómo llegar',
+      partagerItineraire: 'Ruta por WhatsApp',
+      quartier: '📍 El barrio',
       itineraireVers: 'Ruta hacia',
       geoIndispo: 'La geolocalización no está disponible en este navegador.',
       geoRefus: 'No se pudo obtener tu ubicación. Revisa el permiso de ubicación.',
@@ -1109,8 +1109,6 @@
           '</bdi> ' + t('libres') + '</span>' +
           '<span class="nj-plan-jauge" role="img" aria-label="' + pct + '%">' +
             '<span style="width:' + pct + '%"></span></span>' +
-          '<button type="button" class="nj-mq-agrandir" data-agrandir="' + echapper(imm) + '">' +
-            '⛶ ' + t('pleinEcran') + '</button>' +
         '</header>' +
         legendeMaquetteHTML() +
         '<div class="nj-mq-corps">' +
@@ -1429,6 +1427,31 @@
      la section de l'immeuble — plan ET sélecteur d'étages — pour qu'on puisse
      continuer à circuler dans le bâtiment sans en sortir. */
 
+  /**
+   * L'immeuble que le visiteur regarde : celui dont le haut est le plus proche
+   * du sommet de la fenêtre. Avec trois immeubles empilés, agrandir bêtement le
+   * premier renverrait ailleurs quelqu'un descendu jusqu'au C.
+   */
+  function immeubleEnVue() {
+    var sections = document.querySelectorAll('.nj-mq-imm');
+    if (!sections.length) return null;
+    var meilleur = sections[0], ecart = Infinity;
+    for (var i = 0; i < sections.length; i++) {
+      var d = Math.abs(sections[i].getBoundingClientRect().top);
+      if (d < ecart) { ecart = d; meilleur = sections[i]; }
+    }
+    return meilleur;
+  }
+
+  /**
+   * Le plein écran n'existe que pour la maquette : en vue Plan ou Liste, le
+   * bouton n'aurait aucune cible. On le retire plutôt que de le laisser inerte.
+   */
+  function majBoutonPleinMaquette() {
+    var b = document.getElementById('njPleinEcran');
+    if (b) b.hidden = !document.querySelector('.nj-mq-imm');
+  }
+
   function basculerPleinEcran(section) {
     if (!section) return;
     if (document.fullscreenElement) { document.exitFullscreen(); return; }
@@ -1648,6 +1671,7 @@
     if (etat.vue === 'plan') rendrePlan();
     else if (etat.vue === 'maquette') rendreMaquette();
     else rendreLots();
+    majBoutonPleinMaquette();   // la vue vient peut-être de changer
   }
 
   function rendreLots() {
@@ -1936,7 +1960,9 @@
       var agrandir = e.target.closest('[data-agrandir]');
       if (agrandir) {
         e.stopPropagation();
-        basculerPleinEcran(agrandir.closest('.nj-mq-imm'));
+        // Le bouton vit maintenant en haut de page, hors des sections : il n'a
+        // plus d'immeuble parent, on lui désigne celui que le visiteur regarde.
+        basculerPleinEcran(agrandir.closest('.nj-mq-imm') || immeubleEnVue());
         return;
       }
       var etage = e.target.closest('[data-etage]');
@@ -2026,7 +2052,13 @@
           t('partagerItineraire') + '</a>';
       }
     }
+    /* Le plein écran était enfoui dans l'en-tête de chaque immeuble, sous la
+       ligne de flottaison. Remonté ici, il est visible dès l'arrivée — et un
+       seul suffit, puisqu'il vise l'immeuble que le visiteur regarde. */
+    html += '<button type="button" id="njPleinEcran" data-agrandir="" hidden>⛶ ' +
+      t('pleinEcran') + '</button>';
     zone.innerHTML = html;
+    majBoutonPleinMaquette();
 
     var btn = document.getElementById('njItineraire');
     if (btn) btn.addEventListener('click', function () { ouvrirItineraire(false); });

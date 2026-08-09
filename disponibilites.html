@@ -38,16 +38,22 @@
   display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem;
   margin: .7rem 0 0;
 }
+/* Six boutons désormais, plein écran compris : on gagne la place sur la taille
+   plutôt qu'en les repoussant sur un second rang. */
 .nj-hero-actions a,
 .nj-hero-actions button {
-  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
-  min-height: 44px; padding: .6rem 1.1rem;
+  display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
+  min-height: 38px; padding: .4rem .8rem;
   border: 1px solid var(--border-subtle); border-radius: 8px;
   background: var(--surface); color: var(--ocean-deep);
-  font-family: inherit; font-size: .9rem; font-weight: 700;
+  font-family: inherit; font-size: .8rem; font-weight: 700;
   text-decoration: none; cursor: pointer;
   transition: transform .15s ease, background .15s ease, color .15s ease;
 }
+/* display:inline-flex ci-dessus l'emporterait sur l'attribut hidden, qui ne
+   vaut que « display:none » par défaut : le bouton resterait visible en vue
+   Plan ou Liste, où il n'a aucune cible. */
+.nj-hero-actions [hidden] { display: none; }
 .nj-hero-actions .nj-act-or {
   color: var(--sun); border-color: var(--sun);
 }
@@ -844,9 +850,9 @@ body.nj-fige { overflow: hidden; }
       <p class="nj-compteur" id="njCompteur">…</p>
       <div class="nj-vue" role="group" aria-labelledby="njVueLabel">
         <span class="nj-vue-label" id="njVueLabel">Affichage</span>
-        <button type="button" class="nj-vue-btn" data-vue="plan" id="njVuePlan" aria-pressed="true">Plan</button>
-        <button type="button" class="nj-vue-btn" data-vue="maquette" id="njVueMaquette" aria-pressed="false">Maquette</button>
+        <button type="button" class="nj-vue-btn" data-vue="maquette" id="njVueMaquette" aria-pressed="true">Maquette</button>
         <button type="button" class="nj-vue-btn" data-vue="liste" id="njVueListe" aria-pressed="false">Liste</button>
+        <button type="button" class="nj-vue-btn" data-vue="plan" id="njVuePlan" aria-pressed="false">Plan</button>
       </div>
       <p class="nj-legende" id="njLegende">
         <span><i style="background:var(--lot-dispo)"></i>Disponible</span>
@@ -894,6 +900,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=15"></script>
-<script src="disponibilites.js?v=45"></script>
+<script src="disponibilites.js?v=47"></script>
 </body>
 </html>
