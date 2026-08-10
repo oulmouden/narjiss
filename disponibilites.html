@@ -540,8 +540,12 @@ body.nj-fige { overflow: hidden; }
    cour, traversant), ce qui est précisément ce que le client cherche. */
 .nj-mq-aide { margin: 0 0 1.1rem; font-size: .84rem; color: var(--muted); }
 .nj-mq-imm { margin-bottom: var(--space-xl); }
+/* 210 px et non 152 : la colonne ne porte plus seulement les étages, mais le
+   poste de travail du conseiller (sélecteur de lot + quatre documents + bureau
+   de vente). En dessous, « Détails du lot » et « Bureau de vente » passaient
+   sur deux lignes. */
 .nj-mq-corps {
-  display: grid; grid-template-columns: 152px minmax(0, 1fr);
+  display: grid; grid-template-columns: 210px minmax(0, 1fr);
   gap: var(--space-md); align-items: start; margin-top: .9rem;
 }
 .nj-mq-colonne { display: flex; flex-direction: column; gap: .7rem; min-width: 0; }
@@ -556,31 +560,51 @@ body.nj-fige { overflow: hidden; }
 }
 .nj-mq-choix-compte { color: var(--accent-solid); }
 .nj-mq-choix-vide { margin: 0; font-size: .76rem; color: var(--muted); }
-.nj-mq-choix-liste { display: flex; flex-direction: column; gap: .3rem; }
-.nj-mq-choix-item {
-  display: flex; align-items: center; gap: .25rem;
-  padding: .28rem .2rem .28rem .45rem; border-radius: 7px;
-  background: var(--surface); border: 1px solid var(--border-subtle);
-  font-size: .74rem; font-weight: 700; color: var(--text);
-}
-/* Les deux boutons restent collés à droite. « space-between » sur trois enfants
-   aurait au contraire écarté l'œil du × de la même distance que du libellé. */
-.nj-mq-choix-item .nj-mq-choix-voir { margin-inline-start: auto; }
 .nj-mq-choix-x {
   border: none; background: transparent; color: var(--muted); cursor: pointer;
-  font-size: 1rem; line-height: 1; padding: 0 .25rem;
+  font-size: 1.15rem; line-height: 1; padding: 0 .3rem; min-height: 38px;
 }
 .nj-mq-choix-x:hover { color: var(--lot-vendu); }
-.nj-mq-choix-voir {
-  display: inline-flex; align-items: center; justify-content: center;
-  border: none; background: transparent; color: var(--muted); cursor: pointer;
-  padding: 0 .15rem;
+/* Sélecteur du lot consulté + son × de retrait, sur une seule ligne. */
+.nj-mq-choix-barre { display: flex; align-items: center; gap: .2rem; }
+.nj-mq-choix-select {
+  flex: 1 1 auto; min-width: 0; min-height: 44px; padding: .3rem .45rem;
+  background: var(--surface); border: 1px solid var(--border-subtle);
+  border-radius: 7px; font: inherit; font-size: .76rem; font-weight: 700;
+  color: var(--text); cursor: pointer;
 }
-.nj-mq-choix-voir:hover { color: var(--accent-solid); }
+.nj-mq-choix-select:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+/* Documents du lot choisi : empilés, pleine largeur, 46 px de haut. Sur la
+   borne tactile, des boutons côte à côte dans la colonne seraient intouchables.
+   Chacun porte sa couleur en filet de gauche et en libellé : d'un coup d'œil le
+   conseiller vise le bon, sans lire. Le fond reste neutre — quatre aplats de
+   couleur pleine se disputeraient l'attention avec la maquette elle-même. */
+.nj-mq-choix-actions { display: flex; flex-direction: column; gap: .35rem; margin-top: .5rem; }
+.nj-mq-choix-actions .nj-media-btn {
+  width: 100%; min-height: 46px; justify-content: flex-start; gap: .45rem;
+  font-size: .8rem; padding: .3rem .6rem;
+  border-inline-start-width: 4px; border-inline-start-style: solid;
+}
+.nj-mq-choix-actions .nj-media-btn span { font-size: 1rem; }
+.nj-mq-choix-actions [data-fiche] { color: var(--ocean-deep); border-inline-start-color: var(--ocean-deep); }
+.nj-mq-choix-actions [data-media="plan"] { color: var(--accent-solid); border-inline-start-color: var(--accent-solid); }
+.nj-mq-choix-actions [data-media="tour"] { color: var(--sun); border-inline-start-color: var(--sun); }
+.nj-mq-choix-actions [data-media="carte"] { color: var(--lot-dispo); border-inline-start-color: var(--lot-dispo); }
+.nj-mq-choix-actions .nj-media-btn:hover { background: var(--surface); border-color: currentColor; }
+/* Bureau de vente : seul lien sortant du panneau, donc plein et non filet —
+   c'est une action, pas un document de plus. */
+.nj-mq-choix-bureau {
+  display: flex; align-items: center; justify-content: flex-start; gap: .45rem;
+  margin-top: .5rem; min-height: 46px; padding: .3rem .6rem;
+  background: var(--sun); border: 1px solid var(--sun); border-radius: 8px;
+  font-size: .8rem; font-weight: 800; color: var(--on-accent); text-decoration: none;
+}
+.nj-mq-choix-bureau:hover { filter: brightness(1.08); }
+.nj-mq-choix-bureau span { font-size: 1rem; line-height: 1; }
 .nj-mq-choix-envoyer {
-  margin-top: .5rem; width: 100%; min-height: 38px; padding: .35rem;
+  margin-top: .5rem; width: 100%; min-height: 46px; padding: .35rem;
   background: var(--accent-solid); border: 1px solid var(--accent-solid); border-radius: 8px;
-  font: inherit; font-size: .78rem; font-weight: 800; color: var(--on-accent); cursor: pointer;
+  font: inherit; font-size: .8rem; font-weight: 800; color: var(--on-accent); cursor: pointer;
 }
 .nj-mq-choix-envoyer:hover { filter: brightness(1.05); }
 .nj-mq-choix-vider {
@@ -943,6 +967,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=16"></script>
-<script src="disponibilites.js?v=49"></script>
+<script src="disponibilites.js?v=50"></script>
 </body>
 </html>

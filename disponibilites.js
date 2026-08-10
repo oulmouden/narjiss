@@ -17,9 +17,12 @@
    * Version des plans. Un plan remplacé garde le même nom de fichier : sans
    * ce suffixe, le navigateur — et surtout la borne du bureau de vente, que
    * personne ne vient rafraîchir — continue d'afficher l'ancienne image.
-   * À incrémenter à chaque remplacement d'un plan.
+   * À incrémenter à chaque remplacement d'un plan, ET à chaque republication
+   * d'une visite virtuelle 3DVista : l'`index.htm` de la visite garde lui aussi
+   * son nom, donc sans ce suffixe le navigateur resert l'ancienne visite même
+   * quand le serveur, lui, a bien été mis à jour.
    */
-  var MEDIA_V = '3';
+  var MEDIA_V = '4';
 
   function versionne(url) {
     if (!url) return url;
@@ -32,6 +35,7 @@
     facettes: null,
     filtres: {},
     selection: [],
+    choixActif: null,   // lot affiché dans le sélecteur du panneau « Mes choix »
     avecDonnees: null,  // ids des projets ayant une grille, null tant qu'inconnu
     vue: 'maquette',    // 'maquette' (plateau, par défaut), 'liste' ou 'plan' (façade)
     etage: {},          // étage affiché dans la maquette, par immeuble
@@ -295,6 +299,9 @@
       etat.selection.splice(i, 1);
     } else if (etat.selection.length < MAX_SELECTION) {
       etat.selection.push(id);
+      // Le lot qu'on vient d'ajouter devient celui qu'on consulte : sinon le
+      // panneau continuerait d'afficher les documents du choix précédent.
+      etat.choixActif = id;
     } else {
       annoncer(t('complet'));
       return;
@@ -556,7 +563,7 @@
    * signalé au visiteur par la mention « document du projet ». La carte, elle,
    * reste toujours celle du projet.
    */
-  function boutonsMedias(lot) {
+  function mediasDuLot(lot) {
     var p = projetCourant();
     var b = [];
     if (planDuLot(lot) || (p && (p.plan_architecte_url || p.plan_visuel_url))) {
@@ -568,6 +575,11 @@
     if (p && p.lat && p.lng) {
       b.push(bouton('carte', lot.id, '\u25C9', t('carte')));
     }
+    return b;
+  }
+
+  function boutonsMedias(lot) {
+    var b = mediasDuLot(lot);
     return b.length ? '<div class="nj-medias">' + b.join('') + '</div>' : '';
   }
 
@@ -819,7 +831,7 @@
     } else if (type === 'tour') {
       var tour = lot.tour || (p && (p.apartment_tour_url || p.tour_url));
       corps = tour
-        ? '<iframe src="' + tour + '" title="' + t('tour360') + '" allowfullscreen loading="lazy"></iframe>'
+        ? '<iframe src="' + versionne(tour) + '" title="' + t('tour360') + '" allowfullscreen loading="lazy"></iframe>'
         : '<p class="nj-media-vide">' + t('sansTour') + '</p>';
       if (tour && !lot.tour) note = t('mediaProjet');
     } else if (type === 'carte') {
@@ -1001,19 +1013,68 @@
       ' <span class="nj-mq-choix-compte"><bdi dir="ltr">' + choisis.length + '/' +
       MAX_SELECTION + '</bdi></span></div>';
     if (!choisis.length) {
-      return tete + '<p class="nj-mq-choix-vide">' + t('vide') + '</p>';
+      return tete + '<p class="nj-mq-choix-vide">' + t('vide') + '</p>' + boutonBureauHTML();
     }
-    var liste = choisis.map(function (l) {
-      return '<span class="nj-mq-choix-item">' + l.typologie.toUpperCase() + ' ' + l.numero +
-        boutonVoirChoix(l, 'nj-mq-choix-voir') +
-        '<button type="button" class="nj-mq-choix-x" data-retirer="' + l.id +
-        '" aria-label="' + t('retirer') + ' ' + l.numero + '">×</button></span>';
+
+    /* Un lot à la fois. Empiler les trois choix ET leurs documents ferait un
+       panneau de dix boutons minuscules ; le conseiller choisit le lot dans la
+       liste déroulante, et les documents dessous ne concernent que celui-là,
+       donc ils peuvent être grands — c'est ce qu'on vise sur la borne tactile. */
+    var actif = choisis.filter(function (l) { return l.id === etat.choixActif; })[0] || choisis[0];
+    etat.choixActif = actif.id;
+
+    /* nombre() et non montant() : montant() enrobe le prix dans un <bdi>, que
+       le contenu d'une <option> affiche tel quel — une <option> ne rend aucune
+       balise. L'isolation bidirectionnelle du prix se perd, mais le sélecteur
+       porte déjà la typologie et le numéro en tête, donc l'ordre reste lisible
+       en arabe. */
+    var options = choisis.map(function (l) {
+      return '<option value="' + l.id + '"' + (l.id === actif.id ? ' selected' : '') + '>' +
+        echapper(l.typologie.toUpperCase() + ' ' + l.numero + ' · ' +
+                 nombre(l.prix) + ' ' + t('dh')) + '</option>';
     }).join('');
-    return tete + '<div class="nj-mq-choix-liste">' + liste + '</div>' +
+
+    var barre = '<div class="nj-mq-choix-barre">' +
+      '<select class="nj-mq-choix-select" data-choix-actif="1" aria-label="' +
+      t('selection') + '">' + options + '</select>' +
+      '<button type="button" class="nj-mq-choix-x" data-retirer="' + actif.id +
+      '" aria-label="' + t('retirer') + ' ' + echapper(actif.numero) + '">×</button></div>';
+
+    /* Documents du lot affiché. La fiche vient en tête : c'est elle qui porte
+       le prix et la surface, donc la première question du client. */
+    var actions = '<button type="button" class="nj-media-btn nj-choix-voir" data-fiche="' +
+      actif.id + '"><span aria-hidden="true">▤</span>' + t('detailsLot') + '</button>' +
+      mediasDuLot(actif).join('');
+
+    return tete + barre +
+      '<div class="nj-mq-choix-actions">' + actions + '</div>' +
+      boutonBureauHTML() +
       '<button type="button" class="nj-mq-choix-envoyer" data-envoyer-choix="1">' +
       t('suivant') + ' →</button>' +
       '<button type="button" class="nj-mq-choix-vider" data-vider-choix="1">' +
       t('viderSelection') + '</button>';
+  }
+
+  /* Bureau de vente. Le lien existait déjà en haut de page, mais le visiteur
+     qui manipule la maquette l'a depuis longtemps quitté du regard : prendre
+     rendez-vous doit rester à portée de doigt là où il choisit son logement. */
+  function boutonBureauHTML() {
+    var p = projetCourant();
+    if (!p) return '';
+    /* Dans la scène de la démo, la page est dans un cadre. bureaudevente.html
+       ne connaît pas le mode embarqué : chargée dans le cadre, elle y
+       empilerait son propre menu et son pied de page par-dessus ceux de la
+       démo. On l'ouvre donc dans la fenêtre entière. */
+    var cible = estEmbarque() ? ' target="_top"' : '';
+    return '<a class="nj-mq-choix-bureau"' + cible + ' href="bureaudevente.html?id=' +
+      encodeURIComponent(p.id) + '#' + langue() + '">' +
+      '<span aria-hidden="true">🏢</span>' + t('visiterBureau') + '</a>';
+  }
+
+  /** La page est-elle affichée dans la scène de la démo (?embed) ? */
+  function estEmbarque() {
+    try { return new URLSearchParams(window.location.search).has('embed'); }
+    catch (e) { return false; }
   }
 
   /* Rafraîchit tous les panneaux « Mes choix » présents dans les maquettes,
@@ -1783,8 +1844,13 @@
   function envoyerChoix() {
     if (!etat.selection.length) return;
     var canal = new URLSearchParams(window.location.search).get('canal');
+    /* En mode scène, ce bouton est le SEUL chemin vers la fiche contact : le
+       bandeau du bas est masqué par .nj-embed. On propage donc le mode, sinon
+       ma-selection.html s'afficherait dans le cadre avec son menu et son pied
+       de page complets, au milieu de la démo. */
     window.location.href = 'ma-selection.html?projet=' + encodeURIComponent(etat.projet) +
-      (canal ? '&canal=' + encodeURIComponent(canal) : '');
+      (canal ? '&canal=' + encodeURIComponent(canal) : '') +
+      (estEmbarque() ? '&embed=1' : '');
   }
 
   /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -1924,6 +1990,15 @@
       var b = document.getElementById('fBudget'); b.value = b.max; majEtiquetteBudget();
       var s = document.getElementById('fSurface'); s.value = s.min; majEtiquetteSurface();
       lireFiltres(); charger();
+    });
+
+    /* Changement de lot dans le panneau « Mes choix » : on redessine les
+       panneaux pour que les boutons de documents suivent le lot choisi. */
+    document.addEventListener('change', function (e) {
+      var sel = e.target.closest('[data-choix-actif]');
+      if (!sel) return;
+      etat.choixActif = Number(sel.value);
+      majChoixMaquette();
     });
 
     // Délégation : la grille est reconstruite à chaque filtre, on ne peut pas

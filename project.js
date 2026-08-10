@@ -1,4 +1,18 @@
 (function() {
+  /**
+   * Version des médias embarqués. Une visite 3DVista republiée garde le même
+   * `index.htm` : sans ce suffixe le navigateur resert l'ancienne visite depuis
+   * son cache, y compris après un déploiement réussi. Même valeur que le
+   * MEDIA_V de disponibilites.js — à incrémenter des deux côtés à chaque
+   * republication d'une visite ou remplacement d'un plan.
+   */
+  var MEDIA_V = '4';
+
+  function versionne(url) {
+    if (!url) return url;
+    return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + MEDIA_V;
+  }
+
   var PAGE_UI = {
     fr: {
       loadingTitle: "Projet introuvable",
@@ -661,7 +675,7 @@
       }
       fetch(tourUrl, { method: "HEAD" }).then(function(response) {
         if (response.ok) {
-          mount.innerHTML = '<iframe class="media-tour-frame" src="' + tourUrl + '" allowfullscreen></iframe>';
+          mount.innerHTML = '<iframe class="media-tour-frame" src="' + versionne(tourUrl) + '" allowfullscreen></iframe>';
         } else {
           showMissingTour();
         }
@@ -2155,12 +2169,12 @@
     function showTour() {
       destroyViewer();
       if (!project.tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
-      stage.innerHTML = '<iframe class="hero-frame" src="' + project.tour_url + '" allowfullscreen></iframe>';
+      stage.innerHTML = '<iframe class="hero-frame" src="' + versionne(project.tour_url) + '" allowfullscreen></iframe>';
     }
     function showApartment() {
       destroyViewer();
       if (!project.apartment_tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
-      stage.innerHTML = '<iframe class="hero-frame" src="' + project.apartment_tour_url + '" allowfullscreen></iframe>';
+      stage.innerHTML = '<iframe class="hero-frame" src="' + versionne(project.apartment_tour_url) + '" allowfullscreen></iframe>';
     }
     /**
      * Lecture automatique. Les navigateurs refusent l'autoplay sonore tant que

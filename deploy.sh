@@ -14,7 +14,8 @@
 #   bash deploy.sh code            # (défaut) code léger : html/js/css/json, shared, api, admin, data-json, kb
 #   bash deploy.sh images          # médias : images/ (sans les _orig-360 lourds)
 #   bash deploy.sh videos          # films des projets : data/videos/ (+ posters)
-#   bash deploy.sh all             # code + images + vidéos
+#   bash deploy.sh tours           # visites virtuelles 3DVista (jawhara/Tour-FloorPlan…)
+#   bash deploy.sh all             # code + images + vidéos + visites
 #   bash deploy.sh path <p> [...]  # déploie des chemins précis (fichiers ou dossiers)
 #   bash deploy.sh rm <remote> ... # supprime des fichiers SUR le VPS (chemins relatifs au docroot)
 #   bash deploy.sh verify          # compare le md5 local vs VPS de fichiers-clés (diagnostic)
@@ -87,6 +88,25 @@ build_videos_list(){
   find data/videos -mindepth 2 -type f 2>/dev/null ! -name '.gitkeep' ! -name 'README.md'
 }
 
+# Bucket TOURS : publications 3DVista (visites virtuelles). Elles ne vivaient
+# dans AUCUN bucket — chaque republication depuis 3DVista restait donc sur le
+# PC et le VPS continuait de servir l'ancienne visite, sans le moindre message
+# d'erreur. Les dossiers sont découverts automatiquement par leur marqueur
+# `lib/tdvplayer.js` : une nouvelle visite ajoutée demain partira sans toucher
+# à ce script.
+#
+# Les sources du projet (.vtp/.vts) sont EXCLUES : inutiles pour le visiteur,
+# et le .vtp contient en clair le mot de passe de la Live Guided Tour.
+build_tours_list(){
+  find . -type f -path '*/lib/tdvplayer.js' 2>/dev/null \
+    | sed -e 's#^\./##' -e 's#/lib/tdvplayer\.js$##' \
+    | grep -v '^\.claude/' \
+    | sort -u \
+    | while IFS= read -r d; do
+        find "$d" -type f ! -name '*.vtp' ! -name '*.vts' ! -name '*.vtpro'
+      done
+}
+
 # --- Envoi d'une liste de fichiers via flux tar|ssh --------------------------
 send_list(){
   local label="$1"; shift
@@ -123,6 +143,7 @@ send_list(){
 cmd_code(){   build_code_list   | send_list "code"; }
 cmd_images(){ build_images_list | send_list "images"; }
 cmd_videos(){ build_videos_list | send_list "videos"; }
+cmd_tours(){  build_tours_list  | send_list "tours"; }
 
 cmd_path(){
   [ "$#" -gt 0 ] || die "usage : deploy.sh path <fichier|dossier> [...]"
@@ -149,9 +170,13 @@ cmd_rm(){
 
 cmd_verify(){
   # compare le md5 local vs distant (curl) pour les fichiers-clés souvent désynchronisés.
+  # Le parcours client (sélecteur de lots → fiche contact) et la démo n'y
+  # étaient pas : on a pu les croire déployés alors qu'ils ne l'étaient pas.
   local keys=(index.html project.js project.html bureaudevente.html bureaudevente.js
               explorer.js shared/menu.js shared/menu.css shared/liveguide.js
-              data/projects.json data/project-sliders.json espace-agent.js)
+              data/projects.json data/project-sliders.json espace-agent.js
+              disponibilites.html disponibilites.js
+              ma-selection.html ma-selection.js demo.html)
   info "Vérification md5 local ↔ ${URL} :"
   local ok=0 ko=0
   for f in "${keys[@]}"; do
@@ -184,11 +209,12 @@ case "$CMD" in
   code)    cmd_code;;
   images)  cmd_images;;
   videos)  cmd_videos;;
-  all)     cmd_code; cmd_images; cmd_videos;;
+  tours)   cmd_tours;;
+  all)     cmd_code; cmd_images; cmd_videos; cmd_tours;;
   path)    cmd_path "$@";;
   rm)      cmd_rm "$@";;
   verify)  cmd_verify;;
-  *) die "commande inconnue : '$CMD' (code|images|videos|all|path|rm|verify)";;
+  *) die "commande inconnue : '$CMD' (code|images|videos|tours|all|path|rm|verify)";;
 esac
 
 info "${c_grn}Terminé.${c_0}"

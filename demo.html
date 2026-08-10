@@ -453,8 +453,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   var ZOOM_RAPPROCHE = 18;
 
   // Marqueur de version pour la page chargée dans la scène. À incrémenter
-  // quand project.html change, sinon le cadre resservira l'ancienne copie.
-  var VERSION = '8';
+  // quand l'une des pages de la scène change (localisation.html,
+  // disponibilites.html, ma-selection.html), sinon le cadre resservira
+  // l'ancienne copie.
+  var VERSION = '9';
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;

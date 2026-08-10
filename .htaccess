@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Développement local (XAMPP / Apache) UNIQUEMENT.
+#
+# Le VPS tourne sous nginx/CloudPanel, qui ignore totalement les .htaccess :
+# ce fichier n'a donc aucun effet en production, et deploy.sh ne l'envoie pas
+# (le bucket « code » ne ramasse que *.html *.js *.css *.json).
+#
+# Pourquoi il existe : nos pages gardent la même URL d'une version à l'autre
+# (disponibilites.html, demo.html, la visite 3DVista…). Sans en-tête de cache,
+# Apache ne renvoie que Last-Modified/ETag, et le navigateur applique une
+# fraîcheur heuristique de plusieurs heures : on modifie une feuille de style,
+# on recharge, et rien ne bouge — le JS se met à jour mais pas le HTML qui le
+# porte. Résultat : des heures perdues à chercher un bug de CSS inexistant.
+#
+# On force donc la revalidation des pages HTML en local. Les images, scripts et
+# feuilles séparées gardent leur cache normal : ils portent déjà un ?v= dans
+# leurs URL.
+# ─────────────────────────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
