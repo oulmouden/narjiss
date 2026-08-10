@@ -61,6 +61,7 @@
       aideComparatif: 'Le meilleur prix et la plus grande surface sont mis en évidence.',
       modifier: 'Modifier ma sélection',
       titreContact: 'Parler à un conseiller',
+      suivezNous: 'Suivez-nous',
       aideContact: 'Un conseiller vous rappelle avec votre sélection sous les yeux. Vous pouvez aussi proposer une date de visite.',
       nom: 'Nom', prenom: 'Prénom', tel: 'Téléphone', email: 'E-mail', ville: 'Ville',
       visite: 'Date de visite souhaitée',
@@ -105,6 +106,7 @@
       aideComparatif: 'The best price and the largest area are highlighted.',
       modifier: 'Change my shortlist',
       titreContact: 'Talk to an adviser',
+      suivezNous: 'Follow us',
       aideContact: 'An adviser will call you back with your shortlist in front of them. You can also suggest a viewing date.',
       nom: 'Last name', prenom: 'First name', tel: 'Phone', email: 'Email', ville: 'City',
       visite: 'Preferred viewing date',
@@ -150,6 +152,7 @@
       aideComparatif: 'أفضل سعر وأكبر مساحة مميزان في الجدول.',
       modifier: 'تعديل اختياري',
       titreContact: 'التحدث إلى مستشار',
+      suivezNous: 'تابعونا',
       aideContact: 'سيعاود مستشار الاتصال بك واختيارك أمامه. يمكنك أيضا اقتراح تاريخ للزيارة.',
       nom: 'الاسم العائلي', prenom: 'الاسم الشخصي', tel: 'الهاتف',
       email: 'البريد الإلكتروني', ville: 'المدينة',
@@ -196,6 +199,7 @@
       aideComparatif: 'Se destacan el mejor precio y la mayor superficie.',
       modifier: 'Modificar mi selección',
       titreContact: 'Hablar con un asesor',
+      suivezNous: 'Síguenos',
       aideContact: 'Un asesor le llamará con su selección delante. También puede proponer una fecha de visita.',
       nom: 'Apellido', prenom: 'Nombre', tel: 'Teléfono', email: 'Correo electrónico', ville: 'Ciudad',
       visite: 'Fecha de visita deseada',
@@ -561,8 +565,46 @@
     if (etat.lots.length) rendreComparatif();
   }
 
+  /* ── Réseaux sociaux ─────────────────────────────────────────────────
+   *
+   * URL dans data/contacts.json et logos dans shared/menu.js, exactement
+   * comme le pied de page : une adresse qui change, ou un logo à ajouter,
+   * ne se corrige qu'à un seul endroit. Ici les liens sont simplement plus
+   * grands et sur fond clair — c'est la dernière chose que voit un visiteur
+   * qui n'a pas rempli le formulaire.
+   */
+  function rendreSocial(contacts) {
+    var bloc = document.getElementById('njSocial');
+    var zone = document.getElementById('njSocialLiens');
+    if (!bloc || !zone) return;
+    // texte() est local à appliquerLangue() : on pose le titre à la main.
+    var titre = document.getElementById('njSocialTitre');
+    if (titre) titre.textContent = t('suivezNous');
+    var liste = (contacts && contacts.socials) || [];
+    var html = '';
+    liste.forEach(function (s) {
+      // Sans logo, on n'affiche rien : ici les liens sont grands et isolés,
+      // une pastille à initiale y ferait tache. Le pied de page, lui, garde
+      // son repli.
+      var logo = typeof window.socialIconSvg === 'function' ? window.socialIconSvg(s.platform) : '';
+      if (!logo || !s.enabled || !s.url) return;
+      var nom = s.label || s.platform;
+      html += '<a class="nj-social-lien" data-reseau="' + s.platform +
+        '" href="' + s.url + '" target="_blank" rel="noopener"' +
+        ' title="' + nom + '" aria-label="' + nom + '">' + logo + nom + '</a>';
+    });
+    zone.innerHTML = html;
+    bloc.hidden = !html;   // aucun réseau exploitable : pas de titre orphelin
+  }
+
+  // Appelé par le menu partagé une fois data/contacts.json chargé.
+  window.onContactDataChange = function (contacts) { rendreSocial(contacts); };
+
   // Appelé par le menu partagé à chaque changement de langue.
-  window.onLanguageChange = function () { appliquerLangue(); };
+  window.onLanguageChange = function () {
+    appliquerLangue();
+    rendreSocial(window.siteContacts);
+  };
 
   document.addEventListener('DOMContentLoaded', function () {
     initPage('units', '');

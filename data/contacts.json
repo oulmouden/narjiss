@@ -33,31 +33,13 @@
     {
       "platform": "instagram",
       "label": "Instagram",
-      "url": "https://www.instagram.com/",
+      "url": "https://www.instagram.com/narjissimmobilier1/",
       "enabled": true
     },
     {
       "platform": "facebook",
       "label": "Facebook",
-      "url": "https://www.facebook.com/",
-      "enabled": true
-    },
-    {
-      "platform": "x",
-      "label": "X",
-      "url": "https://x.com/",
-      "enabled": true
-    },
-    {
-      "platform": "tiktok",
-      "label": "TikTok",
-      "url": "https://www.tiktok.com/",
-      "enabled": true
-    },
-    {
-      "platform": "youtube",
-      "label": "YouTube",
-      "url": "https://www.youtube.com/",
+      "url": "https://www.facebook.com/p/Narjiss-immobiliere-100092321302273/",
       "enabled": true
     }
   ]
