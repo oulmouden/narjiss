@@ -4,10 +4,16 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <title>Narjiss — Carte globale de nos projets</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -189,7 +195,7 @@ html[dir=rtl] .map-search-item { text-align: right; }
 </main>
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=17"></script>
+<script src="shared/menu.js?v=21"></script>
 <script>
 var PAGE_UI = {
   fr: { title: "Carte globale de nos projets", subtitle: "Tous nos projets immobiliers au Maroc", viewProject: "Voir le projet →", comingSoon: "Bientôt disponible", searchPlaceholder: "Rechercher un projet", noResult: "Aucun projet ne correspond." },

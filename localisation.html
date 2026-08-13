@@ -4,10 +4,16 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <title>Narjiss — Localisation</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -86,7 +92,9 @@ html[dir=rtl] .loc-hero h1 { font-family: 'Noto Sans Arabic', serif; }
   background: var(--surface-2);
   color: var(--ink);
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* Intro, bascule, liste, actions. Seule la liste (1fr) défile : la bascule
+     et les coordonnées GPS restent visibles quel que soit le nombre de POI. */
+  grid-template-rows: auto auto 1fr auto;
   height: var(--loc-carte);
   min-height: 480px;
   overflow: hidden;
@@ -175,6 +183,20 @@ html[dir=rtl] .poi-category-btn.active .arrow { transform: rotate(-90deg); }
 html[dir=rtl] .poi-item { text-align: right; }
 .poi-item:hover { background: rgba(193,90,0,.08); }
 .poi-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin-top: .45rem; }
+/* Nom et distance : deux blocs isolés, et non deux <span> à la suite.
+ *
+ * display:block — c'est ce que supposait déjà le margin-top de .poi-meta, sans
+ * effet tant que l'élément restait en ligne. Les deux se collaient donc l'un à
+ * l'autre, sans même une espace : « École Moussa Ben El Housseine164 m ».
+ *
+ * unicode-bidi:isolate — beaucoup de nos POI portent un nom bilingue qui se
+ * termine en arabe (« École Salam مدرسة السلام »). Sans isolation, l'algorithme
+ * bidirectionnel d'Unicode absorbe le nombre qui suit dans la portée arabe et
+ * le réaffiche à sa gauche : la distance atterrissait au milieu du libellé.
+ * L'isolation coupe la propagation d'un élément à l'autre — c'est le rôle de
+ * <bdi>, obtenu ici sans toucher au balisage.
+ */
+.poi-name, .poi-meta { display: block; unicode-bidi: isolate; }
 .poi-name { font-weight: 700; font-size: .82rem; line-height: 1.25; }
 .poi-meta { color: var(--muted); font-size: .7rem; margin-top: .18rem; line-height: 1.4; }
 
@@ -322,11 +344,21 @@ html[dir=rtl] .poi-item { text-align: right; }
    dépendrait de la bande. Mesurer l'une pour dimensionner l'autre créait une
    boucle — la carte s'était retrouvée à 218px pour une bande annoncée à 502.
    Ici la bande prend ce qu'il lui faut, la carte prend le reste. */
+/* width: 100% et pas seulement max-width: none — la règle de base fixe
+   « width: min(1180px, …) », qu'un max-width ne desserre pas. La colonne
+   restait donc large de 1180 px ; et comme « margin: 0 » annule ici le
+   centrage, tout l'espace excédentaire se retrouvait en bande blanche à
+   droite de la carte. */
 .nj-embed .loc-shell {
-  padding: 0; margin: 0; max-width: none;
+  padding: 0; margin: 0; width: 100%; max-width: none;
   display: flex; flex-direction: column; height: 100vh;
 }
-.nj-embed .map-composition { flex: 1 1 auto; min-height: 0; height: auto; }
+/* Plein cadre : les angles arrondis et l'ombre portée d'une carte flottante
+   n'ont plus de sens quand les bords touchent le bord de l'écran. */
+.nj-embed .map-composition {
+  flex: 1 1 auto; min-height: 0; height: auto;
+  border-radius: 0; border: 0; box-shadow: none;
+}
 .nj-embed .map-aside { height: auto; min-height: 0; }
 .nj-embed #projectMap { height: 100%; min-height: 0; }
 @media (max-width: 900px) {
@@ -362,6 +394,11 @@ html[dir=rtl] .poi-item { text-align: right; }
         <p id="locTexte"></p>
         <div class="coordinate"><span id="locGpsLabel">Coordonnées GPS</span> : <span id="locGps"></span></div>
       </div>
+      <!-- Bascule quartier / repères, hors de #poiSummary : elle était en tête
+           de la liste, donc emportée par le défilement dès que le panneau
+           dépassait la hauteur de la carte. Sur la borne, on perdait le moyen
+           de revenir aux repères sans remonter toute la liste. -->
+      <div id="poiJeux"></div>
       <div class="poi-summary" id="poiSummary"></div>
       <div class="map-actions">
         <a id="locCarteGlobale" href="carte.html">Carte globale</a>
@@ -374,7 +411,7 @@ html[dir=rtl] .poi-item { text-align: right; }
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=17"></script>
-<script src="localisation.js?v=11"></script>
+<script src="shared/menu.js?v=21"></script>
+<script src="localisation.js?v=12"></script>
 </body>
 </html>

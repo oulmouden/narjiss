@@ -4,10 +4,16 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <title>Narjiss — Démonstration</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -406,7 +412,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 <div id="njInvite"></div>
 <button type="button" id="njPasser">Passer ⏎</button>
 
-<script src="shared/menu.js?v=17"></script>
+<script src="shared/menu.js?v=21"></script>
 <script>
 (function () {
   'use strict';
@@ -448,15 +454,26 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   // s'étale sur sept secondes — le rythme d'une phrase par projet.
   var CADENCE_PASTILLE = 600;
 
-  // Zoom atteint par la loupe. 18 plutôt que le maximum absolu (22) : au-delà
-  // de 19, l'imagerie satellite est interpolée et devient floue.
-  var ZOOM_RAPPROCHE = 18;
+  /* Zoom atteint par la loupe : le projet doit remplir l'écran.
+   *
+   * 19 est le dernier niveau où Esri possède de vraies images ici — vérifié en
+   * téléchargeant les tuiles : au-dessus, le serveur renvoie toujours la même
+   * dalle vide de 2,5 ko. Au-delà de 19, Leaflet agrandit donc la tuile de
+   * niveau 19 (maxNativeZoom ci-dessous) : l'immeuble grossit mais ne gagne
+   * aucun détail.
+   *
+   * 20 double la taille apparente — la résidence occupe alors toute la largeur
+   * de l'écran — pour un flou encore discret à distance de présentation.
+   * Monter à 21 est possible (maxZoom vaut 22), mais l'image y est quatre fois
+   * agrandie et devient franchement molle.
+   */
+  var ZOOM_RAPPROCHE = 20;
 
   // Marqueur de version pour la page chargée dans la scène. À incrémenter
   // quand l'une des pages de la scène change (localisation.html,
   // disponibilites.html, ma-selection.html), sinon le cadre resservira
   // l'ancienne copie.
-  var VERSION = '9';
+  var VERSION = '12';
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
@@ -919,10 +936,26 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       }
       if (['Escape', 'Enter', ' '].indexOf(e.key) >= 0) { e.preventDefault(); etatFinal(); }
     });
-    // Sortir du plein écran par la touche du navigateur doit aussi refermer
-    // la scène, sinon le projet resterait affiché en fenêtré par-dessus la carte.
+    /* Sortir du plein écran par la touche du navigateur referme la scène,
+       sinon le projet resterait affiché en fenêtré par-dessus la carte.
+     *
+     * MAIS toutes les sorties de plein écran ne viennent pas du visiteur :
+     * ouvrir un sélecteur de fichier — le scan du dos de la CIN dans la fiche
+     * client — fait sortir Chrome du plein écran sous Windows. La scène se
+     * refermait alors d'elle-même et renvoyait à la carte des projets, au
+     * beau milieu de la saisie.
+     *
+     * On distingue les deux par le focus : lorsqu'une boîte de dialogue
+     * système s'ouvre, la page le perd. Le contrôle est différé, le temps que
+     * le navigateur ait fini de déplacer le focus — au moment où
+     * fullscreenchange se déclenche, il est encore sur la page. */
     document.addEventListener('fullscreenchange', function () {
-      if (!document.fullscreenElement && sceneOuverte()) fermerScene();
+      if (document.fullscreenElement || !sceneOuverte()) return;
+      window.setTimeout(function () {
+        if (document.fullscreenElement || !sceneOuverte()) return;
+        if (!document.hasFocus()) return;   // dialogue système ouvert : on reste
+        fermerScene();
+      }, 400);
     });
 
     // initPage charge data/projects.json, installe le menu, puis appelle

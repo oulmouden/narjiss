@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<!-- Le mode embarqué est posé AVANT le rendu : appliqué depuis medias.js, en
+     fin de page, l'en-tête et le menu apparaîtraient un instant dans l'iframe. -->
+<script>(function(){try{if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("njm-embed");}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
+<title>Narjiss — Photos et vidéos</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css?v=20">
+<!-- Visionneuse 360° : la même que la fiche projet. -->
+<link rel="stylesheet" href="assets/vendor/pannellum/pannellum.css">
+<style>
+/* Album photos et vidéos d'un projet.
+   La page est autonome (on y arrive depuis le menu ou un lien direct) ET
+   embarquée en iframe depuis la fenêtre de consultation d'un lot
+   (disponibilites.html) : d'où le mode ?embed=1, qui retire le menu, le pied
+   de page et l'en-tête pour ne laisser que les deux onglets. */
+
+.njm-hero {
+  padding: 1.1rem 1.5rem .6rem;
+  background: linear-gradient(180deg, var(--sand) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: center;
+}
+.njm-hero h1 {
+  margin: 0 0 .2rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  color: var(--charcoal);
+}
+.njm-hero p { margin: 0; color: var(--muted); font-size: .95rem; }
+.njm-hero-nav {
+  display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center;
+  margin-top: .8rem;
+}
+.njm-hero-nav a, .njm-hero-nav select {
+  font: inherit; font-size: .9rem;
+  padding: .55rem .9rem; min-height: 44px;
+  border: 1px solid var(--border-medium); border-radius: 999px;
+  background: var(--surface); color: var(--text); text-decoration: none;
+  display: inline-flex; align-items: center;
+}
+
+.njm-app { max-width: 1200px; margin: 0 auto; padding: 1.2rem 1.5rem 3rem; }
+
+/* ── Onglets ─────────────────────────────────────────────────────────────── */
+.njm-onglets {
+  display: flex; gap: .4rem; justify-content: center;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 1.2rem;
+}
+.njm-onglet {
+  font: inherit; font-weight: 600; font-size: 1rem;
+  padding: .75rem 1.4rem; min-height: 48px;
+  border: 0; border-bottom: 3px solid transparent;
+  background: none; color: var(--muted); cursor: pointer;
+  border-radius: 10px 10px 0 0;
+}
+.njm-onglet:hover { color: var(--text); background: var(--surface-raised); }
+.njm-onglet[aria-selected="true"] {
+  color: var(--accent-solid); border-bottom-color: var(--accent-solid);
+}
+.njm-onglet:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.njm-onglet .njm-compte {
+  font-weight: 400; font-size: .8rem; color: var(--muted);
+  margin-inline-start: .35rem;
+}
+[hidden] { display: none !important; }
+
+/* Libellé réservé aux lecteurs d'écran : le sélecteur de projet se comprend
+   seul à l'œil, mais pas à l'oreille. */
+.njm-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ── Album photos ────────────────────────────────────────────────────────── */
+/* Une photo est affichee en entier (object-fit: contain) : selon ses
+   proportions, il reste des bandes de chaque cote. Elles sont claires — sur
+   fond sombre, la photo paraissait decoupee dans un trou noir. Le panorama,
+   lui, remplit le cadre et garde son fond sombre (cf. .njm-pano). */
+.njm-scene {
+  --njm-fond-photo: #e9edf3;
+  position: relative;
+  background: var(--njm-fond-photo);
+  border-radius: var(--radius);
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  display: flex; align-items: center; justify-content: center;
+}
+:root[data-theme="dark"] .njm-scene { --njm-fond-photo: #cdd4de; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .njm-scene { --njm-fond-photo: #cdd4de; }
+}
+/* Boite du media : elle porte l'image plate OU la visionneuse 360°, sans que
+   les fleches, le compteur et le badge aient a etre reconstruits. */
+.njm-scene-media { position: absolute; inset: 0; }
+.njm-scene-media img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+}
+/* Pannellum pose sa classe .pnlm-container sur le conteneur qu'on lui donne
+   et se dimensionne dessus : sans hauteur explicite, la vue s'effondre a zero
+   et reste noire. */
+.njm-pano, .njm-pano.pnlm-container {
+  width: 100%; height: 100%; background: var(--charcoal);
+}
+
+/* Le badge annonce une vue spherique : sans lui, le visiteur prend le
+   panorama pour une photo deformee et ne pense pas a la faire pivoter. */
+.njm-badge360 {
+  display: inline-flex; align-items: center;
+  padding: .5rem .8rem; min-height: 40px;
+  border-radius: 999px; font-size: .85rem; font-weight: 600;
+  background: var(--sun); color: #fff;
+}
+.njm-vignette-360 {
+  position: absolute; inset-block-end: 3px; inset-inline-end: 3px;
+  padding: 1px 5px; border-radius: 999px;
+  background: var(--sun); color: #fff;
+  font-size: .62rem; font-weight: 700; line-height: 1.5;
+}
+/* Les flèches sont larges (44 px) : la page sert aussi sur la borne tactile
+   du bureau de vente, où l'on vise au doigt. */
+.njm-fleche {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 0; cursor: pointer;
+  background: rgba(0,0,0,.55); color: #fff;
+  font-size: 1.4rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.njm-fleche:hover { background: rgba(0,0,0,.75); }
+.njm-fleche:disabled { opacity: .35; cursor: default; }
+.njm-fleche-prec { inset-inline-start: .7rem; }
+.njm-fleche-suiv { inset-inline-end: .7rem; }
+.njm-scene-outils {
+  position: absolute; inset-block-start: .7rem; inset-inline-end: .7rem;
+  z-index: 2;   /* au-dessus de la visionneuse 360° et de ses commandes */
+  display: flex; gap: .4rem; align-items: center;
+}
+.njm-scene-outils button {
+  font: inherit; font-size: .85rem;
+  padding: .5rem .8rem; min-height: 40px;
+  border: 0; border-radius: 999px; cursor: pointer;
+  background: rgba(0,0,0,.55); color: #fff;
+}
+.njm-compteur {
+  position: absolute; z-index: 2; inset-block-end: .7rem; inset-inline-start: .7rem;
+  padding: .35rem .7rem; border-radius: 999px;
+  background: rgba(0,0,0,.55); color: #fff; font-size: .85rem;
+}
+.njm-legende {
+  margin: .7rem 0 0; text-align: center;
+  color: var(--muted); font-size: .95rem;
+}
+
+.njm-vignettes {
+  display: flex; gap: .5rem; overflow-x: auto;
+  padding: .9rem .1rem .3rem; scroll-snap-type: x proximity;
+}
+.njm-vignettes button {
+  position: relative;
+  flex: 0 0 auto; padding: 0; cursor: pointer;
+  width: 116px; height: 78px;
+  border: 2px solid transparent; border-radius: 10px; overflow: hidden;
+  background: var(--surface-raised); scroll-snap-align: start;
+}
+.njm-vignettes img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.njm-vignettes button[aria-current="true"] { border-color: var(--accent-solid); }
+
+/* ── Vidéos ──────────────────────────────────────────────────────────────── */
+.njm-videos {
+  display: grid; gap: 1.2rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.njm-video {
+  margin: 0; background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border-subtle); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+/* Meme fond clair que la scène des photos : une vidéo verticale ou carrée
+   laisse des bandes de chaque côté, et sur fond noir la vignette entière
+   passait pour un lecteur en panne. */
+.njm-video video {
+  width: 100%; aspect-ratio: 16 / 9; display: block;
+  background: var(--njm-fond-video); object-fit: contain;
+}
+.njm-videos { --njm-fond-video: #e9edf3; }
+:root[data-theme="dark"] .njm-videos { --njm-fond-video: #cdd4de; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .njm-videos { --njm-fond-video: #cdd4de; }
+}
+.njm-video figcaption {
+  padding: .7rem .9rem; font-weight: 600; color: var(--text); font-size: .95rem;
+}
+
+.njm-vide {
+  padding: 3rem 1rem; text-align: center;
+  color: var(--muted); background: var(--surface-raised);
+  border-radius: var(--radius);
+}
+.njm-note {
+  margin: .9rem 0 0; text-align: center;
+  color: var(--muted); font-size: .85rem;
+}
+.njm-note:empty { display: none; }
+
+/* ── Mode embarqué (?embed=1) ────────────────────────────────────────────── */
+.njm-embed #mainMenu,
+.njm-embed #mainFooter,
+.njm-embed .njm-hero { display: none !important; }
+.njm-embed body { margin: 0; overflow-x: hidden; }
+
+/* La fenêtre de consultation d'un lot n'est pas extensible : dès que le
+   contenu la dépasse, le navigateur pose ses barres de défilement par-dessus
+   la scène et la flèche de droite se retrouve tronquée. Hors plein écran, on
+   dimensionne donc l'album pour qu'il tienne en entier : la scène prend ce
+   qu'il reste une fois les onglets, la légende et les vignettes servis. */
+.njm-embed .njm-app {
+  padding: .5rem 1.1rem 1rem;   /* marge latérale : les flèches ne touchent pas le bord */
+  max-width: none;
+  /* Colonne à hauteur fixe : la scène prend ce qui reste, plutôt qu'une
+     hauteur devinée qui déborderait sur une petite fenêtre. */
+  display: flex; flex-direction: column;
+  height: 100vh; box-sizing: border-box;
+}
+.njm-embed .njm-onglets { flex: 0 0 auto; margin-bottom: .7rem; }
+.njm-embed .njm-onglet { padding: .5rem 1.1rem; min-height: 40px; font-size: .95rem; }
+.njm-embed #njmPanPhotos {
+  flex: 1; min-height: 0;   /* min-height:0 : sans lui, un enfant trop haut
+                               refuse de rétrécir et pousse la page */
+  display: flex; flex-direction: column;
+}
+.njm-embed #njmPanVideos { flex: 1; min-height: 0; overflow-y: auto; }
+.njm-embed .njm-scene { flex: 1; min-height: 140px; height: auto; aspect-ratio: auto; }
+.njm-embed .njm-legende, .njm-embed .njm-vignettes { flex: 0 0 auto; }
+.njm-embed .njm-fleche { width: 40px; height: 40px; font-size: 1.2rem; }
+.njm-embed .njm-legende { margin-top: .4rem; font-size: .85rem; }
+.njm-embed .njm-vignettes { padding: .5rem .1rem .2rem; }
+.njm-embed .njm-vignettes button { width: 104px; height: 70px; }
+.njm-embed .njm-note { margin-top: .5rem; }
+
+/* En plein écran, la scène sort du flux : elle peut tout prendre. */
+.njm-scene:fullscreen { height: 100vh; border-radius: 0; }
+
+@media (max-width: 640px) {
+  .njm-app { padding: 1rem .9rem 2.5rem; }
+  .njm-onglet { padding: .7rem .9rem; font-size: .95rem; }
+  .njm-vignettes button { width: 92px; height: 62px; }
+}
+</style>
+</head>
+<body>
+
+<div id="mainMenu"></div>
+
+<header class="njm-hero">
+  <h1 id="njmTitre">Photos et vidéos</h1>
+  <p id="njmSousTitre"></p>
+  <div class="njm-hero-nav">
+    <label class="njm-sr" for="njmProjetSel" id="njmProjetLabel"></label>
+    <select id="njmProjetSel"></select>
+    <a id="njmRetour" href="disponibilites.html"></a>
+  </div>
+</header>
+
+<main class="njm-app">
+  <div class="njm-onglets" role="tablist" id="njmOnglets">
+    <button type="button" class="njm-onglet" id="njmOngletPhotos" role="tab"
+            aria-selected="true" aria-controls="njmPanPhotos" data-onglet="photos"></button>
+    <button type="button" class="njm-onglet" id="njmOngletVideos" role="tab"
+            aria-selected="false" aria-controls="njmPanVideos" data-onglet="videos"></button>
+  </div>
+
+  <section id="njmPanPhotos" role="tabpanel" aria-labelledby="njmOngletPhotos"></section>
+  <section id="njmPanVideos" role="tabpanel" aria-labelledby="njmOngletVideos" hidden></section>
+
+  <p class="njm-note" id="njmNote"></p>
+</main>
+
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js?v=21"></script>
+<script src="assets/vendor/pannellum/pannellum.js"></script>
+<script src="medias.js?v=6"></script>
+</body>
+</html>

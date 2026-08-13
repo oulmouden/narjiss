@@ -4,10 +4,16 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <title>Narjiss — Choisissez votre logement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <style>
 /* Étape 3 du parcours client. Dimensionné pour le grand écran tactile du
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
@@ -466,7 +472,17 @@ body.nj-fige { overflow: hidden; }
   max-width: 100%; max-height: var(--nj-media-h);
   width: auto; height: auto;
 }
-.nj-media-corps iframe { width: 100%; height: min(70vh, 620px); border: 0; display: block; }
+/* --nj-media-h est la hauteur que le corps peut montrer sans défiler : une
+   iframe plus haute ferait apparaître une barre de défilement PAR-DESSUS son
+   contenu, rognant la flèche droite de l'album. */
+/* --nj-media-h est la hauteur que le corps peut montrer sans défiler.
+   L'iframe la prend TOUTE : plafonnée plus bas, elle laissait de larges
+   bandes vides au-dessus et au-dessous (le corps centre son contenu), et
+   l'album s'affichait deux fois plus petit que la place disponible. */
+.nj-media-corps iframe {
+  width: 100%; height: var(--nj-media-h);
+  border: 0; display: block;
+}
 .nj-media-vide { padding: 3rem 1rem; color: var(--muted); text-align: center; }
 
 /* Comparateur de plans : le plan d'architecte est révélé par-dessus le plan
@@ -589,7 +605,7 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-choix-actions [data-fiche] { color: var(--ocean-deep); border-inline-start-color: var(--ocean-deep); }
 .nj-mq-choix-actions [data-media="plan"] { color: var(--accent-solid); border-inline-start-color: var(--accent-solid); }
 .nj-mq-choix-actions [data-media="tour"] { color: var(--sun); border-inline-start-color: var(--sun); }
-.nj-mq-choix-actions [data-media="carte"] { color: var(--lot-dispo); border-inline-start-color: var(--lot-dispo); }
+.nj-mq-choix-actions [data-media="medias"] { color: var(--lot-dispo); border-inline-start-color: var(--lot-dispo); }
 .nj-mq-choix-actions .nj-media-btn:hover { background: var(--surface); border-color: currentColor; }
 /* Bureau de vente : seul lien sortant du panneau, donc plein et non filet —
    c'est une action, pas un document de plus. */
@@ -844,6 +860,68 @@ body.nj-fige { overflow: hidden; }
 .nj-embed .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-embed .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
 .nj-embed .nj-mq-etage { min-height: 60px; }
+
+/* ── Bouton de repli des filtres ──────────────────────────────────
+   Masqué par défaut : il n'existe que sur téléphone. */
+.nj-filtres-bascule {
+  display: none; width: 100%; min-height: 46px;
+  align-items: center; justify-content: space-between; gap: .5rem;
+  margin: .2rem 0 .8rem; padding: .6rem .8rem;
+  border: 1px solid var(--border-medium); border-radius: 10px;
+  background: var(--surface-raised); color: var(--text);
+  font: inherit; font-weight: 700; font-size: .95rem; cursor: pointer;
+}
+.nj-filtres-bascule::after { content: '▾'; font-size: .9rem; opacity: .7; }
+.nj-filtres-bascule[aria-expanded="true"]::after { content: '▴'; }
+.nj-filtres-bascule .nj-filtres-compte {
+  margin-inline-start: .4rem; padding: .1rem .45rem;
+  border-radius: 999px; background: var(--accent-solid); color: #fff;
+  font-size: .72rem; font-weight: 700;
+}
+
+/* ── Téléphone ────────────────────────────────────────────────
+   Mesuré sur un écran de 390 px : l'en-tête (titre, six boutons sur trois
+   lignes, fil d'Ariane sur deux lignes) puis les six filtres empilés
+   occupaient deux écrans entiers AVANT le premier logement. On replie les
+   filtres, et ce qui s'empilait passe sur une ligne qui défile au doigt.
+   Aucune de ces règles ne s'applique au-delà de 640 px. */
+@media (max-width: 640px) {
+  .nj-hero { padding-block: .9rem .7rem; }
+  .nj-hero p { font-size: .92rem; }
+
+  /* Une ligne qui défile plutôt que trois lignes empilées. Le dernier bouton
+     est volontairement coupé par le bord : ce débord est ce qui signale
+     qu'il y a autre chose à droite. */
+  .nj-hero-actions {
+    flex-wrap: nowrap; justify-content: flex-start;
+    overflow-x: auto; scroll-snap-type: x proximity;
+    padding-inline: .9rem; margin-inline: -.9rem;
+    scrollbar-width: none;
+  }
+  .nj-hero-actions::-webkit-scrollbar { display: none; }
+  .nj-hero-actions a,
+  .nj-hero-actions button {
+    flex: 0 0 auto; scroll-snap-align: start;
+    font-size: .82rem; padding: .5rem .75rem;
+  }
+
+  .nj-fil {
+    flex-wrap: nowrap; justify-content: flex-start;
+    overflow-x: auto; font-size: .76rem;
+    padding-inline: .9rem; margin-inline: -.9rem;
+    scrollbar-width: none;
+  }
+  .nj-fil::-webkit-scrollbar { display: none; }
+  .nj-fil li { white-space: nowrap; }
+
+  .nj-shell { padding: .9rem .9rem 7rem; gap: .9rem; }
+  .nj-filtres { padding: .8rem; }
+  .nj-filtres h2 { display: none; }        /* remplacé par le bouton de repli */
+  .nj-filtres-bascule { display: flex; }
+  .nj-filtres-bascule[aria-expanded="false"] + .nj-filtres-corps { display: none; }
+  .nj-champ { margin-bottom: .8rem; }
+  .nj-champ-projet { padding-bottom: .8rem; margin-bottom: .8rem; }
+}
 </style>
 <script>
   /* Posé avant le rendu pour éviter tout clignotement du menu en mode scène. */
@@ -878,6 +956,19 @@ body.nj-fige { overflow: hidden; }
       <label for="fProjet" id="lblProjet">Projet</label>
       <select id="fProjet"></select>
     </div>
+
+    <!-- Repli des filtres, sur téléphone uniquement (cf. @media 640px). Sans
+         lui, six sélecteurs empilés repoussent le premier logement à deux
+         écrans de défilement. Sur grand écran ce bouton est masqué et les
+         filtres restent dépliés : rien ne change de ce côté.
+         Le sélecteur de projet reste hors du repli — il ne filtre pas, il
+         change de projet, et c'est l'action la plus demandée. -->
+    <button type="button" class="nj-filtres-bascule" id="njFiltresBascule"
+            aria-expanded="false" aria-controls="njFiltresCorps">
+      <span id="njFiltresBasculeLbl">Affiner</span>
+    </button>
+
+    <div class="nj-filtres-corps" id="njFiltresCorps">
     <div class="nj-champ">
       <label for="fTypologie" id="lblTypologie">Type</label>
       <select id="fTypologie"></select>
@@ -909,6 +1000,7 @@ body.nj-fige { overflow: hidden; }
       </label>
     </div>
     <button type="button" class="nj-reinit" id="njReinit">Tout effacer</button>
+    </div><!-- /njFiltresCorps -->
   </aside>
 
   <main>
@@ -966,7 +1058,7 @@ body.nj-fige { overflow: hidden; }
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=17"></script>
-<script src="disponibilites.js?v=50"></script>
+<script src="shared/menu.js?v=21"></script>
+<script src="disponibilites.js?v=55"></script>
 </body>
 </html>

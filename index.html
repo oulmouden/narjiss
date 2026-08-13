@@ -4,10 +4,16 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <title>Narjiss — Immobilier au Maroc</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <link rel="stylesheet" href="shared/index.css">
 </head>
 <body>
@@ -23,12 +29,19 @@
       <div class="slider-dots" id="sliderDots" aria-label="Navigation du slider"></div>
     </div>
     <div class="hero-content">
-      <div class="hero-badge" id="heroBadge"></div>
-      <h1 id="heroTitle"></h1>
-      <p id="heroSubtitle"></p>
+      <!-- Le texte français est écrit ici, pas seulement injecté par le
+           JavaScript : celui-ci n'agit qu'une fois data/projects.json
+           téléchargé, ce qui laissait le hero entièrement vide pendant
+           plusieurs secondes sur un téléphone en 4G. Les traductions le
+           remplacent ensuite, sans que le visiteur ait vu du blanc. -->
+      <div class="hero-badge" id="heroBadge"><strong class="brand-word">NARJISS</strong> — Immobilier au Maroc</div>
+      <h1 id="heroTitle">Achetez mieux,<br><em>investissez sereinement</em></h1>
+      <p id="heroSubtitle"><strong class="brand-word">NARJISS</strong> vous accompagne en toute confiance.</p>
       <div class="hero-actions">
-        <a href="explorer.html" class="btn btn-primary" id="ctaProjects"></a>
-        <a href="carte.html" class="btn btn-outline" id="ctaMap"></a>
+        <a href="explorer.html" class="btn btn-primary" id="ctaProjects">Voir les projets →</a>
+        <a href="carte.html" class="btn btn-outline" id="ctaMap">🗺️ Carte globale</a>
+        <a href="demo.html" class="btn btn-outline" id="ctaDemo">▶️ Démo guidée</a>
+        <a href="contact.html" class="btn btn-outline" id="ctaContact">✉️ Nous contacter</a>
       </div>
     </div>
   </section>
@@ -67,7 +80,7 @@
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=17"></script>
+<script src="shared/menu.js?v=21"></script>
 <script>
 var PAGE_UI = {
   fr: {
@@ -76,6 +89,8 @@ var PAGE_UI = {
     subtitle: "<strong class=\"brand-word\">NARJISS</strong> vous accompagne en toute confiance.",
     ctaProjects: "Voir les projets →",
     ctaMap: "🗺️ Carte globale",
+    ctaDemo: "▶️ Démo guidée",
+    ctaContact: "✉️ Nous contacter",
     projectsTitle: "Nos Projets",
     projectsSubtitle: "Sélectionnez une résidence pour explorer son quartier et tous ses points d'intérêt",
     featuresTitle: "Pourquoi choisir <strong class=\"brand-word\">NARJISS</strong> ?",
@@ -101,6 +116,8 @@ var PAGE_UI = {
     subtitle: "<strong class=\"brand-word\">NARJISS</strong> supports you with trust at every step.",
     ctaProjects: "View projects →",
     ctaMap: "🗺️ Global map",
+    ctaDemo: "▶️ Guided demo",
+    ctaContact: "✉️ Contact us",
     projectsTitle: "Our Projects",
     projectsSubtitle: "Select a residence to explore its neighborhood and all points of interest",
     featuresTitle: "Why choose <strong class=\"brand-word\">NARJISS</strong>?",
@@ -126,6 +143,8 @@ var PAGE_UI = {
     subtitle: "<strong>نرجس</strong> ترافقك بكل ثقة.",
     ctaProjects: "عرض المشاريع ←",
     ctaMap: "🗺️ خريطة شاملة",
+    ctaDemo: "▶️ عرض توضيحي",
+    ctaContact: "✉️ اتصل بنا",
     projectsTitle: "مشاريعنا",
     projectsSubtitle: "اختر إقامة لاستكشاف حيها وجميع نقاط الاهتمام",
     featuresTitle: "لماذا تختار <strong>نرجس</strong>؟",
@@ -151,6 +170,8 @@ var PAGE_UI = {
     subtitle: "<strong class=\"brand-word\">NARJISS</strong> te acompaña con total confianza.",
     ctaProjects: "Ver proyectos →",
     ctaMap: "🗺️ Mapa global",
+    ctaDemo: "▶️ Demo guiada",
+    ctaContact: "✉️ Contáctenos",
     projectsTitle: "Nuestros Proyectos",
     projectsSubtitle: "Selecciona una residencia para explorar su barrio y todos los puntos de interés",
     featuresTitle: "¿Por qué elegir <strong class=\"brand-word\">NARJISS</strong>?",
@@ -394,6 +415,10 @@ window.onLanguageChange = function(lang) {
   document.getElementById('ctaProjects').href = 'explorer.html#' + lang;
   document.getElementById('ctaMap').textContent = t.ctaMap;
   document.getElementById('ctaMap').href = 'carte.html#' + lang;
+  document.getElementById('ctaDemo').textContent = t.ctaDemo;
+  document.getElementById('ctaDemo').href = 'demo.html#' + lang;
+  document.getElementById('ctaContact').textContent = t.ctaContact;
+  document.getElementById('ctaContact').href = 'contact.html#' + lang;
   document.getElementById('projectsTitle').textContent = t.projectsTitle;
   document.getElementById('projectsSubtitle').textContent = t.projectsSubtitle;
   document.getElementById('featuresTitle').innerHTML = t.featuresTitle;

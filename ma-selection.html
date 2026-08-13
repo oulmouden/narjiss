@@ -4,10 +4,16 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <title>Narjiss — Ma sélection</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <style>
 /* Étapes 4 et 5 du parcours. Mêmes repères visuels que disponibilites.html :
    le visiteur doit sentir qu'il avance dans un même tunnel. */
@@ -131,6 +137,17 @@
   font-weight: 700; font-size: .88rem; cursor: pointer; white-space: nowrap;
 }
 .nj-mrz-pick input { display: none; }
+.nj-mrz-pick { border: 0; font-family: inherit; }
+.nj-mrz-live { background: var(--lot-dispo); color: #fff; }
+.nj-mrz-boutons { display: flex; flex-wrap: wrap; gap: .5rem; }
+/* L'appareil photo n'a de sens qu'au doigt : sur un poste fixe, l'attribut
+   capture est ignoré et les deux boutons feraient la même chose. */
+.nj-mrz-cam { display: none !important; }
+@media (pointer: coarse) {
+  .nj-mrz-cam { display: inline-flex !important; }
+  .nj-mrz-boutons { flex-direction: column; align-items: stretch; }
+  .nj-mrz-boutons .nj-mrz-pick { justify-content: center; }
+}
 .nj-mrz-status { flex-basis: 100%; font-size: .82rem; color: var(--muted); min-height: 1.1rem; }
 .nj-mrz-status.ok { color: #14603a; font-weight: 700; }
 .nj-mrz-status.ko { color: #8d1f1f; }
@@ -263,10 +280,22 @@
           <b id="lblMrzTitre">Remplissage automatique</b>
           <span id="lblMrzAide">Photographiez ou importez le dos de votre CIN : le nom et le prénom se remplissent seuls.</span>
         </div>
-        <label class="nj-mrz-pick">
-          <span id="lblMrzBtn">📷 Scanner ou importer le dos de la CIN</span>
-          <input type="file" accept="image/*" id="njMrzInput">
-        </label>
+        <!-- Deux boutons pour UN seul champ de fichier, comme sur la fiche
+             de renseignement : « Photographier » pose l'attribut capture et
+             ouvre l'appareil photo arrière, « Importer » le retire. La lecture
+             MRZ reste branchée à un seul endroit. Cf. ma-selection.js. -->
+        <div class="nj-mrz-boutons">
+          <button type="button" class="nj-mrz-pick nj-mrz-live" id="njMrzLive" hidden>
+            <span id="lblMrzLive">🎥 Scanner avec la caméra</span>
+          </button>
+          <button type="button" class="nj-mrz-pick nj-mrz-cam" id="njMrzCam">
+            <span id="lblMrzCam">📷 Photographier la CIN</span>
+          </button>
+          <button type="button" class="nj-mrz-pick" id="njMrzPick">
+            <span id="lblMrzBtn">🖼️ Importer une image</span>
+          </button>
+          <input type="file" accept="image/*" id="njMrzInput" hidden>
+        </div>
         <span class="nj-mrz-status" id="njMrzStatus"></span>
       </div>
 
@@ -346,10 +375,9 @@
 
 <div id="mainFooter"></div>
 
-<script src="assets/vendor/tesseract/tesseract.min.js"></script>
 <script src="assets/vendor/mrz/mrz-td1.js?v=20260724g"></script>
-<script src="assets/cin-mrz.js?v=1"></script>
-<script src="shared/menu.js?v=17"></script>
-<script src="ma-selection.js?v=5"></script>
+<script src="assets/cin-mrz.js?v=3"></script>
+<script src="shared/menu.js?v=21"></script>
+<script src="ma-selection.js?v=8"></script>
 </body>
 </html>
