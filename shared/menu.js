@@ -23,7 +23,8 @@ var MENU_UI = {
     footer_privacy: "Confidentialité",
     footer_terms: "Conditions",
     footer_copyright: "Tous droits réservés",
-    footer_pro: "Espace professionnel"
+    footer_pro: "Espace professionnel",
+    footer_qr: "Affichettes QR"
   },
   en: {
     home: "Home",
@@ -44,7 +45,8 @@ var MENU_UI = {
     footer_privacy: "Privacy",
     footer_terms: "Terms",
     footer_copyright: "All rights reserved",
-    footer_pro: "Professional area"
+    footer_pro: "Professional area",
+    footer_qr: "QR posters"
   },
   ar: {
     home: "الرئيسية",
@@ -65,7 +67,8 @@ var MENU_UI = {
     footer_privacy: "الخصوصية",
     footer_terms: "الشروط",
     footer_copyright: "جميع الحقوق محفوظة",
-    footer_pro: "فضاء المهنيين"
+    footer_pro: "فضاء المهنيين",
+    footer_qr: "ملصقات QR"
   },
   es: {
     home: "Inicio",
@@ -86,7 +89,8 @@ var MENU_UI = {
     footer_privacy: "Privacidad",
     footer_terms: "Términos",
     footer_copyright: "Todos los derechos reservados",
-    footer_pro: "Espacio profesional"
+    footer_pro: "Espacio profesional",
+    footer_qr: "Carteles QR"
   }
 };
 
@@ -763,6 +767,10 @@ function buildFooterHTML(basePath) {
   // noindex de la page de connexion le tiennent hors des moteurs.
   var adminLink = '<a class="footer-admin-link" href="' + basePath +
     'admin/login.php" rel="nofollow noopener">' + t.footer_pro + '</a>';
+  // Affichettes QR à imprimer pour le bureau de vente : même public et même
+  // discrétion que le lien ci-dessus (page protégée par la session admin).
+  var qrLink = '<a class="footer-admin-link" href="' + basePath +
+    'admin/fiche-qr.php" rel="nofollow noopener">' + t.footer_qr + '</a>';
   var legalNoticeUrl = basePath + 'mentions-legales.html' + legalHash;
   var privacyUrl = basePath + 'confidentialite.html' + legalHash;
   var termsUrl = basePath + 'conditions.html' + legalHash;
@@ -806,7 +814,7 @@ function buildFooterHTML(basePath) {
         '<div class="footer-bottom">' +
           '<div>© ' + year + ' NARJISS</div>' +
           '<div><a href="' + legalNoticeUrl + '">' + t.footer_legal_mentions + '</a> | <a href="' + privacyUrl + '">' + t.footer_privacy + '</a> | <a href="' + termsUrl + '">' + t.footer_terms + '</a></div>' +
-          '<div>' + t.footer_copyright + (adminLink ? ' · ' + adminLink : '') + '</div>' +
+          '<div>' + t.footer_copyright + ' · ' + adminLink + ' · ' + qrLink + '</div>' +
         '</div>' +
       '</div>' +
     '</footer>';
