@@ -668,6 +668,11 @@ html[dir=rtl] .map-aside h3 {
   background: var(--ivory);
   overflow: hidden;
 }
+/* Plein écran, nouvelle disposition : l'en-tête et la barre gardent leur
+   hauteur naturelle, la carte prend TOUT le reste. Les anciennes règles
+   donnaient 100vh à la fois à la composition et à la carte : la barre de
+   commandes se retrouvait poussée hors de l'écran, et la carte débordait
+   d'autant vers le bas. */
 #projectMapSection:fullscreen .map-composition,
 #projectMapSection:-webkit-full-screen .map-composition {
   height: 100vh;
@@ -675,11 +680,18 @@ html[dir=rtl] .map-aside h3 {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  grid-template-rows: auto 1fr;   /* en-tete + barre, puis la carte */
 }
 #projectMapSection:fullscreen .map-aside,
-#projectMapSection:-webkit-full-screen .map-aside { height: 100vh; max-height: none; }
+#projectMapSection:-webkit-full-screen .map-aside { height: auto; max-height: none; }
+#projectMapSection:fullscreen .map-intro,
+#projectMapSection:-webkit-full-screen .map-intro { padding: .6rem 1.1rem .1rem; }
+/* En plein écran, le nom du projet suffit à dire ce qu'on regarde : le titre
+   de section prendrait une ligne de plus au détriment de la carte. */
+#projectMapSection:fullscreen .map-intro h3,
+#projectMapSection:-webkit-full-screen .map-intro h3 { display: none; }
 #projectMapSection:fullscreen #projectMap,
-#projectMapSection:-webkit-full-screen #projectMap { height: 100vh; min-height: 0; }
+#projectMapSection:-webkit-full-screen #projectMap { height: 100%; min-height: 0; }
 .map-tool-btn {
   cursor: pointer;
   width: 30px;
