@@ -62,6 +62,8 @@
       reviews: "avis",
       sortBy: "Tri",
       sortDist: "Distance",
+      allCategories: "Toutes les catégories",
+      gotoPoint: "Aller à un point…",
       sortName: "Nom",
       filterMax: "Filtre",
       allDistances: "Toutes",
@@ -132,6 +134,8 @@
       reviews: "reviews",
       sortBy: "Sort",
       sortDist: "Distance",
+      allCategories: "All categories",
+      gotoPoint: "Go to a place…",
       sortName: "Name",
       filterMax: "Filter",
       allDistances: "All",
@@ -202,6 +206,8 @@
       reviews: "تقييم",
       sortBy: "الترتيب",
       sortDist: "المسافة",
+      allCategories: "كل الفئات",
+      gotoPoint: "الانتقال إلى نقطة…",
       sortName: "الاسم",
       filterMax: "تصفية",
       allDistances: "الكل",
@@ -272,6 +278,8 @@
       reviews: "resenas",
       sortBy: "Orden",
       sortDist: "Distancia",
+      allCategories: "Todas las categorías",
+      gotoPoint: "Ir a un punto…",
       sortName: "Nombre",
       filterMax: "Filtro",
       allDistances: "Todas",
@@ -309,6 +317,9 @@
   var currentPois = [];
   var currentSort = "distance";
   var maxDistanceFilter = 0;
+  // Categorie affichee seule sur la carte ('' = toutes) — pilotee par la liste
+  // deroulante de la barre et par les en-tetes deplicables.
+  var categorieFiltre = '';
   var routingControl = null;
   var drawnItems = null;
   var activeProjectId = "";
@@ -918,23 +929,72 @@
 
   function toggleCategory(cat) {
     var btn = document.querySelector('.poi-category-btn[data-cat="' + cat + '"]');
-    var list = document.getElementById("poi-list-" + cat);
     var wasOpen = btn && btn.classList.contains("active");
+    appliquerCategorie(wasOpen ? '' : cat);
+  }
+
+  /**
+   * Point unique de verite du filtre par categorie : carte, liste depliable et
+   * liste deroulante de la barre disent la meme chose. Deux chemins separes
+   * laissaient le menu afficher « Ecoles » alors que la carte remontrait tout.
+   */
+  function appliquerCategorie(cat) {
+    categorieFiltre = cat || '';
     var buttons = document.querySelectorAll(".poi-category-btn");
     var lists = document.querySelectorAll(".poi-list");
     for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
     for (var j = 0; j < lists.length; j++) lists[j].classList.remove("show");
 
-    if (!wasOpen && btn && list) {
-      btn.classList.add("active");
-      list.classList.add("show");
+    var select = document.getElementById("poiCatFilter");
+    if (select && select.value !== categorieFiltre) select.value = categorieFiltre;
+    var points = document.getElementById("poiPointFilter");
+    if (points && currentPois && currentPois.length) {
+      points.innerHTML = optionsPointsHTML(currentPois, PAGE_UI[currentLang] || PAGE_UI.fr);
+    }
+
+    if (!mapInstance) return;
+    if (categorieFiltre) {
+      var btn = document.querySelector('.poi-category-btn[data-cat="' + categorieFiltre + '"]');
+      var list = document.getElementById("poi-list-" + categorieFiltre);
+      if (btn) btn.classList.add("active");
+      if (list) list.classList.add("show");
       for (var m = 0; m < mapMarkers.length; m++) {
-        if (mapMarkers[m]._cat === cat || mapMarkers[m]._cat === "home") mapInstance.addLayer(mapMarkers[m]);
+        if (mapMarkers[m]._cat === categorieFiltre || mapMarkers[m]._cat === "home") mapInstance.addLayer(mapMarkers[m]);
         else mapInstance.removeLayer(mapMarkers[m]);
       }
     } else {
       for (var n = 0; n < mapMarkers.length; n++) mapInstance.addLayer(mapMarkers[n]);
     }
+  }
+
+  /** Options du selecteur de points : les POI eux-memes, filtres et tries. */
+  function optionsPointsHTML(pois, t) {
+    var choix = [];
+    for (var i = 0; i < pois.length; i++) {
+      var poi = pois[i];
+      if (poi.cat === "home") continue;
+      if (categorieFiltre && poi.cat !== categorieFiltre) continue;
+      if (maxDistanceFilter > 0 && poi._walking > maxDistanceFilter) continue;
+      choix.push({ poi: poi, idx: i });
+    }
+    choix.sort(function (a, b) {
+      if (currentSort === "name") return a.poi.nom.localeCompare(b.poi.nom);
+      return (a.poi._distance || 0) - (b.poi._distance || 0);
+    });
+    var html = '<option value="">' + (t.gotoPoint || "Aller a un point...") + '</option>';
+    for (var k = 0; k < choix.length; k++) {
+      var d = choix[k].poi._walking;
+      html += '<option value="' + choix[k].idx + '">' + echapperPoi(choix[k].poi.nom) +
+        (d ? ' — ' + d + ' ' + t.minWalk : '') + '</option>';
+    }
+    return html;
+  }
+
+  /** Echappe un nom venu du CSV avant insertion dans du HTML. */
+  function echapperPoi(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
   }
 
   function focusPoi(index) {
@@ -1001,6 +1061,38 @@
     if (card) card.classList.add("active");
   }
 
+  /** Ecouteurs de la barre au-dessus de la carte (tri, distance, categorie, point). */
+  function brancherBarrePoi(barre, lang) {
+    var sortBtns = barre.querySelectorAll(".poi-sort");
+    for (var s = 0; s < sortBtns.length; s++) {
+      sortBtns[s].addEventListener("click", function() {
+        currentSort = this.getAttribute("data-sort");
+        updatePoiSummary(currentPois, lang, true);
+      });
+    }
+    var filter = barre.querySelector("#poiDistanceFilter");
+    if (filter) {
+      filter.addEventListener("change", function() {
+        maxDistanceFilter = parseInt(this.value, 10) || 0;
+        updatePoiSummary(currentPois, lang, true);
+      });
+    }
+    var cat = barre.querySelector("#poiCatFilter");
+    if (cat) {
+      cat.addEventListener("change", function() { appliquerCategorie(this.value); });
+    }
+    var point = barre.querySelector("#poiPointFilter");
+    if (point) {
+      point.addEventListener("change", function() {
+        var idx = parseInt(this.value, 10);
+        // Le selecteur revient a son invite : il designe une action, pas un
+        // etat durable comme les filtres voisins.
+        this.selectedIndex = 0;
+        if (!isNaN(idx)) focusPoi(idx);
+      });
+    }
+  }
+
   function updatePoiSummary(pois, lang, hasCsv) {
     var box = document.getElementById("poiSummary");
     if (!box) return;
@@ -1032,23 +1124,37 @@
     // Pas de récapitulatif par catégorie ici : la liste dépliable ci-dessous
     // porte déjà le compte de chaque catégorie dans son badge.
     var count = Math.max(0, pois.length - 1);
-    var html =
-      '<div class="poi-count"><span>' + count + '</span>' + t.mapPoiCount + '</div>' +
-      '<div class="poi-controls">' +
-        '<div class="poi-control-row"><label>' + t.sortBy + '</label>' +
+
+    /* Les commandes vivent dans la barre au-dessus de la carte, pas dans la
+       colonne : sur un telephone, la liste est repoussee sous la carte et les
+       filtres y auraient ete hors de vue au moment de regarder le plan. */
+    var barre = document.getElementById("poiControles");
+    if (barre) {
+      var optsCat = '<option value="">' + (t.allCategories || "Toutes les categories") + '</option>';
+      for (var oc = 0; oc < order.length; oc++) {
+        optsCat += '<option value="' + order[oc] + '"' + (categorieFiltre === order[oc] ? " selected" : "") + '>' +
+          categoryLabel(order[oc], lang) + ' (' + categories[order[oc]].count + ')</option>';
+      }
+      barre.innerHTML =
+        '<span class="poi-count-inline"><b>' + count + '</b> ' + t.mapPoiCount + '</span>' +
+        '<select class="poi-filter" id="poiCatFilter" aria-label="' + (t.allCategories || "Categorie") + '">' + optsCat + '</select>' +
+        '<select class="poi-filter" id="poiDistanceFilter" aria-label="' + t.filterMax + '">' +
+          '<option value="0"' + (maxDistanceFilter === 0 ? " selected" : "") + '>' + t.allDistances + '</option>' +
+          '<option value="5"' + (maxDistanceFilter === 5 ? " selected" : "") + '>≤ 5 ' + t.minWalk + '</option>' +
+          '<option value="10"' + (maxDistanceFilter === 10 ? " selected" : "") + '>≤ 10 ' + t.minWalk + '</option>' +
+          '<option value="15"' + (maxDistanceFilter === 15 ? " selected" : "") + '>≤ 15 ' + t.minWalk + '</option>' +
+          '<option value="30"' + (maxDistanceFilter === 30 ? " selected" : "") + '>≤ 30 ' + t.minWalk + '</option>' +
+        '</select>' +
+        '<select class="poi-filter poi-filter-points" id="poiPointFilter" aria-label="' +
+          (t.gotoPoint || "Aller a un point") + '">' + optionsPointsHTML(pois, t) + '</select>' +
+        '<span class="poi-tri">' +
           '<button class="poi-sort' + (currentSort === "distance" ? " active" : "") + '" data-sort="distance">📏 ' + t.sortDist + '</button>' +
           '<button class="poi-sort' + (currentSort === "name" ? " active" : "") + '" data-sort="name">🔤 ' + t.sortName + '</button>' +
-        '</div>' +
-        '<div class="poi-control-row"><label>' + t.filterMax + '</label>' +
-          '<select class="poi-filter" id="poiDistanceFilter">' +
-            '<option value="0"' + (maxDistanceFilter === 0 ? " selected" : "") + '>' + t.allDistances + '</option>' +
-            '<option value="5"' + (maxDistanceFilter === 5 ? " selected" : "") + '>≤ 5 ' + t.minWalk + '</option>' +
-            '<option value="10"' + (maxDistanceFilter === 10 ? " selected" : "") + '>≤ 10 ' + t.minWalk + '</option>' +
-            '<option value="15"' + (maxDistanceFilter === 15 ? " selected" : "") + '>≤ 15 ' + t.minWalk + '</option>' +
-            '<option value="30"' + (maxDistanceFilter === 30 ? " selected" : "") + '>≤ 30 ' + t.minWalk + '</option>' +
-          '</select>' +
-        '</div>' +
-      '</div>';
+        '</span>';
+      brancherBarrePoi(barre, lang);
+    }
+
+    var html = '';
 
     for (var k = 0; k < order.length; k++) {
       var cat = order[k];
@@ -1071,20 +1177,8 @@
 
     box.innerHTML = html;
 
-    var sortBtns = box.querySelectorAll(".poi-sort");
-    for (var s = 0; s < sortBtns.length; s++) {
-      sortBtns[s].addEventListener("click", function() {
-        currentSort = this.getAttribute("data-sort");
-        updatePoiSummary(currentPois, lang, true);
-      });
-    }
-    var filter = document.getElementById("poiDistanceFilter");
-    if (filter) {
-      filter.addEventListener("change", function() {
-        maxDistanceFilter = parseInt(this.value, 10) || 0;
-        updatePoiSummary(currentPois, lang, true);
-      });
-    }
+    // Tri et filtres sont branches par brancherBarrePoi() : ils ne sont plus
+    // dans cette colonne.
     var catBtns = box.querySelectorAll(".poi-category-btn");
     for (var b = 0; b < catBtns.length; b++) {
       catBtns[b].addEventListener("click", function() {
@@ -2377,7 +2471,7 @@
     var mapSection =
       '<section class="section" id="projectMapSection">' +
         '<div class="map-composition">' +
-          '<aside class="map-aside">' +
+          '<div class="map-aside">' +
             /* Ni paragraphe d'intro ni boutons « itinéraire »/« WhatsApp » ici :
                ils sont déjà au-dessus de la carte, dans .hero-actions. Chaque
                ligne retirée de l'encadré est autant de hauteur rendue à la
@@ -2386,13 +2480,18 @@
                occupe tout et plus rien à l'écran ne dit ce qu'on regarde.
                Dans la page, il est déjà au-dessus — l'afficher deux fois
                alourdirait une colonne déjà dense. */
-            '<div class="map-intro"><div class="map-projet">' + name + '</div><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3><div class="coordinate"><span>' + t.gpsLabel + ' :</span> ' + project.lat.toFixed(6) + ', ' + project.lng.toFixed(6) + '</div></div>' +
-            '<div class="poi-summary" id="poiSummary"></div>' +
-            '<div class="map-actions">' +
-              '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
+            /* Les coordonnees GPS occupaient une ligne pour une information
+               que personne ne recopie : retirees. */
+            '<div class="map-intro"><div class="map-projet">' + name + '</div><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3></div>' +
+            '<div class="loc-barre">' +
+              '<div id="poiControles"></div>' +
+              '<div class="map-actions">' +
+                '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
+              '</div>' +
             '</div>' +
-          '</aside>' +
+          '</div>' +
           '<div id="projectMap"></div>' +
+          '<div class="poi-summary" id="poiSummary"></div>' +
         '</div>' +
       '</section>';
 

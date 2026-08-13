@@ -85,9 +85,13 @@ html[dir=rtl] .loc-hero h1 { font-family: 'Noto Sans Arabic', serif; }
    téléphone : la carte n'y était plus lisible, alors qu'elle est le sujet.
    Une seule composition sert les deux tailles d'écran — seules la hauteur de
    la carte et le nombre de colonnes de la liste changent. */
+.map-composition > * { min-width: 0; }
 .map-composition {
   display: grid;
   grid-template-rows: auto auto auto;
+  /* Sans colonne bornee, la grille se cale sur le contenu le plus large — un
+     titre long — et la carte deborde de son cadre, rognee par overflow:hidden. */
+  grid-template-columns: minmax(0, 1fr);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 24px 70px rgba(20,20,29,.15);

@@ -580,30 +580,45 @@ html[dir=rtl] .atelier-card h3 { font-family: 'Noto Sans Arabic', serif; line-he
   font-size: 1.2rem;
 }
 .experience-card p { color: #68636b; font-size: .92rem; line-height: 1.7; }
+/* Carte pleine largeur, commandes au-dessus, liste dessous — même
+   composition que localisation.html. Le panneau latéral de 390 px prenait la
+   moitié d'un écran de téléphone, au détriment de la carte. */
+.map-composition > * { min-width: 0; }
 .map-composition {
   display: grid;
-  grid-template-columns: 390px 1fr;
+  grid-template-rows: auto auto auto;
+  /* Sans colonne bornee, la grille se cale sur le contenu le plus large — un
+     titre long — et la carte deborde de son cadre, rognee par overflow:hidden. */
+  grid-template-columns: minmax(0, 1fr);
   border-radius: 8px;
   overflow: hidden;
-  min-height: 520px;
   box-shadow: 0 24px 70px rgba(20,20,29,.15);
   border: 1px solid rgba(20,20,29,.08);
-}
-/* Hauteur indexée sur la fenêtre plutôt que fixée à 680px : sur un écran
-   courant, la liste des POI se retrouvait réduite à deux ou trois lignes
-   visibles. Le plafond en px évite qu'elle s'étire démesurément sur un
-   très grand moniteur. */
-.map-aside {
   background: var(--surface-2);
-  color: var(--ink);
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  max-height: min(860px, 82vh);
-  overflow: hidden;
 }
-.map-intro {
-  padding: .85rem 1.1rem .7rem;
+.map-aside { background: var(--surface-2); color: var(--ink); }
+.map-intro { padding: .85rem 1.1rem .2rem; }
+
+/* Barre de commandes : compteur, catégorie, distance, point, tri, puis le
+   lien vers la carte globale poussé à droite. */
+.loc-barre {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem;
+  padding: .2rem 1.1rem .8rem;
   border-bottom: 1px solid rgba(17,24,39,.08);
+}
+.loc-barre .map-actions { margin-inline-start: auto; }
+#poiControles { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.poi-count-inline { color: var(--muted); font-size: .82rem; white-space: nowrap; }
+.poi-count-inline b { color: var(--gold); font-size: 1.05rem; font-weight: 800; }
+.poi-tri { display: inline-flex; gap: .3rem; }
+#poiControles .poi-filter { max-width: 15rem; }
+@media (max-width: 560px) {
+  #poiControles { width: 100%; gap: .35rem; }
+  #poiControles .poi-filter { flex: 1 1 8rem; max-width: none; min-height: 40px; }
+  .poi-count-inline { display: none; }   /* chaque entrée du menu porte son compte */
+  .poi-tri { width: 100%; }
+  .poi-tri .poi-sort { flex: 1; min-height: 40px; }
+  .loc-barre { padding: .2rem .9rem .7rem; }
 }
 .map-aside h3 {
   font-family: 'Playfair Display', serif;
@@ -617,9 +632,17 @@ html[dir=rtl] .map-aside h3 {
 }
 .map-aside p { margin-top: 1rem; color: var(--muted); line-height: 1.75; }
 .coordinate { color: var(--gold); font-size: .82rem; margin-top: .5rem; font-weight: 800; }
-#projectMap { min-height: min(860px, 82vh); width: 100%; z-index: 1; }
-.map-composition.map-compact #projectMap { min-height: 380px; }
-.map-composition.map-compact .map-aside { max-height: 380px; }
+#projectMap { height: min(72vh, 720px); min-height: 380px; width: 100%; z-index: 1; }
+.map-composition.map-compact #projectMap { height: 380px; min-height: 0; }
+/* La liste passe sous la carte : en colonnes sur grand écran, sinon elle
+   formerait une bande étroite et interminable. */
+.poi-summary { max-height: 460px; overflow-y: auto; border-top: 1px solid rgba(17,24,39,.08); }
+@media (min-width: 900px) {
+  .poi-summary { columns: 2; column-gap: 1.4rem; padding-bottom: .6rem; }
+  .poi-summary .poi-category { break-inside: avoid; }
+}
+@media (min-width: 1300px) { .poi-summary { columns: 3; } }
+@media (max-width: 900px) { #projectMap { height: 55vh; min-height: 320px; } }
 
 /* Plein écran : c'est la <section> entière qui passe en fullscreen. Sans ces
    règles elle garde ses hauteurs fixes et le fond noir du navigateur occupe
@@ -1048,11 +1071,12 @@ html[dir=rtl] .major-card { text-align: right; }
   .media-tile.last { border-radius: 0; }
   .property-summary { grid-template-columns: 1fr; align-items: start; }
   .project-hero { min-height: auto; }
-  .hero-panel, .editorial-grid, .map-composition { grid-template-columns: 1fr; }
+  .hero-panel, .editorial-grid { grid-template-columns: 1fr; }
   .hero-actions { justify-content: flex-start; }
   .signature-grid, .experience-grid { grid-template-columns: 1fr 1fr; }
-  .map-aside { min-height: 300px; }
-  #projectMap { min-height: 520px; }
+  /* La carte garde la main : ni hauteur minimale sur l'encadré, ni 520 px
+     imposés au plan — la règle de composition ci-dessus suffit. */
+  .map-aside { min-height: 0; }
 }
 @media (max-width: 560px) {
   .property-toolbar { align-items: flex-start; }
@@ -1265,6 +1289,6 @@ html[dir=rtl] .media-generique::after { left: auto; right: .5rem; }
 <div id="mainFooter"></div>
 <script src="shared/menu.js?v=23"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260809e"></script>
+<script src="project.js?v=20260813a"></script>
 </body>
 </html>
