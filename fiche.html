@@ -4,6 +4,12 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
 <title>Narjiss — Fiche de renseignement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
@@ -225,6 +231,16 @@ input:focus, select:focus, textarea:focus {
   white-space: nowrap;
 }
 .mrz-scan .pick input { display: none; }
+.mrz-scan .pick { border: 0; font-family: inherit; }
+.mrz-boutons { display: flex; flex-wrap: wrap; gap: .5rem; }
+/* L'appareil photo n'a de sens qu'au doigt : sur un poste fixe, l'attribut
+   capture est ignoré et les deux boutons feraient exactement la même chose. */
+.pick-cam { display: none !important; }
+@media (pointer: coarse) {
+  .pick-cam { display: inline-flex !important; }
+  .mrz-boutons { flex-direction: column; align-items: stretch; }
+  .mrz-boutons .pick { justify-content: center; }
+}
 .mrz-status { flex-basis: 100%; font-size: .82rem; color: var(--text-muted); min-height: 1.1rem; }
 .mrz-status.ok { color: #14603a; font-weight: 650; }
 .mrz-status.ko { color: #8d1f1f; }
@@ -282,6 +298,74 @@ input:focus, select:focus, textarea:focus {
 .result.show { display: block; }
 .result.ok { background: #e6f6ec; border: 1px solid #9ad4b0; color: #14603a; }
 .result.ko { background: #fdecec; border: 1px solid #efb3b3; color: #8d1f1f; }
+
+/* Lien vers les affichettes QR : réservé au bureau de vente, donc discret. */
+.qr-lien { margin: .4rem 1rem 1.4rem; text-align: center; }
+.qr-lien a {
+  display: inline-flex; align-items: center; gap: .4rem; min-height: 40px;
+  padding: .45rem 1rem; border-radius: 999px;
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  color: var(--muted, #64748b); font-size: .82rem; font-weight: 600; text-decoration: none;
+}
+.qr-lien a::before { content: "▦"; }
+.qr-lien a:hover { color: var(--ocean, #00aeef); border-color: currentColor; }
+/* ── Vue caméra ────────────────────────────────────────────── */
+.cam-dlg { border: 0; padding: 0; background: transparent; max-width: 96vw; }
+.cam-dlg::backdrop { background: rgba(0,0,0,.72); }
+.cam-boite {
+  background: #10141c; color: #fff; border-radius: 14px;
+  padding: .9rem; width: min(92vw, 760px);
+}
+.cam-titre { margin: 0 0 .6rem; font-weight: 700; text-align: center; }
+.cam-vue {
+  position: relative; background: #000; border-radius: 10px; overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+/* `contain` et non `cover` : le cadre affiché doit correspondre exactement à
+   ce que voit le capteur, sinon la zone capturée ne serait pas celle que
+   l'utilisateur a alignée. */
+#camVideo { width: 100%; height: 100%; object-fit: contain; display: block; }
+.cam-cadre {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 86%; aspect-ratio: 1.585;          /* proportions d'une carte d'identité */
+  border: 2px solid #ffd166; border-radius: 8px;
+  box-shadow: 0 0 0 100vmax rgba(0,0,0,.45);
+  pointer-events: none;
+}
+/* Repère de la bande de lettres, au tiers inférieur de la carte. */
+.cam-bande {
+  position: absolute; left: 0; right: 0; bottom: 4%; height: 32%;
+  border: 1px dashed rgba(255,209,102,.75); border-radius: 4px;
+}
+.cam-aide { margin: .6rem 0 0; font-size: .85rem; opacity: .85; text-align: center; }
+.cam-actions { display: flex; gap: .5rem; justify-content: center; margin-top: .8rem; }
+.cam-fermer {
+  min-height: 44px; padding: 0 1rem; border-radius: 9px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff;
+  font: inherit; font-weight: 650;
+}
+.pick-live { background: #14603a; }
+
+/* ── Enregistrement en CSV / PDF ────────────────────────────────── */
+.result-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.result-actions button {
+  min-height: 44px; padding: 0 1.1rem; border-radius: 9px; cursor: pointer;
+  border: 1px solid currentColor; background: #fff; color: #14603a;
+  font: inherit; font-weight: 700;
+}
+/* Récapitulatif d'impression : invisible à l'écran, seul élément imprimé. */
+#ficheRecap { display: none; }
+@media print {
+  body > *:not(#ficheRecap) { display: none !important; }
+  #ficheRecap { display: block !important; font-family: system-ui, sans-serif; color: #000; }
+  #ficheRecap h1 { font-size: 1.2rem; margin: 0 0 .2rem; }
+  #ficheRecap .ref-print { font-size: 1rem; font-weight: 700; margin: 0 0 1rem; }
+  #ficheRecap table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  #ficheRecap th, #ficheRecap td {
+    border: 1px solid #999; padding: .35rem .5rem; text-align: start; vertical-align: top;
+  }
+  #ficheRecap th { width: 38%; background: #f0f0f0; font-weight: 600; }
+}
 .result .ref { display: block; font-size: 1.3rem; font-weight: 800; margin-top: .4rem; letter-spacing: .06em; }
 </style>
 </head>
@@ -321,10 +405,19 @@ input:focus, select:focus, textarea:focus {
         <b data-i18n="mrzTitle">Remplissage automatique</b>
         <span data-i18n="mrzHint">Photographiez le dos de votre carte nationale : les champs se remplissent seuls.</span>
       </div>
-      <label class="pick" id="mrzPick">
-        <span data-i18n="mrzScanBtn">📷 Scanner ou importer le dos de la CIN</span>
-        <input type="file" accept="image/*" id="mrzInput">
-      </label>
+      <!-- Deux boutons pour UN seul champ de fichier : « Photographier »
+           pose l'attribut capture (l'appareil photo s'ouvre directement sur
+           téléphone), « Importer » le retire. Un second champ aurait obligé
+           à brancher la lecture MRZ à deux endroits. Cf. fiche.js. -->
+      <div class="mrz-boutons">
+        <button type="button" class="pick pick-live" id="mrzLive" hidden
+                data-i18n="mrzLiveBtn">🎥 Scanner avec la caméra</button>
+        <button type="button" class="pick pick-cam" id="mrzCam"
+                data-i18n="mrzCamBtn">📷 Photographier la CIN</button>
+        <button type="button" class="pick" id="mrzPick"
+                data-i18n="mrzScanBtn">🖼️ Importer une image</button>
+        <input type="file" accept="image/*" id="mrzInput" hidden>
+      </div>
       <span class="mrz-status" id="mrzStatus"></span>
     </div>
 
@@ -439,12 +532,40 @@ input:focus, select:focus, textarea:focus {
     <button type="submit" class="btn-send" id="sendBtn" data-i18n="envoyer">Enregistrer la fiche</button>
   </div>
   <div class="result" id="result"></div>
+
+  <!-- Affichettes QR du bureau de vente : page d'administration, donc lien
+       discret comme celui du pied de page du site. Le client n'a rien à y
+       faire ; le commercial y imprime le QR que le visiteur scannera pour
+       ouvrir cette fiche sur son propre téléphone. -->
+  <p class="qr-lien">
+    <a href="admin/fiche-qr.php" rel="nofollow noopener" data-i18n="qrAffichettes">Affichettes QR (bureau de vente)</a>
+  </p>
+
+  <!-- Vue caméra avec cadre de visée. Le cadre n'est pas décoratif : c'est lui
+       qui est capturé. En photographiant toute la scène, la bande de lettres
+       n'occupait qu'une fraction de l'image et manquait de pixels ; ici la
+       carte remplit le cadre, donc l'image envoyée à la lecture. -->
+  <dialog class="cam-dlg" id="camDlg" aria-labelledby="camTitre">
+    <div class="cam-boite">
+      <p class="cam-titre" id="camTitre">Placez la carte dans le cadre</p>
+      <div class="cam-vue" id="camVue">
+        <video id="camVideo" playsinline muted autoplay></video>
+        <div class="cam-cadre" id="camCadre" aria-hidden="true">
+          <span class="cam-bande"></span>
+        </div>
+      </div>
+      <p class="cam-aide" id="camAide">Le dos de la carte, bien à plat. La bande de lettres du bas doit être nette.</p>
+      <div class="cam-actions">
+        <button type="button" class="pick" id="camCapturer">Capturer</button>
+        <button type="button" class="cam-fermer" id="camFermer">Fermer</button>
+      </div>
+    </div>
+  </dialog>
 </form>
 
-<script src="assets/vendor/tesseract/tesseract.min.js"></script>
 <script src="assets/vendor/mrz/mrz-td1.js?v=20260724g"></script>
-<script src="shared/menu.js?v=17"></script>
-<script src="fiche.js?v=20260808a"></script>
+<script src="shared/menu.js?v=20"></script>
+<script src="fiche.js?v=20260813a"></script>
 <script>(function(){var b=document.getElementById('themeBtn');if(!b)return;function eff(){try{var t=localStorage.getItem('nj-theme');if(t==='dark'||t==='light')return t;}catch(e){}return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}function upd(){b.textContent=eff()==='dark'?'☀️':'🌙';}upd();b.addEventListener('click',function(){var n=eff()==='dark'?'light':'dark';try{localStorage.setItem('nj-theme',n);}catch(e){}document.documentElement.setAttribute('data-theme',n);upd();});})();</script>
 </body>
 </html>

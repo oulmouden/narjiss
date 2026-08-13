@@ -25,11 +25,19 @@
       financement: "Mode de financement", echeance: "Échéance envisagée",
       budget: "Budget envisagé", superficie: "Superficie souhaitée", observations: "Observations",
       signature: "Signature du client", effacer: "Effacer", envoyer: "Enregistrer la fiche",
+      qrAffichettes: "Affichettes QR (bureau de vente)",
       nouveauClient: "Nouveau client",
       resetConfirm: "Effacer toute la fiche et démarrer un nouveau client ?",
       mrzTitle: "Remplissage automatique",
       mrzHint: "Photographiez le dos de votre carte nationale : les champs se remplissent seuls.",
-      mrzScanBtn: "📷 Scanner ou importer le dos de la CIN",
+      mrzScanBtn: "🖼️ Importer une image",
+      mrzCamBtn: "📷 Photographier la CIN",
+      mrzLiveBtn: "🎥 Scanner avec la caméra",
+      camTitre: "Placez la carte dans le cadre",
+      camAide: "Le dos de la carte, bien à plat. La bande de lettres du bas doit être nette.",
+      camCapturer: "Capturer", camFermer: "Fermer",
+      camRefus: "Caméra indisponible ou refusée. Utilisez « Photographier ».",
+      btnCsv: "⤓ CSV", btnPdf: "⤓ PDF",
       mrzReading: "Lecture en cours… gardez la carte bien à plat et nette.",
       mrzOk: "Carte lue avec succès. Vérifiez les champs remplis.",
       mrzKo: "Lecture impossible. Reprenez la photo (bien nette, MRZ visible) ou remplissez à la main.",
@@ -62,11 +70,19 @@
       financement: "طريقة التمويل", echeance: "الأجل المتوقع",
       budget: "الميزانية", superficie: "المساحة المطلوبة", observations: "ملاحظات",
       signature: "توقيع الزبون", effacer: "مسح", envoyer: "تسجيل البطاقة",
+      qrAffichettes: "ملصقات QR (مكتب البيع)",
       nouveauClient: "زبون جديد",
       resetConfirm: "مسح كل البطاقة والبدء بزبون جديد؟",
       mrzTitle: "التعبئة التلقائية",
       mrzHint: "صوّروا ظهر البطاقة الوطنية: تُملأ الحقول تلقائياً.",
-      mrzScanBtn: "📷 مسح أو استيراد ظهر البطاقة",
+      mrzScanBtn: "🖼️ استيراد صورة",
+      mrzCamBtn: "📷 تصوير البطاقة الوطنية",
+      mrzLiveBtn: "🎥 المسح بالكاميرا",
+      camTitre: "ضعوا البطاقة داخل الإطار",
+      camAide: "ظهر البطاقة، مسطّحاً. يجب أن يكون شريط الحروف واضحاً.",
+      camCapturer: "التقاط", camFermer: "إغلاق",
+      camRefus: "الكاميرا غير متاحة أو مرفوضة. استعملوا « التصوير ».",
+      btnCsv: "⤓ CSV", btnPdf: "⤓ PDF",
       mrzReading: "جاري القراءة… أبقوا البطاقة مسطحة وواضحة.",
       mrzOk: "تمت قراءة البطاقة بنجاح. تحققوا من الحقول.",
       mrzKo: "تعذرت القراءة. أعيدوا التصوير (بوضوح) أو املؤوا يدوياً.",
@@ -371,7 +387,17 @@
       .then(function(r) { return r.json(); })
       .then(function(res) {
         if (!res || !res.ok) throw new Error((res && res.error) || 'ko');
-        showResult('ok', esc(t('okTitre')) + '<span class="ref">' + esc(res.reference) + '</span>');
+        // Le récapitulatif est constitué AVANT la remise à zéro du
+        // formulaire : après form.reset(), les champs sont vides et il n'y
+        // aurait plus rien à exporter.
+        var recap = collecterFiche(form, res.reference);
+        showResult('ok', esc(t('okTitre')) + '<span class="ref">' + esc(res.reference) + '</span>' +
+          '<div class="result-actions">' +
+            '<button type="button" id="btnCsv">' + esc(t('btnCsv')) + '</button>' +
+            '<button type="button" id="btnPdf">' + esc(t('btnPdf')) + '</button>' +
+          '</div>');
+        document.getElementById('btnCsv').onclick = function () { exporterCsv(recap); };
+        document.getElementById('btnPdf').onclick = function () { exporterPdf(recap); };
         form.reset();
         document.getElementById('sigClear').click();
         buildPieces();
@@ -383,6 +409,115 @@
         btn.disabled = false;
         btn.textContent = t('envoyer');
       });
+  }
+
+  /* ── Enregistrement local de la fiche : CSV et PDF ─────────────────────── */
+
+  /**
+   * Récapitulatif lisible de ce qui vient d'être envoyé.
+   *
+   * Les libellés sont pris sur le formulaire lui-même plutôt que redéfinis
+   * ici : le récapitulatif suit ainsi la langue affichée, et une étiquette
+   * modifiée dans la page n'a pas à l'être une seconde fois.
+   */
+  function collecterFiche(form, reference) {
+    var lignes = [];
+    var parNom = {};
+
+    function libelle(el) {
+      var lab = el.id ? document.querySelector('label[for="' + el.id + '"]') : null;
+      if (!lab && el.closest) lab = el.closest('label');
+      if (!lab) return el.name;
+      /* Le libellé enveloppe parfois le champ lui-même : sans cette copie
+         élaguée, le titre d'une liste déroulante emportait le texte de TOUTES
+         ses options (« Projet visité — Choisir — Residence Al Jawhara… »). */
+      var copie = lab.cloneNode(true);
+      [].forEach.call(copie.querySelectorAll('select, input, textarea, option'),
+        function (nx) { nx.parentNode.removeChild(nx); });
+      var texte = copie.textContent.replace(/\s*\*\s*$/, '').replace(/\s+/g, ' ').trim();
+      return texte || el.name;
+    }
+
+    [].forEach.call(form.elements, function (el) {
+      if (!el.name || el.disabled) return;
+      if (['file', 'submit', 'button', 'reset', 'hidden'].indexOf(el.type) !== -1) return;
+      if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) return;
+
+      var valeur = (el.value || '').trim();
+      if (!valeur) return;
+      // Pour une liste déroulante, le texte affiché parle, pas le code interne.
+      if (el.tagName === 'SELECT' && el.selectedIndex >= 0) {
+        valeur = el.options[el.selectedIndex].textContent.trim();
+      }
+      // Les cases d'un même groupe (origine des fonds, type de bien…) se
+      // cumulent sur une seule ligne au lieu d'en produire une par case.
+      var cle = el.name;
+      if (parNom[cle] !== undefined) {
+        lignes[parNom[cle]][1] += ', ' + valeur;
+        return;
+      }
+      parNom[cle] = lignes.length;
+      lignes.push([libelle(el), valeur]);
+    });
+
+    return { reference: reference, date: new Date().toLocaleString(), lignes: lignes };
+  }
+
+  /** Déclenche le téléchargement d'un contenu construit dans le navigateur. */
+  function telecharger(blob, nom) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = nom;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    // Libération différée : révoquer immédiatement annulerait le téléchargement
+    // sur certains navigateurs.
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+
+  function exporterCsv(recap) {
+    function champ(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }
+    var lignes = [[champ('Champ'), champ('Valeur')].join(';'),
+                  [champ('Référence'), champ(recap.reference)].join(';'),
+                  [champ('Date'), champ(recap.date)].join(';')];
+    recap.lignes.forEach(function (l) {
+      lignes.push([champ(l[0]), champ(l[1])].join(';'));
+    });
+    /* Point-virgule et BOM : c'est ce qu'attend Excel en configuration
+       française. Avec une virgule et sans BOM, tout atterrit dans une seule
+       colonne et les accents ressortent en caractères illisibles. */
+    var contenu = '\uFEFF' + lignes.join('\r\n');
+    telecharger(new Blob([contenu], { type: 'text/csv;charset=utf-8' }),
+                'fiche-' + recap.reference + '.csv');
+  }
+
+  /**
+   * PDF par la fenêtre d'impression du navigateur.
+   *
+   * Aucune bibliothèque PDF n'est embarquée, et en ajouter une pour ce seul
+   * besoin alourdirait la page de plusieurs centaines de kilo-octets. Chrome,
+   * Edge et Safari — y compris sur téléphone — proposent « Enregistrer au
+   * format PDF » dans cette fenêtre.
+   */
+  function exporterPdf(recap) {
+    var ancien = document.getElementById('ficheRecap');
+    if (ancien) ancien.remove();
+
+    var box = document.createElement('div');
+    box.id = 'ficheRecap';
+    box.dir = document.documentElement.dir;
+    var html = '<h1>' + esc(t('titre') || 'Narjiss') + '</h1>' +
+      '<p class="ref-print">' + esc(recap.reference) + ' — ' + esc(recap.date) + '</p>' +
+      '<table><tbody>';
+    recap.lignes.forEach(function (l) {
+      html += '<tr><th>' + esc(l[0]) + '</th><td>' + esc(l[1]) + '</td></tr>';
+    });
+    box.innerHTML = html + '</tbody></table>';
+    document.body.appendChild(box);
+
+    window.print();
   }
 
   /* ── Réinitialisation complète (changement de client) ──────────────────── */
@@ -445,8 +580,41 @@
     });
   }
 
+
+  /**
+   * Chargement du moteur d'OCR à la demande.
+   *
+   * tesseract.min.js ne pèse que 66 Ko, mais c'est lui qui déclenche ensuite le
+   * téléchargement du cœur WebAssembly (3,9 Mo) et du modèle de police. On ne
+   * l'appelle donc qu'au clic sur « Photographier » ou « Importer » : une
+   * visite qui ne scanne rien ne paie rien, et le téléchargement démarre
+   * pendant que l'appareil photo est ouvert plutôt qu'après la prise de vue.
+   */
+  var promesseOcr = null;
+  function chargerOcr() {
+    if (promesseOcr) return promesseOcr;
+    if (typeof window.Tesseract !== 'undefined') {
+      promesseOcr = Promise.resolve();
+      return promesseOcr;
+    }
+    promesseOcr = new Promise(function (resoudre, rejeter) {
+      var el = document.createElement('script');
+      el.src = new URL('assets/vendor/tesseract/tesseract.min.js', document.baseURI).href;
+      el.onload = function () { resoudre(); };
+      el.onerror = function () {
+        // Un échec de téléchargement ne doit pas rester silencieux : sans cette
+        // remise à zéro, un réseau revenu ne permettrait plus jamais de réessayer.
+        promesseOcr = null;
+        rejeter(new Error('moteur OCR indisponible'));
+      };
+      document.head.appendChild(el);
+    });
+    return promesseOcr;
+  }
+
   async function getMrzWorker() {
     if (mrzWorker) return mrzWorker;
+    await chargerOcr();
     // Tesseract crée un Web Worker en blob (sa base d'URL devient « blob:… ») :
     // les chemins passés ici DOIVENT être absolus, sinon l'importScripts interne
     // échoue avec « The URL '…/worker.min.js' is invalid » et l'OCR ne démarre
@@ -477,6 +645,9 @@
   }
 
   function loadImageFromFile(file) {
+    // La capture caméra fournit directement un canvas : il est déjà utilisable
+    // comme source de dessin, inutile de le repasser par un objet URL.
+    if (file && file.tagName === 'CANVAS') return Promise.resolve(file);
     return new Promise(function(resolve, reject) {
       var img = new Image();
       img.onload = function() { resolve(img); };
@@ -492,7 +663,7 @@
      chevrons « < » et casse la séparation « << » nom/prénom). */
   function mrzCanvas(img, rotate, contrast) {
     rotate = rotate || 0;
-    var iw = img.naturalWidth, ih = img.naturalHeight;
+    var iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
     var swap = (rotate === 90 || rotate === 270);
     var rw = swap ? ih : iw, rh = swap ? iw : ih;   // dimensions après rotation
     var targetW = 2200;
@@ -540,25 +711,51 @@
 
     // Sans support (très vieux navigateur), on masque la fonction : la saisie
     // manuelle reste toujours possible.
-    if (typeof Tesseract === 'undefined' || typeof window.MRZ === 'undefined') {
+    if (typeof window.MRZ === 'undefined') {
       var box = document.getElementById('mrzScan');
       if (box) box.style.display = 'none';
       return;
     }
 
+    /* « Photographier » ouvre l'appareil photo arrière du téléphone
+       (capture=environment), « Importer » ouvre la galerie ou le disque. Les
+       deux alimentent le même champ, donc la même lecture MRZ juste dessous. */
+    var cam = document.getElementById('mrzCam');
+    var pick = document.getElementById('mrzPick');
+    if (cam) cam.addEventListener('click', function () {
+      chargerOcr().catch(function () {});   // démarre pendant la prise de vue
+      input.setAttribute('capture', 'environment');
+      input.click();
+    });
+    if (pick) pick.addEventListener('click', function () {
+      chargerOcr().catch(function () {});
+      input.removeAttribute('capture');
+      input.click();
+    });
+
     // ?mrzdebug=1 dans l'URL : journalise le texte OCR brut dans la console,
     // pour diagnostiquer une photo qui ne se lit pas.
     var MRZ_DEBUG = /[?&]mrzdebug=1/.test(location.search);
 
-    input.addEventListener('change', async function () {
+    input.addEventListener('change', function () {
       var file = this.files && this.files[0];
+      var champ = this;
       if (!file) return;
+      lireCarte(file).then(function () { champ.value = ''; });  // reprise immédiate
+    });
+
+    /**
+     * Lecture d'une image de carte, quelle qu'en soit la provenance : fichier
+     * choisi, photo prise par l'appareil, ou capture de la vue caméra. Le
+     * traitement est identique — seule la source change.
+     */
+    async function lireCarte(source) {
       mrzResetFields();                 // nouvelle carte : on repart de zéro
       mrzSetStatus('', t('mrzReading'));
 
       try {
         var worker = await getMrzWorker();
-        var img = await loadImageFromFile(file);
+        var img = await loadImageFromFile(source);
         // On essaie les 4 orientations (la photo peut être tournée), puis un
         // renforcement de contraste en dernier recours. On conserve la MEILLEURE
         // lecture (nom ET prénom) plutôt que la première simplement valide, et on
@@ -596,16 +793,119 @@
         setIfEmpty('cnie_validite', parsed.expiryDate);
         refreshRequired();               // met à jour les repères rouges
         mrzSetStatus('ok', t('mrzOk'));
+        return true;
       } catch (e) {
         if (MRZ_DEBUG) {
           console.log('[MRZ debug] erreur', e);
           mrzShowDebug('ERREUR: ' + (e && (e.name + ': ' + e.message) || String(e)));
         }
         mrzSetStatus('ko', t('mrzKo'));
-      } finally {
-        this.value = '';                  // permet une reprise immédiate
+        return false;
       }
+    }
+
+    setupCamera(lireCarte);
+  }
+
+  /* ── Scan par la caméra, avec cadre de visée ───────────────────────────── */
+
+  /**
+   * Ouvre la caméra et ne capture QUE l'intérieur du cadre.
+   *
+   * C'est la différence avec « Photographier » : une photo de toute la scène
+   * laisse la bande de lettres occuper une petite partie de l'image, sans assez
+   * de pixels pour être lue. Ici la carte remplit le cadre, donc l'image
+   * envoyée à la lecture.
+   *
+   * Fonctionne sur le poste du bureau de vente comme sur le téléphone : la même
+   * API, la caméra arrière étant simplement demandée en priorité.
+   */
+  function setupCamera(lire) {
+    var bouton = document.getElementById('mrzLive');
+    var dlg = document.getElementById('camDlg');
+    if (!bouton || !dlg) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+
+    var video = document.getElementById('camVideo');
+    var cadre = document.getElementById('camCadre');
+    var vue = document.getElementById('camVue');
+    var flux = null;
+
+    bouton.hidden = false;
+
+    function fermer() {
+      if (flux) {
+        // Sans cet arrêt explicite, la petite lampe de la caméra reste allumée
+        // et le navigateur garde le périphérique occupé.
+        flux.getTracks().forEach(function (p) { p.stop(); });
+        flux = null;
+      }
+      video.srcObject = null;
+      if (dlg.open) dlg.close();
+    }
+
+    bouton.addEventListener('click', async function () {
+      chargerOcr().catch(function () {});   // le moteur se charge pendant le cadrage
+      try {
+        flux = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1920 }, height: { ideal: 1080 }
+          },
+          audio: false
+        });
+      } catch (e) {
+        mrzSetStatus('ko', t('camRefus'));
+        return;
+      }
+      video.srcObject = flux;
+      dlg.showModal();
     });
+
+    document.getElementById('camFermer').addEventListener('click', fermer);
+    dlg.addEventListener('cancel', function () { fermer(); });
+
+    document.getElementById('camCapturer').addEventListener('click', async function () {
+      if (!video.videoWidth) return;
+      var image = decouperCadre();
+      fermer();
+      if (image) await lire(image);
+    });
+
+    /**
+     * Découpe la zone du cadre dans l'image du capteur.
+     *
+     * La vidéo est affichée en `contain` : elle est centrée et complète, avec
+     * d'éventuelles bandes noires. On retrouve donc la zone réellement filmée
+     * par une règle de trois, puis on convertit les coordonnées du cadre —
+     * exprimées à l'écran — en coordonnées du capteur.
+     */
+    function decouperCadre() {
+      var vw = video.videoWidth, vh = video.videoHeight;
+      var boite = vue.getBoundingClientRect();
+      var r = cadre.getBoundingClientRect();
+
+      var echelle = Math.min(boite.width / vw, boite.height / vh);
+      var decX = (boite.width - vw * echelle) / 2;
+      var decY = (boite.height - vh * echelle) / 2;
+
+      var sx = (r.left - boite.left - decX) / echelle;
+      var sy = (r.top - boite.top - decY) / echelle;
+      var sw = r.width / echelle;
+      var sh = r.height / echelle;
+
+      // Le cadre peut déborder de l'image sur un capteur très large : on borne.
+      sx = Math.max(0, Math.min(sx, vw - 1));
+      sy = Math.max(0, Math.min(sy, vh - 1));
+      sw = Math.max(1, Math.min(sw, vw - sx));
+      sh = Math.max(1, Math.min(sh, vh - sy));
+
+      var c = document.createElement('canvas');
+      c.width = Math.round(sw);
+      c.height = Math.round(sh);
+      c.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height);
+      return c;
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -614,7 +914,14 @@
     });
     setupSignature();
     setupMrz();
-    applyLang('fr');
+
+    /* La fiche est atteinte depuis le site (bouton « Nous contacter », page de
+       contact), qui passe la langue courante en ancre : #ar. Sans cette
+       lecture, un visiteur arabophone arrivait sur un formulaire en français
+       et devait le rebasculer à la main. La fiche ne connaît que deux langues
+       (français et arabe) : anglais et espagnol retombent sur le français. */
+    var demandee = (window.location.hash || '').replace('#', '').toLowerCase();
+    applyLang(demandee === 'ar' ? 'ar' : 'fr');
     prefillFromUrl();   // coordonnées venues de « Ma sélection », le cas échéant
     document.getElementById('ficheForm').addEventListener('submit', submitForm);
 
