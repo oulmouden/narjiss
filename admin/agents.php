@@ -32,19 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'create') 
     $pass   = (string)($_POST['password'] ?? '');
     $role   = in_array(($_POST['role'] ?? ''), ['commercial', 'gestionnaire', 'superviseur'], true)
         ? $_POST['role'] : 'commercial';
-    $projet = preg_replace('/[^a-z0-9_]/', '', strtolower($_POST['projet'] ?? ''));
+    // Périmètre : « tous les bureaux » (valeur vide en base, cas historique du
+    // superviseur) ou une sélection, stockée en liste séparée par des virgules.
+    $tousBureaux = ($_POST['perimetre'] ?? 'selection') === 'tous';
+    $projet = $tousBureaux ? '' : nj_agent_projets_texte((array)($_POST['projets'] ?? []));
     $tel    = trim($_POST['telephone'] ?? '');
     $wa     = trim($_POST['whatsapp'] ?? '');
 
-    $projets = nj_projects();
     // Un superviseur couvre tous les bureaux : il n'est rattaché à aucun.
     if ($role === 'superviseur') $projet = '';
-    if ($projet !== '' && !isset($projets[$projet])) $projet = '';
 
     if ($name === '' || strpos($email, '@') === false || strlen($pass) < 6) {
         set_flash('Nom, e-mail valide et mot de passe (6 caractères minimum) requis.');
-    } elseif ($role === 'commercial' && $projet === '') {
-        set_flash('Un commercial doit être rattaché à un bureau de vente existant.');
+    } elseif ($role === 'commercial' && $projet === '' && !$tousBureaux) {
+        set_flash('Choisissez au moins un bureau de vente, ou « Tous les bureaux ».');
     } else {
         try {
             $newId = nj_agent_create($name, $email, $pass, $role, $projet, $tel, $wa);
@@ -94,7 +95,14 @@ function nj_agent_row(array $a): void
     <tr>
         <td><?= htmlspecialchars($a['name']) ?><br><small style="color:#7a879a"><?= htmlspecialchars($a['email']) ?></small></td>
         <td><?= $roleLbl ?></td>
-        <td><?= htmlspecialchars($a['projet'] ?: '—') ?></td>
+        <td><?php
+            $ids = nj_agent_projets($a['projet']);
+            if (!$ids) {
+                echo '<em>Tous les bureaux</em>';
+            } else {
+                echo htmlspecialchars(implode(', ', array_map('nj_project_name', $ids)));
+            }
+        ?></td>
         <td><span class="tag tag-<?= $a['statut'] ?>"><?= $pill ?></span></td>
         <td>
             <?php if ($a['statut'] !== 'active'): ?>
@@ -166,16 +174,24 @@ $flash = flash_message();
                 <option value="superviseur">Superviseur</option>
             </select>
         </label>
-        <label>Bureau de vente
-            <select name="projet" id="njNewProjet">
-                <option value="">— Aucun —</option>
-                <?php foreach (nj_projects() as $pid => $p): ?>
-                    <option value="<?= htmlspecialchars($pid) ?>">
-                        <?= htmlspecialchars($p['name']['fr'] ?? $pid) ?>
-                    </option>
-                <?php endforeach; ?>
+        <label>Bureaux de vente
+            <select name="perimetre" id="njNewPerimetre">
+                <option value="selection">Bureaux sélectionnés</option>
+                <option value="tous">Tous les bureaux de vente</option>
             </select>
+            <small style="color:#64748b">« Tous » couvre aussi les bureaux ajoutés plus tard.</small>
         </label>
+        <div class="full" id="njNewProjets">
+            <b style="font-size:.85rem">Cocher les bureaux couverts</b>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:.3rem .9rem; margin-top:.4rem">
+                <?php foreach (nj_projects() as $pid => $p): ?>
+                    <label style="display:flex; align-items:center; gap:.4rem; font-weight:400">
+                        <input type="checkbox" name="projets[]" value="<?= htmlspecialchars($pid) ?>">
+                        <?= htmlspecialchars($p['name']['fr'] ?? $pid) ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
         <label>Téléphone
             <input type="text" name="telephone" maxlength="40">
         </label>
@@ -191,13 +207,17 @@ $flash = flash_message();
     // Un commercial, lui, doit obligatoirement en choisir un.
     (function () {
         var role = document.getElementById('njNewRole');
-        var projet = document.getElementById('njNewProjet');
+        var perimetre = document.getElementById('njNewPerimetre');
+        var bloc = document.getElementById('njNewProjets');
         function sync() {
-            projet.disabled = role.value === 'superviseur';
-            projet.required = role.value === 'commercial';
-            if (projet.disabled) projet.value = '';
+            // Superviseur : le périmètre est imposé (tous), le choix disparaît.
+            var impose = role.value === 'superviseur';
+            perimetre.disabled = impose;
+            if (impose) perimetre.value = 'tous';
+            bloc.hidden = impose || perimetre.value === 'tous';
         }
         role.addEventListener('change', sync);
+        perimetre.addEventListener('change', sync);
         sync();
     })();
     </script>

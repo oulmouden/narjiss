@@ -247,7 +247,13 @@ function nj_msg_get(int $id): ?array {
  */
 function nj_msg_list(string $projet = '', string $statut = 'actifs', int $limit = 200): array {
   $where = []; $args = [];
-  if ($projet !== '') { $where[] = 'projet = ?'; $args[] = $projet; }
+  // $projet accepte une liste (« jawhara,tazroute ») : un agent peut couvrir
+  // plusieurs bureaux, et voit alors les messages de chacun.
+  $cibles = array_filter(array_map('trim', explode(',', $projet)));
+  if ($cibles) {
+    $where[] = 'projet IN (' . implode(',', array_fill(0, count($cibles), '?')) . ')';
+    $args = array_merge($args, $cibles);
+  }
   if ($statut === 'actifs')                    $where[] = "statut IN ('nouveau','ecoute')";
   elseif (isset(nj_msg_statuts()[$statut]))  { $where[] = 'statut = ?'; $args[] = $statut; }
   $sql = 'SELECT * FROM messages' . ($where ? ' WHERE ' . implode(' AND ', $where) : '')
@@ -259,9 +265,11 @@ function nj_msg_list(string $projet = '', string $statut = 'actifs', int $limit 
 
 /** Nombre de messages jamais ouverts (pastille de l'espace commercial). */
 function nj_msg_nb_nouveaux(string $projet = ''): int {
-  $sql = "SELECT COUNT(*) FROM messages WHERE statut = 'nouveau'" . ($projet !== '' ? ' AND projet = ?' : '');
+  $cibles = array_filter(array_map('trim', explode(',', $projet)));
+  $sql = "SELECT COUNT(*) FROM messages WHERE statut = 'nouveau'";
+  if ($cibles) $sql .= ' AND projet IN (' . implode(',', array_fill(0, count($cibles), '?')) . ')';
   $st = nj_msg_db()->prepare($sql);
-  $st->execute($projet !== '' ? [$projet] : []);
+  $st->execute($cibles);
   return (int)$st->fetchColumn();
 }
 
@@ -314,5 +322,8 @@ function nj_msg_supprimer(int $id): bool {
  */
 function nj_msg_agent_peut(array $agent, array $message): bool {
   if (in_array($agent['role'] ?? '', ['gestionnaire', 'superviseur'], true)) return true;
-  return ($agent['projet'] ?? '') !== '' && $agent['projet'] === $message['projet'];
+  require_once __DIR__ . '/agents-lib.php';
+  // Commercial : les bureaux qu'il couvre — un seul, plusieurs, ou tous
+  // (champ vide, choisi explicitement dans le back-office).
+  return nj_agent_couvre($agent['projet'] ?? '', $message['projet']);
 }

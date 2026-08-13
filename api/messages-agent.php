@@ -77,9 +77,9 @@ try {
   // ── Liste ────────────────────────────────────────────────────────────────
   if ($action === 'list') {
     $statut = (string)($_GET['statut'] ?? 'actifs');
+    // Un commercial voit les bureaux qu'il couvre : « jawhara », une liste
+    // « jawhara,tazroute », ou tous (champ vide, périmètre choisi en admin).
     $projet = $global ? (string)($_GET['projet'] ?? '') : (string)$me['projet'];
-    // Un commercial sans bureau rattaché ne voit rien plutôt que tout.
-    if (!$global && $projet === '') nj_ma_out(['ok' => true, 'messages' => [], 'nouveaux' => 0]);
 
     $out = array_map('nj_ma_public', nj_msg_list($projet, $statut));
     nj_ma_out(['ok' => true, 'messages' => $out, 'nouveaux' => nj_msg_nb_nouveaux($global ? '' : $projet)]);

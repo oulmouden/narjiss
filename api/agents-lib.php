@@ -90,6 +90,12 @@ SQL);
              . "ENUM('commercial','gestionnaire','superviseur') NOT NULL DEFAULT 'commercial'");
   } catch (Throwable $e) { /* déjà à jour */ }
 
+  // Un agent peut couvrir plusieurs bureaux : la colonne porte alors une liste
+  // séparée par des virgules. 64 caractères n'y suffisaient plus.
+  try {
+    $pdo->exec("ALTER TABLE agents MODIFY COLUMN projet VARCHAR(255) NOT NULL DEFAULT ''");
+  } catch (Throwable $e) { /* déjà à jour */ }
+
   $ready = true;
   return $pdo;
 }
@@ -146,7 +152,8 @@ function nj_agent_create(string $name, string $email, string $password,
     $email,
     password_hash($password, PASSWORD_DEFAULT),
     $role,
-    preg_replace('/[^a-z0-9_]/', '', strtolower($projet)),
+    // Un ou plusieurs bureaux ; vide = tous (voir nj_agent_projets).
+    nj_agent_projets_texte(explode(',', $projet)),
     mb_substr(trim($telephone), 0, 40),
     mb_substr(trim($whatsapp), 0, 40),
     date('Y-m-d H:i:s'),
@@ -186,12 +193,52 @@ function nj_agent_set_role(int $id, string $role): bool {
   return $st->rowCount() > 0;
 }
 
+/**
+ * Bureaux couverts par un agent.
+ *
+ * La colonne `projet` porte trois cas, sans changer de schéma :
+ *   ''                    → TOUS les bureaux (cas historique du superviseur) ;
+ *   'jawhara'             → un seul bureau ;
+ *   'jawhara,tazroute'    → une sélection.
+ *
+ * Retourne la liste ; un tableau vide signifie « tous ».
+ */
+function nj_agent_projets(?string $valeur): array {
+  $valeur = trim((string) $valeur);
+  if ($valeur === '') return [];
+  $ids = array_filter(array_map(
+    static fn($p) => preg_replace('/[^a-z0-9_]/', '', strtolower(trim($p))),
+    explode(',', $valeur)
+  ));
+  return array_values(array_unique($ids));
+}
+
+/** Cet agent couvre-t-il ce bureau ? (liste vide = tous les bureaux) */
+function nj_agent_couvre(?string $valeur, string $projet): bool {
+  $ids = nj_agent_projets($valeur);
+  return !$ids || in_array(strtolower($projet), $ids, true);
+}
+
+/** Normalise une saisie (liste, ou vide pour « tous ») avant écriture. */
+function nj_agent_projets_texte(array $ids): string {
+  require_once __DIR__ . '/data.php';
+  $valides = array_keys(nj_projects());
+  $ids = array_values(array_intersect(nj_agent_projets(implode(',', $ids)), $valides));
+  return implode(',', $ids);
+}
+
+/**
+ * Clause SQL « cet agent couvre le bureau demandé », pour les requêtes qui
+ * filtrent par projet. Un agent « tous bureaux » (projet vide) passe toujours.
+ */
+const NJ_AGENT_COUVRE_SQL = '(projet = "" OR FIND_IN_SET(?, projet))';
+
 /** Liste des agents (optionnellement filtrés par projet et/ou statut). */
 function nj_agents_list(string $projet = '', string $statut = ''): array {
   $sql = 'SELECT * FROM agents';
   $where = [];
   $args = [];
-  if ($projet !== '') { $where[] = 'projet = ?'; $args[] = preg_replace('/[^a-z0-9_]/', '', strtolower($projet)); }
+  if ($projet !== '') { $where[] = NJ_AGENT_COUVRE_SQL; $args[] = preg_replace('/[^a-z0-9_]/', '', strtolower($projet)); }
   if ($statut !== '') { $where[] = 'statut = ?'; $args[] = $statut; }
   if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
   $sql .= ' ORDER BY name';
@@ -244,7 +291,7 @@ function nj_presence_roster(string $projet): array {
        FROM agents a
        LEFT JOIN agent_presence p ON p.agent_id = a.id
       WHERE a.statut = "active"
-        AND ( (a.role = "commercial" AND a.projet = ?) OR a.role = "superviseur" )
+        AND ( (a.role = "commercial" AND (a.projet = "" OR FIND_IN_SET(?, a.projet))) OR a.role = "superviseur" )
       ORDER BY a.role = "superviseur" DESC, a.name'
   );
   $st->execute([$projet]);
@@ -278,7 +325,7 @@ function nj_resolve_commercial(string $projet, string $name = ''): ?array {
   $st = nj_adb()->prepare(
     'SELECT * FROM agents
       WHERE statut = "active"
-        AND ( (role = "commercial" AND projet = ?) OR role = "superviseur" )
+        AND ( (role = "commercial" AND (projet = "" OR FIND_IN_SET(?, projet))) OR role = "superviseur" )
       ORDER BY role = "superviseur", name'
   );
   $st->execute([$projet]);
