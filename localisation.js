@@ -27,7 +27,7 @@
       noProject: "Projet introuvable.",
       yourResidence: "Votre résidence",
       rating: "Note", reviews: "avis",
-      sortBy: "Tri", sortDist: "Distance", sortName: "Nom",
+      sortBy: "Tri", sortDist: "Distance", sortName: "Nom", allCategories: "Toutes les catégories",
       filterMax: "Filtre", allDistances: "Toutes", minWalk: "min à pied",
       walk: "à pied", drive: "en voiture",
       reperes: "Repères",
@@ -48,7 +48,7 @@
       noProject: "Project not found.",
       yourResidence: "Your residence",
       rating: "Rating", reviews: "reviews",
-      sortBy: "Sort", sortDist: "Distance", sortName: "Name",
+      sortBy: "Sort", sortDist: "Distance", sortName: "Name", allCategories: "All categories",
       filterMax: "Filter", allDistances: "All", minWalk: "min walk",
       walk: "walk", drive: "drive",
       reperes: "Landmarks",
@@ -69,7 +69,7 @@
       noProject: "المشروع غير موجود.",
       yourResidence: "إقامتك",
       rating: "التقييم", reviews: "تقييم",
-      sortBy: "الترتيب", sortDist: "المسافة", sortName: "الاسم",
+      sortBy: "الترتيب", sortDist: "المسافة", sortName: "الاسم", allCategories: "كل الفئات",
       filterMax: "تصفية", allDistances: "الكل", minWalk: "دقيقة مشيا",
       walk: "مشيا", drive: "بالسيارة",
       reperes: "معالم",
@@ -90,7 +90,7 @@
       noProject: "Proyecto no encontrado.",
       yourResidence: "Tu residencia",
       rating: "Nota", reviews: "reseñas",
-      sortBy: "Orden", sortDist: "Distancia", sortName: "Nombre",
+      sortBy: "Orden", sortDist: "Distancia", sortName: "Nombre", allCategories: "Todas las categorías",
       filterMax: "Filtro", allDistances: "Todas", minWalk: "min a pie",
       walk: "a pie", drive: "en coche",
       reperes: "Referencias",
@@ -180,6 +180,9 @@
   var currentPois = [];
   var currentSort = 'distance';
   var maxDistanceFilter = 0;
+  // Catégorie affichée seule sur la carte ('' = toutes). Pilotée par la liste
+  // déroulante de la barre, et par les en-têtes dépliables de la liste.
+  var categorieFiltre = '';
   // Jeu affiché : 'quartier' (commodités) ou 'reperes' (aéroport, plage…).
   var modeListe = 'quartier';
   var jeuxCharges = { quartier: null, reperes: null };
@@ -523,20 +526,38 @@
   }
 
   /** Ouvrir une catégorie n'affiche que ses marqueurs ; la refermer les rend tous. */
+  /** Clic sur un en-tête de catégorie : ouvre, ou referme si déjà ouverte. */
   function toggleCategory(cat) {
     var btn = document.querySelector('.poi-category-btn[data-cat="' + cat + '"]');
-    var list = document.getElementById('poi-list-' + cat);
     var wasOpen = btn && btn.classList.contains('active');
+    appliquerCategorie(wasOpen ? '' : cat);
+  }
+
+  /**
+   * Point unique de vérité du filtre par catégorie : la carte, la liste et la
+   * liste déroulante de la barre disent la même chose. Passer par deux chemins
+   * séparés laissait le menu afficher « Écoles » alors que la carte montrait
+   * tout, dès qu'on refermait la catégorie depuis la liste.
+   */
+  function appliquerCategorie(cat) {
+    categorieFiltre = cat || '';
+
     var buttons = document.querySelectorAll('.poi-category-btn');
     var lists = document.querySelectorAll('.poi-list');
     for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
     for (var j = 0; j < lists.length; j++) lists[j].classList.remove('show');
 
-    if (!wasOpen && btn && list) {
-      btn.classList.add('active');
-      list.classList.add('show');
+    var select = document.getElementById('poiCatFilter');
+    if (select && select.value !== categorieFiltre) select.value = categorieFiltre;
+
+    if (!mapInstance) return;
+    if (categorieFiltre) {
+      var btn = document.querySelector('.poi-category-btn[data-cat="' + categorieFiltre + '"]');
+      var list = document.getElementById('poi-list-' + categorieFiltre);
+      if (btn) btn.classList.add('active');
+      if (list) list.classList.add('show');
       for (var m = 0; m < mapMarkers.length; m++) {
-        if (mapMarkers[m]._cat === cat || mapMarkers[m]._cat === 'home') {
+        if (mapMarkers[m]._cat === categorieFiltre || mapMarkers[m]._cat === 'home') {
           mapInstance.addLayer(mapMarkers[m]);
         } else {
           mapInstance.removeLayer(mapMarkers[m]);
@@ -582,6 +603,27 @@
         '" data-jeu="reperes" role="tab" aria-selected="' + (modeListe === 'reperes') + '">' +
         u.jeuReperes + '</button>' +
     '</div>';
+  }
+
+  /**
+   * Pose la bascule dans son conteneur fixe, sous les coordonnées GPS.
+   *
+   * Elle vivait en tête de #poiSummary, qui défile : passé une vingtaine de
+   * POI, les deux onglets sortaient de l'écran et on ne pouvait plus revenir
+   * aux repères sans remonter toute la liste. Étant désormais hors de la zone
+   * défilante, elle se redessine séparément — à chaque bascule pour l'état
+   * actif, et quand le fichier des repères finit d'arriver.
+   */
+  function rendreBascule(l) {
+    var zone = document.getElementById('poiJeux');
+    if (!zone) return;
+    zone.innerHTML = basculeJeuxHTML(l);
+    var btns = zone.querySelectorAll('.poi-jeu');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        afficherJeu(this.getAttribute('data-jeu'), l);
+      });
+    }
   }
 
   /** Repères : liste plate, triée par distance. Les regrouper par catégorie
@@ -635,29 +677,43 @@
     // Pas de récapitulatif par catégorie ici : la liste dépliable ci-dessous
     // porte déjà le compte de chaque catégorie dans son badge.
     var count = Math.max(0, pois.length - 1);
-    var html = basculeJeuxHTML(l) +
-      '<div class="poi-count"><span>' + count + '</span>' +
-      (modeListe === 'reperes' ? u.reperesCount : u.poiCount) + '</div>' +
-      '<div class="poi-controls">' +
-        '<div class="poi-control-row"><label>' + u.sortBy + '</label>' +
-          '<button class="poi-sort' + (currentSort === 'distance' ? ' active' : '') + '" data-sort="distance">📏 ' + u.sortDist + '</button>' +
-          '<button class="poi-sort' + (currentSort === 'name' ? ' active' : '') + '" data-sort="name">🔤 ' + u.sortName + '</button>' +
-        '</div>' +
-        '<div class="poi-control-row"><label>' + u.filterMax + '</label>' +
-          '<select class="poi-filter" id="poiDistanceFilter">' +
+    rendreBascule(l);   // conteneur fixe, hors de la liste qui défile
+
+    /* Commandes : elles vivent dans la barre au-dessus de la carte, pas dans
+       la liste. Sur un téléphone, la liste est repoussée sous la carte — les
+       filtres y auraient été hors de vue au moment où l'on regarde le plan. */
+    var barre = document.getElementById('poiControles');
+    if (barre) {
+      var opts = '<option value="">' + (u.allCategories || 'Toutes les catégories') + '</option>';
+      for (var oc = 0; oc < order.length; oc++) {
+        opts += '<option value="' + order[oc] + '"' + (categorieFiltre === order[oc] ? ' selected' : '') + '>' +
+                categoryLabel(order[oc], l) + ' (' + categories[order[oc]].count + ')</option>';
+      }
+      barre.innerHTML =
+        '<span class="poi-count-inline"><b>' + count + '</b> ' +
+          (modeListe === 'reperes' ? u.reperesCount : u.poiCount) + '</span>' +
+        (modeListe === 'reperes' ? '' :
+          '<select class="poi-filter" id="poiCatFilter" aria-label="' + (u.allCategories || 'Catégorie') + '">' + opts + '</select>' +
+          '<select class="poi-filter" id="poiDistanceFilter" aria-label="' + u.filterMax + '">' +
             '<option value="0"' + (maxDistanceFilter === 0 ? ' selected' : '') + '>' + u.allDistances + '</option>' +
             '<option value="5"' + (maxDistanceFilter === 5 ? ' selected' : '') + '>≤ 5 ' + u.minWalk + '</option>' +
             '<option value="10"' + (maxDistanceFilter === 10 ? ' selected' : '') + '>≤ 10 ' + u.minWalk + '</option>' +
             '<option value="15"' + (maxDistanceFilter === 15 ? ' selected' : '') + '>≤ 15 ' + u.minWalk + '</option>' +
             '<option value="30"' + (maxDistanceFilter === 30 ? ' selected' : '') + '>≤ 30 ' + u.minWalk + '</option>' +
           '</select>' +
-        '</div>' +
-      '</div>';
+          '<span class="poi-tri">' +
+            '<button class="poi-sort' + (currentSort === 'distance' ? ' active' : '') + '" data-sort="distance">📏 ' + u.sortDist + '</button>' +
+            '<button class="poi-sort' + (currentSort === 'name' ? ' active' : '') + '" data-sort="name">🔤 ' + u.sortName + '</button>' +
+          '</span>');
+      brancherBarre(barre, l);
+    }
+
+    var html = '';
 
     if (modeListe === 'reperes') {
       // Pas de catégories dépliables ni de filtre par temps de marche : on ne
       // rejoint pas l'aéroport à pied.
-      box.innerHTML = basculeJeuxHTML(l) +
+      box.innerHTML =
         '<div class="poi-count"><span>' + count + '</span>' + u.reperesCount + '</div>' +
         reperesListeHTML(pois, l);
       brancherPanneau(box, l);
@@ -693,28 +749,35 @@
 
   /** Écouteurs du panneau. Extrait de updatePoiSummary : les deux modes en ont
       besoin, et la liste est reconstruite à chaque tri, filtre ou bascule. */
-  function brancherPanneau(box, l) {
-    var jeuBtns = box.querySelectorAll('.poi-jeu');
-    for (var g = 0; g < jeuBtns.length; g++) {
-      jeuBtns[g].addEventListener('click', function () {
-        afficherJeu(this.getAttribute('data-jeu'), l);
-      });
-    }
-
-    var sortBtns = box.querySelectorAll('.poi-sort');
+  /** Écouteurs de la barre au-dessus de la carte (tri, distance, catégorie). */
+  function brancherBarre(barre, l) {
+    var sortBtns = barre.querySelectorAll('.poi-sort');
     for (var s = 0; s < sortBtns.length; s++) {
       sortBtns[s].addEventListener('click', function () {
         currentSort = this.getAttribute('data-sort');
         updatePoiSummary(currentPois, l, true);
       });
     }
-    var filter = document.getElementById('poiDistanceFilter');
+    var filter = barre.querySelector('#poiDistanceFilter');
     if (filter) {
       filter.addEventListener('change', function () {
         maxDistanceFilter = parseInt(this.value, 10) || 0;
         updatePoiSummary(currentPois, l, true);
       });
     }
+    var cat = barre.querySelector('#poiCatFilter');
+    if (cat) {
+      cat.addEventListener('change', function () {
+        // Même effet qu'un clic sur l'en-tête de catégorie : la carte ne montre
+        // plus que ces points, et la liste s'ouvre sur eux.
+        appliquerCategorie(this.value);
+      });
+    }
+  }
+
+  function brancherPanneau(box, l) {
+    // La bascule et les commandes vivent hors de ce conteneur : rendreBascule()
+    // et brancherBarre() branchent leurs propres écouteurs.
     var catBtns = box.querySelectorAll('.poi-category-btn');
     for (var b = 0; b < catBtns.length; b++) {
       catBtns[b].addEventListener('click', function () {
@@ -878,6 +941,12 @@
 
     var summary = document.getElementById('poiSummary');
     if (summary) summary.innerHTML = '<div class="poi-note">' + UI[l].poiLoading + '</div>';
+    /* La bascule vit hors du panneau : elle n'est plus effacée avec lui. Sans
+       ce vidage, les onglets du projet précédent resteraient affichés pendant
+       le chargement du suivant, et un clic basculerait sur des repères qui ne
+       sont plus les bons. */
+    var jeux = document.getElementById('poiJeux');
+    if (jeux) jeux.innerHTML = '';
 
     /* Les deux jeux sont chargés d'emblée, mais un seul est affiché : la
        bascule doit être instantanée devant un client, pas attendre un
@@ -948,7 +1017,6 @@
     texte('locKicker', u.kicker);
     texte('locTitre', u.title);
     texte('locTexte', u.text);
-    texte('locGpsLabel', u.gpsLabel);
     texte('locRetour', (l === 'ar' ? '→ ' : '← ') + u.back);
     texte('locCarteGlobale', u.globalMap);
     texte('locFiche', u.projectSheet);
@@ -962,12 +1030,10 @@
     if (!project) {
       texte('locNom', u.noProject);
       texte('locLieu', '');
-      texte('locGps', '');
       return;
     }
     texte('locNom', text(project.name, l));
     texte('locLieu', text(project.location, l));
-    texte('locGps', project.lat.toFixed(6) + ', ' + project.lng.toFixed(6));
     document.title = 'Narjiss — ' + text(project.name, l) + ' — ' + u.kicker;
   }
 

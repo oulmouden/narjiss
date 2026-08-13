@@ -80,40 +80,53 @@ html[dir=rtl] .loc-hero h1 { font-family: 'Noto Sans Arabic', serif; }
    moitié vide sur un grand écran. --loc-carte est la hauteur réservée au
    menu, au titre et à la marge basse. */
 :root { --loc-carte: calc(100vh - 200px); }
+/* Carte pleine largeur, commandes au-dessus, liste dessous.
+   L'ancien panneau latéral de 390 px mangeait la moitié d'un écran de
+   téléphone : la carte n'y était plus lisible, alors qu'elle est le sujet.
+   Une seule composition sert les deux tailles d'écran — seules la hauteur de
+   la carte et le nombre de colonnes de la liste changent. */
 .map-composition {
   display: grid;
-  grid-template-columns: 390px 1fr;
+  grid-template-rows: auto auto auto;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 24px 70px rgba(20,20,29,.15);
   border: 1px solid rgba(20,20,29,.08);
-}
-.map-aside {
   background: var(--surface-2);
-  color: var(--ink);
-  display: grid;
-  /* Intro, bascule, liste, actions. Seule la liste (1fr) défile : la bascule
-     et les coordonnées GPS restent visibles quel que soit le nombre de POI. */
-  grid-template-rows: auto auto 1fr auto;
-  height: var(--loc-carte);
-  min-height: 480px;
-  overflow: hidden;
 }
-.map-intro { padding: 1.2rem 1.3rem .9rem; border-bottom: 1px solid rgba(17,24,39,.08); }
-.map-intro p { margin-top: .7rem; color: var(--muted); line-height: 1.7; font-size: .88rem; }
-.coordinate { color: var(--gold); font-size: .82rem; margin-top: .8rem; font-weight: 800; }
-#projectMap { height: var(--loc-carte); min-height: 480px; width: 100%; z-index: 1; }
+.map-intro { padding: 1rem 1.2rem .8rem; }
+.map-intro p { margin-top: .4rem; color: var(--muted); line-height: 1.6; font-size: .88rem; }
 
-.map-actions { padding: 1rem 1.2rem 1.2rem; border-top: 1px solid rgba(17,24,39,.08); display: grid; gap: .55rem; }
+/* Barre de commandes : bascule, filtres, tri, compteur et liens, sur une
+   ligne qui se replie d'elle-même quand l'écran se resserre. */
+.loc-barre {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem;
+  padding: 0 1.2rem .9rem;
+  border-bottom: 1px solid rgba(17,24,39,.08);
+}
+.loc-barre > * { min-width: 0; }
+.loc-barre .map-actions { margin-inline-start: auto; }
+
+#projectMap { height: var(--loc-carte); min-height: 420px; width: 100%; z-index: 1; }
+
+.map-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
 .map-actions a {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: 44px; padding: .6rem 1rem;
+  min-height: 44px; padding: .6rem 1rem; white-space: nowrap;
   border: 1px solid rgba(0,174,239,.24); border-radius: 8px;
   background: var(--smoke); color: var(--ocean-deep);
   font-weight: 700; font-size: .88rem; text-decoration: none;
 }
 
-.poi-summary { overflow-y: auto; min-height: 0; }
+.poi-summary { overflow-y: auto; min-height: 0; max-height: 460px; border-top: 1px solid rgba(17,24,39,.08); }
+/* Sous la carte, une seule colonne de categories ferait une bande etroite et
+   interminable sur un ecran large : on repartit en colonnes. */
+@media (min-width: 900px) {
+  .poi-summary .poi-category { break-inside: avoid; }
+  .poi-summary > .poi-count { column-span: all; }
+  .poi-summary { columns: 2; column-gap: 1.4rem; padding-bottom: .6rem; }
+}
+@media (min-width: 1300px) { .poi-summary { columns: 3; } }
 .poi-count { color: var(--ink); font-size: .9rem; font-weight: 700; padding: 1rem 1.2rem .7rem; }
 .poi-count span {
   color: var(--gold); font-family: 'Playfair Display', serif;
@@ -130,6 +143,27 @@ html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
 .poi-category-btn .poi-legend-marker { width: 24px; height: 24px; flex-basis: 24px; }
 .poi-category-btn .poi-legend-marker .poi-google-svg { width: 15px; height: 15px; }
 .poi-note { color: var(--muted); font-size: .78rem; line-height: 1.55; padding: 1rem 1.2rem; }
+
+/* Commandes de la barre : compteur, catégorie, distance, tri. */
+#poiControles { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.poi-count-inline { color: var(--muted); font-size: .82rem; white-space: nowrap; }
+.poi-count-inline b { color: var(--gold); font-size: 1.05rem; font-weight: 800; }
+.poi-tri { display: inline-flex; gap: .3rem; }
+#poiControles .poi-filter { max-width: 15rem; }
+@media (max-width: 560px) {
+  /* Chaque ligne compte : au-dessus d'une carte de 55 vh, la barre ne doit pas
+     repousser le plan hors de l'écran. Les deux listes déroulantes partagent
+     une ligne, le tri en occupe une autre, et le compteur se glisse à côté. */
+  #poiControles { width: 100%; gap: .35rem; }
+  #poiControles .poi-filter { flex: 1 1 8rem; max-width: none; min-height: 40px; }
+  /* Le compteur global occupait une ligne entière au-dessus de la carte, alors
+     que chaque entrée de la liste déroulante porte déjà son propre décompte. */
+  .poi-count-inline { display: none; }
+  .poi-tri { width: 100%; }
+  .poi-tri .poi-sort { flex: 1; min-height: 40px; }
+  /* Liens de navigation : utiles, mais secondaires devant la carte. */
+  .loc-barre .map-actions a { min-height: 38px; font-size: .78rem; }
+}
 
 .poi-controls {
   padding: .85rem 1.2rem;
@@ -236,10 +270,19 @@ html[dir=rtl] .poi-item { text-align: right; }
 .poi-google-svg-fill { fill: currentColor; stroke: none; }
 
 @media (max-width: 900px) {
-  .map-composition { grid-template-columns: 1fr; }
-  .map-aside { height: auto; min-height: 0; }
-  .poi-summary { max-height: 420px; }
-  #projectMap { height: 420px; min-height: 0; }
+  /* Tout ce qui précède la carte la repousse hors de l'écran. L'en-tête de la
+     page nomme déjà le projet : le bloc d'introduction fait doublon ici, et le
+     bouton de retour se replie sur une pastille compacte. */
+  .map-intro { display: none; }
+  .loc-hero { padding-top: .3rem; }
+  .loc-hero .loc-lieu { font-size: .85rem; }
+  .loc-retour { min-height: 38px; padding: .4rem .7rem; margin-top: .5rem; font-size: .8rem; }
+  .loc-barre { padding: .8rem 1rem; gap: .45rem; }
+  .loc-barre .map-actions { margin-inline-start: 0; width: 100%; }
+  .loc-barre .map-actions a { flex: 1; font-size: .82rem; padding: .5rem .6rem; }
+  .poi-summary { max-height: 50vh; }
+  /* La carte est le sujet de la page : elle prend la moitie de l ecran. */
+  #projectMap { height: 55vh; min-height: 320px; }
 }
 
 /* ── Bascule quartier / repères ────────────────────────────────────────────
@@ -247,12 +290,9 @@ html[dir=rtl] .poi-item { text-align: right; }
    répondent à la même question de mise en situation, à deux échelles. Les
    montrer ensemble imposait un zoom de compromis — trop large pour lire le
    quartier, trop serré pour situer la ville. */
-.poi-jeux {
-  display: flex;
-  gap: .3rem;
-  padding: .7rem .9rem .55rem;
-  border-bottom: 1px solid rgba(17,24,39,.08);
-}
+/* La bascule est désormais dans la barre au-dessus de la carte : ni marge
+   propre, ni filet — c'est la barre qui les porte. */
+.poi-jeux { display: flex; gap: .3rem; }
 .poi-jeu {
   flex: 1;
   min-height: 40px;
@@ -387,31 +427,32 @@ html[dir=rtl] .poi-item { text-align: right; }
 </section>
 
 <div class="loc-shell">
+  <!-- Carte pleine largeur : commandes au-dessus, liste dessous. Le panneau
+       latéral occupait 390 px — la moitié d'un écran de téléphone — au
+       détriment de la carte, qui est pourtant le sujet de la page. -->
   <div class="map-composition">
-    <aside class="map-aside">
-      <div class="map-intro">
-        <h2 id="locTitre" style="margin:0;font-size:1.2rem;">Le projet dans son territoire</h2>
-        <p id="locTexte"></p>
-        <div class="coordinate"><span id="locGpsLabel">Coordonnées GPS</span> : <span id="locGps"></span></div>
-      </div>
-      <!-- Bascule quartier / repères, hors de #poiSummary : elle était en tête
-           de la liste, donc emportée par le défilement dès que le panneau
-           dépassait la hauteur de la carte. Sur la borne, on perdait le moyen
-           de revenir aux repères sans remonter toute la liste. -->
+    <div class="map-intro">
+      <h2 id="locTitre" style="margin:0;font-size:1.2rem;">Le projet dans son territoire</h2>
+      <p id="locTexte"></p>
+    </div>
+    <div class="loc-barre">
+      <!-- Bascule quartier / repères, hors de #poiSummary : dans la liste, elle
+           était emportée par le défilement dès la vingtaine de points. -->
       <div id="poiJeux"></div>
-      <div class="poi-summary" id="poiSummary"></div>
+      <div id="poiControles"></div>
       <div class="map-actions">
         <a id="locCarteGlobale" href="carte.html">Carte globale</a>
         <a id="locFiche" href="project.html">Voir la fiche du projet</a>
       </div>
-    </aside>
+    </div>
     <div id="projectMap"></div>
+    <div class="poi-summary" id="poiSummary"></div>
   </div>
 </div>
 
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=23"></script>
-<script src="localisation.js?v=12"></script>
+<script src="localisation.js?v=13"></script>
 </body>
 </html>
