@@ -767,10 +767,11 @@ function buildFooterHTML(basePath) {
   // noindex de la page de connexion le tiennent hors des moteurs.
   var adminLink = '<a class="footer-admin-link" href="' + basePath +
     'admin/login.php" rel="nofollow noopener">' + t.footer_pro + '</a>';
-  // Affichettes QR à imprimer pour le bureau de vente : même public et même
-  // discrétion que le lien ci-dessus (page protégée par la session admin).
+  // Affichettes QR à imprimer pour le bureau de vente. Page libre d'accès (elle
+  // ne montre que des données publiques) mais tenue hors des moteurs : le
+  // commercial l'ouvre et l'imprime sans session d'administration.
   var qrLink = '<a class="footer-admin-link" href="' + basePath +
-    'admin/fiche-qr.php" rel="nofollow noopener">' + t.footer_qr + '</a>';
+    'qr.php" rel="nofollow noopener">' + t.footer_qr + '</a>';
   var legalNoticeUrl = basePath + 'mentions-legales.html' + legalHash;
   var privacyUrl = basePath + 'confidentialite.html' + legalHash;
   var termsUrl = basePath + 'conditions.html' + legalHash;

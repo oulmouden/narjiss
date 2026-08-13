@@ -309,7 +309,7 @@ if ($msg = flash_message()) {
   </form>
 
   <p class="no-print" style="margin:.2rem 0 .6rem">
-    <a href="fiche-qr.php">🔳 Affichettes QR</a>
+    <a href="../qr.php">🔳 Affichettes QR</a>
     &nbsp;·&nbsp; <a href="<?= h(fiches_url($filtres, ['export' => 'csv'])) ?>">⬇️ Export CSV</a>
   </p>
 
