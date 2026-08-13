@@ -74,7 +74,7 @@ $duree  = $rep ? (int)$rep['duree_s'] : 0;
   <?php else: ?>
     <h1>Lien introuvable</h1>
     <p>Ce message n'existe plus, ou le lien est incomplet.</p>
-    <p><a href="index.html">Aller sur narjiss.ma</a></p>
+    <p><a href="index.html">Aller sur narjiss.company</a></p>
   <?php endif; ?>
 </div>
 </body></html>
