@@ -27,7 +27,7 @@
       noProject: "Projet introuvable.",
       yourResidence: "Votre résidence",
       rating: "Note", reviews: "avis",
-      sortBy: "Tri", sortDist: "Distance", sortName: "Nom", allCategories: "Toutes les catégories",
+      sortBy: "Tri", sortDist: "Distance", sortName: "Nom", allCategories: "Toutes les catégories", gotoPoint: "Aller à un point…", gotoRepere: "Aller à un repère…",
       filterMax: "Filtre", allDistances: "Toutes", minWalk: "min à pied",
       walk: "à pied", drive: "en voiture",
       reperes: "Repères",
@@ -48,7 +48,7 @@
       noProject: "Project not found.",
       yourResidence: "Your residence",
       rating: "Rating", reviews: "reviews",
-      sortBy: "Sort", sortDist: "Distance", sortName: "Name", allCategories: "All categories",
+      sortBy: "Sort", sortDist: "Distance", sortName: "Name", allCategories: "All categories", gotoPoint: "Go to a place…", gotoRepere: "Go to a landmark…",
       filterMax: "Filter", allDistances: "All", minWalk: "min walk",
       walk: "walk", drive: "drive",
       reperes: "Landmarks",
@@ -69,7 +69,7 @@
       noProject: "المشروع غير موجود.",
       yourResidence: "إقامتك",
       rating: "التقييم", reviews: "تقييم",
-      sortBy: "الترتيب", sortDist: "المسافة", sortName: "الاسم", allCategories: "كل الفئات",
+      sortBy: "الترتيب", sortDist: "المسافة", sortName: "الاسم", allCategories: "كل الفئات", gotoPoint: "الانتقال إلى نقطة…", gotoRepere: "الانتقال إلى معلمة…",
       filterMax: "تصفية", allDistances: "الكل", minWalk: "دقيقة مشيا",
       walk: "مشيا", drive: "بالسيارة",
       reperes: "معالم",
@@ -90,7 +90,7 @@
       noProject: "Proyecto no encontrado.",
       yourResidence: "Tu residencia",
       rating: "Nota", reviews: "reseñas",
-      sortBy: "Orden", sortDist: "Distancia", sortName: "Nombre", allCategories: "Todas las categorías",
+      sortBy: "Orden", sortDist: "Distancia", sortName: "Nombre", allCategories: "Todas las categorías", gotoPoint: "Ir a un punto…", gotoRepere: "Ir a una referencia…",
       filterMax: "Filtro", allDistances: "Todas", minWalk: "min a pie",
       walk: "a pie", drive: "en coche",
       reperes: "Referencias",
@@ -550,6 +550,13 @@
     var select = document.getElementById('poiCatFilter');
     if (select && select.value !== categorieFiltre) select.value = categorieFiltre;
 
+    // Le sélecteur de points suit la catégorie : il ne doit proposer que ce
+    // que la carte montre.
+    var points = document.getElementById('poiPointFilter');
+    if (points && currentPois && currentPois.length) {
+      points.innerHTML = optionsPointsHTML(currentPois, UI[lang()] || UI.fr);
+    }
+
     if (!mapInstance) return;
     if (categorieFiltre) {
       var btn = document.querySelector('.poi-category-btn[data-cat="' + categorieFiltre + '"]');
@@ -628,6 +635,67 @@
 
   /** Repères : liste plate, triée par distance. Les regrouper par catégorie
       donnerait onze rubriques d'un seul élément. */
+  /**
+   * Options du sélecteur de points : les POI eux-mêmes, filtrés par la
+   * catégorie choisie et le temps de marche, dans l'ordre de tri courant.
+   *
+   * Sorti de la construction de la barre parce qu'il faut le reconstruire
+   * quand la catégorie change — sans quoi le menu continuait de proposer les
+   * 77 points alors que la carte n'en montrait plus que 15.
+   */
+  function optionsPointsHTML(pois, u) {
+    var choix = [];
+    for (var i = 0; i < pois.length; i++) {
+      var poi = pois[i];
+      if (poi.cat === 'home') continue;
+      if (categorieFiltre && poi.cat !== categorieFiltre) continue;
+      if (maxDistanceFilter > 0 && poi._walking > maxDistanceFilter) continue;
+      choix.push({ poi: poi, idx: i });
+    }
+    choix.sort(function (a, b) {
+      if (currentSort === 'name') return a.poi.nom.localeCompare(b.poi.nom);
+      return (a.poi._distance || 0) - (b.poi._distance || 0);
+    });
+    var html = '<option value="">' + (u.gotoPoint || 'Aller à un point…') + '</option>';
+    for (var k = 0; k < choix.length; k++) {
+      var d = choix[k].poi._walking;
+      html += '<option value="' + choix[k].idx + '">' + echapper(choix[k].poi.nom) +
+        (d ? ' — ' + d + ' ' + u.minWalk : '') + '</option>';
+    }
+    return html;
+  }
+
+  /** Échappe un texte destiné à du HTML (les noms viennent d'un CSV libre). */
+  function echapper(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  /**
+   * Liste déroulante des repères de la ville, pour la barre au-dessus de la
+   * carte : mêmes points que la liste, atteignables sans la dérouler.
+   */
+  function reperesSelectHTML(pois, u) {
+    var items = [];
+    for (var i = 0; i < pois.length; i++) {
+      if (pois[i].cat === 'home') continue;
+      items.push({ poi: pois[i], idx: i });
+    }
+    items.sort(function (a, b) {
+      if (currentSort === 'name') return a.poi.nom.localeCompare(b.poi.nom);
+      return (a.poi._distance || 0) - (b.poi._distance || 0);
+    });
+    var opts = '<option value="">' + (u.gotoRepere || 'Aller à un repère…') + '</option>';
+    for (var k = 0; k < items.length; k++) {
+      var km = items[k].poi._distance ? ' — ' + (Math.round(items[k].poi._distance / 100) / 10) + ' km' : '';
+      opts += '<option value="' + items[k].idx + '">' +
+        (items[k].poi.emoji ? items[k].poi.emoji + ' ' : '') + echapper(items[k].poi.nom) + km + '</option>';
+    }
+    return '<select class="poi-filter" id="poiPointFilter" aria-label="' +
+      (u.gotoRepere || 'Repère') + '">' + opts + '</select>';
+  }
+
   function reperesListeHTML(pois, l) {
     var items = [];
     for (var i = 0; i < pois.length; i++) {
@@ -689,10 +757,12 @@
         opts += '<option value="' + order[oc] + '"' + (categorieFiltre === order[oc] ? ' selected' : '') + '>' +
                 categoryLabel(order[oc], l) + ' (' + categories[order[oc]].count + ')</option>';
       }
+      var optsPoints = optionsPointsHTML(pois, u);
+
       barre.innerHTML =
         '<span class="poi-count-inline"><b>' + count + '</b> ' +
           (modeListe === 'reperes' ? u.reperesCount : u.poiCount) + '</span>' +
-        (modeListe === 'reperes' ? '' :
+        (modeListe === 'reperes' ? reperesSelectHTML(pois, u) :
           '<select class="poi-filter" id="poiCatFilter" aria-label="' + (u.allCategories || 'Catégorie') + '">' + opts + '</select>' +
           '<select class="poi-filter" id="poiDistanceFilter" aria-label="' + u.filterMax + '">' +
             '<option value="0"' + (maxDistanceFilter === 0 ? ' selected' : '') + '>' + u.allDistances + '</option>' +
@@ -701,6 +771,8 @@
             '<option value="15"' + (maxDistanceFilter === 15 ? ' selected' : '') + '>≤ 15 ' + u.minWalk + '</option>' +
             '<option value="30"' + (maxDistanceFilter === 30 ? ' selected' : '') + '>≤ 30 ' + u.minWalk + '</option>' +
           '</select>' +
+          '<select class="poi-filter poi-filter-points" id="poiPointFilter" aria-label="' +
+            (u.gotoPoint || 'Aller à un point') + '">' + optsPoints + '</select>' +
           '<span class="poi-tri">' +
             '<button class="poi-sort' + (currentSort === 'distance' ? ' active' : '') + '" data-sort="distance">📏 ' + u.sortDist + '</button>' +
             '<button class="poi-sort' + (currentSort === 'name' ? ' active' : '') + '" data-sort="name">🔤 ' + u.sortName + '</button>' +
@@ -763,6 +835,16 @@
       filter.addEventListener('change', function () {
         maxDistanceFilter = parseInt(this.value, 10) || 0;
         updatePoiSummary(currentPois, l, true);
+      });
+    }
+    var point = barre.querySelector('#poiPointFilter');
+    if (point) {
+      point.addEventListener('change', function () {
+        var idx = parseInt(this.value, 10);
+        // Le sélecteur revient sur son invite : il désigne une action (aller
+        // voir ce point), pas un état durable comme les filtres voisins.
+        this.selectedIndex = 0;
+        if (!isNaN(idx)) focusPoi(idx);
       });
     }
     var cat = barre.querySelector('#poiCatFilter');
