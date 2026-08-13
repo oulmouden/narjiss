@@ -44,6 +44,10 @@
     zonesProjet: null   // projet pour lequel zones/plansZones sont chargés
   };
 
+  // Immeuble à ramener sous les yeux au premier rendu de la maquette (retour
+  // depuis une autre page). Consommé une fois, puis oublié.
+  var immARevoir = null;
+
   var T = {
     fr: {
       titre: 'Choisissez votre logement', affiner: 'Affiner',
@@ -1118,6 +1122,26 @@
      plateau et l'état actif des boutons. Reconstruire toute la maquette
      (innerHTML) détruisait la section agrandie et faisait sortir du plein
      écran à chaque changement d'étage. */
+  /**
+   * Inscrit l'immeuble et l'étage regardés dans l'URL.
+   *
+   * Sans cela, partir vers le bureau de vente puis revenir en arrière ramenait
+   * la maquette à son état par défaut — dernier étage du premier immeuble —
+   * alors que le visiteur avait quitté, par exemple, le R+3 de l'immeuble A.
+   * replaceState : on corrige l'entrée courante, on n'en empile pas une
+   * nouvelle à chaque changement d'étage (le bouton Retour resterait coincé).
+   */
+  function memoriserVue(imm, niveau) {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if (etat.projet) params.set('projet', etat.projet);
+      params.set('imm', imm);
+      params.set('etage', niveau);
+      history.replaceState({}, '', 'disponibilites.html?' + params.toString() +
+        window.location.hash);
+    } catch (e) { /* URL non modifiable : la page reste utilisable */ }
+  }
+
   function majEtage(imm, niveau) {
     var sel = (window.CSS && CSS.escape) ? CSS.escape(imm) : imm;
     var section = document.querySelector('.nj-mq-imm[data-imm="' + sel + '"]');
@@ -1132,6 +1156,7 @@
     if (!niveaux[niveau]) { rendreMaquette(); return; }
 
     etat.etage[imm] = niveau;
+    memoriserVue(imm, niveau);
     section.querySelectorAll('.nj-mq-etage').forEach(function (b) {
       var actif = b.getAttribute('data-etage') === niveau;
       b.classList.toggle('is-active', actif);
@@ -1226,6 +1251,15 @@
     grille.innerHTML = html;
     // Les plans réels viennent d'être injectés : on leur greffe le zoom.
     grille.querySelectorAll('.nj-mq-reel').forEach(activerNavigationPlan);
+
+    // Retour depuis le bureau de vente : ramener sous les yeux l'immeuble
+    // quitté. Une seule fois — ensuite le visiteur navigue librement.
+    if (immARevoir) {
+      var sel = (window.CSS && CSS.escape) ? CSS.escape(immARevoir) : immARevoir;
+      var cible = grille.querySelector('.nj-mq-imm[data-imm="' + sel + '"]');
+      immARevoir = null;
+      if (cible) cible.scrollIntoView({ block: 'start' });
+    }
   }
 
   function arr(v) { return Math.round(v * 10) / 10; }
@@ -1969,6 +2003,8 @@
     // L'URL suit, pour que la page reste partageable et rechargeable.
     var params = new URLSearchParams(window.location.search);
     params.set('projet', id);
+    // L'immeuble et l'étage retenus appartenaient à l'ancien projet.
+    params.delete('imm'); params.delete('etage');
     history.replaceState({}, '', 'disponibilites.html?' + params.toString() +
       window.location.hash);
     etat.filtres = {};
@@ -1979,6 +2015,10 @@
   function init() {
     var params = new URLSearchParams(window.location.search);
     etat.projet = (params.get('projet') || '').toLowerCase();
+    // Retour depuis le bureau de vente : on rouvre l'immeuble et l'étage
+    // quittés, inscrits dans l'URL par memoriserVue().
+    var immUrl = params.get('imm'), etageUrl = params.get('etage');
+    if (immUrl && etageUrl) { etat.etage[immUrl] = etageUrl; immARevoir = immUrl; }
     chargerSelection();
     try {
       var vueGardee = localStorage.getItem('nj-vue-lots');
