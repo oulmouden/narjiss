@@ -76,6 +76,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (nj_agent_set_role($id, $role)) {
                 set_flash('Rôle de ' . $target['name'] . ' défini sur ' . $role . '.');
             }
+        } elseif ($do === 'delete') {
+            // Sans retour : on exige que le compte soit d'abord suspendu (ou
+            // encore en attente). Supprimer un actif en un clic depuis une
+            // liste de comptes qui se ressemblent finit toujours mal.
+            if ($target['statut'] === 'active') {
+                set_flash('Suspendez d\'abord le compte de ' . $target['name'] . ' avant de le supprimer.');
+            } elseif (nj_agent_delete($id)) {
+                set_flash('Compte de ' . $target['name'] . ' supprimé définitivement.');
+            }
         }
     }
     header('Location: agents.php');
@@ -127,8 +136,16 @@ function nj_agent_row(array $a): void
                         <option value="<?= $rv ?>"<?= $a['role'] === $rv ? ' selected' : '' ?>><?= $rl ?></option>
                     <?php endforeach; ?>
                 </select>
-                <button class="button secondary" type="submit">Rôle</button>
+                <button class="button secondary" type="submit" title="Appliquer le rôle choisi">Changer le rôle</button>
             </form>
+            <?php if ($a['statut'] !== 'active'): ?>
+                <form method="post" style="display:inline"
+                      onsubmit="return confirm('Supprimer définitivement le compte de <?= htmlspecialchars(addslashes($a['name'])) ?> ?\n\nCette action est sans retour. L\'historique des messages est conservé.');">
+                    <input type="hidden" name="agent_id" value="<?= (int)$a['id'] ?>">
+                    <input type="hidden" name="do" value="delete">
+                    <button class="button secondary" type="submit" style="color:#b42318">Supprimer</button>
+                </form>
+            <?php endif; ?>
         </td>
     </tr>
     <?php

@@ -169,6 +169,23 @@ function nj_agent_login(string $email, string $password): ?array {
   return $a;
 }
 
+/**
+ * Supprime définitivement un compte.
+ *
+ * Sa présence et ses demandes d'accès partent avec lui (ON DELETE CASCADE).
+ * L'historique des messages, lui, RESTE : le journal des suites données porte
+ * le nom de l'agent en clair (agent_nom) et n'a pas de clé étrangère vers
+ * agents — on ne perd donc pas la trace de qui a rappelé qui.
+ *
+ * Préférer la suspension quand le compte peut resservir : la suppression est
+ * sans retour, et l'e-mail redevient disponible pour une nouvelle inscription.
+ */
+function nj_agent_delete(int $id): bool {
+  $st = nj_adb()->prepare('DELETE FROM agents WHERE id = ?');
+  $st->execute([$id]);
+  return $st->rowCount() > 0;
+}
+
 /** Passe un compte à un statut donné (validation / suspension). */
 function nj_agent_set_status(int $id, string $statut): bool {
   if (!in_array($statut, ['pending', 'active', 'suspended'], true)) return false;
