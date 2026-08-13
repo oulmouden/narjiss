@@ -607,6 +607,18 @@ html[dir=rtl] .atelier-card h3 { font-family: 'Noto Sans Arabic', serif; line-he
   border-bottom: 1px solid rgba(17,24,39,.08);
 }
 .loc-barre .map-actions { margin-inline-start: auto; }
+/* Bascule Quartier / Reperes, reprise de la page autonome. */
+.poi-jeux { display: flex; gap: .3rem; }
+.poi-jeu {
+  min-height: 40px; padding: .45rem 1rem;
+  border: 1px solid var(--border-medium, rgba(17,24,39,.14)); border-radius: 999px;
+  background: var(--surface, #fff); color: var(--muted);
+  font: inherit; font-size: .84rem; font-weight: 700; cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.poi-jeu:hover { border-color: var(--gold); color: var(--gold); }
+.poi-jeu.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+
 #poiControles { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
 .poi-count-inline { color: var(--muted); font-size: .82rem; white-space: nowrap; }
 .poi-count-inline b { color: var(--gold); font-size: 1.05rem; font-weight: 800; }
@@ -1289,6 +1301,6 @@ html[dir=rtl] .media-generique::after { left: auto; right: .5rem; }
 <div id="mainFooter"></div>
 <script src="shared/menu.js?v=23"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260813a"></script>
+<script src="project.js?v=20260814a"></script>
 </body>
 </html>

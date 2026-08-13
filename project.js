@@ -320,6 +320,9 @@
   // Categorie affichee seule sur la carte ('' = toutes) — pilotee par la liste
   // deroulante de la barre et par les en-tetes deplicables.
   var categorieFiltre = '';
+  // Jeu de points affiche : le quartier, ou les reperes de la ville.
+  var modeJeu = 'quartier';
+  var njPoisQuartier = [], njProjetCourant = null, njLangCourante = 'fr';
   var routingControl = null;
   var drawnItems = null;
   var activeProjectId = "";
@@ -983,9 +986,14 @@
     });
     var html = '<option value="">' + (t.gotoPoint || "Aller a un point...") + '</option>';
     for (var k = 0; k < choix.length; k++) {
-      var d = choix[k].poi._walking;
-      html += '<option value="' + choix[k].idx + '">' + echapperPoi(choix[k].poi.nom) +
-        (d ? ' — ' + d + ' ' + t.minWalk : '') + '</option>';
+      var poiK = choix[k].poi;
+      // On ne rejoint pas l'aeroport a pied : les reperes s'annoncent en km.
+      var mesure = modeJeu === 'reperes'
+        ? (poiK._distance ? ' — ' + (Math.round(poiK._distance / 100) / 10) + ' km' : '')
+        : (poiK._walking ? ' — ' + poiK._walking + ' ' + t.minWalk : '');
+      html += '<option value="' + choix[k].idx + '">' +
+        (modeJeu === 'reperes' && poiK.emoji ? poiK.emoji + ' ' : '') +
+        echapperPoi(poiK.nom) + mesure + '</option>';
     }
     return html;
   }
@@ -1061,8 +1069,28 @@
     if (card) card.classList.add("active");
   }
 
+  /**
+   * Bascule quartier / reperes. renderPois() accepte n'importe quel jeu de
+   * points : il suffit de lui passer les reperes de la ville a la place des
+   * commodites du quartier, et les listes deroulantes suivent.
+   */
+  function basculerJeu(mode) {
+    if (mode === modeJeu || !njProjetCourant) return;
+    modeJeu = mode;
+    categorieFiltre = '';
+    var maison = njPoisQuartier.filter(function (p) { return p.cat === "home"; });
+    var jeu = mode === 'reperes' ? maison.concat(currentMajorPois || []) : njPoisQuartier;
+    if (mode === 'reperes' && !(currentMajorPois || []).length) { modeJeu = 'quartier'; return; }
+    renderPois(njProjetCourant, jeu, njLangCourante);
+    updatePoiSummary(jeu, njLangCourante, true);
+  }
+
   /** Ecouteurs de la barre au-dessus de la carte (tri, distance, categorie, point). */
   function brancherBarrePoi(barre, lang) {
+    var jeux = barre.querySelectorAll(".poi-jeu");
+    for (var g = 0; g < jeux.length; g++) {
+      jeux[g].addEventListener("click", function () { basculerJeu(this.getAttribute("data-jeu")); });
+    }
     var sortBtns = barre.querySelectorAll(".poi-sort");
     for (var s = 0; s < sortBtns.length; s++) {
       sortBtns[s].addEventListener("click", function() {
@@ -1094,11 +1122,12 @@
   }
 
   function updatePoiSummary(pois, lang, hasCsv) {
+    // La liste dépliable a disparu de la page : seule la barre est alimentée.
+    // #poiSummary peut donc être absent — on ne s'arrête plus s'il l'est.
     var box = document.getElementById("poiSummary");
-    if (!box) return;
     var t = PAGE_UI[lang];
     if (!hasCsv) {
-      box.innerHTML = '<div class="poi-note">' + t.mapPoiFallback + '</div>';
+      if (box) box.innerHTML = '<div class="poi-note">' + t.mapPoiFallback + '</div>';
       return;
     }
 
@@ -1136,6 +1165,10 @@
           categoryLabel(order[oc], lang) + ' (' + categories[order[oc]].count + ')</option>';
       }
       barre.innerHTML =
+        '<div class="poi-jeux">' +
+          '<button type="button" class="poi-jeu' + (modeJeu === 'quartier' ? ' active' : '') + '" data-jeu="quartier">' + (t.jeuQuartier || "Quartier") + '</button>' +
+          '<button type="button" class="poi-jeu' + (modeJeu === 'reperes' ? ' active' : '') + '" data-jeu="reperes">' + (t.jeuReperes || t.majorKicker || "Reperes") + '</button>' +
+        '</div>' +
         '<span class="poi-count-inline"><b>' + count + '</b> ' + t.mapPoiCount + '</span>' +
         '<select class="poi-filter" id="poiCatFilter" aria-label="' + (t.allCategories || "Categorie") + '">' + optsCat + '</select>' +
         '<select class="poi-filter" id="poiDistanceFilter" aria-label="' + t.filterMax + '">' +
@@ -1175,6 +1208,7 @@
       html += '</div></div>';
     }
 
+    if (!box) return;
     box.innerHTML = html;
 
     // Tri et filtres sont branches par brancherBarrePoi() : ils ne sont plus
@@ -1800,11 +1834,11 @@
     installMapControls(lang);
 
     updatePoiSummary([], lang, true);
-    var summary = document.getElementById("poiSummary");
-    if (summary) summary.innerHTML = '<div class="poi-note">' + PAGE_UI[lang].mapPoiLoading + '</div>';
+    // (plus de liste sous la carte : rien à préremplir)
 
     loadProjectPois(project, lang).then(function(pois) {
       if (!pois.length) throw new Error("Empty CSV");
+      njPoisQuartier = pois; njProjetCourant = project; njLangCourante = lang;
       renderPois(project, pois, lang);
       updatePoiSummary(pois, lang, true);
     }).catch(function() {
@@ -2482,7 +2516,9 @@
                alourdirait une colonne déjà dense. */
             /* Les coordonnees GPS occupaient une ligne pour une information
                que personne ne recopie : retirees. */
-            '<div class="map-intro"><div class="map-projet">' + name + '</div><div class="section-kicker">' + t.mapKicker + '</div><h3>' + t.mapTitle + '</h3></div>' +
+            /* Kicker « Localisation » retire : il repetait le titre juste
+               dessous et coutait une ligne au-dessus de la carte. */
+            '<div class="map-intro"><div class="map-projet">' + name + '</div><h3>' + t.mapTitle + '</h3></div>' +
             '<div class="loc-barre">' +
               '<div id="poiControles"></div>' +
               '<div class="map-actions">' +
@@ -2491,7 +2527,6 @@
             '</div>' +
           '</div>' +
           '<div id="projectMap"></div>' +
-          '<div class="poi-summary" id="poiSummary"></div>' +
         '</div>' +
       '</section>';
 
