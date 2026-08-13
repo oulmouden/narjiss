@@ -24,7 +24,8 @@ var MENU_UI = {
     footer_terms: "Conditions",
     footer_copyright: "Tous droits réservés",
     footer_pro: "Espace professionnel",
-    footer_qr: "Affichettes QR"
+    footer_qr: "Affichettes QR",
+    footer_agent: "Espace commercial"
   },
   en: {
     home: "Home",
@@ -46,7 +47,8 @@ var MENU_UI = {
     footer_terms: "Terms",
     footer_copyright: "All rights reserved",
     footer_pro: "Professional area",
-    footer_qr: "QR posters"
+    footer_qr: "QR posters",
+    footer_agent: "Sales area"
   },
   ar: {
     home: "الرئيسية",
@@ -68,7 +70,8 @@ var MENU_UI = {
     footer_terms: "الشروط",
     footer_copyright: "جميع الحقوق محفوظة",
     footer_pro: "فضاء المهنيين",
-    footer_qr: "ملصقات QR"
+    footer_qr: "ملصقات QR",
+    footer_agent: "فضاء المستشارين"
   },
   es: {
     home: "Inicio",
@@ -90,7 +93,8 @@ var MENU_UI = {
     footer_terms: "Términos",
     footer_copyright: "Todos los derechos reservados",
     footer_pro: "Espacio profesional",
-    footer_qr: "Carteles QR"
+    footer_qr: "Carteles QR",
+    footer_agent: "Espacio comercial"
   }
 };
 
@@ -772,6 +776,12 @@ function buildFooterHTML(basePath) {
   // commercial l'ouvre et l'imprime sans session d'administration.
   var qrLink = '<a class="footer-admin-link" href="' + basePath +
     'qr.php" rel="nofollow noopener">' + t.footer_qr + '</a>';
+  /* Espace des commerciaux. Leurs comptes sont crees par le super-admin, mais
+     la page ne figurait nulle part : ils devaient connaitre l'URL par coeur,
+     et « Espace professionnel » ci-dessus mene a la connexion admin, qui ne
+     reconnait qu'un seul compte — la leur y etait refusee sans explication. */
+  var agentLink = '<a class="footer-admin-link" href="' + basePath +
+    'espace-agent.html" rel="nofollow noopener">' + t.footer_agent + '</a>';
   var legalNoticeUrl = basePath + 'mentions-legales.html' + legalHash;
   var privacyUrl = basePath + 'confidentialite.html' + legalHash;
   var termsUrl = basePath + 'conditions.html' + legalHash;
@@ -815,7 +825,8 @@ function buildFooterHTML(basePath) {
         '<div class="footer-bottom">' +
           '<div>© ' + year + ' NARJISS</div>' +
           '<div><a href="' + legalNoticeUrl + '">' + t.footer_legal_mentions + '</a> | <a href="' + privacyUrl + '">' + t.footer_privacy + '</a> | <a href="' + termsUrl + '">' + t.footer_terms + '</a></div>' +
-          '<div>' + t.footer_copyright + ' · ' + adminLink + ' · ' + qrLink + '</div>' +
+          '<div>' + t.footer_copyright + ' · ' + adminLink + ' · ' + agentLink +
+            ' · ' + qrLink + '</div>' +
         '</div>' +
       '</div>' +
     '</footer>';
