@@ -1085,17 +1085,27 @@
   function boutonBureauHTML() {
     var p = projetCourant();
     if (!p) return '';
-    /* Dans la scène de la démo, la page est dans un cadre. bureaudevente.html
-       ne connaît pas le mode embarqué : chargée dans le cadre, elle y
-       empilerait son propre menu et son pied de page par-dessus ceux de la
-       démo. On l'ouvre donc dans la fenêtre entière. */
-    var cible = estEmbarque() ? ' target="_top"' : '';
-    return '<a class="nj-mq-choix-bureau"' + cible + ' href="bureaudevente.html?id=' +
+    return '<a class="nj-mq-choix-bureau"' + cibleBureau() + ' href="bureaudevente.html?id=' +
       encodeURIComponent(p.id) + '#' + langue() + '">' +
       '<span aria-hidden="true">🏢</span>' + t('visiterBureau') + '</a>';
   }
 
   /** La page est-elle affichée dans la scène de la démo (?embed) ? */
+  /**
+   * Où ouvrir le bureau de vente.
+   *
+   * Dans la scène de la démo, la page vit dans un cadre. La charger dans ce
+   * cadre empilerait son menu et son pied de page sur ceux de la démo ; la
+   * charger dans la fenêtre entière (_top) faisait pire — on quittait
+   * demo.html, et le retour arrière ramenait la démo à son point de départ,
+   * scène et plein écran perdus, puisqu'elle ne mémorise aucun état.
+   * Un onglet séparé règle les deux : la démo reste intacte derrière, on la
+   * retrouve telle quelle en refermant.
+   */
+  function cibleBureau() {
+    return estEmbarque() ? ' target="_blank" rel="noopener"' : '';
+  }
+
   function estEmbarque() {
     try { return new URLSearchParams(window.location.search).has('embed'); }
     catch (e) { return false; }
@@ -2226,7 +2236,7 @@
     var html = '<a class="nj-act-or" href="contact.html#' + lang + '">' +
       t('contacter') + '</a>';
     if (p) {
-      html += '<a href="bureaudevente.html?id=' + encodeURIComponent(p.id) +
+      html += '<a' + cibleBureau() + ' href="bureaudevente.html?id=' + encodeURIComponent(p.id) +
         '#' + lang + '">🏢 ' + t('visiterBureau') + '</a>';
       if (p.lat && p.lng) {
         html += '<a href="localisation.html?projet=' + encodeURIComponent(p.id) +
