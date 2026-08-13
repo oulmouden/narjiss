@@ -61,7 +61,7 @@
       ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
       projet: 'Projet',
       detailsLot: 'Détails du lot', surfaceLot: 'Surface', chambresLot: 'Chambres', statutLot: 'Disponibilité',
-      plan: 'Plan', tour360: '360°', carte: 'Carte', fermer: 'Fermer',
+      plan: 'Plan', tour360: '360°', medias: 'Album', fermer: 'Fermer',
       mediaProjet: 'Document du projet — le plan propre à ce lot sera ajouté prochainement.',
       sansPlan: 'Aucun plan disponible pour ce projet.',
       planArchi: "Plan d'architecte", planVisuel: 'Plan commercial',
@@ -108,7 +108,7 @@
       ajouter: 'Add to my shortlist', retirer: 'Remove',
       projet: 'Project',
       detailsLot: 'Unit details', surfaceLot: 'Area', chambresLot: 'Bedrooms', statutLot: 'Availability',
-      plan: 'Floor plan', tour360: '360°', carte: 'Map', fermer: 'Close',
+      plan: 'Floor plan', tour360: '360°', medias: 'Album', fermer: 'Close',
       mediaProjet: 'Project document — the plan specific to this unit will be added soon.',
       sansPlan: 'No floor plan available for this project.',
       planArchi: 'Architect drawing', planVisuel: 'Sales plan',
@@ -155,7 +155,7 @@
       ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
       projet: 'المشروع',
       detailsLot: 'تفاصيل الوحدة', surfaceLot: 'المساحة', chambresLot: 'الغرف', statutLot: 'التوفر',
-      plan: 'المخطط', tour360: '360°', carte: 'الخريطة', fermer: 'إغلاق',
+      plan: 'المخطط', tour360: '360°', medias: 'الألبوم', fermer: 'إغلاق',
       mediaProjet: 'وثيقة المشروع — سيُضاف مخطط هذه الوحدة قريبا.',
       sansPlan: 'لا يوجد مخطط متاح لهذا المشروع.',
       planArchi: 'مخطط المهندس', planVisuel: 'المخطط التجاري',
@@ -202,7 +202,7 @@
       ajouter: 'Añadir a mi selección', retirer: 'Quitar',
       projet: 'Proyecto',
       detailsLot: 'Detalles del lote', surfaceLot: 'Superficie', chambresLot: 'Dormitorios', statutLot: 'Disponibilidad',
-      plan: 'Plano', tour360: '360°', carte: 'Mapa', fermer: 'Cerrar',
+      plan: 'Plano', tour360: '360°', medias: 'Álbum', fermer: 'Cerrar',
       mediaProjet: 'Documento del proyecto — el plano propio de este lote se añadirá pronto.',
       sansPlan: 'No hay plano disponible para este proyecto.',
       planArchi: 'Plano de arquitecto', planVisuel: 'Plano comercial',
@@ -508,6 +508,24 @@
       surface_min: Number(s.value) > Number(s.min) ? s.value : '',
       disponible: document.getElementById('fDispo').checked ? '1' : ''
     };
+    majBasculeFiltres();
+  }
+
+  /**
+   * Libellé du bouton de repli des filtres (téléphone).
+   *
+   * Repliés, les filtres ne se voient plus : sans ce compteur, un visiteur qui
+   * ne trouve aucun logement n'aurait aucun moyen de comprendre qu'il a laissé
+   * trois critères actifs.
+   */
+  function majBasculeFiltres() {
+    var lbl = document.getElementById('njFiltresBasculeLbl');
+    if (!lbl) return;
+    var actifs = Object.keys(etat.filtres).filter(function (k) {
+      return etat.filtres[k] !== '' && etat.filtres[k] != null;
+    }).length;
+    lbl.innerHTML = echapper(t('affiner')) +
+      (actifs ? '<span class="nj-filtres-compte">' + actifs + '</span>' : '');
   }
 
   /* ── Rendu des lots ────────────────────────────────────────────────── */
@@ -560,8 +578,8 @@
    * Le plan et la visite 360° viennent du LOT quand la grille les renseigne
    * (colonnes plan_architecte / plan_visuel / visite_360), et retombent sinon
    * sur les documents du PROJET, identiques pour tous ses lots — un repli
-   * signalé au visiteur par la mention « document du projet ». La carte, elle,
-   * reste toujours celle du projet.
+   * signalé au visiteur par la mention « document du projet ». Les photos et
+   * vidéos, elles, restent toujours celles du projet.
    */
   function mediasDuLot(lot) {
     var p = projetCourant();
@@ -572,8 +590,11 @@
     if (lot.tour || (p && (p.apartment_tour_url || p.tour_url))) {
       b.push(bouton('tour', lot.id, '\u25CE', t('tour360')));
     }
-    if (p && p.lat && p.lng) {
-      b.push(bouton('carte', lot.id, '\u25C9', t('carte')));
+    // L'album remplace l'ancienne carte : devant un lot, le visiteur veut voir
+    // la résidence, pas la situer — la carte reste accessible depuis la fiche
+    // projet et l'étape « localisation » du parcours.
+    if (p) {
+      b.push(bouton('medias', lot.id, '\u25A3', t('medias')));
     }
     return b;
   }
@@ -834,17 +855,16 @@
         ? '<iframe src="' + versionne(tour) + '" title="' + t('tour360') + '" allowfullscreen loading="lazy"></iframe>'
         : '<p class="nj-media-vide">' + t('sansTour') + '</p>';
       if (tour && !lot.tour) note = t('mediaProjet');
-    } else if (type === 'carte') {
-      // On réutilise LA section « Le projet dans son territoire » de
-      // project.html (carte complète : recherche d'adresse, fonds de carte,
-      // plein écran, itinéraire, POI…) en mode embarqué. Même carte que le
-      // reste du parcours client, donc parfaitement cohérente.
-      // project.html n'a pas de ?v= dans son URL : sans ce marqueur, le
-      // navigateur resservirait indéfiniment la version en cache de la page
-      // embarquée, y compris après un déploiement.
-      corps = '<iframe title="' + t('carte') + '" loading="lazy" allow="fullscreen" ' +
-        'allowfullscreen src="project.html?id=' + encodeURIComponent(etat.projet) +
-        '&amp;embed=map&amp;v=' + MEDIA_V + '"></iframe>';
+    } else if (type === 'medias') {
+      // L'album du projet, servi par medias.html en mode embarqué : c'est la
+      // même page que celle atteinte depuis le site, donc un seul endroit à
+      // maintenir. medias.html n'a pas de marqueur de version dans son URL :
+      // sans le ?v=, le navigateur — et surtout la borne du bureau de vente,
+      // que personne ne vient rafraîchir — resservirait indéfiniment la
+      // version en cache de la page embarquée, y compris après déploiement.
+      corps = '<iframe title="' + t('medias') + '" loading="lazy" allow="fullscreen" ' +
+        'allowfullscreen src="medias.html?id=' + encodeURIComponent(etat.projet) +
+        '&amp;embed=1&amp;v=' + MEDIA_V + '#' + langue() + '"></iframe>';
       note = t('mediaProjet');
     }
 
@@ -1164,6 +1184,10 @@
       var pct = Math.round(libres / tousLots.length * 100);
 
       html += '<section class="nj-mq-imm" data-imm="' + echapper(imm) + '">' +
+        // Visible seulement en plein écran (CSS) : le bouton d'agrandissement
+        // reste, lui, en haut de page, hors de la section agrandie.
+        '<button type="button" class="nj-mq-sortie" data-agrandir="">✕ ' +
+          t('quitterPleinEcran') + '</button>' +
         '<header class="nj-plan-tete">' +
           '<h2>' + t('immeuble') + ' ' + echapper(imm) + '</h2>' +
           '<span class="nj-plan-compte"><bdi dir="ltr">' + libres + '/' + tousLots.length +
@@ -1982,6 +2006,19 @@
       el.addEventListener('change', function () { lireFiltres(); charger(); });
     });
 
+    /* Le repli des filtres n'existe que sur téléphone (le bouton y est seul
+       visible) : inutile de tester la largeur ici, la feuille de style s'en
+       charge. Dépliés, les filtres poussent la grille vers le bas — c'est
+       voulu : on ne filtre pas et on ne regarde pas les résultats en même
+       temps sur un écran de six centimètres. */
+    var bascule = document.getElementById('njFiltresBascule');
+    if (bascule) {
+      bascule.addEventListener('click', function () {
+        var ouvert = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', ouvert ? 'false' : 'true');
+      });
+    }
+
     document.getElementById('njReinit').addEventListener('click', function () {
       ['fTypologie', 'fImmeuble', 'fOrientation', 'fNiveau'].forEach(function (id) {
         document.getElementById(id).value = '';
@@ -2208,6 +2245,7 @@
     document.title = 'Narjiss — ' + t('titre');
     texte('njTitre', t('titre'));
     texte('njAffiner', t('affiner'));
+    majBasculeFiltres();
     texte('lblProjet', t('projet'));
     texte('njVueLabel', t('vue'));
     texte('njVuePlan', t('vuePlan'));

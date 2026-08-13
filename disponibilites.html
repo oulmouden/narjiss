@@ -725,7 +725,21 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-imm:fullscreen {
   display: flex; flex-direction: column;
   margin: 0; padding: 1.2rem 1.5rem; background: var(--bg); overflow: auto;
+  position: relative;
 }
+/* Sortie du plein écran. Le bouton d'agrandissement vit en haut de page,
+   hors de la section : une fois celle-ci agrandie, il n'est plus à l'écran et
+   il ne restait que la touche Échap — invisible pour qui ne la connaît pas.
+   Cette sortie-ci est dans la section, donc affichée avec elle. */
+.nj-mq-sortie { display: none; }
+.nj-mq-imm:fullscreen .nj-mq-sortie {
+  display: inline-flex; align-items: center; gap: .35rem;
+  position: absolute; top: .9rem; inset-inline-end: 1.1rem; z-index: 5;
+  min-height: 44px; padding: .5rem 1rem; border-radius: 999px;
+  border: 1px solid var(--border-medium); background: var(--surface);
+  color: var(--charcoal); font: inherit; font-weight: 700; font-size: .88rem; cursor: pointer;
+}
+.nj-mq-imm:fullscreen .nj-mq-sortie:hover { border-color: var(--ocean); color: var(--ocean); }
 /* Légende de la maquette, posée sous le titre de l'immeuble. Étant à
    l'intérieur de la section, elle reste visible en plein écran (l'ancienne
    légende globale, hors de la section agrandie, disparaissait). */
@@ -1059,6 +1073,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=22"></script>
-<script src="disponibilites.js?v=55"></script>
+<script src="disponibilites.js?v=56"></script>
 </body>
 </html>
