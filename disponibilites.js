@@ -2151,6 +2151,17 @@
         else if (lotChoix) choix.outerHTML = boutonChoix(lotChoix);
         return;
       }
+      /* Départ vers le bureau de vente depuis la démo : prévenir la scène.
+         Le passage à l'autre onglet fait sortir le navigateur du plein écran,
+         et la démo prend cette sortie pour un départ du visiteur — elle
+         refermait la scène, si bien qu'on retrouvait la carte des projets au
+         retour au lieu des disponibilités. */
+      var versBureau = e.target.closest('a[href^="bureaudevente.html"]');
+      if (versBureau && estEmbarque()) {
+        try { window.parent.postMessage({ nj: 'garder-scene' }, window.location.origin); }
+        catch (err) { /* cadre d'une autre origine : rien à signaler */ }
+      }
+
       var agrandir = e.target.closest('[data-agrandir]');
       if (agrandir) {
         e.stopPropagation();

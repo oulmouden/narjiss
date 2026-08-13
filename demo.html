@@ -479,6 +479,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   var minuteries = [], termine = false, premierRendu = true;
   var projetOuvert = null;   // projet affiché dans la scène
   var etapeScene = 'projet'; // 'projet' | 'dispos' | 'choix' — pilote la barre
+  // Sortie de plein écran à ne pas interpréter comme un départ du visiteur
+  // (le cadre part ouvrir un onglet) — voir l'écouteur « garder-scene ».
+  var sortiePleinIgnoree = false, minuterieSortie = null;
 
   function t(cle) { return (LANGUES[langue] || LANGUES.fr)[cle]; }
   function $(id) { return document.getElementById(id); }
@@ -953,9 +956,23 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       if (document.fullscreenElement || !sceneOuverte()) return;
       window.setTimeout(function () {
         if (document.fullscreenElement || !sceneOuverte()) return;
-        if (!document.hasFocus()) return;   // dialogue système ouvert : on reste
+        if (!document.hasFocus() || document.hidden) return;  // dialogue ou autre onglet : on reste
+        if (sortiePleinIgnoree) return;                       // départ annoncé par le cadre
         fermerScene();
       }, 400);
+    });
+
+    /* Le cadre prévient avant d'ouvrir un onglet (bureau de vente) : passer à
+       l'autre onglet fait sortir le navigateur du plein écran, ce qui refermait
+       la scène. Le visiteur revenait alors sur la carte des projets au lieu de
+       retrouver les disponibilités qu'il venait de quitter.
+       Le drapeau se lève le temps du basculement, puis se baisse tout seul. */
+    window.addEventListener('message', function (e) {
+      if (e.origin !== window.location.origin) return;
+      if (!e.data || e.data.nj !== 'garder-scene') return;
+      sortiePleinIgnoree = true;
+      window.clearTimeout(minuterieSortie);
+      minuterieSortie = window.setTimeout(function () { sortiePleinIgnoree = false; }, 8000);
     });
 
     // initPage charge data/projects.json, installe le menu, puis appelle
