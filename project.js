@@ -2519,11 +2519,11 @@
             /* Kicker « Localisation » retire : il repetait le titre juste
                dessous et coutait une ligne au-dessus de la carte. */
             '<div class="map-intro"><div class="map-projet">' + name + '</div><h3>' + t.mapTitle + '</h3></div>' +
+            /* Plus de lien « Carte globale » ici : le menu du site y mene
+               deja, et pousse a droite il passait a la ligne, coutant une
+               rangee entiere au-dessus de la carte. */
             '<div class="loc-barre">' +
               '<div id="poiControles"></div>' +
-              '<div class="map-actions">' +
-                '<a class="btn-luxe btn-glass map-global-link" href="carte.html#' + lang + '">' + t.globalMap + '</a>' +
-              '</div>' +
             '</div>' +
           '</div>' +
           '<div id="projectMap"></div>' +

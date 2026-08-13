@@ -597,13 +597,14 @@ html[dir=rtl] .atelier-card h3 { font-family: 'Noto Sans Arabic', serif; line-he
   background: var(--surface-2);
 }
 .map-aside { background: var(--surface-2); color: var(--ink); }
-.map-intro { padding: .85rem 1.1rem .2rem; }
+/* Marges au plus juste : chaque pixel gagne ici revient a la carte. */
+.map-intro { padding: .7rem 1.1rem .15rem; }
 
 /* Barre de commandes : compteur, catégorie, distance, point, tri, puis le
    lien vers la carte globale poussé à droite. */
 .loc-barre {
   display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem;
-  padding: .2rem 1.1rem .8rem;
+  padding: .15rem 1.1rem .55rem;
   border-bottom: 1px solid rgba(17,24,39,.08);
 }
 .loc-barre .map-actions { margin-inline-start: auto; }
@@ -1313,6 +1314,6 @@ html[dir=rtl] .media-generique::after { left: auto; right: .5rem; }
 <div id="mainFooter"></div>
 <script src="shared/menu.js?v=23"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
-<script src="project.js?v=20260814a"></script>
+<script src="project.js?v=20260814b"></script>
 </body>
 </html>
