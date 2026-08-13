@@ -54,7 +54,10 @@
   --nav-bg: rgba(255, 255, 255, .96);
   --nav-link: #303744;
   --dropdown-bg: #ffffff;
-  --footer-bg: #7f8187;
+  /* Encre de la charte (--charcoal) plutôt qu'un gris neutre : le pied de page
+     se rattache ainsi au reste du site au lieu de trancher avec lui. La valeur
+     est écrite en dur car --charcoal s'inverse en thème nocturne. */
+  --footer-bg: #1F2430;
 
   /* Statuts de lot du parcours client — memes reperes que la grille Excel
      du bureau de vente et que le back-office. */
@@ -875,4 +878,28 @@ html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
   background: var(--ocean);
   margin: 1rem auto 0;
   border-radius: 2px;
+}
+
+/* ── Langues dans la barre, sur téléphone ─────────────────────────────
+   Le jeu de boutons du menu déroulant reste en place ; celui-ci ne s'affiche
+   qu'en dessous de 768 px, où le menu est replié derrière le ☰ et où la barre
+   a de la place libre à côté du logo. */
+.nav-langs-mobile { display: none; }
+@media (max-width: 768px) {
+  .nav-langs-mobile {
+    display: flex; align-items: center; gap: .18rem;
+    margin-inline-start: auto; margin-inline-end: .4rem;
+    padding: 0; border: 0;
+  }
+  .nav-langs-mobile .lang-btn {
+    min-width: 30px; min-height: 30px;
+    padding: .18rem .3rem; font-size: .7rem;
+  }
+  .nav-langs-mobile .theme-toggle { width: 30px; height: 30px; font-size: .85rem; }
+  /* Le nom du projet et les quatre langues ne tiennent pas ensemble sur 390 px :
+     le projet est déjà rappelé en tête de chaque page. */
+  .nav-project-label { display: none; }
+}
+@media (max-width: 360px) {
+  .nav-langs-mobile .lang-btn { min-width: 26px; padding: .15rem .22rem; font-size: .64rem; }
 }
