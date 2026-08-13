@@ -398,13 +398,24 @@ html[dir=rtl] .poi-item { text-align: right; }
 .nj-embed .map-composition {
   flex: 1 1 auto; min-height: 0; height: auto;
   border-radius: 0; border: 0; box-shadow: none;
+  /* Barre, puis la carte qui prend TOUT le reste. Sans cette rangée 1fr, la
+     carte se calait sur sa hauteur naturelle et se réduisait à un bandeau,
+     laissant un grand vide sous le titre. */
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
-.nj-embed .map-aside { height: auto; min-height: 0; }
+/* Dans la scène de la démo, le titre du projet est déjà porté par la barre du
+   bas : ce bloc ne faisait que repousser la carte. */
+.nj-embed .map-intro { display: none; }
+/* La liste dépliable ferait double emploi avec la liste déroulante des
+   catégories, juste au-dessus, et mangerait la moitié du cadre. */
+.nj-embed .poi-summary { display: none; }
+.nj-embed .loc-barre { padding: .6rem .9rem; border-bottom: 1px solid rgba(17,24,39,.08); }
 .nj-embed #projectMap { height: 100%; min-height: 0; }
 @media (max-width: 900px) {
-  .nj-embed .loc-shell { height: auto; }
-  .nj-embed .map-composition { height: auto; }
-  .nj-embed #projectMap { height: 60vh; }
+  /* Même en cadre étroit, la carte garde la hauteur restante. */
+  .nj-embed .loc-shell { height: 100vh; }
+  .nj-embed #projectMap { height: 100%; }
 }
 </style>
 <script>
