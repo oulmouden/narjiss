@@ -59,6 +59,17 @@ a {
   border: 1px solid var(--line);
 }
 
+/* Renvoi des commerciaux vers leur propre espace : ils se trompent de porte
+   depuis le pied de page du site, et cette page refuse leurs identifiants. */
+.login .aide-agents {
+  margin: 1.4rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: .85rem;
+  color: #64748b;
+}
+.login .aide-agents a { display: block; margin-top: .2rem; font-weight: 600; }
+
 .panel {
   padding: 1.2rem;
   background: var(--panel);
@@ -323,6 +334,72 @@ textarea {
   aspect-ratio: 4 / 3;
   max-height: none;
   object-fit: cover;
+}
+
+/* Grille des medias deja importes : chaque vignette porte son nom de fichier
+   et sa case « Supprimer ». Le nom compte autant que l'image — c'est lui qu'on
+   retrouve dans le textarea juste au-dessus. */
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.media-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.media-card .image-preview {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: none;
+  object-fit: cover;
+  border: 0;
+}
+
+.media-card figcaption {
+  font-size: 0.75rem;
+  color: #555;
+  overflow-wrap: anywhere;
+}
+
+/* Une video sans poster n'a rien a montrer : un symbole vaut mieux qu'un trou. */
+.media-sans-poster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background: #f1f3f6;
+  border-radius: 6px;
+  font-size: 1.6rem;
+  color: #7a828f;
+}
+
+.media-remove {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #a11;
+  cursor: pointer;
+}
+
+.media-remove input {
+  width: auto;
+  margin: 0;
+}
+
+/* La vignette part en translucide des la case cochee : on voit d'un coup d'oeil
+   ce que l'enregistrement va retirer. */
+.media-card:has(.media-remove input:checked) {
+  opacity: 0.45;
 }
 
 @media (max-width: 760px) {

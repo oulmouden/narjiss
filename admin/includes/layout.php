@@ -12,7 +12,7 @@ function admin_header(string $title): void
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noindex, nofollow">
         <title><?= htmlspecialchars($title) ?> - Narjiss Admin</title>
-        <link rel="stylesheet" href="assets/admin.css?v=2">
+        <link rel="stylesheet" href="assets/admin.css?v=3">
     </head>
     <body>
     <header class="topbar">

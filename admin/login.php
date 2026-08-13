@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>Connexion - Narjiss Admin</title>
-    <link rel="stylesheet" href="assets/admin.css">
+    <link rel="stylesheet" href="assets/admin.css?v=3">
 </head>
 <body>
 <main class="login">
@@ -49,6 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <br>
         <button type="submit">Entrer</button>
     </form>
+    <!-- Le pied de page du site propose « Espace professionnel » et « Espace
+         commercial » côte à côte. Un commercial qui se trompe de porte arrive
+         ici, et ses identifiants y sont refusés sans explication : cette page
+         ne connaît qu'un seul compte, celui de l'administrateur. -->
+    <p class="aide-agents">
+        Vous êtes commercial ou gestionnaire ?
+        <a href="../espace-agent.html">Votre accès est l'espace commercial →</a>
+    </p>
 </main>
 </body>
 </html>
