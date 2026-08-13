@@ -4,11 +4,17 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
 <title>Espace agent — Narjiss Immobilière</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <style>
   :root { --ok: oklch(58% 0.15 152); --warn: oklch(72% 0.16 75); --busy: oklch(62% 0.2 25); --off: #9aa4ad; }
   * { box-sizing: border-box; }
@@ -98,6 +104,54 @@
     padding: .4rem .7rem; display: inline-block; margin-top: .5rem;
   }
   .req .hint { font-size: .82rem; color: var(--muted); margin-top: .35rem; }
+
+  /* ── Messages du bureau ── */
+  #msgEmpty { color: var(--muted); font-size: .95rem; }
+  .msg-tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .9rem; }
+  .msg-tabs button {
+    border: 1.5px solid var(--border-medium); background: var(--surface); color: var(--muted);
+    font: inherit; font-weight: 600; font-size: .86rem; padding: .32rem .75rem; border-radius: 999px; cursor: pointer;
+  }
+  .msg-tabs button.active { background: var(--ocean, #006aff); border-color: var(--ocean, #006aff); color: #fff; }
+  .mrow {
+    display: flex; align-items: flex-start; gap: .7rem; width: 100%; text-align: left;
+    border: 1px solid var(--border-subtle); border-left: 4px solid var(--border-medium);
+    border-radius: 11px; padding: .75rem .9rem; margin-bottom: .6rem;
+    background: var(--surface-raised); font: inherit; color: inherit; cursor: pointer;
+  }
+  .mrow:hover { border-left-color: var(--ocean, #006aff); }
+  .mrow.nouveau { border-left-color: var(--ocean, #006aff); }
+  .mrow .mi { flex: 1; min-width: 0; }
+  .mrow .mn { font-weight: 700; }
+  .mrow .mc { font-size: .84rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mrow .mx { font-size: .88rem; color: var(--muted); margin-top: .25rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .mrow .md { font-size: .78rem; color: var(--muted); white-space: nowrap; }
+  .mdet { border: 1px solid var(--border-medium); border-radius: 13px; padding: 1rem 1.1rem; background: var(--surface-raised); }
+  .mdet h3 { margin-bottom: .5rem; }
+  .mdet audio { width: 100%; margin: .5rem 0; }
+  .mdet .bloc { border-top: 1px solid var(--border-subtle); margin-top: .9rem; padding-top: .8rem; }
+  .mdet .corps { background: var(--surface); border: 1px solid var(--border-subtle); border-radius: 10px;
+    padding: .7rem .85rem; font-size: .93rem; line-height: 1.55; white-space: pre-wrap; margin: .5rem 0; }
+  .mdet .corps.auto { border-style: dashed; }
+  .mdet .corps .etiq { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); margin-bottom: .3rem; }
+  .mdet .acts { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin: .6rem 0; }
+  .mdet textarea { width: 100%; min-height: 68px; padding: .55rem .7rem; border: 1.5px solid var(--border-medium);
+    border-radius: 9px; font: inherit; background: var(--surface); resize: vertical; }
+  .btn.wa { background: #25d366; border-color: #25d366; color: #04210f; }
+  .btn.tel { background: #f0a500; border-color: #f0a500; color: #2a1c00; }
+  .mtag { font-size: .78rem; font-weight: 700; padding: .15rem .55rem; border-radius: 999px; background: var(--surface); color: var(--muted); }
+  .mtag.nouveau { background: #dbeaff; color: #0b3f8f; }
+  .mtag.ecoute  { background: #fff2d6; color: #7a5900; }
+  .mtag.traite  { background: #d9f5e4; color: #10633a; }
+  .mtag.archive { background: #eceff3; color: #54627a; }
+  .jr { font-size: .87rem; padding: .45rem 0; border-top: 1px solid var(--border-subtle); }
+  .jr:first-of-type { border-top: 0; }
+  .jr .q { color: var(--muted); font-size: .78rem; }
+  .lien-copie { display: flex; gap: .5rem; margin-top: .4rem; }
+  .lien-copie input { flex: 1; min-height: 36px; padding: .3rem .5rem; border: 1.5px solid var(--border-medium);
+    border-radius: 8px; font-size: .78rem; font-family: ui-monospace, monospace; background: var(--surface); }
 
   /* ── Équipe (gestionnaire) ── */
   table.team { width: 100%; border-collapse: collapse; font-size: .92rem; }
@@ -226,6 +280,19 @@
         <span class="dot on"></span> <b id="callText">En relation avec le visiteur…</b>
         <button class="btn danger sm" id="callHangup" style="margin-left:.6rem">Raccrocher</button>
       </div>
+    </div>
+
+    <!-- Messages laissés au bureau -->
+    <div class="card" id="msgCard">
+      <h2>Mes messages <span id="msgBadge" class="mtag nouveau hide"></span></h2>
+      <p style="margin:-.4rem 0 1rem;color:#54627a;font-size:.92rem">
+        Quand personne n'est joignable, les visiteurs laissent un message vocal ou écrit avec leurs coordonnées.
+        Ouvrez-en un pour l'écouter et rappeler — annoncez « je m'en occupe » pour éviter qu'un collègue rappelle en double.
+      </p>
+      <div class="msg-tabs" id="msgTabs"></div>
+      <div id="msgEmpty">Aucun message pour le moment.</div>
+      <div id="msgList"></div>
+      <div id="msgDetail" class="hide"></div>
     </div>
 
     <!-- Équipe (gestionnaire) -->

@@ -4,10 +4,16 @@
 <script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
 <title>Narjiss — Contact</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=19">
+<link rel="stylesheet" href="shared/menu.css?v=20">
 <style>
 .page-hero { padding: 4rem 1.5rem 3rem; background: linear-gradient(160deg, var(--ocean-deep), var(--ocean), var(--sun)); color: white; text-align: center; }
 .page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: .5rem; }
@@ -98,6 +104,50 @@ html[dir=rtl] .contact-form h2 { font-family: 'Noto Sans Arabic', serif; }
 
 .form-success { display: none; padding: 1rem; background: #4CAF84; color: white; border-radius: 8px; text-align: center; font-size: .9rem; margin-bottom: 1rem; }
 .form-success.show { display: block; }
+.form-error { display: none; margin: 0 0 .8rem; color: #c0392b; font-size: .9rem; }
+.form-error.show { display: block; }
+
+/* Message vocal (enregistré dans le navigateur, envoyé avec le formulaire). */
+.vocal-row { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+.btn-vocal {
+  display: inline-flex; align-items: center; gap: .4rem; min-height: 44px;
+  padding: .5rem 1.1rem; border-radius: 999px;
+  border: 1.5px solid var(--border-medium, #d6dde6); background: var(--surface, #fff);
+  color: var(--charcoal, #1f2430); font: inherit; font-weight: 600; cursor: pointer;
+}
+.btn-vocal.on { border-color: #c0392b; color: #c0392b; }
+.vocal-chrono { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--muted); }
+.vocal-chrono.on::before { content: "●"; color: #c0392b; margin-inline-end: .35rem; }
+#vocalPlay { display: none; width: 100%; margin-top: .6rem; }
+#siteWeb { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+/* Appel vers la fiche de renseignement. */
+.fiche-appel { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+.fiche-appel-boite {
+  background: linear-gradient(135deg, var(--sand) 0%, var(--surface) 100%);
+  border: 1px solid var(--border-subtle);
+  border-inline-start: 5px solid var(--sun);
+  border-radius: var(--radius);
+  padding: 1.6rem 1.8rem;
+  box-shadow: var(--shadow);
+}
+.fiche-appel-boite h2 {
+  margin: 0 0 .5rem; font-family: var(--font-serif);
+  font-size: 1.4rem; color: var(--charcoal);
+}
+.fiche-appel-boite p { margin: 0 0 1.1rem; color: var(--muted); max-width: 62ch; }
+.fiche-appel-btn {
+  display: inline-flex; align-items: center; min-height: 48px;
+  padding: .7rem 1.4rem; border-radius: 999px;
+  background: var(--sun); color: #fff; font-weight: 700; text-decoration: none;
+}
+.fiche-appel-btn:hover { filter: brightness(1.08); }
+@media (max-width: 640px) {
+  .fiche-appel { padding: 0 .9rem; }
+  .fiche-appel-boite { padding: 1.2rem 1.1rem; }
+  .fiche-appel-boite h2 { font-size: 1.2rem; }
+  .fiche-appel-btn { width: 100%; justify-content: center; }
+}
 </style>
 </head>
 <body>
@@ -107,6 +157,18 @@ html[dir=rtl] .contact-form h2 { font-family: 'Noto Sans Arabic', serif; }
     <h1 id="pageTitle"></h1>
     <p id="pageSubtitle"></p>
   </section>
+  <!-- La fiche de renseignement, mise en avant AVANT le formulaire de
+       message : un visiteur qui la remplit donne au conseiller de quoi
+       préparer le rendez-vous, là où un simple message oblige à tout
+       redemander par téléphone. -->
+  <section class="fiche-appel">
+    <div class="fiche-appel-boite">
+      <h2 id="ficheTitle"></h2>
+      <p id="ficheText"></p>
+      <a class="fiche-appel-btn" id="ficheBtn" href="fiche.html"></a>
+    </div>
+  </section>
+
   <section class="contact-section">
     <div class="contact-info">
       <h2 id="infoTitle"></h2>
@@ -181,6 +243,19 @@ html[dir=rtl] .contact-form h2 { font-family: 'Noto Sans Arabic', serif; }
           <label id="lblMessage" for="message"></label>
           <textarea id="message" name="message" required></textarea>
         </div>
+        <!-- Message vocal : plus rapide à dicter qu'à écrire, surtout au téléphone.
+             Le micro n'est demandé qu'au clic sur « Enregistrer ». -->
+        <div class="form-group" id="vocalGroup">
+          <label id="lblVocal"></label>
+          <div class="vocal-row">
+            <button type="button" class="btn-vocal" id="vocalRec"></button>
+            <span class="vocal-chrono" id="vocalChrono">0:00</span>
+          </div>
+          <audio id="vocalPlay" controls preload="metadata"></audio>
+        </div>
+        <!-- Honeypot anti-robot : invisible, jamais rempli par un humain. -->
+        <input type="text" name="site_web" id="siteWeb" tabindex="-1" autocomplete="new-password" aria-hidden="true">
+        <p class="form-error" id="formError"></p>
         <button type="submit" class="btn-submit" id="btnSubmit"></button>
       </form>
     </div>
@@ -188,7 +263,7 @@ html[dir=rtl] .contact-form h2 { font-family: 'Noto Sans Arabic', serif; }
 </main>
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=17"></script>
+<script src="shared/menu.js?v=19"></script>
 <script>
 var PAGE_UI = {
   fr: {
@@ -202,13 +277,21 @@ var PAGE_UI = {
     addressLabel: "Adresse",
     socialLabel: "Réseaux sociaux",
     formTitle: "Envoyez-nous un message",
+    ficheTitle: "Remplir ma fiche de renseignement",
+    ficheText: "Quelques informations, et un conseiller vous rappelle avec votre dossier déjà prêt. Sur téléphone, la carte nationale se photographie : le nom, le prénom et le numéro se remplissent seuls.",
+    ficheBtn: "Remplir ma fiche →",
     lblName: "Votre nom *",
     lblPhone: "Téléphone",
     lblEmail: "Email *",
     lblProject: "Projet d'intérêt",
     lblMessage: "Votre message *",
     btnSubmit: "Envoyer le message",
-    success: "✓ Merci ! Votre message a bien été envoyé. Nous vous répondrons sous 24h."
+    success: "✓ Merci ! Votre message a bien été envoyé. Nous vous répondrons sous 24h.",
+    lblVocal: "Message vocal (facultatif)",
+    vocalRec: "⏺ Enregistrer ma voix", vocalStop: "⏹ Arrêter", vocalAgain: "↺ Recommencer",
+    sending: "Envoi en cours…",
+    micKo: "Micro inaccessible — autorisez-le dans votre navigateur, ou écrivez simplement votre message.",
+    errGeneric: "L'envoi a échoué. Réessayez, ou appelez-nous directement."
   },
   en: {
     title: 'Contact <em class="brand-word">NARJISS</em>',
@@ -221,13 +304,21 @@ var PAGE_UI = {
     addressLabel: "Address",
     socialLabel: "Social media",
     formTitle: "Send us a message",
+    ficheTitle: "Fill in my information form",
+    ficheText: "A few details, and an adviser calls you back with your file already prepared. On a phone, just photograph your national ID card: name, first name and number fill themselves in.",
+    ficheBtn: "Fill in my form →",
     lblName: "Your name *",
     lblPhone: "Phone",
     lblEmail: "Email *",
     lblProject: "Project of interest",
     lblMessage: "Your message *",
     btnSubmit: "Send message",
-    success: "✓ Thank you! Your message has been sent. We'll reply within 24h."
+    success: "✓ Thank you! Your message has been sent. We'll reply within 24h.",
+    lblVocal: "Voice message (optional)",
+    vocalRec: "⏺ Record my voice", vocalStop: "⏹ Stop", vocalAgain: "↺ Start over",
+    sending: "Sending…",
+    micKo: "Microphone unavailable — allow it in your browser, or simply write your message.",
+    errGeneric: "Sending failed. Please try again, or call us directly."
   },
   ar: {
     title: 'اتصل بـ <em>نرجس</em>',
@@ -240,13 +331,21 @@ var PAGE_UI = {
     addressLabel: "العنوان",
     socialLabel: "الشبكات الاجتماعية",
     formTitle: "أرسل لنا رسالة",
+    ficheTitle: "ملء بطاقة المعلومات",
+    ficheText: "بعض المعلومات، ويتصل بكم مستشار وملفكم جاهز. على الهاتف، يكفي تصوير البطاقة الوطنية: الاسم والنسب والرقم تُملأ تلقائياً.",
+    ficheBtn: "ملء البطاقة ←",
     lblName: "اسمك *",
     lblPhone: "الهاتف",
     lblEmail: "البريد الإلكتروني *",
     lblProject: "المشروع المهتم به",
     lblMessage: "رسالتك *",
     btnSubmit: "إرسال الرسالة",
-    success: "✓ شكرا! تم إرسال رسالتك. سنرد خلال 24 ساعة."
+    success: "✓ شكرا! تم إرسال رسالتك. سنرد خلال 24 ساعة.",
+    lblVocal: "رسالة صوتية (اختياري)",
+    vocalRec: "⏺ سجّل صوتك", vocalStop: "⏹ إيقاف", vocalAgain: "↺ إعادة",
+    sending: "جاري الإرسال…",
+    micKo: "الميكروفون غير متاح — اسمح به في المتصفح، أو اكتب رسالتك ببساطة.",
+    errGeneric: "فشل الإرسال. أعد المحاولة أو اتصل بنا مباشرة."
   },
   es: {
     title: 'Contacta <em class="brand-word">NARJISS</em>',
@@ -259,13 +358,21 @@ var PAGE_UI = {
     addressLabel: "Dirección",
     socialLabel: "Redes sociales",
     formTitle: "Envíanos un mensaje",
+    ficheTitle: "Rellenar mi ficha de información",
+    ficheText: "Unos datos, y un asesor le llama con su expediente ya preparado. En el móvil, basta con fotografiar el documento nacional: el nombre, los apellidos y el número se rellenan solos.",
+    ficheBtn: "Rellenar mi ficha →",
     lblName: "Tu nombre *",
     lblPhone: "Teléfono",
     lblEmail: "Correo *",
     lblProject: "Proyecto de interés",
     lblMessage: "Tu mensaje *",
     btnSubmit: "Enviar mensaje",
-    success: "✓ ¡Gracias! Tu mensaje ha sido enviado. Te responderemos en 24h."
+    success: "✓ ¡Gracias! Tu mensaje ha sido enviado. Te responderemos en 24h.",
+    lblVocal: "Mensaje de voz (opcional)",
+    vocalRec: "⏺ Grabar mi voz", vocalStop: "⏹ Detener", vocalAgain: "↺ Empezar de nuevo",
+    sending: "Enviando…",
+    micKo: "Micrófono no disponible — autorícelo en el navegador, o escriba su mensaje.",
+    errGeneric: "El envío ha fallado. Inténtelo de nuevo o llámenos directamente."
   }
 };
 
@@ -281,6 +388,10 @@ window.onLanguageChange = function(lang) {
   document.getElementById('addressLabel').textContent = t.addressLabel;
   document.getElementById('socialLabel').textContent = t.socialLabel;
   document.getElementById('formTitle').textContent = t.formTitle;
+  document.getElementById('ficheTitle').textContent = t.ficheTitle;
+  document.getElementById('ficheText').textContent = t.ficheText;
+  document.getElementById('ficheBtn').textContent = t.ficheBtn;
+  document.getElementById('ficheBtn').href = 'fiche.html#' + lang;
   document.getElementById('lblName').textContent = t.lblName;
   document.getElementById('lblPhone').textContent = t.lblPhone;
   document.getElementById('lblEmail').textContent = t.lblEmail;
@@ -288,6 +399,11 @@ window.onLanguageChange = function(lang) {
   document.getElementById('lblMessage').textContent = t.lblMessage;
   document.getElementById('btnSubmit').textContent = t.btnSubmit;
   document.getElementById('formSuccess').textContent = t.success;
+  document.getElementById('lblVocal').textContent = t.lblVocal;
+  // Ne pas écraser « Arrêter » si un enregistrement est en cours.
+  if (!vocalRecorder || vocalRecorder.state !== 'recording') {
+    document.getElementById('vocalRec').textContent = vocalBlob ? t.vocalAgain : t.vocalRec;
+  }
 
   // Project dropdown
   var sel = document.getElementById('project');
@@ -363,17 +479,119 @@ function bindWhatsappMessageActions(lang) {
   }
 }
 
+/* ── Message vocal ────────────────────────────────────────────────────────
+   Enregistré dans le navigateur puis envoyé avec le formulaire. Le message
+   atterrit dans la messagerie : les commerciaux du projet choisi le voient
+   dans leur espace, l'admin dans sa vue d'ensemble. Sans projet précisé, il
+   part au « renseignement général ». */
+var vocalRecorder = null, vocalChunks = [], vocalBlob = null, vocalStream = null,
+    vocalTimer = null, vocalSec = 0;
+var VOCAL_MAX_S = 120;
+
+function vocalTick() {
+  document.getElementById('vocalChrono').textContent =
+    Math.floor(vocalSec / 60) + ':' + String(vocalSec % 60).padStart(2, '0');
+}
+function vocalRelease() {
+  if (vocalStream) { vocalStream.getTracks().forEach(function(t) { t.stop(); }); vocalStream = null; }
+  if (vocalTimer) { clearInterval(vocalTimer); vocalTimer = null; }
+}
+function vocalReset() {
+  vocalRelease();
+  vocalRecorder = null; vocalBlob = null; vocalChunks = []; vocalSec = 0; vocalTick();
+  var play = document.getElementById('vocalPlay');
+  play.pause(); play.removeAttribute('src'); play.style.display = 'none';
+  var btn = document.getElementById('vocalRec');
+  btn.textContent = PAGE_UI[currentLang].vocalRec;
+  btn.classList.remove('on');
+  document.getElementById('vocalChrono').classList.remove('on');
+}
+function formError(msg) {
+  var el = document.getElementById('formError');
+  el.textContent = msg || '';
+  el.classList.toggle('show', !!msg);
+}
+
+document.getElementById('vocalRec').onclick = async function() {
+  var t = PAGE_UI[currentLang];
+  var btn = this, chrono = document.getElementById('vocalChrono'), play = document.getElementById('vocalPlay');
+
+  if (vocalRecorder && vocalRecorder.state === 'recording') { vocalRecorder.stop(); return; }
+  if (vocalBlob) { vocalReset(); return; }                      // « Recommencer »
+
+  if (!(navigator.mediaDevices && window.MediaRecorder)) { formError(t.micKo); return; }
+  try { vocalStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch (err) { formError(t.micKo); return; }
+
+  var mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg']
+    .find(function(x) { return MediaRecorder.isTypeSupported(x); }) || '';
+  try { vocalRecorder = mime ? new MediaRecorder(vocalStream, { mimeType: mime }) : new MediaRecorder(vocalStream); }
+  catch (err) { vocalRelease(); formError(t.micKo); return; }
+
+  vocalChunks = [];
+  vocalRecorder.ondataavailable = function(ev) { if (ev.data && ev.data.size) vocalChunks.push(ev.data); };
+  vocalRecorder.onstop = function() {
+    vocalRelease();
+    vocalBlob = new Blob(vocalChunks, { type: vocalRecorder.mimeType || 'audio/webm' });
+    play.src = URL.createObjectURL(vocalBlob);
+    play.style.display = 'block';
+    btn.textContent = t.vocalAgain;
+    btn.classList.remove('on');
+    chrono.classList.remove('on');
+  };
+  formError('');
+  vocalSec = 0; vocalTick(); vocalRecorder.start();
+  btn.textContent = t.vocalStop;
+  btn.classList.add('on');
+  chrono.classList.add('on');
+  vocalTimer = setInterval(function() {
+    vocalSec++; vocalTick();
+    if (vocalSec >= VOCAL_MAX_S && vocalRecorder.state === 'recording') vocalRecorder.stop();
+  }, 1000);
+};
+
 function submitForm(e) {
   e.preventDefault();
-  // Pour l'instant, simule un envoi.
-  // Pour activer un vrai envoi : utilisez Formspree, EmailJS, ou un endpoint serveur
-  document.getElementById('formSuccess').classList.add('show');
-  document.getElementById('contactForm').reset();
-  setTimeout(function() {
-    document.getElementById('formSuccess').classList.remove('show');
-  }, 5000);
+  var t = PAGE_UI[currentLang];
+  var btn = document.getElementById('btnSubmit');
+  var libelle = btn.textContent;
+  formError('');
+  btn.disabled = true;
+  btn.textContent = t.sending;
+
+  var fd = new FormData();
+  fd.append('projet', document.getElementById('project').value);   // vide → renseignement général
+  fd.append('nom', document.getElementById('name').value.trim());
+  fd.append('telephone', document.getElementById('phone').value.trim());
+  fd.append('email', document.getElementById('email').value.trim());
+  fd.append('message', document.getElementById('message').value.trim());
+  fd.append('langue', currentLang);
+  fd.append('site_web', document.getElementById('siteWeb').value);
+  if (vocalBlob) {
+    fd.append('duree', String(vocalSec));
+    fd.append('audio', vocalBlob, 'message.' + (vocalBlob.type.indexOf('mp4') >= 0 ? 'm4a' : 'webm'));
+  }
+
+  fetch('api/message-depot.php', { method: 'POST', body: fd })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      btn.disabled = false; btn.textContent = libelle;
+      if (!d || !d.ok) { formError((d && d.error) || t.errGeneric); return; }
+      document.getElementById('formSuccess').classList.add('show');
+      document.getElementById('contactForm').reset();
+      vocalReset();
+      setTimeout(function() {
+        document.getElementById('formSuccess').classList.remove('show');
+      }, 8000);
+    })
+    .catch(function() {
+      btn.disabled = false; btn.textContent = libelle;
+      formError(t.errGeneric);
+    });
   return false;
 }
+
+window.addEventListener('beforeunload', vocalRelease);
 
 document.addEventListener('DOMContentLoaded', function() {
   initPage('contact', '');

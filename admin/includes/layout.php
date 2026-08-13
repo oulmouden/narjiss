@@ -12,7 +12,7 @@ function admin_header(string $title): void
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noindex, nofollow">
         <title><?= htmlspecialchars($title) ?> - Narjiss Admin</title>
-        <link rel="stylesheet" href="assets/admin.css">
+        <link rel="stylesheet" href="assets/admin.css?v=2">
     </head>
     <body>
     <header class="topbar">
@@ -21,8 +21,10 @@ function admin_header(string $title): void
             <a href="projects.php">Projets</a>
             <a href="lots.php">Lots</a>
             <a href="plan-zones.php">Zones des plans</a>
+            <a href="poi-import.php">POI</a>
             <a href="fiches.php">Fiches clients</a>
             <a href="agents.php">Agents</a>
+            <a href="messages.php">Messages</a>
             <a href="audit.php">Audit</a>
             <a href="../index.html" target="_blank">Site</a>
             <a href="logout.php">Sortir</a>

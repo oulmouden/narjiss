@@ -207,6 +207,9 @@
      ========================================================================= */
   var presenceTimer = null;
   var presenceProject = null;
+  /* Au moins un commercial joignable ? Décide si l'hôtesse propose d'emblée la
+     messagerie (personne au bureau) ou la conversation vocale. */
+  var someoneOnline = false;
 
   function renderAgents(list, lang) {
     var host = document.getElementById("officeAgents");
@@ -232,7 +235,11 @@
     if (!presenceProject) return;
     fetch("api/agent-presence.php?projet=" + encodeURIComponent(presenceProject))
       .then(function(r) { return r.json(); })
-      .then(function(r) { renderAgents(r && r.ok ? (r.agents || []) : [], currentLang); })
+      .then(function(r) {
+        var list = r && r.ok ? (r.agents || []) : [];
+        someoneOnline = list.some(function(a) { return a.online && a.presence !== "absent"; });
+        renderAgents(list, currentLang);
+      })
       .catch(function() {});
   }
 
@@ -306,6 +313,68 @@
       offline: "La recepcionista vocal no está disponible ahora. Aun así puede pedir cita.",
       micDenied: "No tengo acceso a su micrófono. Autorícelo en el navegador y reinténtelo.",
       chooseLang: "¿En qué idioma desea hablar?", back: "↩︎ Volver"
+    }
+  };
+
+  /* Messagerie du bureau : le visiteur laisse un message quand personne n'est
+     joignable. Coordonnées saisies au clavier — dictées, elles se transcrivent
+     mal ; l'audio, lui, est transcrit côté serveur pour relecture. */
+  var MSG_UI = {
+    fr: {
+      leave: "📮 Laisser un message",
+      absent: "Personne n'est au bureau à cet instant. Laissez-moi votre message : un commercial vous rappellera.",
+      intro: "Enregistrez votre voix, écrivez, ou les deux. Vos coordonnées sont saisies au clavier.",
+      name: "Votre nom", tel: "Votre téléphone", mail: "Votre e-mail",
+      text: "Votre message", textPh: "Ce que vous souhaitez nous dire…",
+      rec: "⏺ Enregistrer", stop: "⏹ Arrêter", again: "↺ Recommencer", send: "📤 Envoyer",
+      sending: "Envoi en cours…",
+      micKo: "Je n'ai pas accès au micro. Autorisez-le dans votre navigateur, ou écrivez votre message.",
+      noContact: "Laissez un téléphone ou un e-mail pour qu'on puisse vous rappeler.",
+      empty: "Écrivez ou enregistrez votre message.",
+      thanks: "Merci ! Votre message est transmis au bureau de vente. On vous rappelle au plus vite.",
+      back: "↩︎ Retour"
+    },
+    en: {
+      leave: "📮 Leave a message",
+      absent: "Nobody is at the office right now. Leave me your message and a sales advisor will call you back.",
+      intro: "Record your voice, write, or both. Your contact details are typed in.",
+      name: "Your name", tel: "Your phone", mail: "Your e-mail",
+      text: "Your message", textPh: "What you would like to tell us…",
+      rec: "⏺ Record", stop: "⏹ Stop", again: "↺ Start over", send: "📤 Send",
+      sending: "Sending…",
+      micKo: "I can't access the microphone. Allow it in your browser, or write your message.",
+      noContact: "Leave a phone number or an e-mail so we can call you back.",
+      empty: "Write or record your message.",
+      thanks: "Thank you! Your message has been sent to the sales office. We'll call you back shortly.",
+      back: "↩︎ Back"
+    },
+    ar: {
+      leave: "📮 اترك رسالة",
+      absent: "لا أحد في المكتب حالياً. اترك لي رسالتك وسيعاود أحد المستشارين الاتصال بك.",
+      intro: "سجّل صوتك، أو اكتب، أو الاثنين معاً. اكتب بياناتك بلوحة المفاتيح.",
+      name: "اسمك", tel: "هاتفك", mail: "بريدك الإلكتروني",
+      text: "رسالتك", textPh: "ما تودّ إخبارنا به…",
+      rec: "⏺ تسجيل", stop: "⏹ إيقاف", again: "↺ إعادة", send: "📤 إرسال",
+      sending: "جاري الإرسال…",
+      micKo: "لا أستطيع الوصول إلى الميكروفون. اسمح به في المتصفح، أو اكتب رسالتك.",
+      noContact: "اترك رقم هاتف أو بريداً إلكترونياً حتى نتمكن من معاودة الاتصال بك.",
+      empty: "اكتب أو سجّل رسالتك.",
+      thanks: "شكراً! تم إرسال رسالتك إلى مكتب البيع. سنعاود الاتصال بك قريباً.",
+      back: "↩︎ رجوع"
+    },
+    es: {
+      leave: "📮 Dejar un mensaje",
+      absent: "No hay nadie en la oficina ahora mismo. Déjeme su mensaje y un comercial le llamará.",
+      intro: "Grabe su voz, escriba, o ambas cosas. Sus datos se escriben con el teclado.",
+      name: "Su nombre", tel: "Su teléfono", mail: "Su e-mail",
+      text: "Su mensaje", textPh: "Lo que desea decirnos…",
+      rec: "⏺ Grabar", stop: "⏹ Detener", again: "↺ Empezar de nuevo", send: "📤 Enviar",
+      sending: "Enviando…",
+      micKo: "No tengo acceso al micrófono. Autorícelo en el navegador, o escriba su mensaje.",
+      noContact: "Deje un teléfono o un e-mail para que podamos llamarle.",
+      empty: "Escriba o grabe su mensaje.",
+      thanks: "¡Gracias! Su mensaje se ha enviado a la oficina de venta. Le llamaremos lo antes posible.",
+      back: "↩︎ Volver"
     }
   };
 
@@ -450,6 +519,9 @@
     var sab = document.getElementById("stageAgentBtn");
     if (sab) sab.classList.remove("hidden");
     if (window.speechSynthesis) window.speechSynthesis.cancel();
+    // Fermer le panneau pendant un enregistrement doit rendre le micro.
+    if (msgRec && msgRec.state === "recording") { try { msgRec.stop(); } catch (e) {} }
+    msgReleaseMic();
     hangUp();
   }
 
@@ -464,8 +536,12 @@
   function mainMenu() {
     var a = AGENT_UI[currentLang] || AGENT_UI.fr;
     var c = CODE_UI[currentLang] || CODE_UI.fr;
+    var m = MSG_UI[currentLang] || MSG_UI.fr;
+    // Personne au bureau : la messagerie passe devant et l'hôtesse le dit.
+    if (!someoneOnline) agentSay(m.absent, false);
     agentMenu([
-      [a.talk, showConvLangs, "primary"],
+      [a.talk, showConvLangs, someoneOnline ? "primary" : ""],
+      [m.leave, showMessageForm, someoneOnline ? "" : "primary"],
       [c.haveCode, showCodeEntry],
       [a.tour, closeAgent],
       [a.book, function() { window.location.href = "contact.html#" + currentLang; }],
@@ -473,6 +549,154 @@
         window.location.href = "project.html?id=" + encodeURIComponent(activeId || "") + "#" + currentLang;
       }]
     ]);
+  }
+
+  /* =========================================================================
+     LAISSER UN MESSAGE (vocal et/ou écrit)
+     Dépose sur api/message-depot.php ; les commerciaux du bureau le traitent
+     depuis leur espace. Le micro n'est demandé qu'au clic sur « Enregistrer ».
+     ========================================================================= */
+  var msgRec = null, msgChunks = [], msgBlob = null, msgFlux = null, msgTic = null, msgSec = 0;
+  var MSG_MAX_S = 120;
+
+  function msgFieldStyle() {
+    return "width:100%;box-sizing:border-box;min-height:40px;padding:.5rem .65rem;margin-bottom:.45rem;" +
+      "border:1.5px solid rgba(255,255,255,.28);border-radius:8px;background:rgba(255,255,255,.1);" +
+      "color:#fff;font:inherit;font-size:.9rem;";
+  }
+  function msgInput(type, placeholder, maxLen) {
+    var el = document.createElement(type === "textarea" ? "textarea" : "input");
+    if (type !== "textarea") el.type = type;
+    else { el.rows = 3; el.style.resize = "vertical"; }
+    el.placeholder = placeholder;
+    if (maxLen) el.maxLength = maxLen;
+    el.style.cssText = msgFieldStyle();
+    return el;
+  }
+  /* Rendre le micro au navigateur dès qu'on n'enregistre plus. */
+  function msgReleaseMic() {
+    if (msgFlux) { msgFlux.getTracks().forEach(function(t) { t.stop(); }); msgFlux = null; }
+    if (msgTic) { clearInterval(msgTic); msgTic = null; }
+  }
+
+  function showMessageForm() {
+    var m = MSG_UI[currentLang] || MSG_UI.fr;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    agentSay(m.intro, false);
+
+    var host = agentEl("agentMenu");
+    if (!host) return;
+    host.innerHTML = "";
+    msgBlob = null; msgChunks = []; msgSec = 0; msgReleaseMic();
+
+    var fName = msgInput("text", m.name, 120);
+    var fTel  = msgInput("tel", m.tel, 40);
+    var fMail = msgInput("email", m.mail, 160);
+    var fText = msgInput("textarea", m.textPh, 4000);
+    [fName, fTel, fMail, fText].forEach(function(el) { host.appendChild(el); });
+
+    // Ligne d'enregistrement : bouton + chronomètre + réécoute.
+    var ligne = document.createElement("div");
+    ligne.style.cssText = "display:flex;align-items:center;gap:.5rem;margin:.2rem 0 .5rem;";
+    var btnRec = document.createElement("button");
+    btnRec.type = "button"; btnRec.textContent = m.rec;
+    btnRec.style.cssText = "flex:1;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);" +
+      "color:#fff;font:inherit;font-weight:600;font-size:.88rem;padding:.5rem .7rem;border-radius:8px;cursor:pointer;";
+    var chrono = document.createElement("span");
+    chrono.textContent = "0:00";
+    chrono.style.cssText = "font-variant-numeric:tabular-nums;font-weight:700;font-size:.9rem;opacity:.85;min-width:3ch;";
+    ligne.appendChild(btnRec); ligne.appendChild(chrono);
+    host.appendChild(ligne);
+
+    var player = document.createElement("audio");
+    player.controls = true;
+    player.style.cssText = "width:100%;display:none;margin-bottom:.5rem;";
+    host.appendChild(player);
+
+    var err = document.createElement("p");
+    err.style.cssText = "margin:.1rem 0 .5rem;font-size:.82rem;color:#ffb4b4;display:none;";
+    host.appendChild(err);
+    function fail(text) { err.textContent = text; err.style.display = "block"; }
+
+    function tick() {
+      chrono.textContent = Math.floor(msgSec / 60) + ":" + String(msgSec % 60).padStart(2, "0");
+    }
+
+    btnRec.onclick = async function() {
+      if (msgRec && msgRec.state === "recording") { msgRec.stop(); return; }
+      if (msgBlob) {                       // « Recommencer » : on repart à zéro
+        msgBlob = null; msgSec = 0; tick();
+        player.style.display = "none"; player.removeAttribute("src");
+        btnRec.textContent = m.rec;
+        return;
+      }
+      if (!(navigator.mediaDevices && window.MediaRecorder)) { fail(m.micKo); return; }
+      try { msgFlux = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+      catch (e) { fail(m.micKo); return; }
+
+      var mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"]
+        .find(function(x) { return MediaRecorder.isTypeSupported(x); }) || "";
+      try { msgRec = mime ? new MediaRecorder(msgFlux, { mimeType: mime }) : new MediaRecorder(msgFlux); }
+      catch (e) { msgReleaseMic(); fail(m.micKo); return; }
+
+      msgChunks = [];
+      msgRec.ondataavailable = function(e) { if (e.data && e.data.size) msgChunks.push(e.data); };
+      msgRec.onstop = function() {
+        msgReleaseMic();
+        msgBlob = new Blob(msgChunks, { type: msgRec.mimeType || "audio/webm" });
+        player.src = URL.createObjectURL(msgBlob);
+        player.style.display = "block";
+        btnRec.textContent = m.again;
+      };
+      err.style.display = "none";
+      msgSec = 0; tick(); msgRec.start();
+      btnRec.textContent = m.stop;
+      msgTic = setInterval(function() {
+        msgSec++; tick();
+        if (msgSec >= MSG_MAX_S && msgRec.state === "recording") msgRec.stop();
+      }, 1000);
+    };
+
+    var btnSend = document.createElement("button");
+    btnSend.type = "button"; btnSend.className = "primary"; btnSend.textContent = m.send;
+    btnSend.onclick = function() {
+      var tel = fTel.value.trim(), mail = fMail.value.trim(), texte = fText.value.trim();
+      if (!tel && !mail) { fail(m.noContact); fTel.focus(); return; }
+      if (!texte && !msgBlob) { fail(m.empty); fText.focus(); return; }
+      err.style.display = "none";
+      btnSend.disabled = true;
+      agentSay(m.sending, false);
+
+      var fd = new FormData();
+      fd.append("projet", activeId || "");
+      fd.append("nom", fName.value.trim());
+      fd.append("telephone", tel);
+      fd.append("email", mail);
+      fd.append("message", texte);
+      fd.append("langue", currentLang);
+      if (msgBlob) {
+        fd.append("duree", String(msgSec));
+        fd.append("audio", msgBlob, "message." + (msgBlob.type.indexOf("mp4") >= 0 ? "m4a" : "webm"));
+      }
+      fetch("api/message-depot.php", { method: "POST", body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          btnSend.disabled = false;
+          if (!d || !d.ok) { fail((d && d.error) || m.empty); agentSay(m.intro, false); return; }
+          msgReleaseMic();
+          agentSay(m.thanks, true);
+          agentMenu([[m.back, mainMenu]]);
+        })
+        .catch(function() { btnSend.disabled = false; fail(m.empty); });
+    };
+
+    var btnBack = document.createElement("button");
+    btnBack.type = "button"; btnBack.textContent = m.back;
+    btnBack.onclick = function() { msgReleaseMic(); mainMenu(); };
+
+    host.appendChild(btnSend);
+    host.appendChild(btnBack);
+    fName.focus();
   }
 
   /* Choix de la langue de conversation avant de lancer la voix. */

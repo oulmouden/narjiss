@@ -98,7 +98,10 @@ INSTRUCTIONS = (
     "Selon la réponse : si le commercial est prévenu, dis au visiteur de patienter un "
     "instant puis de te redemander son code d'accès — que tu obtiens avec l'outil "
     "obtenir_code_acces et que tu lui dictes chiffre par chiffre. S'il n'y a personne "
-    "de disponible, propose plutôt un rappel via demander_rendezvous. "
+    "de disponible, dis-le franchement et propose de prendre un message : demande ce "
+    "qu'il souhaite transmettre, son nom et son numéro de rappel — fais-le répéter et "
+    "relis-le chiffre par chiffre pour confirmation — puis appelle l'outil "
+    "laisser_message. Un commercial le rappellera. "
     "Si le visiteur veut seulement un rendez-vous ou être rappelé plus tard, "
     "demande-lui son nom et son téléphone (ou son e-mail), puis appelle l'outil "
     "demander_rendezvous. "
@@ -268,9 +271,49 @@ def projects_catalog() -> str:
 
 
 class ReceptionAgent(Agent):
-    def __init__(self, instructions: str, project_id: str):
+    def __init__(self, instructions: str, project_id: str, lang_code: str = "fr"):
         super().__init__(instructions=instructions)
         self.project_id = project_id
+        self.lang_code = lang_code
+
+    @function_tool()
+    async def laisser_message(self, context: RunContext, message: str,
+                              telephone: str = "", email: str = "", nom: str = ""):
+        """Dépose un message sur la boîte du bureau (personne n'est joignable).
+
+        Un commercial le relira et rappellera. Redis le numéro chiffre par
+        chiffre au visiteur pour confirmation AVANT d'appeler cet outil : un
+        numéro mal compris rend le message inutile.
+
+        Args:
+            message: ce que le visiteur souhaite transmettre, résumé fidèlement
+            telephone: son numéro de rappel, tel qu'il l'a dicté
+            email: son adresse e-mail (optionnel)
+            nom: son nom (optionnel)
+        """
+        try:
+            payload = urllib.parse.urlencode({
+                "projet": self.project_id,
+                "canal": "hotesse",
+                "nom": nom or "",
+                "telephone": telephone or "",
+                "email": email or "",
+                "texte": message or "",
+                "langue": self.lang_code,
+            }).encode()
+            req = urllib.request.Request(f"{API_BASE}/api/message-depot.php", data=payload)
+            with urllib.request.urlopen(req, timeout=8) as r:
+                res = json.loads(r.read().decode())
+            if res.get("ok"):
+                return ("Le message est enregistré, un commercial rappellera. "
+                        "Confirme-le au visiteur et demande s'il souhaite autre chose.")
+            # Coordonnées rejetées : les redemander plutôt que de perdre le message.
+            return (f"Le dépôt a échoué ({res.get('error', 'coordonnées invalides')}). "
+                    "Redemande le numéro chiffre par chiffre, puis réessaie.")
+        except Exception as e:
+            print("[laisser_message] err:", e)
+            return ("Désolée, l'enregistrement a échoué. Invite le visiteur à utiliser "
+                    "le bouton « Laisser un message » à l'écran.")
 
     @function_tool()
     async def demander_rendezvous(self, context: RunContext, nom: str, telephone: str = "",
@@ -490,7 +533,7 @@ async def entrypoint(ctx: agents.JobContext):
     )
     await session.start(
         room=ctx.room,
-        agent=ReceptionAgent(instructions, project_id),
+        agent=ReceptionAgent(instructions, project_id, lang_code),
         room_input_options=RoomInputOptions(),
     )
     await session.generate_reply(

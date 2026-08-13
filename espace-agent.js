@@ -9,6 +9,9 @@
   var curPresence = 'en_ligne';
   var seenApproved = {};      // request_id -> code déjà affiché
   var callRoom = null;        // room LiveKit d'appel direct en cours
+  var msgTimer = null;        // rafraîchissement de la messagerie
+  var msgFilter = 'actifs';   // onglet courant de la messagerie
+  var msgOpenId = null;       // message ouvert (on suspend le rafraîchissement)
 
   function $(id) { return document.getElementById(id); }
   function show(el, on) { if (el) el.classList.toggle('hide', !on); }
@@ -77,11 +80,18 @@
 
     if (canReceive) { setPresence('en_ligne', true); startLoops(); }
     if (canManage) { loadTeam(); teamTimer = setInterval(loadTeam, 8000); }
+
+    // Messagerie : chacun sur son périmètre (son bureau, ou tous les bureaux
+    // pour un gestionnaire ou un superviseur).
+    renderMsgTabs();
+    loadMessages();
+    msgTimer = setInterval(function () { if (!msgOpenId) loadMessages(); }, 15000);
   }
 
   function stopLoops() {
-    [hbTimer, pollTimer, teamTimer].forEach(function (t) { if (t) clearInterval(t); });
-    hbTimer = pollTimer = teamTimer = null;
+    [hbTimer, pollTimer, teamTimer, msgTimer].forEach(function (t) { if (t) clearInterval(t); });
+    hbTimer = pollTimer = teamTimer = msgTimer = null;
+    stopRepRec();
     hangup();
   }
 
@@ -90,6 +100,290 @@
     hbTimer = setInterval(heartbeat, 6000);
     pollRequests();
     pollTimer = setInterval(pollRequests, 4000);
+  }
+
+  /* =========================================================================
+     MESSAGERIE DU BUREAU
+     Les visiteurs laissent un message quand personne n'est joignable. On
+     l'écoute, on le lit, puis on rappelle : chaque suite donnée est journalisée
+     pour que l'équipe voie ce qui a déjà été tenté.
+     ========================================================================= */
+  var MSG_TABS = [
+    ['actifs', 'À traiter'], ['nouveau', 'Nouveaux'], ['ecoute', 'Écoutés'],
+    ['traite', 'Traités'], ['archive', 'Archivés'], ['', 'Tous']
+  ];
+  var MSG_STATUTS = { nouveau: 'Nouveau', ecoute: 'Écouté', traite: 'Traité', archive: 'Archivé' };
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function mmss(sec) {
+    sec = Math.max(0, parseInt(sec, 10) || 0);
+    return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+  }
+  function quand(iso) {
+    var d = new Date(String(iso).replace(' ', 'T'));
+    return isNaN(d) ? '' : d.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+  }
+
+  function renderMsgTabs() {
+    var host = $('msgTabs');
+    if (!host) return;
+    host.innerHTML = '';
+    MSG_TABS.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t[1];
+      b.className = t[0] === msgFilter ? 'active' : '';
+      b.onclick = function () { msgFilter = t[0]; msgOpenId = null; renderMsgTabs(); loadMessages(); };
+      host.appendChild(b);
+    });
+  }
+
+  function loadMessages() {
+    get('messages-agent.php?action=list&statut=' + encodeURIComponent(msgFilter)).then(function (r) {
+      if (!r || !r.ok) return;
+      var badge = $('msgBadge');
+      if (badge) {
+        badge.textContent = r.nouveaux ? r.nouveaux + ' nouveau' + (r.nouveaux > 1 ? 'x' : '') : '';
+        show(badge, !!r.nouveaux);
+      }
+      renderMessages(r.messages || []);
+    });
+  }
+
+  function renderMessages(list) {
+    var host = $('msgList');
+    if (!host) return;
+    host.innerHTML = '';
+    show($('msgEmpty'), !list.length);
+    list.forEach(function (m) {
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'mrow ' + m.statut;
+      var apercu = m.message || m.transcription || '';
+      row.innerHTML =
+        '<div class="mi">' +
+          '<div class="mn">' + esc(m.nom || 'Visiteur anonyme') +
+            ' <span class="mtag ' + esc(m.statut) + '">' + esc(MSG_STATUTS[m.statut] || m.statut) + '</span>' +
+            (m.pris_nom ? ' <span class="mtag">🙋 ' + esc(m.pris_nom) + '</span>' : '') + '</div>' +
+          '<div class="mc">' + esc(m.tel_affiche || m.email || '') +
+            (m.duree_s ? ' · 🎧 ' + mmss(m.duree_s) : '') +
+            (m.projet_nom ? ' · ' + esc(m.projet_nom) : '') + '</div>' +
+          (apercu ? '<div class="mx">' + esc(apercu) + '</div>' : '') +
+        '</div>' +
+        '<span class="md">' + esc(quand(m.date)) + '</span>';
+      row.onclick = function () { openMessage(m.id); };
+      host.appendChild(row);
+    });
+  }
+
+  function openMessage(id) {
+    get('messages-agent.php?action=detail&id=' + id).then(function (r) {
+      if (!r || !r.ok) return;
+      msgOpenId = id;
+      renderMsgDetail(r.message, r.journal || []);
+    });
+  }
+
+  function closeMessage() {
+    msgOpenId = null;
+    stopRepRec();
+    show($('msgDetail'), false);
+    show($('msgList'), true);
+    loadMessages();
+  }
+
+  /* Journalise une suite donnée, puis laisse le lien s'ouvrir normalement. */
+  function journalMsg(id, type, detail) {
+    post('messages-agent.php', { action: 'journal', id: id, type: type, detail: detail || '' })
+      .then(function () { /* silencieux : l'appel part de toute façon */ });
+  }
+
+  function renderMsgDetail(m, journal) {
+    var host = $('msgDetail');
+    if (!host) return;
+    show($('msgList'), false);
+    show(host, true);
+
+    var peutSupprimer = me && (me.role === 'gestionnaire' || me.role === 'superviseur');
+    var h = '<div class="mdet">';
+    h += '<h3>' + esc(m.nom || 'Visiteur anonyme') +
+         ' <span class="mtag ' + esc(m.statut) + '">' + esc(MSG_STATUTS[m.statut] || m.statut) + '</span></h3>';
+    h += '<div style="font-size:.9rem;line-height:1.7">';
+    if (m.tel_affiche) h += '<b>' + esc(m.tel_affiche) + '</b>' +
+      (m.tel_brut ? ' <span style="color:#8a95a6">(dicté : ' + esc(m.tel_brut) + ')</span>' : '') + '<br>';
+    if (m.email) h += '<b>' + esc(m.email) + '</b><br>';
+    h += esc(quand(m.date)) + ' · ' + esc(m.projet_nom) + ' · ' + esc(m.langue.toUpperCase()) +
+         (m.canal === 'hotesse' ? ' · pris par l\'hôtesse IA' : '') + '</div>';
+
+    if (m.audio) h += '<audio controls preload="metadata" src="' + esc(m.audio) + '"></audio>';
+    if (m.message) h += '<div class="corps"><span class="etiq">Message écrit</span>' + esc(m.message) + '</div>';
+    if (m.transcription) h += '<div class="corps auto"><span class="etiq">Transcription automatique — à vérifier à l\'écoute</span>' +
+      esc(m.transcription) + '</div>';
+
+    // Prise en charge : le premier qui la déclare évite le double rappel.
+    h += '<div class="acts">';
+    if (!m.pris_nom) h += '<button class="btn sm ok" data-act="prise">🙋 Je m\'en occupe</button>';
+    else h += '<span class="mtag">🙋 ' + esc(m.pris_nom) + ' s\'en occupe</span>';
+    h += '</div>';
+
+    h += '<div class="acts">';
+    if (m.lien_tel) {
+      h += '<a class="btn sm tel" href="' + esc(m.lien_tel) + '" data-j="rappel">📞 Rappeler</a>' +
+           '<a class="btn sm wa" href="' + esc(m.lien_wa) + '" target="_blank" rel="noopener" data-j="whatsapp" id="mWa">💬 WhatsApp</a>' +
+           '<a class="btn sm ghost" href="' + esc(m.lien_sms) + '" data-j="sms" id="mSms">✉️ SMS</a>';
+    }
+    if (m.lien_mail) h += '<a class="btn sm ghost" href="' + esc(m.lien_mail) + '" data-j="email">📧 E-mail</a>';
+    if (!m.lien_tel && !m.lien_mail) h += '<span style="color:#8a95a6;font-size:.9rem">Aucune coordonnée laissée.</span>';
+    h += '</div>';
+
+    if (m.lien_tel) {
+      h += '<div class="bloc"><h3>Message écrit (WhatsApp / SMS)</h3>' +
+           '<textarea id="mPrefill">' + esc(m.prefill) + '</textarea>' +
+           '<div style="font-size:.8rem;color:#8a95a6;margin-top:.3rem">Modifiez le texte : les boutons WhatsApp et SMS l\'emportent avec eux.</div></div>';
+    }
+
+    h += '<div class="bloc"><h3>Réponse vocale</h3>' +
+         '<div style="font-size:.85rem;color:#54627a;margin-bottom:.5rem">Enregistrez votre réponse : vous obtiendrez un lien d\'écoute à coller dans WhatsApp.</div>' +
+         '<div class="acts"><button class="btn sm ghost" data-act="rec">⏺ Enregistrer</button>' +
+         '<span id="mChrono" style="font-variant-numeric:tabular-nums;font-weight:700">0:00</span>' +
+         '<button class="btn sm" data-act="send-vocal" disabled>Envoyer la réponse</button></div>' +
+         '<audio id="mRepPlay" controls style="display:none"></audio>' +
+         '<div id="mRepOut" style="font-size:.85rem"></div></div>';
+
+    h += '<div class="bloc"><h3>Note interne</h3>' +
+         '<textarea id="mNote" placeholder="Ce qu\'il faut retenir…">' + esc(m.notes || '') + '</textarea>' +
+         '<div class="acts"><button class="btn sm ghost" data-act="note">Enregistrer la note</button></div></div>';
+
+    h += '<div class="bloc"><h3>Classer</h3><div class="acts">';
+    ['traite', 'archive', 'nouveau'].forEach(function (s) {
+      if (m.statut === s) return;
+      h += '<button class="btn sm ghost" data-statut="' + s + '">' +
+           (s === 'traite' ? 'Marquer traité' : s === 'archive' ? 'Archiver' : 'Remettre en nouveau') + '</button>';
+    });
+    if (peutSupprimer) h += '<button class="btn sm danger" data-act="suppr">Supprimer</button>';
+    h += '<button class="btn sm ghost" data-act="close">↩︎ Retour à la liste</button></div></div>';
+
+    if (journal.length) {
+      h += '<div class="bloc"><h3>Suites données</h3>';
+      journal.forEach(function (j) {
+        var lbl = { rappel: '📞 Rappel', whatsapp: '💬 WhatsApp', sms: '✉️ SMS', email: '📧 E-mail',
+                    vocal: '🎙️ Réponse vocale', note: '📝 Note', statut: '🗂️ Statut', prise: '🙋 Prise en charge' }[j.type] || j.type;
+        h += '<div class="jr"><b>' + esc(lbl) + '</b> <span class="q">' + esc(quand(j.date)) +
+             (j.agent ? ' · ' + esc(j.agent) : '') + '</span>' +
+             (j.detail ? '<div style="color:#54627a">' + esc(j.detail) + '</div>' : '');
+        if (j.audio) h += '<audio controls preload="none" src="' + esc(j.audio) + '" style="width:100%;margin-top:.3rem"></audio>';
+        if (j.lien) h += '<div class="lien-copie"><input type="text" readonly value="' + esc(j.lien) + '" onclick="this.select()"></div>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+    host.innerHTML = h;
+
+    // ── Câblage ──
+    var prefill = $('mPrefill');
+    if (prefill) prefill.oninput = function () {
+      var t = encodeURIComponent(prefill.value);
+      var wa = $('mWa'), sms = $('mSms');
+      if (wa) wa.href = 'https://wa.me/' + m.telephone.replace(/\D/g, '') + '?text=' + t;
+      if (sms) sms.href = 'sms:' + m.telephone + '?body=' + t;
+    };
+
+    host.querySelectorAll('[data-j]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        var type = a.getAttribute('data-j');
+        journalMsg(m.id, type, type === 'rappel' || !prefill ? '' : prefill.value.slice(0, 255));
+      });
+    });
+
+    host.querySelectorAll('[data-statut]').forEach(function (b) {
+      b.onclick = function () {
+        post('messages-agent.php', { action: 'statut', id: m.id, valeur: b.getAttribute('data-statut') })
+          .then(function () { openMessage(m.id); });
+      };
+    });
+
+    var act = function (name) { return host.querySelector('[data-act="' + name + '"]'); };
+    if (act('prise')) act('prise').onclick = function () {
+      post('messages-agent.php', { action: 'prise', id: m.id }).then(function (r) {
+        if (r && !r.ok && r.error) alert(r.error);
+        openMessage(m.id);
+      });
+    };
+    if (act('note')) act('note').onclick = function () {
+      post('messages-agent.php', { action: 'note', id: m.id, note: $('mNote').value }).then(function () { openMessage(m.id); });
+    };
+    if (act('suppr')) act('suppr').onclick = function () {
+      if (!confirm('Supprimer définitivement ce message et son enregistrement ?')) return;
+      post('messages-agent.php', { action: 'supprimer', id: m.id }).then(function () { closeMessage(); });
+    };
+    if (act('close')) act('close').onclick = closeMessage;
+
+    wireRepRec(m.id, act('rec'), act('send-vocal'));
+  }
+
+  /* ── Réponse vocale enregistrée depuis le poste du commercial ──────────── */
+  var repRec = null, repChunks = [], repBlob = null, repFlux = null, repTic = null, repSec = 0;
+
+  function stopRepRec() {
+    if (repRec && repRec.state === 'recording') { try { repRec.stop(); } catch (e) {} }
+    if (repFlux) { repFlux.getTracks().forEach(function (t) { t.stop(); }); repFlux = null; }
+    if (repTic) { clearInterval(repTic); repTic = null; }
+    repRec = null; repBlob = null; repChunks = []; repSec = 0;
+  }
+
+  function wireRepRec(messageId, btnRec, btnSend) {
+    if (!btnRec || !btnSend) return;
+    stopRepRec();
+    var chrono = $('mChrono'), player = $('mRepPlay'), out = $('mRepOut');
+    function tick() { chrono.textContent = mmss(repSec); }
+
+    btnRec.onclick = async function () {
+      if (repRec && repRec.state === 'recording') { repRec.stop(); return; }
+      if (!(navigator.mediaDevices && window.MediaRecorder)) { out.textContent = 'Ce navigateur ne sait pas enregistrer.'; return; }
+      try { repFlux = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+      catch (e) { out.textContent = 'Micro refusé — autorisez-le dans le navigateur.'; return; }
+      var mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg']
+        .find(function (x) { return MediaRecorder.isTypeSupported(x); }) || '';
+      repRec = mime ? new MediaRecorder(repFlux, { mimeType: mime }) : new MediaRecorder(repFlux);
+      repChunks = [];
+      repRec.ondataavailable = function (e) { if (e.data && e.data.size) repChunks.push(e.data); };
+      repRec.onstop = function () {
+        if (repFlux) { repFlux.getTracks().forEach(function (t) { t.stop(); }); repFlux = null; }
+        if (repTic) { clearInterval(repTic); repTic = null; }
+        repBlob = new Blob(repChunks, { type: repRec.mimeType || 'audio/webm' });
+        player.src = URL.createObjectURL(repBlob);
+        player.style.display = 'block';
+        btnRec.textContent = '↺ Recommencer';
+        btnSend.disabled = false;
+      };
+      repSec = 0; tick(); repRec.start();
+      btnRec.textContent = '⏹ Arrêter';
+      out.textContent = '';
+      repTic = setInterval(function () { repSec++; tick(); if (repSec >= 180) repRec.stop(); }, 1000);
+    };
+
+    btnSend.onclick = function () {
+      if (!repBlob) return;
+      btnSend.disabled = true;
+      var fd = new FormData();
+      fd.append('action', 'vocal');
+      fd.append('id', messageId);
+      fd.append('duree', String(repSec));
+      fd.append('audio', repBlob, 'reponse.' + (repBlob.type.indexOf('mp4') >= 0 ? 'm4a' : 'webm'));
+      fetch(API + 'messages-agent.php', { method: 'POST', credentials: 'same-origin', body: fd })
+        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (!r || !r.ok) { out.textContent = (r && r.error) || 'Échec de l\'envoi.'; btnSend.disabled = false; return; }
+          stopRepRec();
+          openMessage(messageId);
+        })
+        .catch(function () { out.textContent = 'Échec de l\'envoi.'; btnSend.disabled = false; });
+    };
   }
 
   /* ── Présence ──────────────────────────────────────────────────────────── */
