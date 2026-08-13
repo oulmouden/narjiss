@@ -15,6 +15,7 @@ var MENU_UI = {
     infos: "Infos",
     brand_tag: "Immobiliere",
     footer_about: "À propos",
+    footer_fiche: "Fiche de renseignement",
     footer_navigation: "Navigation",
     footer_legal: "Légal",
     footer_brand_text: "Spécialiste de l'immobilier au Maroc avec visites virtuelles 360° et cartes interactives multilingues.",
@@ -35,6 +36,7 @@ var MENU_UI = {
     infos: "Info",
     brand_tag: "Real Estate",
     footer_about: "About",
+    footer_fiche: "Information form",
     footer_navigation: "Navigation",
     footer_legal: "Legal",
     footer_brand_text: "Real estate specialist in Morocco with 360° virtual tours and multilingual interactive maps.",
@@ -55,6 +57,7 @@ var MENU_UI = {
     infos: "معلومات",
     brand_tag: "للعقار",
     footer_about: "من نحن",
+    footer_fiche: "بطاقة معلومات",
     footer_navigation: "التنقل",
     footer_legal: "قانوني",
     footer_brand_text: "متخصص في العقارات بالمغرب مع جولات افتراضية 360° وخرائط تفاعلية متعددة اللغات.",
@@ -75,6 +78,7 @@ var MENU_UI = {
     infos: "Info",
     brand_tag: "Inmobiliaria",
     footer_about: "Acerca de",
+    footer_fiche: "Ficha de información",
     footer_navigation: "Navegación",
     footer_legal: "Legal",
     footer_brand_text: "Especialista inmobiliario en Marruecos con visitas virtuales 360° y mapas interactivos multilingües.",
@@ -664,13 +668,15 @@ function njEffectiveTheme() {
   return njStoredTheme() || 'light';
 }
 function njUpdateThemeButton() {
-  var btn = document.getElementById('themeToggle');
-  if (!btn) return;
+  var boutons = document.querySelectorAll('.theme-toggle');
+  if (!boutons.length) return;
   var dark = njEffectiveTheme() === 'dark';
-  btn.textContent = dark ? '☀️' : '🌙';
   var label = dark ? 'Passer en mode clair' : 'Passer en mode nocturne';
-  btn.setAttribute('aria-label', label);
-  btn.title = label;
+  for (var i = 0; i < boutons.length; i++) {
+    boutons[i].textContent = dark ? '☀️' : '🌙';
+    boutons[i].setAttribute('aria-label', label);
+    boutons[i].title = label;
+  }
 }
 function njToggleTheme() {
   var next = njEffectiveTheme() === 'dark' ? 'light' : 'dark';
@@ -699,6 +705,18 @@ function buildMenuHTML(activePage, basePath) {
           '</div>' +
         '</a>' +
         (projectLabel ? '<div class="nav-project-label">' + projectLabel + '</div>' : '') +
+        /* Jeu de boutons de langue propre au téléphone : sur petit écran, ceux
+           du menu déroulant sont derrière le ☰, alors qu'il reste de la place
+           dans la barre. Un second jeu plutôt qu'un déplacement : déplacer
+           l'unique jeu aurait modifié la barre du grand écran. */
+        '<div class="nav-langs nav-langs-mobile">' +
+          '<button class="lang-btn' + (currentLang === 'fr' ? ' active' : '') + '" data-lang="fr">FR</button>' +
+          '<button class="lang-btn' + (currentLang === 'ar' ? ' active' : '') + '" data-lang="ar">عربي</button>' +
+          '<button class="lang-btn' + (currentLang === 'en' ? ' active' : '') + '" data-lang="en">EN</button>' +
+          '<button class="lang-btn' + (currentLang === 'es' ? ' active' : '') + '" data-lang="es">ES</button>' +
+          '<button class="theme-toggle" id="themeToggleMobile" type="button" ' +
+            'aria-label="Basculer le thème clair / nocturne" title="Thème clair / nocturne">🌙</button>' +
+        '</div>' +
         '<button class="nav-toggle" id="navToggle">☰</button>' +
         '<ul class="nav-links" id="navLinks">' +
           '<li><a href="' + basePath + 'index.html' + langHash + '"' + (activePage === 'home' ? ' class="active"' : '') + '>🏠 ' + t.home + '</a></li>' +
@@ -770,6 +788,9 @@ function buildFooterHTML(basePath) {
           '<ul>' +
             '<li><a href="' + basePath + 'apropos.html' + langHash + '">' + t.about + '</a></li>' +
             '<li><a href="' + basePath + 'contact.html' + langHash + '">' + t.contact + '</a></li>' +
+            // La fiche n'était atteignable que depuis la page Contact : sur mobile,
+            // c'est elle qui remplit le nom et le numéro en photographiant la CIN.
+            '<li><a href="' + basePath + 'fiche.html' + langHash + '">' + t.footer_fiche + '</a></li>' +
           '</ul>' +
           '</div>' +
           '<div class="footer-col">' +
@@ -815,10 +836,12 @@ function installMenuAndFooter(activePage, basePath) {
   }
 
   // Bouton de thème clair / nocturne
-  var themeBtn = document.getElementById('themeToggle');
-  if (themeBtn) {
+  var themeBtns = document.querySelectorAll('.theme-toggle');
+  if (themeBtns.length) {
     njUpdateThemeButton();
-    themeBtn.addEventListener('click', njToggleTheme);
+    for (var b = 0; b < themeBtns.length; b++) {
+      themeBtns[b].addEventListener('click', njToggleTheme);
+    }
   }
 
   // Mobile nav toggle
@@ -866,7 +889,60 @@ function switchLang(lang, activePage, basePath) {
 // bumper LIVEGUIDE_VERSION ICI **et** le "?v=" de <script src="shared/menu.js?v=...">
 // dans TOUTES les pages HTML — sinon les navigateurs gardent l'ancien menu.js
 // indéfiniment et ne rechargeront jamais le nouveau code (même après F5/Ctrl+F5).
-var LIVEGUIDE_VERSION = '8'; // bump à chaque modif de liveguide.* pour casser le cache
+var LIVEGUIDE_VERSION = '9'; // bump à chaque modif de liveguide.* pour casser le cache
+
+// ----- Capture des cartes Leaflet pour la visite guidée ----------------------
+// Ce bloc s'exécute AU CHARGEMENT de menu.js, et non depuis installLiveGuide()
+// ni depuis liveguide.js. Raison : Leaflet n'expose AUCUN moyen de retrouver une
+// instance de carte à partir du DOM — si on rate son constructeur, la carte est
+// définitivement hors de portée. Or sur carte.html le `L.map()` inline suit
+// immédiatement la balise <script src="shared/menu.js">, et liveguide.js est
+// injecté de façon asynchrone : il arriverait toujours trop tard. Ici on passe
+// avant, sur les cinq pages à carte (Leaflet est chargé en <head>, menu.js en
+// fin de <body>, les L.map() ensuite).
+//
+// Les instances atterrissent dans window.LG_MAPS — l'équivalent pour Leaflet de
+// window.LG_PANO pour Pannellum.
+(function () {
+  // Visiteur normal : on ne touche à rien (même logique de détection que
+  // liveguide.js, qui ne se charge que si un rôle est actif).
+  function liveGuideActive() {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      if (p.get('lghost') != null || p.get('lg')) return true;
+      var r = window.sessionStorage.getItem('lg_role');
+      return r === 'host' || r === 'viewer';
+    } catch (e) { return false; }
+  }
+  if (!liveGuideActive()) return;
+
+  window.LG_MAPS = window.LG_MAPS || [];
+
+  function wrapLeaflet(L) {
+    if (!L || !L.Map || !L.Map.prototype || L.Map.__lgWrapped) return;
+    var origInit = L.Map.prototype.initialize;
+    L.Map.prototype.initialize = function () {
+      var res = origInit.apply(this, arguments);
+      window.LG_MAPS.push(this);
+      window.LG_MAP = window.LG_MAPS[0]; // carte principale de la page
+      return res;
+    };
+    L.Map.__lgWrapped = true;
+  }
+
+  if (window.L) { wrapLeaflet(window.L); return; }
+
+  // Leaflet pas encore chargé (ordre de scripts différent sur une page future) :
+  // on l'intercepte au moment où il s'installe sur window.
+  var pending;
+  try {
+    Object.defineProperty(window, 'L', {
+      configurable: true,
+      get: function () { return pending; },
+      set: function (v) { pending = v; wrapLeaflet(v); }
+    });
+  } catch (e) { /* navigateur récalcitrant : on se passe de la sync carte */ }
+})();
 
 function installLiveGuide(basePath) {
   basePath = basePath || '';
