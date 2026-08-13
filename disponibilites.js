@@ -90,7 +90,7 @@
       geoRefus: "Impossible de récupérer votre position. Vérifiez l'autorisation de localisation.",
       complet: 'Sélection complète (3 maximum)',
       suivant: 'Envoyer mes choix', indispo: "Ce logement n'est plus disponible",
-      dh: 'DH', parM2: 'DH/m²',
+      dh: 'DH', parM2: 'DH/m²', nousConsulter: 'Nous consulter',
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin',
       double: 'Traversant', angle: 'Angle',
       erreur: 'Disponibilités indisponibles pour le moment.',
@@ -137,7 +137,7 @@
       geoRefus: 'Unable to get your location. Please check location permission.',
       complet: 'Shortlist full (3 maximum)',
       suivant: 'Send my selection', indispo: 'This home is no longer available',
-      dh: 'MAD', parM2: 'MAD/m²',
+      dh: 'MAD', parM2: 'MAD/m²', nousConsulter: 'Price on request',
       rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
       double: 'Dual aspect', angle: 'Corner',
       erreur: 'Availability cannot be loaded right now.',
@@ -184,7 +184,7 @@
       geoRefus: 'تعذر الحصول على موقعك. تحقق من إذن تحديد الموقع.',
       complet: 'اكتمل الاختيار (3 كحد أقصى)',
       suivant: 'إرسال اختياراتي', indispo: 'هذا السكن لم يعد متاحا',
-      dh: 'درهم', parM2: 'درهم/م²',
+      dh: 'درهم', parM2: 'درهم/م²', nousConsulter: 'السعر عند الطلب',
       rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
       double: 'واجهتان', angle: 'زاوية',
       erreur: 'تعذر عرض المتوفر حاليا.',
@@ -231,7 +231,7 @@
       geoRefus: 'No se pudo obtener tu ubicación. Revisa el permiso de ubicación.',
       complet: 'Selección completa (3 máximo)',
       suivant: 'Enviar mi selección', indispo: 'Esta vivienda ya no está disponible',
-      dh: 'DH', parM2: 'DH/m²',
+      dh: 'DH', parM2: 'DH/m²', nousConsulter: 'Consúltenos',
       rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
       double: 'Doble orientación', angle: 'Esquina',
       erreur: 'Las disponibilidades no se pueden cargar por ahora.',
@@ -262,6 +262,21 @@
    */
   function montant(v) {
     return '<bdi dir="ltr">' + nombre(v) + '</bdi>';
+  }
+
+  /**
+   * Prix d'un lot, ou « Nous consulter » quand le projet ne diffuse pas ses
+   * tarifs (réglage price_mode, appliqué côté serveur : l'API renvoie alors
+   * prix = null, et prix_public = false).
+   */
+  function prixPublic() { return etat.prixPublic !== false; }
+  function prixHtml(v) {
+    return prixPublic() && v != null
+      ? montant(v) + ' <small>' + t('dh') + '</small>'
+      : '<span class="nj-sur-demande">' + t('nousConsulter') + '</span>';
+  }
+  function prixTexte(v) {
+    return prixPublic() && v != null ? nombre(v) + ' ' + t('dh') : t('nousConsulter');
   }
 
   function libelleNiveau(niveau) {
@@ -409,6 +424,7 @@
       .then(function (d) {
         if (!d.ok) throw new Error(d.error || 'erreur');
         etat.lots = d.lots;
+        etat.prixPublic = d.prix_public !== false;   // projet à prix masqués ?
         if (!etat.facettes) etat.facettes = d.facettes;   // figées : voir api
         rendreFiltres();
         afficherLots();
@@ -463,6 +479,12 @@
       niv += '<option value="' + f.niveaux[n] + '">' + libelleNiveau(n) + '</option>';
     });
     document.getElementById('fNiveau').innerHTML = niv;
+
+    // Projet à prix masqués : le filtre de budget n'a plus d'objet, et le
+    // laisser afficherait une fourchette (0 à 0) qui interroge.
+    var champBudget = document.getElementById('fBudget');
+    var blocBudget = champBudget ? champBudget.closest('.nj-champ') : null;
+    if (blocBudget) blocBudget.hidden = !prixPublic();
 
     // Le curseur de budget part du prix le plus haut : on ne cache rien tant
     // que le visiteur n'a pas bougé le curseur.
@@ -545,17 +567,17 @@
       '<article class="nj-lot nj-' + lot.statut + (choisi ? ' nj-choisi' : '') + '"' +
         ' data-id="' + lot.id + '" data-statut="' + lot.statut + '"' +
         ' tabindex="0" role="button" aria-pressed="' + (choisi ? 'true' : 'false') + '"' +
-        ' aria-label="' + titre + ', ' + nombre(lot.prix) + ' dirhams, ' + t(lot.statut) + '">' +
+        ' aria-label="' + titre + ', ' + prixTexte(lot.prix) + ', ' + t(lot.statut) + '">' +
         '<header class="nj-lot-tete">' +
           '<span class="nj-lot-num">' + titre + '</span>' +
           '<span class="nj-pastille">' + t(lot.statut) + '</span>' +
         '</header>' +
-        '<p class="nj-lot-prix">' + montant(lot.prix) + ' <small>' + t('dh') + '</small></p>' +
+        '<p class="nj-lot-prix">' + prixHtml(lot.prix) + '</p>' +
         '<ul class="nj-lot-carac">' +
           '<li>' + surface + '</li>' +
           (lot.chambres > 0 ? '<li>' + lot.chambres + ' ' + t('chambres') + '</li>' : '') +
           '<li>' + libelleOrientation(lot.orientation) + '</li>' +
-          '<li>' + montant(lot.prix_m2) + ' ' + t('parM2') + '</li>' +
+          (prixPublic() && lot.prix_m2 != null ? '<li>' + montant(lot.prix_m2) + ' ' + t('parM2') + '</li>' : '') +
         '</ul>' +
         (lot.notes ? '<p class="nj-lot-note">' + lot.notes + '</p>' : '') +
         boutonsMedias(lot) +
@@ -751,7 +773,7 @@
     if (lot.chambres > 0) lignes.splice(2, 0, [t('chambresLot'), String(lot.chambres)]);
 
     var corps = '<div class="nj-fiche">' +
-      '<p class="nj-fiche-prix">' + montant(lot.prix) + ' <small>' + t('dh') + '</small></p>' +
+      '<p class="nj-fiche-prix">' + prixHtml(lot.prix) + '</p>' +
       '<dl>' + lignes.map(function (l) {
         return '<dt>' + l[0] + '</dt><dd>' + l[1] + '</dd>';
       }).join('') + '</dl>' +
@@ -979,7 +1001,7 @@
     var choisi = estSelectionne(lot.id);
     var position = lot.numero.split('-').pop();
     var resume = lot.typologie.toUpperCase() + ' · ' + lot.numero + ' · ' +
-      lot.surface + ' m² · ' + nombre(lot.prix) + ' ' + t('dh') + ' · ' + t(lot.statut);
+      lot.surface + ' m² · ' + prixTexte(lot.prix) + ' · ' + t(lot.statut);
 
     // Deux boutons cote a cote plutot qu'imbriques : un <button> ne peut pas
     // en contenir un autre, et la pastille reste la cible principale.
@@ -1319,7 +1341,7 @@
       var libre = lot.statut === 'disponible';
       var position = lot.numero.split('-').pop();
       var resume = lot.typologie.toUpperCase() + ' · ' + lot.numero + ' · ' +
-        lot.surface + ' m² · ' + nombre(lot.prix) + ' ' + t('dh') + ' · ' + t(lot.statut);
+        lot.surface + ' m² · ' + prixTexte(lot.prix) + ' · ' + t(lot.statut);
 
       var cx = 0, cy = 0;
       pts.forEach(function (p) { cx += p[0]; cy += p[1]; });

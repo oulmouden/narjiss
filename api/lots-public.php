@@ -79,6 +79,11 @@ if (!isset(nj_projects()[$projet])) {
     nj_lots_erreur(404, 'Projet inconnu.');
 }
 
+// Diffusion des prix (réglage par projet). Quand elle est coupée, aucun montant
+// ne sort d'ici — ni par lot, ni en facette, ni via un filtre de budget qui
+// permettrait de deviner les tranches en sondant l'API.
+$prixPublic = nj_prix_public($projet);
+
 /*
  * &resume=1 — compte des lots par typologie, pour le bloc « Disponibilité »
  * de la fiche projet. Beaucoup plus leger que de renvoyer les lots un a un
@@ -106,10 +111,11 @@ if (($_GET['resume'] ?? '') === '1') {
     }
 
     $typologies = array_map(static fn(array $l): array => [
+        // (fn capture $prixPublic automatiquement)
         'code'        => $l['typologie'],
         'total'       => (int) $l['total'],
         'disponibles' => (int) $l['disponibles'],
-        'prix_min'    => $l['prix_min'] !== null ? (float) $l['prix_min'] : null,
+        'prix_min'    => $prixPublic && $l['prix_min'] !== null ? (float) $l['prix_min'] : null,
         'surface_min' => (float) $l['surface_min'],
         'surface_max' => (float) $l['surface_max'],
     ], $lignes);
@@ -155,6 +161,9 @@ $numeriques = [
     'chambres_min' => ['nb_chambres >= :chambres_min', 'chambres_min'],
 ];
 foreach ($numeriques as $cle => [$clause, $bind]) {
+    // Un filtre de budget sur un projet à prix masqués revient à interroger les
+    // prix par dichotomie : on l'ignore.
+    if (!$prixPublic && ($cle === 'budget_min' || $cle === 'budget_max')) continue;
     if (isset($_GET[$cle]) && trim((string) $_GET[$cle]) !== '') {
         $where[] = $clause;
         $params[$bind] = nj_lot_nombre((string) $_GET[$cle]);
@@ -223,8 +232,9 @@ asort($niveaux);
 echo json_encode([
     'ok'      => true,
     'projet'  => $projet,
+    'prix_public' => $prixPublic,   // le front adapte affichage et filtre budget
     'total'   => count($lots),
-    'lots'    => array_map(static function (array $l): array {
+    'lots'    => array_map(static function (array $l) use ($prixPublic): array {
         return [
             'id'          => (int) $l['id'],
             'immeuble'    => $l['immeuble'],
@@ -241,8 +251,10 @@ echo json_encode([
             'exposition'  => $l['exposition'],
             'ascenseur'   => (bool) $l['ascenseur'],
             'parking'     => $l['parking'],
-            'prix'        => (float) $l['prix_dh'],
-            'prix_m2'     => (float) $l['prix_m2'],
+            // Projet dont les prix ne sont pas diffusés : les montants ne
+            // quittent pas le serveur (le front affiche « Nous consulter »).
+            'prix'        => $prixPublic ? (float) $l['prix_dh'] : null,
+            'prix_m2'     => $prixPublic ? (float) $l['prix_m2'] : null,
             'statut'      => $l['statut'],
             'plan'        => $l['plan_fichier'],
             // Documents propres au lot ; vides, le front retombe sur le projet.
@@ -258,8 +270,8 @@ echo json_encode([
         'immeubles'    => $grouper($brut, 'immeuble'),
         'statuts'      => $grouper($brut, 'statut'),
         'niveaux'      => $niveaux,
-        'prix_min'     => $prix ? min($prix) : 0,
-        'prix_max'     => $prixMax ? max($prixMax) : 0,
+        'prix_min'     => $prixPublic && $prix ? min($prix) : 0,
+        'prix_max'     => $prixPublic && $prixMax ? max($prixMax) : 0,
         'surface_min'  => $surf ? min($surf) : 0,
         'surface_max'  => $surfMax ? max($surfMax) : 0,
     ],

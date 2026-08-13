@@ -72,7 +72,10 @@
       consentContact: "J'accepte d'être recontacté(e) par Narjiss Immobilière (téléphone, e-mail ou WhatsApp) au sujet de cette sélection.",
       marketing: "J'accepte de recevoir les offres commerciales de Narjiss Immobilière (facultatif, sans effet sur ma demande).",
       mrzTitre: "Remplissage automatique", mrzAide: "Photographiez ou importez le dos de votre CIN : le nom et le prénom se remplissent seuls.",
-      mrzBtn: "📷 Scanner ou importer le dos de la CIN", mrzReading: "Lecture en cours… gardez la carte bien à plat et nette.",
+      mrzBtn: "🖼️ Importer une image", mrzCam: "📷 Photographier la CIN",
+      mrzLive: "🎥 Scanner avec la caméra", camTitre: "Placez la carte dans le cadre",
+      camAide: "Le dos de la carte, bien à plat. La bande de lettres du bas doit être nette.",
+      camCapturer: "Capturer", camFermer: "Fermer", mrzReading: "Lecture en cours… gardez la carte bien à plat et nette.",
       mrzOk: "Carte lue. Vérifiez le nom et le prénom remplis.", mrzKo: "Lecture impossible. Reprenez la photo (nette, MRZ visible) ou saisissez à la main.",
       consentRequis: "Merci de cocher les consentements obligatoires avant d'envoyer.",
       ficheComplete: "📋 Remplir la fiche client complète →",
@@ -94,7 +97,7 @@
       lignes: ['Prix', 'Prix au m²', 'Type', 'Surface habitable', 'Balcon', 'Surface totale',
                'Chambres', 'Salles de bain', 'Immeuble', 'Niveau', 'Orientation',
                'Exposition', 'Parking', 'Disponibilité'],
-      etage: 'Étage', rdc: 'Rez-de-chaussée', dh: 'DH', aucun: '—',
+      etage: 'Étage', rdc: 'Rez-de-chaussée', dh: 'DH', aucun: '—', nousConsulter: 'Nous consulter',
       disponible: 'Disponible', optionne: 'Optionné', reserve: 'Réservé', vendu: 'Vendu',
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin', double: 'Traversant', angle: 'Angle'
     },
@@ -117,7 +120,10 @@
       consentContact: "I agree to be contacted by Narjiss Immobilière (phone, e-mail or WhatsApp) about this shortlist.",
       marketing: "I agree to receive commercial offers from Narjiss Immobilière (optional, no effect on my request).",
       mrzTitre: "Automatic fill", mrzAide: "Photograph or import the back of your ID card: the name fills in automatically.",
-      mrzBtn: "📷 Scan or import the ID card back", mrzReading: "Reading… keep the card flat and sharp.",
+      mrzBtn: "🖼️ Import an image", mrzCam: "📷 Photograph the ID card",
+      mrzLive: "🎥 Scan with the camera", camTitre: "Place the card inside the frame",
+      camAide: "The back of the card, flat. The band of letters must be sharp.",
+      camCapturer: "Capture", camFermer: "Close", mrzReading: "Reading… keep the card flat and sharp.",
       mrzOk: "Card read. Check the filled name.", mrzKo: "Could not read. Retake the photo (sharp, MRZ visible) or type it in.",
       consentRequis: "Please tick the required consents before sending.",
       ficheComplete: "📋 Fill in the full client form →",
@@ -139,7 +145,7 @@
       lignes: ['Price', 'Price per m²', 'Type', 'Living area', 'Balcony', 'Total area',
                'Bedrooms', 'Bathrooms', 'Building', 'Floor', 'Aspect',
                'Sun exposure', 'Parking', 'Availability'],
-      etage: 'Floor', rdc: 'Ground floor', dh: 'MAD', aucun: '—',
+      etage: 'Floor', rdc: 'Ground floor', dh: 'MAD', aucun: '—', nousConsulter: 'Price on request',
       disponible: 'Available', optionne: 'Under option', reserve: 'Reserved', vendu: 'Sold',
       rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
       double: 'Dual aspect', angle: 'Corner'
@@ -164,7 +170,10 @@
       consentContact: "أوافق على أن تتصل بي نرجس العقارية (هاتف أو بريد أو واتساب) بخصوص هذا الاختيار.",
       marketing: "أوافق على تلقّي العروض التجارية من نرجس العقارية (اختياري، دون أثر على طلبي).",
       mrzTitre: "التعبئة التلقائية", mrzAide: "صوّروا أو استوردوا ظهر بطاقتكم الوطنية: يُملأ الاسم تلقائياً.",
-      mrzBtn: "📷 مسح أو استيراد ظهر البطاقة", mrzReading: "جاري القراءة… أبقوا البطاقة مسطحة وواضحة.",
+      mrzBtn: "🖼️ استيراد صورة", mrzCam: "📷 تصوير البطاقة الوطنية",
+      mrzLive: "🎥 المسح بالكاميرا", camTitre: "ضعوا البطاقة داخل الإطار",
+      camAide: "ظهر البطاقة، مسطّحاً. يجب أن يكون شريط الحروف واضحاً.",
+      camCapturer: "التقاط", camFermer: "إغلاق", mrzReading: "جاري القراءة… أبقوا البطاقة مسطحة وواضحة.",
       mrzOk: "تمت قراءة البطاقة. تحققوا من الاسم.", mrzKo: "تعذّرت القراءة. أعيدوا التصوير أو أدخلوا يدوياً.",
       consentRequis: "يرجى تحديد الموافقات الإلزامية قبل الإرسال.",
       ficheComplete: "📋 ملء بطاقة العميل الكاملة →",
@@ -186,7 +195,7 @@
       lignes: ['السعر', 'السعر للمتر المربع', 'النوع', 'المساحة السكنية', 'الشرفة',
                'المساحة الإجمالية', 'الغرف', 'الحمامات', 'العمارة', 'الطابق', 'الاتجاه',
                'التعرض للشمس', 'موقف السيارة', 'التوفر'],
-      etage: 'الطابق', rdc: 'الطابق الأرضي', dh: 'درهم', aucun: '—',
+      etage: 'الطابق', rdc: 'الطابق الأرضي', dh: 'درهم', aucun: '—', nousConsulter: 'السعر عند الطلب',
       disponible: 'متاح', optionne: 'محجوز مؤقتا', reserve: 'محجوز', vendu: 'مباع',
       rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
       double: 'واجهتان', angle: 'زاوية'
@@ -210,7 +219,10 @@
       consentContact: "Acepto ser contactado(a) por Narjiss Immobilière (teléfono, correo o WhatsApp) sobre esta selección.",
       marketing: "Acepto recibir ofertas comerciales de Narjiss Immobilière (opcional, sin efecto en mi solicitud).",
       mrzTitre: "Relleno automático", mrzAide: "Fotografíe o importe el reverso de su DNI: el nombre se rellena solo.",
-      mrzBtn: "📷 Escanear o importar el reverso del DNI", mrzReading: "Leyendo… mantenga la tarjeta plana y nítida.",
+      mrzBtn: "🖼️ Importar una imagen", mrzCam: "📷 Fotografiar el DNI",
+      mrzLive: "🎥 Escanear con la cámara", camTitre: "Coloque la tarjeta en el marco",
+      camAide: "El reverso de la tarjeta, plano. La banda de letras debe verse nítida.",
+      camCapturer: "Capturar", camFermer: "Cerrar", mrzReading: "Leyendo… mantenga la tarjeta plana y nítida.",
       mrzOk: "Tarjeta leída. Verifique el nombre.", mrzKo: "No se pudo leer. Repita la foto o escríbalo a mano.",
       consentRequis: "Marque los consentimientos obligatorios antes de enviar.",
       ficheComplete: "📋 Rellenar la ficha de cliente completa →",
@@ -232,7 +244,7 @@
       lignes: ['Precio', 'Precio por m²', 'Tipo', 'Superficie habitable', 'Balcón',
                'Superficie total', 'Dormitorios', 'Baños', 'Edificio', 'Planta',
                'Orientación', 'Exposición', 'Aparcamiento', 'Disponibilidad'],
-      etage: 'Planta', rdc: 'Planta baja', dh: 'DH', aucun: '—',
+      etage: 'Planta', rdc: 'Planta baja', dh: 'DH', aucun: '—', nousConsulter: 'Consúltenos',
       disponible: 'Disponible', optionne: 'En opción', reserve: 'Reservado', vendu: 'Vendido',
       rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
       double: 'Doble orientación', angle: 'Esquina'
@@ -270,8 +282,10 @@
   // Un rendu par critère, dans l'ordre de T[lang].lignes : les libellés sont
   // traduits, seule la mise en forme de la valeur vit ici.
   var LIGNES = [
-    function (l) { return '<strong>' + montant(l.prix) + ' ' + t('dh') + '</strong>'; },
-    function (l) { return montant(l.prix_m2) + ' ' + t('dh'); },
+    function (l) {
+      return '<strong>' + (l.prix != null ? montant(l.prix) + ' ' + t('dh') : t('nousConsulter')) + '</strong>';
+    },
+    function (l) { return l.prix_m2 != null ? montant(l.prix_m2) + ' ' + t('dh') : t('nousConsulter'); },
     function (l) { return l.typologie.toUpperCase(); },
     function (l) { return l.surface + ' m²'; },
     function (l) { return l.balcon > 0 ? l.balcon + ' m²' : t('aucun'); },
@@ -294,6 +308,8 @@
   function meilleur(cle, lots) {
     var vals = lots.map(function (l) { return l[cle]; });
     if (vals.length < 2) return -1;
+    // Prix masques (projet « nous consulter ») : aucune valeur a mettre en avant.
+    if (vals.some(function (v) { return v == null; })) return -1;
     if (cle === 'prix' || cle === 'prix_m2') return vals.indexOf(Math.min.apply(null, vals));
     return vals.indexOf(Math.max.apply(null, vals));
   }
@@ -398,12 +414,58 @@
       if (box) box.style.display = 'none';
       return;
     }
+    /* « Photographier » ouvre l'appareil photo arrière du téléphone,
+       « Importer » ouvre la galerie ou le disque. Les deux alimentent le même
+       champ, donc la même lecture juste dessous. */
+    var cam = $('#njMrzCam');
+    var pick = $('#njMrzPick');
+    /* Le moteur d'OCR se télécharge dès le clic, pendant que l'appareil photo
+       est ouvert : la lecture peut ainsi commencer dès le retour de la photo. */
+    var precharge = function () {
+      if (window.NarjissCIN && window.NarjissCIN.precharger) {
+        try { window.NarjissCIN.precharger().catch(function () {}); } catch (e) {}
+      }
+    };
+    if (cam) cam.addEventListener('click', function () {
+      precharge();
+      input.setAttribute('capture', 'environment');
+      input.click();
+    });
+    if (pick) pick.addEventListener('click', function () {
+      precharge();
+      input.removeAttribute('capture');
+      input.click();
+    });
+
     input.addEventListener('change', function () {
       var file = this.files && this.files[0];
       var self = this;
       if (!file) return;
+      lireCarte(file).then(function () { self.value = ''; });  // reprise immédiate
+    });
+
+    /* Vue caméra avec cadre de visée. Elle n'apparaît que si le navigateur
+       sait ouvrir une caméra — sur le poste du bureau de vente comme sur le
+       téléphone. Le cadre garantit que la bande de lettres occupe l'image,
+       là où une photo de la scène entière la laissait trop petite pour être
+       lue. */
+    var live = $('#njMrzLive');
+    if (live && window.NarjissCIN.cameraDisponible && window.NarjissCIN.cameraDisponible()) {
+      live.hidden = false;
+      live.addEventListener('click', async function () {
+        precharge();                       // le moteur se charge pendant le cadrage
+        var image = await window.NarjissCIN.ouvrirCamera({
+          titre: t('camTitre'), aide: t('camAide'),
+          capturer: t('camCapturer'), fermer: t('camFermer')
+        });
+        if (image) await lireCarte(image);
+      });
+    }
+
+    /** Lecture d'une image de carte, fichier choisi ou capture caméra. */
+    function lireCarte(source) {
       setStatutMrz('', t('mrzReading'));
-      window.NarjissCIN.scanFile(file).then(function (p) {
+      return window.NarjissCIN.scanFile(source).then(function (p) {
         if (!p) { setStatutMrz('ko', t('mrzKo')); return; }
         // On ne remplit que si le champ est vide : jamais écraser une saisie.
         var nom = $('#fNom'), pre = $('#fPrenom');
@@ -412,8 +474,8 @@
         setStatutMrz('ok', t('mrzOk'));
       }).catch(function () {
         setStatutMrz('ko', t('mrzKo'));
-      }).then(function () { self.value = ''; });   // reprise immédiate possible
-    });
+      });
+    }
   }
 
   /* ── Consentements : l'envoi n'est possible qu'une fois tous cochés ────── */
@@ -547,6 +609,8 @@
     texte('lblMrzTitre', t('mrzTitre'));
     texte('lblMrzAide', t('mrzAide'));
     texte('lblMrzBtn', t('mrzBtn'));
+    texte('lblMrzCam', t('mrzCam'));
+    texte('lblMrzLive', t('mrzLive'));
     texte('njFicheComplete', t('ficheComplete'));
     texte('njFicheAide', t('ficheCompleteAide'));
     texte('njEnvoyer', t('envoyer'));
