@@ -2486,6 +2486,37 @@
       sonde.src = projectFloorPlan(project);
     }
 
+    /* Les visites virtuelles sont des dossiers entiers exportés par 3DVista,
+       déclarés dans projects.json et déployés à part. Qu'un dossier manque —
+       pas encore livré, pas encore envoyé sur le serveur — et l'iframe
+       affichait la page d'erreur du serveur EN PLEIN MILIEU de la fiche :
+       « Not Found — Apache/2.4.58 Server at… », vu par le client.
+       On sonde donc l'adresse avant de la croire, comme le fait déjà l'onglet
+       du plan de masse juste au-dessus. Une visite absente retire son onglet
+       plutôt que d'exposer les entrailles du serveur. */
+    function sonderVisite(tab, url, estAffichee) {
+      var onglet = document.querySelector('.hero-tab[data-tab="' + tab + '"]');
+      if (!onglet || !url) return;
+      fetch(versionne(url), { method: 'HEAD', cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); })
+        .catch(function () {
+          if (onglet.parentNode) onglet.parentNode.removeChild(onglet);
+          // Si la visite manquante est justement celle qu'on montre, la scène
+          // repart sur le premier onglet restant — sinon elle garderait la
+          // page d'erreur à l'écran.
+          if (!estAffichee()) return;
+          var reste = document.querySelector('.hero-tab');
+          if (reste) reste.click();
+          else stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>';
+        });
+    }
+    function ongletActif(tab) {
+      return function () {
+        var a = document.querySelector('.hero-tab.active');
+        return !!a && a.getAttribute('data-tab') === tab;
+      };
+    }
+
     // On ouvre sur le média le plus parlant disponible ; s'il n'y en a aucun,
     // la scène annonce que les images arrivent, au lieu d'un cadre vide.
     if (panos.length) { markTab("p360"); show360(0); }
@@ -2494,6 +2525,9 @@
     else if (project.plan_architecte_url) { markTab("plan-arch"); showPlanImage(project.plan_architecte_url); }
     else if (project.plan_visuel_url) { markTab("plan-vis"); showPlanImage(project.plan_visuel_url); }
     else { markTab("plan"); showPlan(); }
+
+    sonderVisite("tour", project.tour_url, ongletActif("tour"));
+    sonderVisite("apartment", project.apartment_tour_url, ongletActif("apartment"));
   }
 
   function renderProject(lang) {
