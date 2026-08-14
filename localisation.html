@@ -180,15 +180,18 @@ html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
 .poi-control-row label {
   color: var(--muted); font-size: .68rem; letter-spacing: 1px; text-transform: uppercase;
 }
+/* Listes déroulantes et tri : lisibles de loin. À .78rem, les intitulés des
+   combos (catégorie, distance, point) tombaient sous la taille du reste de la
+   barre — la bascule Quartier/Repères est à .84rem juste à côté. */
 .poi-sort,
 .poi-filter {
   border: 1px solid rgba(17,24,39,.12); background: var(--surface-2); color: var(--ink);
-  border-radius: 7px; padding: .45rem .7rem; font: inherit; font-size: .78rem;
-  min-height: 36px;
+  border-radius: 7px; padding: .45rem .75rem; font: inherit; font-size: .92rem;
+  min-height: 40px;
 }
 .poi-sort { cursor: pointer; }
 .poi-sort.active { background: var(--gold); border-color: var(--gold); color: white; font-weight: 800; }
-.poi-filter option { background: var(--smoke); color: var(--ink); }
+.poi-filter option { background: var(--smoke); color: var(--ink); font-size: .92rem; }
 
 .poi-category { border-bottom: 1px solid rgba(17,24,39,.08); }
 .poi-category-btn {
@@ -415,6 +418,13 @@ html[dir=rtl] .poi-item { text-align: right; }
    catégories, juste au-dessus, et mangerait la moitié du cadre. */
 .nj-embed .poi-summary { display: none; }
 .nj-embed .loc-barre { padding: .6rem .9rem; border-bottom: 1px solid rgba(17,24,39,.08); }
+/* Cadre embarqué : la carte est projetée sur un grand écran et regardée à
+   distance. Les commandes y gagnent un cran de plus que dans la page. */
+.nj-embed .poi-sort,
+.nj-embed .poi-filter { font-size: 1rem; min-height: 42px; }
+.nj-embed .poi-filter option { font-size: 1rem; }
+.nj-embed #poiControles .poi-filter { max-width: 18rem; }
+.nj-embed .poi-jeu { font-size: .95rem; min-height: 42px; }
 .nj-embed #projectMap { height: 100%; min-height: 0; }
 @media (max-width: 900px) {
   /* Même en cadre étroit, la carte garde la hauteur restante. */

@@ -816,15 +816,19 @@ html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
   letter-spacing: 1px;
   text-transform: uppercase;
 }
+/* Listes déroulantes et tri : lisibles de loin. À .72rem, les intitulés des
+   combos tombaient bien sous la bascule Quartier/Repères (.84rem) placée juste
+   à côté dans la même barre. */
 .poi-sort,
 .poi-filter {
   border: 1px solid rgba(17,24,39,.12);
   background: var(--surface-2);
   color: var(--ink);
   border-radius: 7px;
-  padding: .28rem .55rem;
+  padding: .42rem .7rem;
   font: inherit;
-  font-size: .72rem;
+  font-size: .92rem;
+  min-height: 40px;
 }
 .poi-sort {
   cursor: pointer;
@@ -838,6 +842,7 @@ html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
 .poi-filter option {
   background: var(--smoke);
   color: var(--ink);
+  font-size: .92rem;
 }
 .poi-category {
   border-bottom: 1px solid rgba(17,24,39,.08);
