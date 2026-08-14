@@ -1661,22 +1661,54 @@
       var r = svg.getBoundingClientRect();
       return (r.width > 1 && r.height > 1) ? r.height / r.width : HAUT / LARG;
     }
-    function largeurMax() { return Math.min(LARG, HAUT / ratioEcran()); }
+    /* Cadrage d'ouverture : « cover ». */
+    function largeurCouvrante() { return Math.min(LARG, HAUT / ratioEcran()); }
     function cadrageEntier() {
-      var w = largeurMax(), h = w * ratioEcran();
+      var w = largeurCouvrante(), h = w * ratioEcran();
       return { x: (LARG - w) / 2, y: (HAUT - h) / 2, w: w, h: h };
     }
+    /* Limite du dézoom : « contain », soit la fenêtre de l'aspect courant qui
+       CONTIENT toute l'image. Elle peut être plus large que l'image — le plan
+       s'affiche alors avec des bandes vides sur les côtés, et c'est le prix à
+       payer pour le voir en entier.
+
+       C'est ici que se jouait le blocage signalé en paysage : la limite était
+       la même que le cadrage d'ouverture (« cover »). Sur un panneau large et
+       bas — plein écran ou mode scène sur un téléphone couché — ce cadrage ne
+       montre que la bande centrale du plan (55 % de sa hauteur, mesuré sur
+       Jawhara). Le reste des lots était hors de vue, sans aucun moyen d'y
+       aller : dézoomer était refusé par cette borne, et le glissement l'était
+       par sa propre garde, qui ne regardait que la largeur. */
+    function largeurContenante() { return Math.max(LARG, HAUT / ratioEcran()); }
+    /* Vrai dès qu'une partie de l'image est hors du cadre : c'est la condition
+       du glissement. Regarder la seule largeur laissait le plan immobile alors
+       qu'il débordait en hauteur. */
+    function deborde() { return vue.w < LARG - .5 || vue.h < HAUT - .5; }
 
     // Redondant avec la feuille de style, mais posé aussi ici : si la règle
     // CSS ne s'applique pas, le navigateur s'approprie le pincement et nos
     // gestes ne voient jamais le second doigt.
     svg.style.touchAction = 'none';
 
+    /* Safari sur iPhone ne renonce pas au zoom de PAGE pour un touch-action :
+       il annonce le pincement par ses propres événements « gesture », et si
+       personne ne les refuse, c'est toute la page qui grossit — le plan, lui,
+       n'a pas bougé d'un pixel. Les refuser ici rend le pincement à nos
+       gestionnaires tactiles. Ailleurs, ces événements n'existent pas. */
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (nom) {
+      svg.addEventListener(nom, function (e) { e.preventDefault(); }, { passive: false });
+    });
+
     function appliquer() {
-      vue.w = Math.max(LARG / ZOOM_MAX, Math.min(largeurMax(), vue.w));
+      vue.w = Math.max(LARG / ZOOM_MAX, Math.min(largeurContenante(), vue.w));
       vue.h = vue.w * ratioEcran();
-      vue.x = Math.max(0, Math.min(LARG - vue.w, vue.x));
-      vue.y = Math.max(0, Math.min(HAUT - vue.h, vue.y));
+      /* Tant que le cadre est plus petit que l'image, il reste dedans. Une
+         fois plus grand — dézoom maximal — le borner à 0 collerait le plan en
+         haut à gauche : on le centre. */
+      vue.x = vue.w >= LARG ? (LARG - vue.w) / 2
+                            : Math.max(0, Math.min(LARG - vue.w, vue.x));
+      vue.y = vue.h >= HAUT ? (HAUT - vue.h) / 2
+                            : Math.max(0, Math.min(HAUT - vue.h, vue.y));
       svg.setAttribute('viewBox', vue.x + ' ' + vue.y + ' ' + vue.w + ' ' + vue.h);
     }
     function versImage(clientX, clientY) {
@@ -1730,7 +1762,7 @@
       var t = e.touches;
       if (pince && t.length >= 2) {
         var ratio = ecart(t) / pince.d;
-        var w = Math.max(LARG / ZOOM_MAX, Math.min(largeurMax(), pince.w / ratio));
+        var w = Math.max(LARG / ZOOM_MAX, Math.min(largeurContenante(), pince.w / ratio));
         var h = w * ratioEcran();
         // Recalculé depuis l'instantané de départ, jamais de proche en
         // proche : sinon les arrondis font dériver le plan sous les doigts.
@@ -1741,10 +1773,10 @@
         e.preventDefault();
         return;
       }
-      if (glisse && t.length === 1 && vue.w < LARG) {
-        // Déplacement seulement une fois zoomé : au cadrage entier il n'y a
-        // rien à faire glisser, et un glissement parasite empêcherait de
-        // choisir un logement d'une simple touche.
+      if (glisse && t.length === 1 && deborde()) {
+        // Déplacement seulement quand une partie du plan est hors du cadre :
+        // sinon il n'y a rien à faire glisser, et un glissement parasite
+        // empêcherait de choisir un logement d'une simple touche.
         var dx = t[0].clientX - glisse.x, dy = t[0].clientY - glisse.y;
         if (!glisse.actif && Math.hypot(dx, dy) < 8) return;
         glisse.actif = true;
@@ -1782,7 +1814,7 @@
 
     svg.addEventListener('mousedown', function (e) {
       if (sourisSynthetique()) return;
-      if (e.button !== 0 || vue.w >= LARG) return;
+      if (e.button !== 0 || !deborde()) return;
       sourisDepart = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY };
     });
     window.addEventListener('mousemove', function (e) {
@@ -1799,7 +1831,7 @@
       e.preventDefault();
       var c = versImage(e.clientX, e.clientY);
       var f = e.deltaY < 0 ? 1.2 : 1 / 1.2;
-      var w = Math.max(LARG / ZOOM_MAX, Math.min(largeurMax(), vue.w / f));
+      var w = Math.max(LARG / ZOOM_MAX, Math.min(largeurContenante(), vue.w / f));
       var h = w * ratioEcran();
       vue.x = c.x - (c.x - vue.x) * (w / vue.w);
       vue.y = c.y - (c.y - vue.y) * (h / vue.h);
