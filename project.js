@@ -64,6 +64,7 @@
       sortDist: "Distance",
       allCategories: "Toutes les catégories",
       gotoPoint: "Aller à un point…",
+      popupZoom: "Zoomer", popupTrace: "Trajet",
       sortName: "Nom",
       filterMax: "Filtre",
       allDistances: "Toutes",
@@ -136,6 +137,7 @@
       sortDist: "Distance",
       allCategories: "All categories",
       gotoPoint: "Go to a place…",
+      popupZoom: "Zoom in", popupTrace: "Route",
       sortName: "Name",
       filterMax: "Filter",
       allDistances: "All",
@@ -208,6 +210,7 @@
       sortDist: "المسافة",
       allCategories: "كل الفئات",
       gotoPoint: "الانتقال إلى نقطة…",
+      popupZoom: "تكبير", popupTrace: "المسار",
       sortName: "الاسم",
       filterMax: "تصفية",
       allDistances: "الكل",
@@ -280,6 +283,7 @@
       sortDist: "Distancia",
       allCategories: "Todas las categorías",
       gotoPoint: "Ir a un punto…",
+      popupZoom: "Acercar", popupTrace: "Trayecto",
       sortName: "Nombre",
       filterMax: "Filtro",
       allDistances: "Todas",
@@ -805,6 +809,13 @@
 
   function distanceMeta(poi, t) {
     if (!poi._distance) return "";
+    /* Sur un repere, seule la voiture a un sens : annoncer « 135 min a pied »
+       pour le stade Adrar a 10,8 km decredibilise le reste des chiffres. Le
+       quartier, lui, se juge d'abord au temps de marche. Meme regle que sur la
+       page Localisation, qui porte la meme carte. */
+    if (modeJeu === 'reperes') {
+      return formatDistance(poi._distance) + " · " + poi._driving + " min " + t.drive;
+    }
     return formatDistance(poi._distance) + " · " + poi._walking + " min " + t.walk + " · " + poi._driving + " min " + t.drive;
   }
 
@@ -916,7 +927,7 @@
     return '<span class="poi-legend-marker" style="background:' + style.color + '">' + poiIconSvg(style.icon) + '</span>';
   }
 
-  function makePopup(poi, lang) {
+  function makePopup(poi, lang, index) {
     var t = PAGE_UI[lang];
     var cat = poi.cat === "home" ? t.yourResidence : categoryLabel(poi.cat, lang);
     var note = poi.note ? '<div class="popup-meta">★ ' + t.rating + ' ' + poi.note + (poi.avis ? ' · ' + poi.avis + ' ' + t.reviews : '') + '</div>' : "";
@@ -928,11 +939,21 @@
     var distance = poi.cat !== "home" && poi._distance
       ? '<div class="popup-meta popup-distance">📏 ' + distanceMeta(poi, t) + '</div>'
       : "";
+    /* Mêmes deux actions que sur la page Localisation : s'approcher du point,
+       et voir ce qui le sépare de la résidence. La fiche projet montre la même
+       carte — le visiteur n'a pas à changer de page pour retrouver le geste. */
+    var actions = "";
+    if (poi.cat !== "home" && typeof index === "number") {
+      actions = '<div class="popup-actions">' +
+        '<button type="button" class="popup-action" data-zoom="' + index + '">⌖ ' + t.popupZoom + '</button>' +
+        '<button type="button" class="popup-action" data-trace="' + index + '">↝ ' + t.popupTrace + '</button>' +
+      '</div>';
+    }
     return '<div class="project-popup">' +
       '<div class="popup-cat">' + cat + '</div>' +
       '<div class="popup-name">' + (poi.nom || cat) + '</div>' +
       (poi.adresse ? '<div class="popup-address">📍 ' + poi.adresse + '</div>' : '') +
-      distance + note + phone + hours +
+      distance + note + phone + hours + actions +
     '</div>';
   }
 
@@ -949,6 +970,9 @@
    */
   function appliquerCategorie(cat) {
     categorieFiltre = cat || '';
+    /* Le tracé pointait vers un marqueur que le filtre vient peut-être de
+       retirer : une ligne qui ne mène plus nulle part. */
+    effacerTrace();
     var buttons = document.querySelectorAll(".poi-category-btn");
     var lists = document.querySelectorAll(".poi-list");
     for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
@@ -1029,6 +1053,91 @@
     if (!mapInstance.hasLayer(marker)) marker.addTo(mapInstance);
     mapInstance.setView(marker.getLatLng(), 17);
     marker.openPopup();
+  }
+
+  /* ── Trajet depuis la résidence ────────────────────────────────────────────
+     Repris de localisation.js, qui porte la même carte : une ligne à vol
+     d'oiseau, cohérente avec les distances Haversine affichées partout ici —
+     un itinéraire routier les contredirait. Le liseré blanc dessous garde le
+     trait lisible au-dessus d'un pâté de maisons chargé, et le pointillé de
+     l'animation est retiré dès la fin, sans quoi le vol qui suit l'étirerait
+     au-delà de la longueur mesurée et le trajet s'arrêterait en chemin. */
+  var traceCourante = null;
+  var traceLisere = null;
+
+  function effacerTrace() {
+    if (traceCourante && traceCourante.njFinir) traceCourante.njFinir();
+    if (mapInstance) {
+      if (traceCourante) mapInstance.removeLayer(traceCourante);
+      if (traceLisere) mapInstance.removeLayer(traceLisere);
+    }
+    traceCourante = null;
+    traceLisere = null;
+  }
+
+  function tracerDepuisResidence(index) {
+    if (!mapInstance || !homePoi) return;
+    var poi = currentPois[index];
+    if (!poi || poi.cat === "home") return;
+    effacerTrace();
+
+    var depart = L.latLng(homePoi.lat, homePoi.lng);
+    var arrivee = L.latLng(poi.lat, poi.lng);
+    traceLisere = L.polyline([depart, arrivee], {
+      className: "nj-trace-lisere", color: "#ffffff", weight: 9, opacity: .9
+    }).addTo(mapInstance);
+    traceCourante = L.polyline([depart, arrivee], {
+      className: "nj-trace", color: "#1D4ED8", weight: 4, opacity: .95
+    }).addTo(mapInstance);
+
+    var chemin = traceCourante.getElement && traceCourante.getElement();
+    var cheminLisere = traceLisere.getElement && traceLisere.getElement();
+    if (chemin && chemin.getTotalLength) {
+      var traits = cheminLisere ? [chemin, cheminLisere] : [chemin];
+      var longueur = chemin.getTotalLength();
+      traits.forEach(function (tr) {
+        tr.style.setProperty("--nj-longueur", longueur);
+        tr.classList.add("nj-trace-anime");
+      });
+      var finir = function () {
+        chemin.removeEventListener("animationend", finir);
+        if (mapInstance) mapInstance.off("zoomend moveend", finir);
+        traits.forEach(function (tr) {
+          tr.classList.remove("nj-trace-anime");
+          tr.style.removeProperty("--nj-longueur");
+          tr.style.strokeDasharray = "none";
+          tr.style.strokeDashoffset = "0";
+        });
+      };
+      chemin.addEventListener("animationend", finir);
+      mapInstance.on("zoomend moveend", finir);
+      traceCourante.njFinir = finir;
+      window.setTimeout(finir, 1600);
+    }
+
+    // Un point du quartier est souvent à quelques centaines de mètres : le
+    // plafond de zoom d'un repère à 12 km y laisserait le tracé minuscule.
+    var court = depart.distanceTo(arrivee) < 800;
+    mapInstance.flyToBounds(L.latLngBounds([depart, arrivee]).pad(0.25),
+      { maxZoom: court ? 17 : 16, duration: 1.1 });
+  }
+
+  /* Les boutons de l'étiquette vivent dans un fragment que Leaflet détruit et
+     reconstruit à chaque ouverture : on délègue depuis le conteneur de la
+     carte plutôt que de recâbler un écouteur à chaque popup. */
+  function brancherEtiquettes() {
+    if (!mapInstance || mapInstance._njEtiquettes) return;
+    mapInstance._njEtiquettes = true;
+    mapInstance.getContainer().addEventListener("click", function (e) {
+      var zoom = e.target.closest("[data-zoom]");
+      if (zoom) {
+        var mz = markerMap[parseInt(zoom.getAttribute("data-zoom"), 10)];
+        if (mz) mapInstance.flyTo(mz.getLatLng(), 17, { duration: 1 });
+        return;
+      }
+      var trace = e.target.closest("[data-trace]");
+      if (trace) tracerDepuisResidence(parseInt(trace.getAttribute("data-trace"), 10));
+    });
   }
 
   function showMajorRoute(index) {
@@ -1354,6 +1463,9 @@
 
   function renderPois(project, pois, lang) {
     if (!mapInstance || !window.L) return;
+    brancherEtiquettes();
+    // Le trajet visait un marqueur que ce rendu vient peut-être de retirer.
+    effacerTrace();
     for (var i = 0; i < mapMarkers.length; i++) mapInstance.removeLayer(mapMarkers[i]);
     mapMarkers = [];
     markerMap = {};
@@ -1408,7 +1520,7 @@
       var marker = L.marker([poi.lat, poi.lng], {
         icon: makeIcon(poi, isHome),
         zIndexOffset: isHome ? 1000 : 0
-      }).bindPopup(makePopup(poi, lang));
+      }).bindPopup(makePopup(poi, lang, j));
       if (isHome) {
         marker.on("mouseover", function() {
           this.openPopup();
