@@ -3,6 +3,12 @@
    Utilisé par toutes les pages du site Narjiss
    ============================================================ */
 
+/* Couleurs des statuts de lot : source unique, partagée avec le back-office
+   qui la charge de son côté. Importée ici plutôt que recopiée, pour que le
+   site et l'admin ne puissent pas diverger. (Un @import doit précéder toute
+   règle : ne rien insérer au-dessus.) */
+@import url("statuts-lots.css?v=1");
+
 :root {
   color-scheme: light;
   /* Couleurs de marque */
@@ -59,18 +65,8 @@
      est écrite en dur car --charcoal s'inverse en thème nocturne. */
   --footer-bg: #1F2430;
 
-  /* Statuts de lot du parcours client — memes reperes que la grille Excel
-     du bureau de vente et que le back-office. */
-  --lot-dispo: #1F6F55;
-  --lot-dispo-bg: rgba(31, 111, 85, .12);
-  --lot-optionne: #8A4E0D;
-  --lot-optionne-bg: rgba(189, 107, 22, .14);
-  --lot-reserve: #7F4415;
-  --lot-reserve-bg: rgba(162, 85, 26, .14);
-  --lot-vendu: #5A6272;
-  --lot-vendu-bg: rgba(0, 0, 0, .07);
-  --lot-vendu-opacite: .62;
-  --lot-mieux-bg: rgba(31, 111, 85, .09);
+  /* Les statuts de lot (--lot-*) vivent dans statuts-lots.css, importé plus
+     haut : même palette pour le site et le back-office. */
   --danger: #B02A2A;
   --danger-bg: rgba(176, 42, 42, .08);
   --wa: #25D366;
@@ -110,16 +106,7 @@
   --dropdown-bg: #171C26;
   --footer-bg: #0d1017;
 
-  --lot-dispo: #55D6A8;
-  --lot-dispo-bg: rgba(85, 214, 168, .15);
-  --lot-optionne: #FFB25C;
-  --lot-optionne-bg: rgba(255, 178, 92, .16);
-  --lot-reserve: #FF9A6B;
-  --lot-reserve-bg: rgba(255, 154, 107, .16);
-  --lot-vendu: #8A94A6;
-  --lot-vendu-bg: rgba(255, 255, 255, .07);
-  --lot-vendu-opacite: .55;
-  --lot-mieux-bg: rgba(85, 214, 168, .13);
+  /* Statuts de lot en nocturne : voir statuts-lots.css. */
   --danger: #FF8080;
   --danger-bg: rgba(255, 128, 128, .13);
   --wa: #25D366;

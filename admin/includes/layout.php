@@ -12,7 +12,11 @@ function admin_header(string $title): void
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noindex, nofollow">
         <title><?= htmlspecialchars($title) ?> - Narjiss Admin</title>
-        <link rel="stylesheet" href="assets/admin.css?v=3">
+        <?php /* Couleurs des statuts de lot : le même fichier que le site public,
+                 pour que la grille du back-office et le plan vu par le client ne
+                 puissent pas se contredire. Chargé avant admin.css, qui s'en sert. */ ?>
+        <link rel="stylesheet" href="../shared/statuts-lots.css?v=1">
+        <link rel="stylesheet" href="assets/admin.css?v=4">
     </head>
     <body>
     <header class="topbar">

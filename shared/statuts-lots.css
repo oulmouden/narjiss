@@ -1,0 +1,70 @@
+/* ============================================================
+   COULEURS DES STATUTS DE LOT — source unique
+   ============================================================
+   Les quatre statuts d'un lot (disponible, optionné, réservé, vendu) sont
+   montrés au visiteur ET au bureau de vente sur des supports très différents :
+   la maquette SVG, la liste, le plan d'étage, la sélection du client, les
+   badges du back-office, l'éditeur de zones. Un même statut doit y porter
+   exactement la même couleur, sinon le chef de vente lit un plan et une grille
+   qui se contredisent.
+
+   Ce fichier est le SEUL endroit où ces couleurs sont écrites. Pour changer la
+   charte des statuts, il suffit d'y toucher :
+   - le site public le reçoit via un @import en tête de shared/menu.css ;
+   - le back-office via le <link> de admin/includes/layout.php ;
+   - l'éditeur de zones (admin/plan-zones.php) les relit sur :root en JS.
+   Penser à bumper le ?v= des deux points d'entrée après modification.
+
+   CHOIX DES TEINTES
+   L'ancien couple optionné (#8A4E0D) / réservé (#7F4415) était deux bruns à
+   7° de teinte l'un de l'autre : sur un plan d'étage, à la taille d'un carreau
+   de 20 px, plus personne ne les distinguait. Les quatre statuts sont
+   désormais posés sur des familles franchement séparées :
+
+     disponible  vert    — libre, on peut le vendre
+     optionné    ambre   — en cours, réversible
+     réservé     bleu    — engagé, plus proposable
+     vendu       gris    — sorti du jeu (et atténué par --lot-vendu-opacite)
+
+   Le bleu plutôt qu'un rouge pour « réservé » : rouge et vert sont la paire
+   que confondent les daltonismes les plus répandus (deutéranopie,
+   protanopie), or « disponible ou non » est justement la distinction qu'on ne
+   peut pas se permettre de rater. Vert / ambre / bleu / gris restent lisibles
+   dans les trois formes courantes de daltonisme, et se séparent aussi par la
+   clarté — donc même sur une impression en noir et blanc du plan.
+   ============================================================ */
+
+:root {
+  /* Clair : couleur du texte et du trait, puis l'aplat de fond. */
+  --lot-dispo: #1F6F55;
+  --lot-dispo-bg: rgba(31, 111, 85, .12);
+  /* Ambre volontairement sombre : à #A86A00 le texte du badge tombait à 4,4:1
+     sur blanc, sous le seuil AA. Ici 5:1, et l'aplat de fond reste franc. */
+  --lot-optionne: #9E6300;
+  --lot-optionne-bg: rgba(199, 130, 12, .16);
+  --lot-reserve: #1C5FA8;
+  --lot-reserve-bg: rgba(28, 95, 168, .14);
+  --lot-vendu: #5A6272;
+  --lot-vendu-bg: rgba(0, 0, 0, .07);
+  /* Un lot vendu ne se compare plus : il s'efface sans disparaître. */
+  --lot-vendu-opacite: .62;
+  /* Fond du lot mis en avant comme « meilleur choix » dans le parcours. */
+  --lot-mieux-bg: rgba(31, 111, 85, .09);
+}
+
+/* Nocturne : mêmes familles, remontées en clarté pour tenir sur fond sombre.
+   Ne s'applique que sur choix explicite (bouton 🌙 du menu) — voir la note du
+   thème dans menu.css. Le back-office, qui ne pose jamais data-theme, garde
+   donc la palette claire. */
+:root[data-theme="dark"] {
+  --lot-dispo: #55D6A8;
+  --lot-dispo-bg: rgba(85, 214, 168, .15);
+  --lot-optionne: #FFB74D;
+  --lot-optionne-bg: rgba(255, 183, 77, .16);
+  --lot-reserve: #6FB7FF;
+  --lot-reserve-bg: rgba(111, 183, 255, .16);
+  --lot-vendu: #8A94A6;
+  --lot-vendu-bg: rgba(255, 255, 255, .07);
+  --lot-vendu-opacite: .55;
+  --lot-mieux-bg: rgba(85, 214, 168, .13);
+}

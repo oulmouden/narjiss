@@ -264,26 +264,29 @@ textarea {
   background: rgba(189, 107, 22, 0.1);
 }
 
-/* Statuts de lot : mêmes couleurs que la grille Excel du bureau de vente,
-   pour que le chef de vente retrouve ses repères d'un support à l'autre. */
+/* Statuts de lot : les couleurs viennent de shared/statuts-lots.css, chargé
+   juste avant par layout.php. Le chef de vente retrouve ainsi exactement les
+   repères du plan que voit le client. Les valeurs de repli servent aux pages
+   admin qui n'auraient pas le fichier (cas de figure à corriger, pas à
+   maquiller : elles restent les mêmes teintes). */
 .badge.lot-disponible {
-  color: var(--green);
-  background: rgba(31, 111, 85, 0.1);
+  color: var(--lot-dispo, #1f6f55);
+  background: var(--lot-dispo-bg, rgba(31, 111, 85, 0.12));
 }
 
 .badge.lot-optionne {
-  color: var(--ochre);
-  background: rgba(189, 107, 22, 0.12);
+  color: var(--lot-optionne, #9e6300);
+  background: var(--lot-optionne-bg, rgba(199, 130, 12, 0.16));
 }
 
 .badge.lot-reserve {
-  color: #a2551a;
-  background: rgba(214, 132, 48, 0.16);
+  color: var(--lot-reserve, #1c5fa8);
+  background: var(--lot-reserve-bg, rgba(28, 95, 168, 0.14));
 }
 
 .badge.lot-vendu {
   color: var(--muted);
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--lot-vendu-bg, rgba(0, 0, 0, 0.07));
 }
 
 .badge.lot-bloque {

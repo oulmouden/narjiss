@@ -319,9 +319,22 @@ admin_header('Zones des plans');
     catch (e) { /* quota / mode privé : on ignore silencieusement */ }
   }
 
+  /* Couleurs des statuts : relues sur :root, donc celles de
+     shared/statuts-lots.css — les contours tracés ici ont exactement la teinte
+     que le client verra sur le plan. Cet éditeur avait sa propre palette, où
+     « vendu » était rouge et « réservé » bleu : de quoi lire un statut pour un
+     autre en passant d'un écran à l'autre. Repli sur les mêmes valeurs si la
+     feuille manque. */
+  function jeton(nom, repli) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(nom).trim();
+    return v || repli;
+  }
   var COULEUR = {
-    disponible: '#00a06e', optionne: '#e08a00', reserve: '#2f6fd0',
-    vendu: '#d0342c', bloque: '#8b93a3'
+    disponible: jeton('--lot-dispo', '#1f6f55'),
+    optionne:   jeton('--lot-optionne', '#9e6300'),
+    reserve:    jeton('--lot-reserve', '#1c5fa8'),
+    vendu:      jeton('--lot-vendu', '#5a6272'),
+    bloque:     '#8b93a3'
   };
 
   var parNumero = {};

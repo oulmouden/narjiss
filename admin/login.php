@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>Connexion - Narjiss Admin</title>
-    <link rel="stylesheet" href="assets/admin.css?v=3">
+    <link rel="stylesheet" href="assets/admin.css?v=4">
 </head>
 <body>
 <main class="login">
