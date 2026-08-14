@@ -466,15 +466,16 @@
       : '';
     var hours = poi.horaires ? '<div class="popup-meta">' + poi.horaires + '</div>' : '';
     /* Actions dans l'étiquette : le visiteur qui vient d'ouvrir un point veut
-       souvent s'en approcher, et sur un repère, voir ce qui le sépare de la
-       résidence. Les mettre ici évite de repartir chercher la liste. */
+       souvent s'en approcher, et voir ce qui le sépare de la résidence. Les
+       mettre ici évite de repartir chercher la liste.
+       Le trajet vaut pour les deux jeux : « à 4 min à pied » ne dit pas dans
+       quelle direction, et c'est précisément la question devant un plan de
+       quartier. Le tracé, lui, le montre. */
     var actions = '';
     if (poi.cat !== 'home' && typeof index === 'number') {
       actions = '<div class="popup-actions">' +
         '<button type="button" class="popup-action" data-zoom="' + index + '">⌖ ' + u.popupZoom + '</button>' +
-        (modeListe === 'reperes'
-          ? '<button type="button" class="popup-action" data-trace="' + index + '">↝ ' + u.popupTrace + '</button>'
-          : '') +
+        '<button type="button" class="popup-action" data-trace="' + index + '">↝ ' + u.popupTrace + '</button>' +
       '</div>';
     }
     return '<div class="project-popup">' +
@@ -485,11 +486,14 @@
     '</div>';
   }
 
-  /* ── Trajet vers un repère ─────────────────────────────────────────────────
+  /* ── Trajet depuis la résidence ────────────────────────────────────────────
      Une ligne à vol d'oiseau, tracée sous les yeux du visiteur. Pas de calcul
      d'itinéraire routier : les distances affichées partout sur cette page sont
      déjà des distances directes (Haversine), une route sinueuse les
-     contredirait. La ligne dit exactement ce que dit le chiffre. */
+     contredirait. La ligne dit exactement ce que dit le chiffre.
+     Vaut pour les deux jeux : sur un repère elle situe la ville, sur un point
+     du quartier elle répond à « de quel côté ? », que « 4 min à pied » laisse
+     entier. */
 
   var traceCourante = null;
 
@@ -498,7 +502,7 @@
     traceCourante = null;
   }
 
-  function tracerVersRepere(index) {
+  function tracerDepuisResidence(index) {
     if (!mapInstance || !homePoi) return;
     var poi = currentPois[index];
     if (!poi || poi.cat === 'home') return;
@@ -520,9 +524,13 @@
       chemin.classList.add('nj-trace-anime');
     }
 
-    // Les deux extrémités visibles : le trajet n'a de sens qu'entier.
+    /* Les deux extrémités visibles : le trajet n'a de sens qu'entier. Un point
+       du quartier est souvent à quelques centaines de mètres : plafonner à 16
+       comme pour un repère à 12 km laisserait alors le tracé minuscule au
+       centre d'un cadre trop large. */
+    var court = depart.distanceTo(arrivee) < 800;
     mapInstance.flyToBounds(L.latLngBounds([depart, arrivee]).pad(0.25),
-      { maxZoom: 16, duration: 1.1 });
+      { maxZoom: court ? 17 : 16, duration: 1.1 });
   }
 
   /** Ouvrir une catégorie n'affiche que ses marqueurs ; la refermer les rend tous. */
@@ -541,6 +549,9 @@
    */
   function appliquerCategorie(cat) {
     categorieFiltre = cat || '';
+    /* Le tracé pointait vers un marqueur que le filtre vient peut-être de
+       retirer : une ligne qui ne mène plus nulle part. */
+    effacerTrace();
 
     var buttons = document.querySelectorAll('.poi-category-btn');
     var lists = document.querySelectorAll('.poi-list');
@@ -585,7 +596,7 @@
        contraire perdre la résidence de vue. */
     if (modeListe === 'reperes') {
       marker.openPopup();
-      tracerVersRepere(index);
+      tracerDepuisResidence(index);
       return;
     }
     mapInstance.setView(marker.getLatLng(), 17);
@@ -1032,7 +1043,7 @@
         return;
       }
       var trace = e.target.closest('[data-trace]');
-      if (trace) tracerVersRepere(parseInt(trace.getAttribute('data-trace'), 10));
+      if (trace) tracerDepuisResidence(parseInt(trace.getAttribute('data-trace'), 10));
     });
 
     var summary = document.getElementById('poiSummary');
