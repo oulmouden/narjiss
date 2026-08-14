@@ -504,11 +504,16 @@
      entier. */
 
   var traceCourante = null;
+  var traceLisere = null;
 
   function effacerTrace() {
     if (traceCourante && traceCourante.njFinir) traceCourante.njFinir();
-    if (traceCourante && mapInstance) mapInstance.removeLayer(traceCourante);
+    if (mapInstance) {
+      if (traceCourante) mapInstance.removeLayer(traceCourante);
+      if (traceLisere) mapInstance.removeLayer(traceLisere);
+    }
     traceCourante = null;
+    traceLisere = null;
   }
 
   function tracerDepuisResidence(index) {
@@ -519,8 +524,17 @@
 
     var depart = L.latLng(homePoi.lat, homePoi.lng);
     var arrivee = L.latLng(poi.lat, poi.lng);
+    /* Deux traits superposés : un liseré large posé en premier — donc dessous
+       — puis le trajet par-dessus. C'est ce que font les applications
+       d'itinéraire : au-dessus d'un pâté de maisons chargé, un trait seul se
+       perd dans le détail du plan, quelle que soit sa couleur. Les teintes
+       viennent de la feuille de style (--nj-trajet) ; celles passées ici ne
+       servent que de repli. */
+    traceLisere = L.polyline([depart, arrivee], {
+      className: 'nj-trace-lisere', color: '#ffffff', weight: 9, opacity: .9
+    }).addTo(mapInstance);
     traceCourante = L.polyline([depart, arrivee], {
-      className: 'nj-trace', color: '#c15a00', weight: 4, opacity: .95
+      className: 'nj-trace', color: '#1D4ED8', weight: 4, opacity: .95
     }).addTo(mapInstance);
 
     /* L'animation part de la longueur réelle du tracé, connue seulement une
@@ -535,18 +549,26 @@
        que le dessin est fini, ou dès que la carte bouge — le pointillé n'avait
        de raison d'être que pendant l'animation. */
     var chemin = traceCourante.getElement && traceCourante.getElement();
+    var cheminLisere = traceLisere.getElement && traceLisere.getElement();
     if (chemin && chemin.getTotalLength) {
+      // Le liseré se dessine avec le trajet, sinon il le précèderait d'un
+      // trait blanc annonçant le chemin avant qu'il n'existe.
+      var traits = cheminLisere ? [chemin, cheminLisere] : [chemin];
       var longueur = chemin.getTotalLength();
-      chemin.style.setProperty('--nj-longueur', longueur);
-      chemin.classList.add('nj-trace-anime');
+      traits.forEach(function (t) {
+        t.style.setProperty('--nj-longueur', longueur);
+        t.classList.add('nj-trace-anime');
+      });
 
       var finir = function () {
         chemin.removeEventListener('animationend', finir);
         if (mapInstance) mapInstance.off('zoomend moveend', finir);
-        chemin.classList.remove('nj-trace-anime');
-        chemin.style.removeProperty('--nj-longueur');
-        chemin.style.strokeDasharray = 'none';
-        chemin.style.strokeDashoffset = '0';
+        traits.forEach(function (t) {
+          t.classList.remove('nj-trace-anime');
+          t.style.removeProperty('--nj-longueur');
+          t.style.strokeDasharray = 'none';
+          t.style.strokeDashoffset = '0';
+        });
       };
       chemin.addEventListener('animationend', finir);
       mapInstance.on('zoomend moveend', finir);

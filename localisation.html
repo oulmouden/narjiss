@@ -331,7 +331,24 @@ html[dir=rtl] .poi-item { text-align: right; }
    Le tracé se dessine sous les yeux du visiteur. L'animation porte sur
    stroke-dashoffset, avec la longueur réelle du chemin publiée par le script :
    c'est le navigateur qui dessine, sans minuterie à entretenir. */
-.nj-trace { stroke-linecap: round; }
+/* Couleur du trajet — à changer ICI, et nulle part ailleurs.
+   Bleu roi plutôt que l'orange d'origine : le fond OpenStreetMap peint ses
+   routes principales en orange et en jaune (#fcd6a4, #f7fabf), si bien que le
+   trajet se confondait avec le réseau routier — la seule chose qui lui
+   ressemble sur la carte. Rien, en revanche, n'y est un bleu saturé et
+   sombre : l'eau est un bleu très pâle (#aad3df).
+   Le vert avait le même défaut que l'orange, en pire : OSM colore parcs,
+   végétation et terrains de sport en vert, et il y en a tout autour de
+   Jawhara.
+   Le liseré blanc dessous fait le reste : au-dessus d'un pâté de maisons
+   chargé, c'est lui qui garde le trait lisible, quelle que soit la teinte. */
+:root { --nj-trajet: #1D4ED8; --nj-trajet-lisere: #ffffff; }
+:root[data-theme="dark"] { --nj-trajet: #5B8DEF; --nj-trajet-lisere: #0f131a; }
+
+/* Une règle CSS l'emporte sur l'attribut de présentation que Leaflet pose :
+   la couleur passée au script ne sert donc que de repli. */
+.nj-trace { stroke: var(--nj-trajet); stroke-linecap: round; }
+.nj-trace-lisere { stroke: var(--nj-trajet-lisere); stroke-linecap: round; }
 .nj-trace-anime {
   stroke-dasharray: var(--nj-longueur);
   stroke-dashoffset: var(--nj-longueur);
@@ -485,6 +502,6 @@ html[dir=rtl] .poi-item { text-align: right; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=23"></script>
-<script src="localisation.js?v=18"></script>
+<script src="localisation.js?v=19"></script>
 </body>
 </html>
