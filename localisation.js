@@ -659,10 +659,23 @@
     var html = '<option value="">' + (u.gotoPoint || 'Aller à un point…') + '</option>';
     for (var k = 0; k < choix.length; k++) {
       var d = choix[k].poi._walking;
-      html += '<option value="' + choix[k].idx + '">' + echapper(choix[k].poi.nom) +
-        (d ? ' — ' + d + ' ' + u.minWalk : '') + '</option>';
+      html += '<option value="' + choix[k].idx + '">' + isoler(echapper(choix[k].poi.nom)) +
+        (d ? ' — ' + isoler(d + ' ' + u.minWalk) : '') + '</option>';
     }
     return html;
+  }
+
+  /* Isole un libellé du texte qui le suit, à la manière de <bdi>.
+     Beaucoup de nos POI portent un nom bilingue qui se termine en arabe
+     (« École Salam مدرسة السلام »). Sans isolation, l'algorithme bidirectionnel
+     d'Unicode absorbe le nombre qui suit dans la portée arabe et le réaffiche à
+     sa gauche : « École Salam 1 — مدرسة السلام min à pied ». Le CSS
+     (unicode-bidi:isolate) règle le cas dans la liste dépliable, mais le texte
+     d'une <option> est dessiné par le système, hors de portée des feuilles de
+     style : il faut alors les marques Unicode elles-mêmes.
+     U+2068 FIRST STRONG ISOLATE ouvre, U+2069 POP DIRECTIONAL ISOLATE ferme. */
+  function isoler(s) {
+    return String.fromCharCode(0x2068) + s + String.fromCharCode(0x2069);
   }
 
   /** Échappe un texte destiné à du HTML (les noms viennent d'un CSV libre). */
@@ -688,9 +701,10 @@
     });
     var opts = '<option value="">' + (u.gotoRepere || 'Aller à un repère…') + '</option>';
     for (var k = 0; k < items.length; k++) {
-      var km = items[k].poi._distance ? ' — ' + (Math.round(items[k].poi._distance / 100) / 10) + ' km' : '';
+      var km = items[k].poi._distance ? (Math.round(items[k].poi._distance / 100) / 10) + ' km' : '';
       opts += '<option value="' + items[k].idx + '">' +
-        (items[k].poi.emoji ? items[k].poi.emoji + ' ' : '') + echapper(items[k].poi.nom) + km + '</option>';
+        (items[k].poi.emoji ? items[k].poi.emoji + ' ' : '') +
+        isoler(echapper(items[k].poi.nom)) + (km ? ' — ' + isoler(km) : '') + '</option>';
     }
     return '<select class="poi-filter" id="poiPointFilter" aria-label="' +
       (u.gotoRepere || 'Repère') + '">' + opts + '</select>';
@@ -755,7 +769,7 @@
       var opts = '<option value="">' + (u.allCategories || 'Toutes les catégories') + '</option>';
       for (var oc = 0; oc < order.length; oc++) {
         opts += '<option value="' + order[oc] + '"' + (categorieFiltre === order[oc] ? ' selected' : '') + '>' +
-                categoryLabel(order[oc], l) + ' (' + categories[order[oc]].count + ')</option>';
+                isoler(categoryLabel(order[oc], l)) + ' (' + categories[order[oc]].count + ')</option>';
       }
       var optsPoints = optionsPointsHTML(pois, u);
 

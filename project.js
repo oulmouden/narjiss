@@ -989,13 +989,25 @@
       var poiK = choix[k].poi;
       // On ne rejoint pas l'aeroport a pied : les reperes s'annoncent en km.
       var mesure = modeJeu === 'reperes'
-        ? (poiK._distance ? ' — ' + (Math.round(poiK._distance / 100) / 10) + ' km' : '')
-        : (poiK._walking ? ' — ' + poiK._walking + ' ' + t.minWalk : '');
+        ? (poiK._distance ? (Math.round(poiK._distance / 100) / 10) + ' km' : '')
+        : (poiK._walking ? poiK._walking + ' ' + t.minWalk : '');
       html += '<option value="' + choix[k].idx + '">' +
         (modeJeu === 'reperes' && poiK.emoji ? poiK.emoji + ' ' : '') +
-        echapperPoi(poiK.nom) + mesure + '</option>';
+        isolerPoi(echapperPoi(poiK.nom)) + (mesure ? ' — ' + isolerPoi(mesure) : '') + '</option>';
     }
     return html;
+  }
+
+  /* Isole un libelle du texte qui le suit, a la maniere de <bdi>. Nos POI
+     portent souvent un nom bilingue finissant en arabe (« Ecole Salam مدرسة
+     السلام ») : sans isolation, l'algorithme bidirectionnel d'Unicode absorbe
+     le nombre qui suit dans la portee arabe et le replace a sa gauche, si bien
+     que la distance atterrit au milieu du libelle. Le CSS (unicode-bidi:
+     isolate) suffit dans la liste, mais le texte d'une <option> est dessine par
+     le systeme, hors de portee des feuilles de style : il faut les marques
+     Unicode elles-memes (U+2068 FIRST STRONG ISOLATE / U+2069 POP). */
+  function isolerPoi(s) {
+    return String.fromCharCode(0x2068) + s + String.fromCharCode(0x2069);
   }
 
   /** Echappe un nom venu du CSV avant insertion dans du HTML. */
@@ -1162,7 +1174,7 @@
       var optsCat = '<option value="">' + (t.allCategories || "Toutes les categories") + '</option>';
       for (var oc = 0; oc < order.length; oc++) {
         optsCat += '<option value="' + order[oc] + '"' + (categorieFiltre === order[oc] ? " selected" : "") + '>' +
-          categoryLabel(order[oc], lang) + ' (' + categories[order[oc]].count + ')</option>';
+          isolerPoi(categoryLabel(order[oc], lang)) + ' (' + categories[order[oc]].count + ')</option>';
       }
       barre.innerHTML =
         '<div class="poi-jeux">' +
