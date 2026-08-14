@@ -621,8 +621,10 @@ html[dir=rtl] .atelier-card h3 { font-family: 'Noto Sans Arabic', serif; line-he
 .poi-jeu.active { background: var(--gold); border-color: var(--gold); color: #fff; }
 
 #poiControles { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
-.poi-count-inline { color: var(--muted); font-size: .82rem; white-space: nowrap; }
-.poi-count-inline b { color: var(--gold); font-size: 1.05rem; font-weight: 800; }
+/* Le compteur se lit sur la meme ligne que les listes deroulantes : a une
+   taille plus petite qu'elles, il passait pour une note de bas de page. */
+.poi-count-inline { color: var(--muted); font-size: .92rem; font-weight: 700; white-space: nowrap; }
+.poi-count-inline b { color: var(--gold); font-size: 1.15rem; font-weight: 800; }
 .poi-tri { display: inline-flex; gap: .3rem; }
 #poiControles .poi-filter { max-width: 15rem; }
 @media (max-width: 560px) {

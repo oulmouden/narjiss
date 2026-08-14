@@ -150,8 +150,10 @@ html[dir=rtl] .poi-count span { margin-right: 0; margin-left: .35rem; }
 
 /* Commandes de la barre : compteur, catégorie, distance, tri. */
 #poiControles { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
-.poi-count-inline { color: var(--muted); font-size: .82rem; white-space: nowrap; }
-.poi-count-inline b { color: var(--gold); font-size: 1.05rem; font-weight: 800; }
+/* Le compteur se lit sur la même ligne que les listes déroulantes : à une
+   taille plus petite qu'elles, il passait pour une note de bas de page. */
+.poi-count-inline { color: var(--muted); font-size: .92rem; font-weight: 700; white-space: nowrap; }
+.poi-count-inline b { color: var(--gold); font-size: 1.15rem; font-weight: 800; }
 .poi-tri { display: inline-flex; gap: .3rem; }
 #poiControles .poi-filter { max-width: 15rem; }
 @media (max-width: 560px) {
@@ -426,6 +428,8 @@ html[dir=rtl] .poi-item { text-align: right; }
 .nj-embed .poi-sort,
 .nj-embed .poi-filter { font-size: 1rem; min-height: 42px; }
 .nj-embed .poi-filter option { font-size: 1rem; }
+.nj-embed .poi-count-inline { font-size: 1rem; }
+.nj-embed .poi-count-inline b { font-size: 1.25rem; }
 .nj-embed #poiControles .poi-filter { max-width: 18rem; }
 .nj-embed .poi-jeu { font-size: .95rem; min-height: 42px; }
 .nj-embed #projectMap { height: 100%; min-height: 0; }
