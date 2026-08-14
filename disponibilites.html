@@ -85,7 +85,11 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 .nj-fil .nj-fil-actif { color: var(--ocean-deep); font-weight: 600; }
 
 .nj-shell {
-  display: grid; grid-template-columns: 290px 1fr;
+  /* Une seule colonne : filtres et etages passent au-dessus du plan, qui
+     recupere toute la largeur. Les deux colonnes fixes (290 + 210 px) lui
+     laissaient 57 % de la page sur un ecran de 1280, et le repoussaient hors
+     de l'ecran sur telephone. */
+  display: grid; grid-template-columns: minmax(0, 1fr);
   gap: var(--space-lg); align-items: start;
   max-width: 1500px; margin: 0 auto; padding: var(--space-lg) var(--space-md) 7rem;
 }
@@ -97,18 +101,29 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 
 /* ── Filtres ───────────────────────────────────────────────────────── */
 .nj-filtres {
-  position: sticky; top: 1rem;
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: .7rem 1rem;
   background: var(--surface); border: 1px solid var(--border-subtle);
   border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-md);
 }
 @media (max-width: 900px) { .nj-filtres { position: static; } }
-.nj-filtres h2 { margin: 0 0 .9rem; font-size: 1rem; color: var(--charcoal); }
-.nj-champ { margin-bottom: 1rem; }
+.nj-filtres h2 {
+  margin: 0; align-self: center; font-size: .78rem; font-weight: 800;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
+}
+/* Les champs vivent dans .nj-filtres-corps : c'est lui qui les met en ligne. */
+.nj-filtres-corps {
+  flex: 1 1 100%;
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: .7rem 1rem;
+}
+.nj-champ { margin-bottom: 0; flex: 1 1 165px; min-width: 0; }
+.nj-filtres .nj-case { flex: 0 0 auto; }
+.nj-filtres .nj-reinit { flex: 0 0 auto; width: auto; margin-top: 0; padding: 0 1rem; }
 /* Le sélecteur de projet change de contexte, il ne filtre pas : il se
    détache visuellement des filtres qui le suivent. */
 .nj-champ-projet {
-  padding-bottom: 1rem; margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border-subtle);
+  flex: 1 1 210px;
+  padding-inline-end: 1rem; margin-inline-end: .2rem;
+  border-inline-end: 1px solid var(--border-subtle);
 }
 .nj-champ-projet select { font-weight: 700; }
 .nj-champ-projet option:disabled { color: var(--muted); }
@@ -564,11 +579,13 @@ body.nj-fige { overflow: hidden; }
    de vente). En dessous, « Détails du lot » et « Bureau de vente » passaient
    sur deux lignes. */
 .nj-mq-corps {
-  display: grid; grid-template-columns: 210px minmax(0, 1fr);
+  display: grid; grid-template-columns: minmax(0, 1fr);
   gap: var(--space-md); align-items: start; margin-top: .9rem;
 }
 .nj-mq-colonne { display: flex; flex-direction: column; gap: .7rem; min-width: 0; }
 /* Panneau « Mes choix » sous la liste des niveaux. */
+.nj-mq-choix { display: none; }
+.nj-mq-imm:fullscreen .nj-mq-choix { display: block; }
 .nj-mq-choix {
   background: var(--surface-raised); border: 1px solid var(--border-medium);
   border-radius: 10px; padding: .55rem .6rem;
@@ -642,7 +659,10 @@ body.nj-fige { overflow: hidden; }
 }
 
 /* Élévation : les étages empilés, le dernier en haut, comme la maquette. */
-.nj-mq-etages { display: flex; flex-direction: column; gap: 3px; }
+/* Onglets d'etage en rangee au-dessus du plan ; ils defilent horizontalement
+   si l'immeuble compte beaucoup de niveaux. */
+.nj-mq-etages { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; padding-bottom: 2px; }
+.nj-mq-etages .nj-mq-etage { flex: 1 1 130px; min-width: 118px; }
 .nj-mq-etage {
   display: grid; gap: .18rem;
   min-height: 52px; padding: .45rem .6rem;
@@ -937,8 +957,13 @@ body.nj-fige { overflow: hidden; }
   .nj-filtres h2 { display: none; }        /* remplacé par le bouton de repli */
   .nj-filtres-bascule { display: flex; }
   .nj-filtres-bascule[aria-expanded="false"] + .nj-filtres-corps { display: none; }
-  .nj-champ { margin-bottom: .8rem; }
-  .nj-champ-projet { padding-bottom: .8rem; margin-bottom: .8rem; }
+  /* Replie, le panneau retrouve son empilement : une ligne de champs
+     minuscules serait illisible sur un ecran etroit. */
+  .nj-filtres-corps { flex-direction: column; align-items: stretch; gap: .8rem; }
+  .nj-champ { margin-bottom: 0; }
+  .nj-champ-projet { padding-inline-end: 0; margin-inline-end: 0; border-inline-end: 0;
+    padding-bottom: .8rem; border-bottom: 1px solid var(--border-subtle); }
+  .nj-filtres .nj-reinit { width: 100%; }
 }
 </style>
 <script>
