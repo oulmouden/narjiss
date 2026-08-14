@@ -65,6 +65,7 @@
       ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
       projet: 'Projet',
       detailsLot: 'Détails du lot', surfaceLot: 'Surface', chambresLot: 'Chambres', statutLot: 'Disponibilité',
+      choisirLot: 'Choisir',
       plan: 'Plan', tour360: '360°', medias: 'Album', fermer: 'Fermer',
       mediaProjet: 'Document du projet — le plan propre à ce lot sera ajouté prochainement.',
       sansPlan: 'Aucun plan disponible pour ce projet.',
@@ -74,9 +75,9 @@
       vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste', vueMaquette: 'Maquette',
       maquetteAide: "Choisissez un étage, puis un logement sur le plateau. La position de chaque lot reflète son orientation.",
       pleinEcran: "Plein écran", quitterPleinEcran: "Quitter le plein écran",
-      planZoomAide: "Pincez pour zoomer, glissez pour déplacer. Touchez un logement pour le choisir.",
+      planZoomAide: "Pincez pour zoomer, glissez pour déplacer. Touchez un logement pour voir ses informations.",
       rdcCourt: 'RDC', circulation: 'Escalier / ascenseur', plateauVide: 'Aucun logement à cet étage avec les filtres actuels.',
-      libres: 'libres', planAide: 'Chaque pastille est un lot. Touchez un lot libre pour l\'ajouter.',
+      libres: 'libres', planAide: 'Chaque pastille est un lot. Touchez-en un pour voir ses informations.',
       enPreparation: 'Données en cours de mise à jour',
       enPreparationTitre: 'Les disponibilités de ce projet arrivent bientôt.',
       enPreparationAide: 'La grille des lots est en cours de préparation. Nos conseillers peuvent déjà répondre à vos questions.',
@@ -112,6 +113,7 @@
       ajouter: 'Add to my shortlist', retirer: 'Remove',
       projet: 'Project',
       detailsLot: 'Unit details', surfaceLot: 'Area', chambresLot: 'Bedrooms', statutLot: 'Availability',
+      choisirLot: 'Choose',
       plan: 'Floor plan', tour360: '360°', medias: 'Album', fermer: 'Close',
       mediaProjet: 'Project document — the plan specific to this unit will be added soon.',
       sansPlan: 'No floor plan available for this project.',
@@ -121,9 +123,9 @@
       vue: 'View', vuePlan: 'Plan', vueListe: 'List', vueMaquette: 'Floor mockup',
       maquetteAide: 'Pick a floor, then a home on the plate. Each unit sits according to its aspect.',
       pleinEcran: 'Full screen', quitterPleinEcran: 'Exit full screen',
-      planZoomAide: 'Pinch to zoom, drag to pan. Tap a home to pick it.',
+      planZoomAide: 'Pinch to zoom, drag to pan. Tap a home to see its details.',
       rdcCourt: 'GF', circulation: 'Stairs / lift', plateauVide: 'No home on this floor with the current filters.',
-      libres: 'free', planAide: 'Each tile is a unit. Tap a free unit to add it.',
+      libres: 'free', planAide: 'Each tile is a unit. Tap one to see its details.',
       enPreparation: 'Data being updated',
       enPreparationTitre: 'Availability for this project is coming soon.',
       enPreparationAide: 'The unit list is being prepared. Our advisers can already answer your questions.',
@@ -159,6 +161,7 @@
       ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
       projet: 'المشروع',
       detailsLot: 'تفاصيل الوحدة', surfaceLot: 'المساحة', chambresLot: 'الغرف', statutLot: 'التوفر',
+      choisirLot: 'اختيار',
       plan: 'المخطط', tour360: '360°', medias: 'الألبوم', fermer: 'إغلاق',
       mediaProjet: 'وثيقة المشروع — سيُضاف مخطط هذه الوحدة قريبا.',
       sansPlan: 'لا يوجد مخطط متاح لهذا المشروع.',
@@ -168,9 +171,9 @@
       vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة', vueMaquette: 'مجسم الطابق',
       maquetteAide: 'اختر طابقا ثم سكنا على المسطح. موقع كل وحدة يعكس اتجاهها.',
       pleinEcran: 'ملء الشاشة', quitterPleinEcran: 'إنهاء ملء الشاشة',
-      planZoomAide: 'اقرص للتكبير، اسحب للتحريك. المس سكنا لاختياره.',
+      planZoomAide: 'اقرص للتكبير، اسحب للتحريك. المس سكنا لعرض معلوماته.',
       rdcCourt: 'الأرضي', circulation: 'الدرج / المصعد', plateauVide: 'لا يوجد سكن في هذا الطابق بالمعايير الحالية.',
-      libres: 'متاحة', planAide: 'كل مربع يمثل وحدة. المس وحدة متاحة لإضافتها.',
+      libres: 'متاحة', planAide: 'كل مربع يمثل وحدة. المس واحدة لعرض معلوماتها.',
       enPreparation: 'البيانات قيد التحديث',
       enPreparationTitre: 'ستتوفر قائمة هذا المشروع قريبا.',
       enPreparationAide: 'قائمة الوحدات قيد الإعداد. يمكن لمستشارينا الإجابة عن أسئلتكم منذ الآن.',
@@ -206,6 +209,7 @@
       ajouter: 'Añadir a mi selección', retirer: 'Quitar',
       projet: 'Proyecto',
       detailsLot: 'Detalles del lote', surfaceLot: 'Superficie', chambresLot: 'Dormitorios', statutLot: 'Disponibilidad',
+      choisirLot: 'Elegir',
       plan: 'Plano', tour360: '360°', medias: 'Álbum', fermer: 'Cerrar',
       mediaProjet: 'Documento del proyecto — el plano propio de este lote se añadirá pronto.',
       sansPlan: 'No hay plano disponible para este proyecto.',
@@ -215,9 +219,9 @@
       vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista', vueMaquette: 'Maqueta',
       maquetteAide: 'Elija una planta y luego una vivienda. La posición de cada lote refleja su orientación.',
       pleinEcran: 'Pantalla completa', quitterPleinEcran: 'Salir de pantalla completa',
-      planZoomAide: 'Pellizque para acercar, arrastre para mover. Toque una vivienda para elegirla.',
+      planZoomAide: 'Pellizque para acercar, arrastre para mover. Toque una vivienda para ver sus datos.',
       rdcCourt: 'PB', circulation: 'Escalera / ascensor', plateauVide: 'Ninguna vivienda en esta planta con los filtros actuales.',
-      libres: 'libres', planAide: 'Cada casilla es un lote. Toque un lote libre para añadirlo.',
+      libres: 'libres', planAide: 'Cada casilla es un lote. Toque uno para ver sus datos.',
       enPreparation: 'Datos en actualización',
       enPreparationTitre: 'Las disponibilidades de este proyecto llegarán pronto.',
       enPreparationAide: 'La lista de lotes se está preparando. Nuestros asesores ya pueden responder a sus preguntas.',
@@ -635,20 +639,24 @@
    * sélectionnables (cf. basculerSelection). Le libellé reflète l'état, et le
    * bouton se désactive quand la sélection est déjà pleine.
    */
-  function boutonChoix(lot) {
+  function boutonChoix(lot, compact) {
     // Un lot non disponible (réservé, vendu, optionné) ne peut pas être mis en
     // sélection. Plutôt que de masquer le bouton — ce qui laisse croire qu'il
     // ne marche pas — on l'affiche désactivé, avec le statut qui explique.
     if (lot.statut !== 'disponible') {
       return '<button type="button" class="nj-fiche-choix is-off" disabled>' +
-        '⦸ ' + t('indispoChoix') + ' · ' + t(lot.statut) + '</button>';
+        '⦸ ' + (compact ? t(lot.statut) : t('indispoChoix') + ' · ' + t(lot.statut)) + '</button>';
     }
     var dans = estSelectionne(lot.id);
     var plein = !dans && etat.selection.length >= MAX_SELECTION;
+    /* Dans l'infobulle du plan, le bouton partage sa ligne avec « Plan » et
+       « 360° » : « Ajouter à mes choix » y passerait sur trois lignes. */
+    var libelle = dans ? '✓ ' + t('retirerChoix')
+                       : '＋ ' + (compact ? t('choisirLot') : t('ajouterChoix'));
     return '<button type="button" class="nj-fiche-choix' + (dans ? ' is-in' : '') +
       '" data-choix="' + lot.id + '" data-statut="' + echapper(lot.statut) + '"' +
       (plein ? ' disabled title="' + echapper(t('complet')) + '"' : '') + '>' +
-      (dans ? '✓ ' + t('retirerChoix') : '＋ ' + t('ajouterChoix')) +
+      libelle +
       '</button>';
   }
 
@@ -751,6 +759,76 @@
     return '<button type="button" class="nj-media-btn" data-media="' + type +
       '" data-lot="' + id + '"><span aria-hidden="true">' + icone + '</span>' +
       libelle + '</button>';
+  }
+
+  /* ── Infobulle d'un lot sur le plan ───────────────────────────────────────
+     Toucher un lot le mettait aussitôt dans la sélection. Devant un plan, le
+     premier geste est pourtant d'interroger, pas de choisir : on ne sait
+     encore ni la surface, ni le prix, ni ce qu'on peut en voir. Le clic ouvre
+     donc une bulle qui répond d'abord — typologie, surface, prix, statut — et
+     propose les trois suites possibles : le prendre, en voir le plan, le
+     visiter en 360°.
+     La fiche complète reste derrière la pastille « i » : elle porte l'album,
+     les notes et l'orientation, qui n'ont pas leur place ici. */
+  function fermerBulle() {
+    var b = document.querySelector('.nj-bulle');
+    if (b && b.parentNode) b.parentNode.removeChild(b);
+  }
+
+  /* Les trois suites possibles. Reconstruit à l'identique après un choix — la
+     délégation rafraîchit la ligne d'actions, et sans ce point commun elle y
+     remettrait les boutons de la fiche : « Ajouter à mes choix » en toutes
+     lettres, sans le plan ni la visite. */
+  function actionsBulleHTML(lot) {
+    var p = projetCourant();
+    var html = boutonChoix(lot, true);
+    if (planDuLot(lot) || (p && (p.plan_architecte_url || p.plan_visuel_url))) {
+      html += bouton('plan', lot.id, '▦', t('plan'));
+    }
+    if (lot.tour || (p && (p.apartment_tour_url || p.tour_url))) {
+      html += bouton('tour', lot.id, '◎', t('tour360'));
+    }
+    return html;
+  }
+
+  function ouvrirBulleLot(lotId, cible) {
+    var lot = etat.lots.filter(function (l) { return l.id === lotId; })[0];
+    var plateau = cible.closest('.nj-mq-plateau');
+    if (!lot || !plateau) return;
+    fermerBulle();
+
+    var surface = lot.surface + ' m²' + (lot.balcon > 0 ? ' + ' + lot.balcon + ' m²' : '');
+    var bulle = document.createElement('div');
+    bulle.className = 'nj-bulle nj-' + lot.statut;
+    bulle.setAttribute('role', 'dialog');
+    bulle.setAttribute('aria-label', lot.typologie.toUpperCase() + ' ' + lot.numero);
+    bulle.innerHTML =
+      '<button type="button" class="nj-bulle-x" data-bulle-fermer aria-label="' +
+        echapper(t('fermer')) + '">✕</button>' +
+      '<p class="nj-bulle-titre">' + echapper(lot.typologie.toUpperCase()) + ' · ' +
+        echapper(lot.numero) + '</p>' +
+      '<p class="nj-bulle-meta">' + surface +
+        (lot.chambres > 0 ? ' · ' + lot.chambres + ' ' + t('chambresLot').toLowerCase() : '') +
+        '</p>' +
+      '<p class="nj-bulle-prix">' + prixHtml(lot.prix) + '</p>' +
+      '<p class="nj-bulle-statut"><span class="nj-pastille">' + t(lot.statut) + '</span></p>' +
+      '<div class="nj-bulle-actions">' + actionsBulleHTML(lot) + '</div>';
+    plateau.appendChild(bulle);
+
+    /* Ancrée sur le lot touché, en coordonnées du plateau — le plan se déplace
+       et se zoome, ses coordonnées internes ne servent à rien ici. Bornée aux
+       bords pour ne pas sortir du cadre, et basculée sous le lot quand il n'y
+       a pas la place au-dessus. */
+    var rl = cible.getBoundingClientRect();
+    var rp = plateau.getBoundingClientRect();
+    var largeur = bulle.offsetWidth, hauteur = bulle.offsetHeight;
+    var x = rl.left + rl.width / 2 - rp.left;
+    var y = rl.top - rp.top;
+    var dessous = y - hauteur - 14 < 0;
+    x = Math.max(largeur / 2 + 6, Math.min(rp.width - largeur / 2 - 6, x));
+    bulle.classList.toggle('nj-bulle-dessous', dessous);
+    bulle.style.left = x + 'px';
+    bulle.style.top = (dessous ? y + rl.height + 12 : y - 12) + 'px';
   }
 
   /**
@@ -1700,6 +1778,9 @@
     });
 
     function appliquer() {
+      /* La bulle est ancrée à l'écran, pas au plan : dès que celui-ci glisse
+         ou se zoome, elle désignerait un autre lot que le sien. */
+      fermerBulle();
       vue.w = Math.max(LARG / ZOOM_MAX, Math.min(largeurContenante(), vue.w));
       vue.h = vue.w * ratioEcran();
       /* Tant que le cadre est plus petit que l'image, il reste dedans. Une
@@ -2147,6 +2228,12 @@
     // Delegation au niveau du document : les boutons de consultation vivent
     // aussi dans la fenetre de la fiche, hors de la grille.
     document.addEventListener('click', function (e) {
+      /* L'infobulle du plan se referme au premier clic qui n'est ni pour elle
+         ni pour un lot. Traité avant tout le reste : ses propres boutons sont
+         pris en charge plus bas, par les délégations déjà en place. */
+      if (e.target.closest('[data-bulle-fermer]')) { fermerBulle(); return; }
+      if (!e.target.closest('.nj-bulle') && !e.target.closest('.nj-mq-lot')) fermerBulle();
+
       // Un bouton de consultation ne doit pas déclencher la sélection.
       // getAttribute plutôt que dataset : la pastille de la maquette est un
       // <g> SVG, et dataset n'y est pas garanti sur tous les navigateurs.
@@ -2200,8 +2287,10 @@
         // On rafraîchit toute la ligne d'actions (bouton choix + « Vider »)
         // pour refléter le nouvel état.
         var lotChoix = etat.lots.filter(function (l) { return l.id === lid; })[0];
+        var dansBulle = choix.closest('.nj-bulle-actions');
         var actions = choix.closest('.nj-fiche-actions');
-        if (lotChoix && actions) actions.innerHTML = boutonChoix(lotChoix) + boutonViderFiche(lotChoix);
+        if (lotChoix && dansBulle) dansBulle.innerHTML = actionsBulleHTML(lotChoix);
+        else if (lotChoix && actions) actions.innerHTML = boutonChoix(lotChoix) + boutonViderFiche(lotChoix);
         else if (lotChoix) choix.outerHTML = boutonChoix(lotChoix);
         return;
       }
@@ -2229,7 +2318,15 @@
         majEtage(etage.getAttribute('data-imm'), etage.getAttribute('data-etage'));
         return;
       }
-      var carte = e.target.closest('.nj-lot, .nj-carreau, .nj-mq-lot');
+      /* Sur le plan, le clic interroge le lot au lieu de le choisir : voir
+         ouvrirBulleLot. Ailleurs — liste et carreaux, où tout est déjà écrit —
+         il choisit toujours directement. */
+      var surPlan = e.target.closest('.nj-mq-lot');
+      if (surPlan) {
+        ouvrirBulleLot(Number(surPlan.getAttribute('data-id')), surPlan);
+        return;
+      }
+      var carte = e.target.closest('.nj-lot, .nj-carreau');
       if (carte) basculerSelection(Number(carte.getAttribute('data-id')),
                                    carte.getAttribute('data-statut'));
     });
@@ -2243,12 +2340,23 @@
         ouvrirFiche(Number(info.getAttribute('data-fiche')));
         return;
       }
-      var carte = e.target.closest('.nj-lot, .nj-carreau, .nj-mq-lot');
+      // Au clavier comme à la souris, un lot du plan s'interroge d'abord.
+      var surPlan = e.target.closest('.nj-mq-lot');
+      if (surPlan) {
+        e.preventDefault();
+        ouvrirBulleLot(Number(surPlan.getAttribute('data-id')), surPlan);
+        return;
+      }
+      var carte = e.target.closest('.nj-lot, .nj-carreau');
       if (carte) {
         e.preventDefault();
         basculerSelection(Number(carte.getAttribute('data-id')),
                           carte.getAttribute('data-statut'));
       }
+    });
+    // Échap referme la bulle, comme n'importe quelle fenêtre de la page.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') fermerBulle();
     });
     /* Les jetons « × » (barre du bas et panneau maquette) sont gérés par la
        délégation au niveau du document, pour ne pas double-basculer. */

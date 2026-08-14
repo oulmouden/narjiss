@@ -732,6 +732,52 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-reel { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; }
 .nj-mq-plan-aide { margin: .5rem 0 0; font-size: .8rem; color: var(--muted); text-align: center; }
 
+/* ── Infobulle d'un lot ────────────────────────────────────────────────────
+   Ancrée sur le lot touché, au-dessus par défaut, dessous quand le haut du
+   plan manque de place. Le plateau devient le repère de positionnement. */
+.nj-mq-plateau { position: relative; }
+.nj-bulle {
+  position: absolute; z-index: 6;
+  transform: translate(-50%, -100%);
+  min-width: 13.5rem; max-width: 17rem;
+  padding: .7rem .8rem .6rem;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border-medium); border-left: 4px solid var(--lot-dispo);
+  border-radius: 12px; box-shadow: var(--shadow-lg);
+}
+.nj-bulle.nj-optionne { border-left-color: var(--lot-optionne); }
+.nj-bulle.nj-reserve  { border-left-color: var(--lot-reserve); }
+.nj-bulle.nj-vendu    { border-left-color: var(--lot-vendu); }
+.nj-bulle-dessous { transform: translate(-50%, 0); }
+/* Pointe vers le lot : dessinée par un carré tourné, bordé sur deux côtés. */
+.nj-bulle::after {
+  content: ''; position: absolute; left: 50%; width: 10px; height: 10px;
+  background: var(--surface); border: 1px solid var(--border-medium);
+  bottom: -6px; transform: translateX(-50%) rotate(45deg);
+  border-top: 0; border-left: 0;
+}
+.nj-bulle-dessous::after { bottom: auto; top: -6px; border: 1px solid var(--border-medium); border-bottom: 0; border-right: 0; }
+.nj-bulle-x {
+  position: absolute; top: .25rem; inset-inline-end: .3rem;
+  min-width: 30px; min-height: 30px; padding: 0;
+  border: 0; background: transparent; color: var(--muted);
+  font-size: .9rem; line-height: 1; cursor: pointer;
+}
+.nj-bulle-x:hover { color: var(--text); }
+.nj-bulle-titre { margin: 0 1.4rem .1rem 0; font-weight: 800; font-size: .95rem; }
+.nj-bulle-meta { margin: 0; color: var(--muted); font-size: .8rem; }
+.nj-bulle-prix { margin: .2rem 0 .3rem; font-weight: 800; color: var(--accent-solid); }
+.nj-bulle-statut { margin: 0 0 .5rem; }
+.nj-bulle-actions { display: flex; flex-wrap: wrap; gap: .3rem; }
+/* Les trois actions partagent une ligne étroite : on resserre les boutons
+   repris de la fiche, taillés eux pour une fenêtre pleine largeur. */
+.nj-bulle .nj-fiche-choix,
+.nj-bulle .nj-media-btn {
+  flex: 1 1 auto; min-height: 38px; padding: .35rem .6rem;
+  font-size: .78rem; white-space: nowrap;
+}
+.nj-bulle .nj-fiche-choix { flex-basis: 100%; }
+
 /* Bouton d'agrandissement, dans l'en-tête de l'immeuble. Cible ≥ 44 px : on
    le vise au doigt sur la borne. */
 .nj-mq-agrandir {
@@ -1102,6 +1148,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=23"></script>
-<script src="disponibilites.js?v=61"></script>
+<script src="disponibilites.js?v=62"></script>
 </body>
 </html>
