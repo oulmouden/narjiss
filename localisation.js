@@ -506,6 +506,7 @@
   var traceCourante = null;
 
   function effacerTrace() {
+    if (traceCourante && traceCourante.njFinir) traceCourante.njFinir();
     if (traceCourante && mapInstance) mapInstance.removeLayer(traceCourante);
     traceCourante = null;
   }
@@ -524,12 +525,37 @@
 
     /* L'animation part de la longueur réelle du tracé, connue seulement une
        fois le chemin SVG posé. On la publie en variable CSS : le dessin se
-       fait alors par le navigateur, sans minuterie à entretenir. */
+       fait alors par le navigateur, sans minuterie à entretenir.
+
+       Mais cette longueur est celle du tracé À CET INSTANT, en pixels, au zoom
+       courant — et le vol qui suit change justement le zoom. En s'approchant,
+       le trait s'allonge et déborde du pointillé : « trait plein sur
+       --nj-longueur, puis vide sur autant » laissait le trajet s'arrêter en
+       plein milieu, sans jamais rejoindre le point. D'où la remise à plat dès
+       que le dessin est fini, ou dès que la carte bouge — le pointillé n'avait
+       de raison d'être que pendant l'animation. */
     var chemin = traceCourante.getElement && traceCourante.getElement();
     if (chemin && chemin.getTotalLength) {
       var longueur = chemin.getTotalLength();
       chemin.style.setProperty('--nj-longueur', longueur);
       chemin.classList.add('nj-trace-anime');
+
+      var finir = function () {
+        chemin.removeEventListener('animationend', finir);
+        if (mapInstance) mapInstance.off('zoomend moveend', finir);
+        chemin.classList.remove('nj-trace-anime');
+        chemin.style.removeProperty('--nj-longueur');
+        chemin.style.strokeDasharray = 'none';
+        chemin.style.strokeDashoffset = '0';
+      };
+      chemin.addEventListener('animationend', finir);
+      mapInstance.on('zoomend moveend', finir);
+      /* Gardé sur la couche : un trajet effacé avant la fin de son animation
+         laisserait sinon son écouteur accroché à la carte, un par trajet. */
+      traceCourante.njFinir = finir;
+      /* Filet de sécurité : sans animation — mouvement réduit, onglet en
+         arrière-plan — « animationend » ne vient jamais. */
+      setTimeout(finir, 1600);
     }
 
     /* Les deux extrémités visibles : le trajet n'a de sens qu'entier. Un point
