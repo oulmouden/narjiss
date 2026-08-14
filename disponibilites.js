@@ -2232,7 +2232,13 @@
          ni pour un lot. Traité avant tout le reste : ses propres boutons sont
          pris en charge plus bas, par les délégations déjà en place. */
       if (e.target.closest('[data-bulle-fermer]')) { fermerBulle(); return; }
-      if (!e.target.closest('.nj-bulle') && !e.target.closest('.nj-mq-lot')) fermerBulle();
+      /* La fenêtre de consultation ne compte pas comme un « clic ailleurs » :
+         elle s'ouvre DEPUIS la bulle, sur le plan ou la visite du lot. La
+         refermer doit ramener le visiteur là où il en était — bulle ouverte,
+         prêt à lancer l'autre document ou à choisir. */
+      if (!e.target.closest('.nj-bulle') &&
+          !e.target.closest('.nj-mq-lot') &&
+          !e.target.closest('#njMedia')) fermerBulle();
 
       // Un bouton de consultation ne doit pas déclencher la sélection.
       // getAttribute plutôt que dataset : la pastille de la maquette est un
@@ -2354,9 +2360,14 @@
                           carte.getAttribute('data-statut'));
       }
     });
-    // Échap referme la bulle, comme n'importe quelle fenêtre de la page.
+    /* Échap referme la bulle, comme n'importe quelle fenêtre de la page — mais
+       pas quand la fenêtre de consultation est ouverte par-dessus : cet Échap
+       lui appartient, et il doit rendre la bulle, pas l'emporter avec. */
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') fermerBulle();
+      if (e.key !== 'Escape') return;
+      var media = document.getElementById('njMedia');
+      if (media && media.open) return;
+      fermerBulle();
     });
     /* Les jetons « × » (barre du bas et panneau maquette) sont gérés par la
        délégation au niveau du document, pour ne pas double-basculer. */
