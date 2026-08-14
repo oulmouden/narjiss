@@ -922,11 +922,17 @@
     var note = poi.note ? '<div class="popup-meta">★ ' + t.rating + ' ' + poi.note + (poi.avis ? ' · ' + poi.avis + ' ' + t.reviews : '') + '</div>' : "";
     var phone = poi.tel ? '<div class="popup-meta popup-phone">📞 <a href="tel:' + poi.tel.replace(/\s/g, "") + '">' + poi.tel + '</a></div>' : "";
     var hours = poi.horaires ? '<div class="popup-meta">' + poi.horaires + '</div>' : "";
+    /* La distance est ce qu'on vient chercher devant un plan de quartier. Elle
+       figure dans la liste et dans le menu deroulant, mais celui qui ouvre une
+       etiquette depuis la carte n'a lu ni l'une ni l'autre. */
+    var distance = poi.cat !== "home" && poi._distance
+      ? '<div class="popup-meta popup-distance">📏 ' + distanceMeta(poi, t) + '</div>'
+      : "";
     return '<div class="project-popup">' +
       '<div class="popup-cat">' + cat + '</div>' +
       '<div class="popup-name">' + (poi.nom || cat) + '</div>' +
       (poi.adresse ? '<div class="popup-address">📍 ' + poi.adresse + '</div>' : '') +
-      note + phone + hours +
+      distance + note + phone + hours +
     '</div>';
   }
 

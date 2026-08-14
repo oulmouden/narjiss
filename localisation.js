@@ -465,6 +465,14 @@
         poi.tel.replace(/\s/g, '') + '">' + poi.tel + '</a></div>'
       : '';
     var hours = poi.horaires ? '<div class="popup-meta">' + poi.horaires + '</div>' : '';
+    /* La distance est ce qu'on vient chercher devant un plan de quartier. Elle
+       figure dans la liste et dans le menu déroulant, mais celui qui ouvre une
+       étiquette depuis la carte n'a lu ni l'une ni l'autre. Même formulation
+       qu'ailleurs — repère à la voiture, quartier à pied — pour ne pas donner
+       deux chiffres différents du même trajet. */
+    var distance = poi.cat !== 'home' && poi._distance
+      ? '<div class="popup-meta popup-distance">📏 ' + distanceMeta(poi) + '</div>'
+      : '';
     /* Actions dans l'étiquette : le visiteur qui vient d'ouvrir un point veut
        souvent s'en approcher, et voir ce qui le sépare de la résidence. Les
        mettre ici évite de repartir chercher la liste.
@@ -482,7 +490,7 @@
       '<div class="popup-cat">' + cat + '</div>' +
       '<div class="popup-name">' + (poi.nom || cat) + '</div>' +
       (poi.adresse ? '<div class="popup-address">📍 ' + poi.adresse + '</div>' : '') +
-      note + phone + hours + actions +
+      distance + note + phone + hours + actions +
     '</div>';
   }
 
