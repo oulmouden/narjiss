@@ -502,6 +502,10 @@ body.nj-fige { overflow: hidden; }
   border: 0; display: block;
 }
 .nj-media-vide { padding: 3rem 1rem; color: var(--muted); text-align: center; }
+/* Recours quand la visite refuse de se lancer dans le cadre — sur téléphone
+   surtout, où une visite 3DVista entière tient mal dans une fenêtre modale. */
+.nj-media-lien { margin: .5rem 0 0; text-align: center; font-size: .82rem; }
+.nj-media-lien a { color: var(--accent-solid); font-weight: 700; }
 
 /* Comparateur de plans : le plan d'architecte est révélé par-dessus le plan
    commercial au fil du curseur. Les deux images occupent exactement la même
@@ -1148,6 +1152,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=23"></script>
-<script src="disponibilites.js?v=62"></script>
+<script src="disponibilites.js?v=63"></script>
 </body>
 </html>

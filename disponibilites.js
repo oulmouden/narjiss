@@ -65,7 +65,7 @@
       ajouter: 'Ajouter à ma sélection', retirer: 'Retirer',
       projet: 'Projet',
       detailsLot: 'Détails du lot', surfaceLot: 'Surface', chambresLot: 'Chambres', statutLot: 'Disponibilité',
-      choisirLot: 'Choisir',
+      choisirLot: 'Choisir', ouvrirOnglet: 'Ouvrir dans un nouvel onglet',
       plan: 'Plan', tour360: '360°', medias: 'Album', fermer: 'Fermer',
       mediaProjet: 'Document du projet — le plan propre à ce lot sera ajouté prochainement.',
       sansPlan: 'Aucun plan disponible pour ce projet.',
@@ -113,7 +113,7 @@
       ajouter: 'Add to my shortlist', retirer: 'Remove',
       projet: 'Project',
       detailsLot: 'Unit details', surfaceLot: 'Area', chambresLot: 'Bedrooms', statutLot: 'Availability',
-      choisirLot: 'Choose',
+      choisirLot: 'Choose', ouvrirOnglet: 'Open in a new tab',
       plan: 'Floor plan', tour360: '360°', medias: 'Album', fermer: 'Close',
       mediaProjet: 'Project document — the plan specific to this unit will be added soon.',
       sansPlan: 'No floor plan available for this project.',
@@ -161,7 +161,7 @@
       ajouter: 'أضف إلى اختياري', retirer: 'إزالة',
       projet: 'المشروع',
       detailsLot: 'تفاصيل الوحدة', surfaceLot: 'المساحة', chambresLot: 'الغرف', statutLot: 'التوفر',
-      choisirLot: 'اختيار',
+      choisirLot: 'اختيار', ouvrirOnglet: 'فتح في علامة تبويب جديدة',
       plan: 'المخطط', tour360: '360°', medias: 'الألبوم', fermer: 'إغلاق',
       mediaProjet: 'وثيقة المشروع — سيُضاف مخطط هذه الوحدة قريبا.',
       sansPlan: 'لا يوجد مخطط متاح لهذا المشروع.',
@@ -209,7 +209,7 @@
       ajouter: 'Añadir a mi selección', retirer: 'Quitar',
       projet: 'Proyecto',
       detailsLot: 'Detalles del lote', surfaceLot: 'Superficie', chambresLot: 'Dormitorios', statutLot: 'Disponibilidad',
-      choisirLot: 'Elegir',
+      choisirLot: 'Elegir', ouvrirOnglet: 'Abrir en una pestaña nueva',
       plan: 'Plano', tour360: '360°', medias: 'Álbum', fermer: 'Cerrar',
       mediaProjet: 'Documento del proyecto — el plano propio de este lote se añadirá pronto.',
       sansPlan: 'No hay plano disponible para este proyecto.',
@@ -955,8 +955,19 @@
       if ((planLot || archiProj || visuelProj) && !planLot) note = t('mediaProjet');
     } else if (type === 'tour') {
       var tour = lot.tour || (p && (p.apartment_tour_url || p.tour_url));
+      /* Pas de loading="lazy" ici : le cadre n'est créé qu'au moment où l'on
+         demande la visite, il n'y a donc rien à différer. Pire, il est inséré
+         alors que la fenêtre est encore masquée — et un cadre « paresseux »
+         posé dans un élément invisible peut ne jamais démarrer, en particulier
+         sur téléphone, où les navigateurs sont les plus économes. Le visiteur
+         voit alors un cadre vide.
+         Le lien d'ouverture en pleine page reste le recours quand la visite
+         refuse de se lancer dans le cadre : une visite 3DVista est lourde, et
+         un téléphone à court de mémoire la sert mieux seule. */
       corps = tour
-        ? '<iframe src="' + versionne(tour) + '" title="' + t('tour360') + '" allowfullscreen loading="lazy"></iframe>'
+        ? '<iframe src="' + versionne(tour) + '" title="' + t('tour360') + '" allowfullscreen></iframe>' +
+          '<p class="nj-media-lien"><a href="' + versionne(tour) + '" target="_blank" rel="noopener">' +
+          t('ouvrirOnglet') + ' ↗</a></p>'
         : '<p class="nj-media-vide">' + t('sansTour') + '</p>';
       if (tour && !lot.tour) note = t('mediaProjet');
     } else if (type === 'medias') {
@@ -966,7 +977,9 @@
       // sans le ?v=, le navigateur — et surtout la borne du bureau de vente,
       // que personne ne vient rafraîchir — resservirait indéfiniment la
       // version en cache de la page embarquée, y compris après déploiement.
-      corps = '<iframe title="' + t('medias') + '" loading="lazy" allow="fullscreen" ' +
+      // Même raison que pour la visite : rien à différer, et un cadre paresseux
+      // posé dans une fenêtre encore masquée peut ne jamais démarrer.
+      corps = '<iframe title="' + t('medias') + '" allow="fullscreen" ' +
         'allowfullscreen src="medias.html?id=' + encodeURIComponent(etat.projet) +
         '&amp;embed=1&amp;v=' + MEDIA_V + '#' + langue() + '"></iframe>';
       note = t('mediaProjet');
