@@ -405,7 +405,7 @@ body.nj-fige { overflow: hidden; }
 .nj-media-fond::backdrop { background: rgba(0, 0, 0, .68); }
 .nj-media-boite {
   display: flex; flex-direction: column;
-  width: min(1100px, 100%); max-height: 92vh;
+  width: min(1100px, 100%); max-height: 94vh;
   background: var(--surface); border-radius: var(--radius);
   box-shadow: var(--shadow-lg); overflow: hidden;
 }
@@ -511,7 +511,10 @@ body.nj-fige { overflow: hidden; }
 }
 /* Un plan doit tenir en entier sans faire défiler : la fenêtre est plafonnée
    à 92vh, on retranche l'en-tête et la note de bas de fenêtre. */
-.nj-media-corps { --nj-media-h: max(300px, calc(92vh - 118px)); }
+/* La fenêtre monte à 94 vh et ne retranche plus que la hauteur réelle de
+   l'en-tête et de la note (67 + 40) : les 118 px d'avant prenaient une marge
+   sur une fenêtre qui n'en a pas de trop. */
+.nj-media-corps { --nj-media-h: max(300px, calc(94vh - 110px)); }
 .nj-media-corps img {
   display: block;
   max-width: 100%; max-height: var(--nj-media-h);
@@ -1210,6 +1213,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=23"></script>
-<script src="disponibilites.js?v=65"></script>
+<script src="disponibilites.js?v=66"></script>
 </body>
 </html>

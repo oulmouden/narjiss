@@ -22,7 +22,7 @@
    * son nom, donc sans ce suffixe le navigateur resert l'ancienne visite même
    * quand le serveur, lui, a bien été mis à jour.
    */
-  var MEDIA_V = '4';
+  var MEDIA_V = '5';
 
   function versionne(url) {
     if (!url) return url;

@@ -219,7 +219,11 @@
 .njm-embed #mainMenu,
 .njm-embed #mainFooter,
 .njm-embed .njm-hero { display: none !important; }
-.njm-embed body { margin: 0; overflow-x: hidden; }
+/* Le body reserve 68 px pour le menu fixe (voir menu.css). Le menu etant
+   masque ici, cette reserve n'etait plus qu'une bande blanche en haut de la
+   fenetre de consultation — 68 px pris sur la photo, sur une fenetre qui en
+   compte a peine 550. */
+.njm-embed body { margin: 0; padding: 0 !important; overflow-x: hidden; }
 
 /* La fenêtre de consultation d'un lot n'est pas extensible : dès que le
    contenu la dépasse, le navigateur pose ses barres de défilement par-dessus
@@ -227,15 +231,18 @@
    dimensionne donc l'album pour qu'il tienne en entier : la scène prend ce
    qu'il reste une fois les onglets, la légende et les vignettes servis. */
 .njm-embed .njm-app {
-  padding: .5rem 1.1rem 1rem;   /* marge latérale : les flèches ne touchent pas le bord */
+  /* Marges verticales au plus juste : chaque dixieme de rem repris ici revient
+     a la photo, seule chose que le visiteur est venu voir. La marge laterale,
+     elle, reste : les fleches ne doivent pas toucher le bord. */
+  padding: .25rem 1rem .35rem;
   max-width: none;
   /* Colonne à hauteur fixe : la scène prend ce qui reste, plutôt qu'une
      hauteur devinée qui déborderait sur une petite fenêtre. */
   display: flex; flex-direction: column;
   height: 100vh; box-sizing: border-box;
 }
-.njm-embed .njm-onglets { flex: 0 0 auto; margin-bottom: .7rem; }
-.njm-embed .njm-onglet { padding: .5rem 1.1rem; min-height: 40px; font-size: .95rem; }
+.njm-embed .njm-onglets { flex: 0 0 auto; margin-bottom: .35rem; }
+.njm-embed .njm-onglet { padding: .35rem 1rem; min-height: 36px; font-size: .9rem; }
 .njm-embed #njmPanPhotos {
   flex: 1; min-height: 0;   /* min-height:0 : sans lui, un enfant trop haut
                                refuse de rétrécir et pousse la page */
@@ -245,10 +252,10 @@
 .njm-embed .njm-scene { flex: 1; min-height: 140px; height: auto; aspect-ratio: auto; }
 .njm-embed .njm-legende, .njm-embed .njm-vignettes { flex: 0 0 auto; }
 .njm-embed .njm-fleche { width: 40px; height: 40px; font-size: 1.2rem; }
-.njm-embed .njm-legende { margin-top: .4rem; font-size: .85rem; }
-.njm-embed .njm-vignettes { padding: .5rem .1rem .2rem; }
-.njm-embed .njm-vignettes button { width: 104px; height: 70px; }
-.njm-embed .njm-note { margin-top: .5rem; }
+.njm-embed .njm-legende { margin-top: .25rem; font-size: .82rem; }
+.njm-embed .njm-vignettes { padding: .3rem .1rem .1rem; }
+.njm-embed .njm-vignettes button { width: 74px; height: 50px; }
+.njm-embed .njm-note { margin-top: .25rem; font-size: .78rem; }
 
 /* En plein écran, la scène sort du flux : elle peut tout prendre. */
 .njm-scene:fullscreen { height: 100vh; border-radius: 0; }
@@ -257,6 +264,14 @@
   .njm-app { padding: 1rem .9rem 2.5rem; }
   .njm-onglet { padding: .7rem .9rem; font-size: .95rem; }
   .njm-vignettes button { width: 92px; height: 62px; }
+  /* Ces trois règles-ci s'adressent à la page ouverte seule, sur un téléphone
+     qui défile. Embarquée, la page tient dans une fenêtre qui, elle, ne défile
+     pas : elle y reprend ses marges serrées et ses petites vignettes, sinon
+     2,5 rem de marge basse et des vignettes de 62 px mangeraient la photo —
+     déclarées après, ces valeurs-ci l'emportaient sur le mode embarqué. */
+  .njm-embed .njm-app { padding: .25rem .8rem .35rem; }
+  .njm-embed .njm-onglet { padding: .35rem .9rem; font-size: .88rem; }
+  .njm-embed .njm-vignettes button { width: 64px; height: 44px; }
 }
 </style>
 </head>

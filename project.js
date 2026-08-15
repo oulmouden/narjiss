@@ -6,7 +6,7 @@
    * MEDIA_V de disponibilites.js — à incrémenter des deux côtés à chaque
    * republication d'une visite ou remplacement d'un plan.
    */
-  var MEDIA_V = '4';
+  var MEDIA_V = '5';
 
   function versionne(url) {
     if (!url) return url;
