@@ -481,7 +481,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   var etapeScene = 'projet'; // 'projet' | 'dispos' | 'choix' — pilote la barre
   // Sortie de plein écran à ne pas interpréter comme un départ du visiteur
   // (le cadre part ouvrir un onglet) — voir l'écouteur « garder-scene ».
-  var sortiePleinIgnoree = false, minuterieSortie = null;
 
   function t(cle) { return (LANGUES[langue] || LANGUES.fr)[cle]; }
   function $(id) { return document.getElementById(id); }
@@ -784,28 +783,19 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     // mes choix) doivent savoir sur quel projet brancher la démonstration.
     projetOuvert = id;
 
-    /* Puis la demande, immédiatement — avant de charger le cadre. Le
-       navigateur n'accorde le plein écran que pendant le bref instant qui
-       suit un geste utilisateur ; toute opération intercalée risque de
-       consommer cette autorisation. */
-    var aide = $('njSceneAide');
-    aide.hidden = true;
-    var refus = function () {
-      // Un refus n'est pas bloquant : la scène couvre déjà toute la fenêtre.
-      // Seules les barres du navigateur subsistent, et F11 les enlève.
-      aide.textContent = t('pleinEcranRefuse');
-      aide.hidden = false;
-    };
-    var demande = scene.requestFullscreen || scene.webkitRequestFullscreen;
-    if (!demande) { refus(); }
-    else {
-      try {
-        var promesse = demande.call(scene);
-        // Une demande refusée rejette une promesse : sans interception, la
-        // console se remplit d'erreurs à chaque ouverture.
-        if (promesse && promesse.catch) promesse.catch(refus);
-      } catch (e) { refus(); }
-    }
+    /* Plus de demande de plein écran ici.
+
+       La scène couvre déjà toute la fenêtre par elle-même : le plein écran du
+       navigateur ne gagnait que ses barres, une quarantaine de pixels. Il
+       coûtait en revanche, sur Android, un bandeau « Pour quitter le plein
+       écran, faites glisser depuis le haut, puis appuyez » posé en travers du
+       plan à CHAQUE ouverture de projet, plusieurs secondes durant, et
+       qu'aucune page ne peut retirer — il appartient au navigateur.
+
+       Sur la borne du bureau de vente, où l'on veut vraiment les barres en
+       moins, F11 (ou le plein écran du navigateur, une fois pour toutes au
+       démarrage) fait le même travail sans rien demander à chaque projet. */
+    $('njSceneAide').hidden = true;
 
     chargerEtape('projet');
   }
@@ -939,41 +929,18 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
       }
       if (['Escape', 'Enter', ' '].indexOf(e.key) >= 0) { e.preventDefault(); etatFinal(); }
     });
-    /* Sortir du plein écran par la touche du navigateur referme la scène,
-       sinon le projet resterait affiché en fenêtré par-dessus la carte.
-     *
-     * MAIS toutes les sorties de plein écran ne viennent pas du visiteur :
-     * ouvrir un sélecteur de fichier — le scan du dos de la CIN dans la fiche
-     * client — fait sortir Chrome du plein écran sous Windows. La scène se
-     * refermait alors d'elle-même et renvoyait à la carte des projets, au
-     * beau milieu de la saisie.
-     *
-     * On distingue les deux par le focus : lorsqu'une boîte de dialogue
-     * système s'ouvre, la page le perd. Le contrôle est différé, le temps que
-     * le navigateur ait fini de déplacer le focus — au moment où
-     * fullscreenchange se déclenche, il est encore sur la page. */
-    document.addEventListener('fullscreenchange', function () {
-      if (document.fullscreenElement || !sceneOuverte()) return;
-      window.setTimeout(function () {
-        if (document.fullscreenElement || !sceneOuverte()) return;
-        if (!document.hasFocus() || document.hidden) return;  // dialogue ou autre onglet : on reste
-        if (sortiePleinIgnoree) return;                       // départ annoncé par le cadre
-        fermerScene();
-      }, 400);
-    });
+    /* Plus d'écoute de « fullscreenchange » ici. Elle refermait la scène quand
+       le visiteur quittait le plein écran — la seule sortie possible quand
+       l'ouverture d'un projet le déclenchait. La scène ne le demande plus (voir
+       ouvrirProjet) : cette écoute ne pourrait donc plus se déclencher que sur
+       le plein écran d'un cadre INTÉRIEUR — la carte du quartier, un plan — et
+       refermerait alors la scène au moment précis où le visiteur revient d'un
+       document. Échap et le bouton « Retour » restent les sorties. */
 
-    /* Le cadre prévient avant d'ouvrir un onglet (bureau de vente) : passer à
-       l'autre onglet fait sortir le navigateur du plein écran, ce qui refermait
-       la scène. Le visiteur revenait alors sur la carte des projets au lieu de
-       retrouver les disponibilités qu'il venait de quitter.
-       Le drapeau se lève le temps du basculement, puis se baisse tout seul. */
-    window.addEventListener('message', function (e) {
-      if (e.origin !== window.location.origin) return;
-      if (!e.data || e.data.nj !== 'garder-scene') return;
-      sortiePleinIgnoree = true;
-      window.clearTimeout(minuterieSortie);
-      minuterieSortie = window.setTimeout(function () { sortiePleinIgnoree = false; }, 8000);
-    });
+    /* Le message « garder-scene » du cadre (départ vers le bureau de vente)
+       n'a plus rien à protéger : il levait un drapeau pour l'écoute de sortie
+       de plein écran, retirée juste au-dessus. Le cadre continue de l'envoyer,
+       personne n'a plus besoin de l'écouter. */
 
     // initPage charge data/projects.json, installe le menu, puis appelle
     // onLanguageChange : les pastilles ont besoin des deux.
