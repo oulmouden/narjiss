@@ -872,6 +872,7 @@
     majTitreProjet();
     majBoutonRetour(null);   // on EST sur la fiche : pas de retour vers elle-même
     majBoutonPlein(false);
+    majLienOnglet('');
     document.getElementById('njMediaNote').hidden = true;
     ouvrirModale();
     document.body.classList.add('nj-fige');
@@ -901,6 +902,23 @@
     if (!b) return;
     b.hidden = !actif;
     if (actif) majLibellePlein();
+  }
+
+  /**
+   * Lien « ouvrir dans un nouvel onglet » de l'en-tête, à côté de « Plein
+   * écran ». Réservé à la visite : une visite 3DVista pèse des dizaines de
+   * méga-octets, et un téléphone à court de mémoire la sert mieux en pleine
+   * page que dans une fenêtre. Sans adresse, le lien disparaît.
+   */
+  function majLienOnglet(url) {
+    var a = document.getElementById('njMediaOnglet');
+    if (!a) return;
+    if (!url) { a.hidden = true; a.removeAttribute('href'); return; }
+    a.href = url;
+    a.textContent = t('ouvrirOnglet') + ' ↗';
+    a.setAttribute('title', t('ouvrirOnglet'));
+    a.setAttribute('aria-label', t('ouvrirOnglet'));
+    a.hidden = false;
   }
 
   /** Accorde le libellé du bouton à l'état réel du plein écran. */
@@ -938,6 +956,7 @@
     var titre = lot.typologie.toUpperCase() + ' · ' + lot.numero;
     var corps = '';
     var note = '';
+    var lienOnglet = '';   // rempli pour la visite : voir majLienOnglet
 
     if (type === 'plan') {
       var planLot = planDuLot(lot);
@@ -971,10 +990,9 @@
          refuse de se lancer dans le cadre : une visite 3DVista est lourde, et
          un téléphone à court de mémoire la sert mieux seule. */
       corps = tour
-        ? '<iframe src="' + versionne(tour) + '" title="' + t('tour360') + '" allowfullscreen></iframe>' +
-          '<p class="nj-media-lien"><a href="' + versionne(tour) + '" target="_blank" rel="noopener">' +
-          t('ouvrirOnglet') + ' ↗</a></p>'
+        ? '<iframe src="' + versionne(tour) + '" title="' + t('tour360') + '" allowfullscreen></iframe>'
         : '<p class="nj-media-vide">' + t('sansTour') + '</p>';
+      lienOnglet = tour ? versionne(tour) : '';
       if (tour && !lot.tour) note = t('mediaProjet');
     } else if (type === 'medias') {
       // L'album du projet, servi par medias.html en mode embarqué : c'est la
@@ -997,6 +1015,7 @@
     majBoutonRetour(lot.id);
     majTitreProjet();
     majBoutonPlein(true);
+    majLienOnglet(lienOnglet);
 
     document.getElementById('njMediaTitre').textContent = titre;
     document.getElementById('njMediaCorps').innerHTML = corps;
