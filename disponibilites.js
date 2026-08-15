@@ -812,7 +812,13 @@
         '</p>' +
       '<p class="nj-bulle-prix">' + prixHtml(lot.prix) + '</p>' +
       '<p class="nj-bulle-statut"><span class="nj-pastille">' + t(lot.statut) + '</span></p>' +
-      '<div class="nj-bulle-actions">' + actionsBulleHTML(lot) + '</div>';
+      '<div class="nj-bulle-actions">' + actionsBulleHTML(lot) + '</div>' +
+      /* La fiche complète — album, orientation, notes — n'a plus d'autre porte
+         d'entrée depuis le plan maintenant que la pastille « i » a disparu.
+         Un lien discret plutôt qu'un quatrième bouton : c'est une suite
+         possible, pas une des trois actions. */
+      '<button type="button" class="nj-bulle-details" data-fiche="' + lot.id + '">' +
+        t('detailsLot') + ' ›</button>';
     plateau.appendChild(bulle);
 
     /* Ancrée sur le lot touché, en coordonnées du plateau — le plan se déplace
@@ -901,7 +907,7 @@
   function majLibellePlein() {
     var b = document.getElementById('njMediaPlein');
     if (!b) return;
-    var plein = !!document.fullscreenElement;
+    var plein = !!elementPlein();
     var libelle = plein ? t('quitterPleinEcran') : t('pleinEcran');
     b.textContent = (plein ? '✕ ' : '⛶ ') + libelle;
     b.setAttribute('title', libelle);
@@ -1019,7 +1025,7 @@
     var d = document.getElementById('njMedia');
     // Sortir d'abord du plein écran : fermer le dialogue sans le faire
     // laisserait le navigateur en plein écran sur une fenêtre disparue.
-    if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) {} }
+    quitterPleinEcran();   // la boîte agrandie ne doit pas survivre à la fenêtre
     if (d.open) d.close();
     // Vider libère l'iframe : sans ça la visite 360° continue de tourner.
     document.getElementById('njMediaCorps').innerHTML = '';
@@ -1290,7 +1296,7 @@
       plateau.innerHTML = plateauOuPlan(niveaux[niveau].lots);
       section.querySelectorAll('.nj-mq-reel').forEach(activerNavigationPlan);
       // En plein écran, le nouvel étage doit s'afficher cadré comme l'ancien.
-      if (document.fullscreenElement) {
+      if (elementPlein()) {
         section.querySelectorAll('.nj-mq-reel').forEach(recadrerPlan);
       }
     }
@@ -1451,11 +1457,10 @@
         '<text class="nj-mq-info" x="' + arr(cx) + '" y="' + arr(cy + 22) +
         '" text-anchor="middle">' + lot.typologie.toUpperCase() + ' · ' + lot.surface + ' m²</text>';
 
-      // Pastille d'information : ouvre la fiche sans toucher à la sélection.
-      svg += '<g class="nj-mq-info-btn" role="button" tabindex="0" data-fiche="' + lot.id +
-        '" aria-label="' + t('detailsLot') + ' ' + echapper(lot.numero) + '">' +
-        '<circle cx="' + arr(cx + 62) + '" cy="' + arr(cy - 34) + '" r="15"/>' +
-        '<text x="' + arr(cx + 62) + '" y="' + arr(cy - 27) + '" text-anchor="middle">i</text></g>';
+      /* Plus de pastille « i » : depuis que toucher un lot ouvre sa bulle, elle
+         faisait doublon — deux cibles côte à côte pour la même question, sur un
+         plan déjà chargé. La fiche complète reste accessible par « Détails »,
+         dans la bulle. */
 
       if (choisi) {
         svg += '<g class="nj-mq-coche" aria-hidden="true">' +
@@ -1645,14 +1650,7 @@
       }
     }
 
-    // Pastille d'information : ouvre la fiche sans toucher à la sélection.
-    if (b.w > 72 && b.h > 66) {
-      var ix = b.x + b.w - 20, iy = b.y + 20;
-      s += '<g class="nj-mq-info-btn" role="button" tabindex="0" data-fiche="' + lot.id +
-        '" aria-label="' + t('detailsLot') + ' ' + echapper(lot.numero) + '">' +
-        '<circle cx="' + arr(ix) + '" cy="' + arr(iy) + '" r="13"/>' +
-        '<text x="' + arr(ix) + '" y="' + arr(iy + 6) + '" text-anchor="middle">i</text></g>';
-    }
+    // Pastille « i » retirée ici aussi : voir planReelSVG.
     if (choisi && b.w > 72) {
       var kx = b.x + 20, ky = b.y + 20;
       s += '<g class="nj-mq-coche" aria-hidden="true">' +
@@ -1694,15 +1692,40 @@
     if (b) b.hidden = !document.querySelector('.nj-mq-imm');
   }
 
+  /* Plein écran maison, par une classe, au lieu de l'API du navigateur.
+
+     Chrome sur Android accompagne tout requestFullscreen() d'un bandeau
+     « faites glisser vers le bas pour quitter le mode plein écran », qui reste
+     plusieurs secondes en travers du plan et qu'aucune page ne peut retirer :
+     il appartient au navigateur, pas au site. Et sur iPhone, l'API n'existe
+     pas pour un élément de page — le bouton n'y faisait rien du tout.
+
+     Une position fixe couvrant la fenêtre donne le même résultat, sans
+     bandeau et sur tous les téléphones. En contrepartie, la barre du
+     navigateur reste visible : c'est le prix, et il est mince. */
+  function elementPlein() { return document.querySelector('.nj-plein'); }
+
   function basculerPleinEcran(section) {
     if (!section) return;
-    if (document.fullscreenElement) { document.exitFullscreen(); return; }
-    if (section.requestFullscreen) section.requestFullscreen();
-    else if (section.webkitRequestFullscreen) section.webkitRequestFullscreen();
+    var dejaPlein = section.classList.contains('nj-plein');
+    var precedent = elementPlein();
+    if (precedent) precedent.classList.remove('nj-plein');
+    if (!dejaPlein) section.classList.add('nj-plein');
+    document.body.classList.toggle('nj-fige-plein', !dejaPlein);
+    majEtatPlein();
   }
 
-  document.addEventListener('fullscreenchange', function () {
-    var plein = !!document.fullscreenElement;
+  function quitterPleinEcran() {
+    var el = elementPlein();
+    if (!el) return false;
+    el.classList.remove('nj-plein');
+    document.body.classList.remove('nj-fige-plein');
+    majEtatPlein();
+    return true;
+  }
+
+  function majEtatPlein() {
+    var plein = !!elementPlein();
     document.querySelectorAll('[data-agrandir]').forEach(function (b) {
       b.textContent = (plein ? '✕ ' + t('quitterPleinEcran') : '⛶ ' + t('pleinEcran'));
     });
@@ -1710,7 +1733,7 @@
     // Le plan reprend son cadrage entier : on ne veut pas entrer en plein
     // écran sur un détail zoomé de la vue précédente.
     document.querySelectorAll('.nj-mq-reel').forEach(recadrerPlan);
-  });
+  }
 
   /**
    * Zoom et déplacement du plan, au doigt comme à la souris.
@@ -2256,7 +2279,7 @@
       // Un bouton de consultation ne doit pas déclencher la sélection.
       // getAttribute plutôt que dataset : la pastille de la maquette est un
       // <g> SVG, et dataset n'y est pas garanti sur tous les navigateurs.
-      var fiche = e.target.closest('.nj-carreau-info, .nj-mq-info-btn, .nj-choix-voir');
+      var fiche = e.target.closest('.nj-carreau-info, .nj-choix-voir, .nj-bulle-details');
       if (fiche) {
         e.stopPropagation();
         ouvrirFiche(Number(fiche.getAttribute('data-fiche')));
@@ -2351,14 +2374,6 @@
     });
     document.getElementById('njGrille').addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      // La pastille d'info de la maquette est focusable : au clavier elle
-      // doit ouvrir la fiche, pas sélectionner le lot qui l'entoure.
-      var info = e.target.closest('.nj-mq-info-btn');
-      if (info) {
-        e.preventDefault();
-        ouvrirFiche(Number(info.getAttribute('data-fiche')));
-        return;
-      }
       // Au clavier comme à la souris, un lot du plan s'interroge d'abord.
       var surPlan = e.target.closest('.nj-mq-lot');
       if (surPlan) {
@@ -2380,6 +2395,11 @@
       if (e.key !== 'Escape') return;
       var media = document.getElementById('njMedia');
       if (media && media.open) return;
+      /* Le plein écran n'étant plus celui du navigateur, c'est à nous de
+         rendre son Échap — sinon on resterait enfermé dans le plan agrandi
+         au clavier. Il passe avant la bulle : on sort de la vue avant de
+         fermer ce qu'elle contient. */
+      if (quitterPleinEcran()) return;
       fermerBulle();
     });
     /* Les jetons « × » (barre du bas et panneau maquette) sont gérés par la

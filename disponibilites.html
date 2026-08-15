@@ -477,6 +477,14 @@ body.nj-fige { overflow: hidden; }
 }
 .nj-media-boite:-webkit-full-screen .nj-media-corps { --nj-media-h: calc(100vh - 118px); }
 .nj-media-boite:-webkit-full-screen .nj-media-corps iframe { height: calc(100vh - 118px); }
+/* Notre propre plein ecran, sans l'API du navigateur : voir la note de
+   basculerPleinEcran dans disponibilites.js. */
+.nj-media-boite.nj-plein {
+  position: fixed; inset: 0; z-index: 30;
+  width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0;
+}
+.nj-media-boite.nj-plein .nj-media-corps { --nj-media-h: calc(100vh - 118px); }
+.nj-media-boite.nj-plein .nj-media-corps iframe { height: calc(100vh - 118px); }
 .nj-media-corps {
   flex: 1; min-height: 260px; overflow: auto;
   display: flex; align-items: center; justify-content: center;
@@ -781,6 +789,13 @@ body.nj-fige { overflow: hidden; }
   font-size: .78rem; white-space: nowrap;
 }
 .nj-bulle .nj-fiche-choix { flex-basis: 100%; }
+.nj-bulle-details {
+  display: block; width: 100%; margin-top: .4rem; padding: .25rem 0;
+  border: 0; background: transparent; color: var(--accent-solid);
+  font: inherit; font-size: .76rem; font-weight: 700; text-align: center;
+  cursor: pointer;
+}
+.nj-bulle-details:hover { text-decoration: underline; }
 
 /* Bouton d'agrandissement, dans l'en-tête de l'immeuble. Cible ≥ 44 px : on
    le vise au doigt sur la borne. */
@@ -823,6 +838,34 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-imm:fullscreen .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-mq-imm:fullscreen .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
 .nj-mq-imm:fullscreen .nj-mq-etage { min-height: 60px; }
+
+/* Plein écran « maison », posé par une classe plutôt que par l'API du
+   navigateur — qui affiche sur Android un bandeau « faites glisser vers le bas
+   pour quitter » impossible à retirer, et qui n'existe tout simplement pas sur
+   iPhone. Mêmes règles que le bloc :fullscreen ci-dessus, la position fixe en
+   plus : c'est le navigateur qui la posait. */
+.nj-mq-imm.nj-plein {
+  position: fixed; inset: 0; z-index: 25;
+  display: flex; flex-direction: column;
+  margin: 0; padding: 1.2rem 1.5rem; background: var(--bg); overflow: auto;
+}
+.nj-mq-imm.nj-plein .nj-mq-sortie {
+  display: inline-flex; align-items: center; gap: .35rem;
+  position: absolute; top: .9rem; inset-inline-end: 1.1rem; z-index: 5;
+  min-height: 44px; padding: .5rem 1.1rem; border-radius: 999px;
+  border: 1px solid var(--sun); background: var(--sun);
+  color: #fff; font: inherit; font-weight: 700; font-size: .88rem; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+}
+.nj-mq-imm.nj-plein .nj-mq-sortie:hover { filter: brightness(1.1); }
+.nj-mq-imm.nj-plein .nj-mq-choix { display: block; }
+.nj-mq-imm.nj-plein .nj-mq-legende { flex: 0 0 auto; margin: .2rem 0 .8rem; }
+.nj-mq-imm.nj-plein .nj-mq-corps { flex: 1; min-height: 0; }
+.nj-mq-imm.nj-plein .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
+.nj-mq-imm.nj-plein .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
+.nj-mq-imm.nj-plein .nj-mq-etage { min-height: 60px; }
+/* Le reste de la page ne doit pas defiler derriere le plan agrandi. */
+body.nj-fige-plein { overflow: hidden; }
 .nj-mq-lot polygon.nj-mq-forme { stroke-width: 4; fill-opacity: .42; }
 .nj-mq-lot.nj-disponible polygon.nj-mq-forme { fill: var(--lot-dispo); stroke: var(--lot-dispo); }
 .nj-mq-lot.nj-optionne   polygon.nj-mq-forme { fill: var(--lot-optionne); stroke: var(--lot-optionne); }
@@ -834,9 +877,8 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-reel .nj-mq-num,
 .nj-mq-reel .nj-mq-info { paint-order: stroke; stroke: var(--surface); stroke-width: 5; }
 
-.nj-mq-info-btn circle { fill: var(--surface); stroke: var(--border-medium); stroke-width: 2; }
-.nj-mq-info-btn text { fill: var(--muted); font-size: 17px; font-weight: 800; }
-.nj-mq-info-btn:hover circle { stroke: var(--ocean); }
+/* La pastille « i » a disparu des lots : la bulle répond à sa place, et son
+   lien « Détails du lot » ouvre la fiche complète. */
 
 /* ── Barre de sélection ────────────────────────────────────────────── */
 .nj-barre {
@@ -1152,6 +1194,6 @@ body.nj-fige { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=23"></script>
-<script src="disponibilites.js?v=63"></script>
+<script src="disponibilites.js?v=64"></script>
 </body>
 </html>
