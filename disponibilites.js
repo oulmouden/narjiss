@@ -788,6 +788,8 @@
     if (lot.tour || (p && (p.apartment_tour_url || p.tour_url))) {
       html += bouton('tour', lot.id, '◎', t('tour360'));
     }
+    // L'album du projet : le lot se juge aussi sur la résidence autour.
+    if (p) html += bouton('medias', lot.id, '▣', t('medias'));
     return html;
   }
 

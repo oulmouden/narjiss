@@ -769,7 +769,9 @@ body.nj-fige { overflow: hidden; }
 .nj-bulle {
   position: absolute; z-index: 6;
   transform: translate(-50%, -100%);
-  min-width: 13.5rem; max-width: 17rem;
+  /* Élargie depuis l'arrivée d'« Album » : les trois documents tiennent ainsi
+     sur une seule ligne sous le bouton « Choisir ». */
+  min-width: 15rem; max-width: 19.5rem;
   padding: .7rem .8rem .6rem;
   background: var(--surface); color: var(--text);
   border: 1px solid var(--border-medium); border-left: 4px solid var(--lot-dispo);
@@ -803,10 +805,14 @@ body.nj-fige { overflow: hidden; }
    repris de la fiche, taillés eux pour une fenêtre pleine largeur. */
 .nj-bulle .nj-fiche-choix,
 .nj-bulle .nj-media-btn {
-  flex: 1 1 auto; min-height: 38px; padding: .35rem .6rem;
-  font-size: .78rem; white-space: nowrap;
+  flex: 1 1 auto; min-height: 38px; padding: .35rem .5rem;
+  font-size: .76rem; white-space: nowrap;
 }
-.nj-bulle .nj-fiche-choix { flex-basis: 100%; }
+.nj-bulle .nj-fiche-choix { flex-basis: 100%; padding: .35rem .6rem; font-size: .78rem; }
+/* Les trois documents se partagent la ligne à parts égales : « Plan » est
+   court, « Album » ne l'est pas dans toutes les langues, et sans base commune
+   le plus long chassait les autres. */
+.nj-bulle .nj-media-btn { flex: 1 1 0; min-width: 0; justify-content: center; }
 .nj-bulle-details {
   display: block; width: 100%; margin-top: .4rem; padding: .25rem 0;
   border: 0; background: transparent; color: var(--accent-solid);
@@ -1213,6 +1219,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=23"></script>
-<script src="disponibilites.js?v=66"></script>
+<script src="disponibilites.js?v=67"></script>
 </body>
 </html>
