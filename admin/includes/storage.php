@@ -134,7 +134,28 @@ function posted_project(?array $existing = null): array
     $modePrix = (string) ($_POST['price_mode'] ?? $existing['price_mode'] ?? 'public');
     $project['price_mode'] = $modePrix === 'on-request' ? 'on-request' : 'public';
     $project['detail_url'] = trim((string) ($_POST['detail_url'] ?? $existing['detail_url'] ?? ''));
-    $project['tour_url'] = trim((string) ($_POST['tour_url'] ?? $existing['tour_url'] ?? ''));
+    /* Visite 360 : deux régimes pour un même champ.
+     *
+     * Visionneuse maison cochée, la saisie est un simple DOSSIER de visite
+     * (« jawhara/Tour ») et l'URL est composée ici. Le front continue de ne
+     * lire que `tour_url` : rien à changer dans project.js ni ailleurs.
+     *
+     * Décochée, la saisie reste une URL libre — lecteur 3DVista ou service
+     * externe. `tour_dossier` conserve la saisie brute pour que le formulaire
+     * la retrouve telle quelle au rechargement. */
+    $project['tour_maison'] = isset($_POST['tour_maison']);
+    $saisieTour = trim((string) ($_POST['tour_url'] ?? $existing['tour_url'] ?? ''));
+
+    if ($project['tour_maison']) {
+        // Un dossier, rien d'autre : ni protocole, ni requête, ni remontée
+        // d'arborescence, qui casseraient l'URL composée.
+        $dossier = trim(preg_replace('#[^A-Za-z0-9_/-]#', '', $saisieTour), '/');
+        $project['tour_dossier'] = $dossier;
+        $project['tour_url'] = $dossier !== '' ? 'tour-360.html?tour=' . $dossier : '';
+    } else {
+        $project['tour_dossier'] = '';
+        $project['tour_url'] = $saisieTour;
+    }
     $project['brochure_pdf'] = trim((string) ($_POST['brochure_pdf'] ?? $existing['brochure_pdf'] ?? ''));
 
     foreach (['fr', 'en', 'ar', 'es'] as $lang) {

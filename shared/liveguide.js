@@ -405,6 +405,7 @@
       pc.onicecandidate = function (ev) {
         if (ev.candidate) sig(channel, { type: 'ice', to: viewerId, from: userId, candidate: ev.candidate });
       };
+      mesurerChemin(pc, 'host');
       pc.createOffer()
         .then(function (offer) { return pc.setLocalDescription(offer); })
         .then(function () { sig(channel, { type: 'offer', to: viewerId, from: userId, sdp: pc.localDescription }); })
@@ -715,6 +716,7 @@
           if (ev.candidate) sig(channel, { type: 'ice', to: msg.from, from: userId, candidate: ev.candidate });
         };
         pc.ontrack = function (ev) { attachAudio(ev.streams[0]); };
+        mesurerChemin(pc, 'viewer');
         pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
           .then(function () {
             // Notre voix, si le visiteur a pris la parole. Ajoutée APRÈS la
@@ -1278,6 +1280,57 @@
   function removeEl(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
 
   function noop() {}
+
+  /**
+   * Relève par quel chemin la voix est réellement passée, et le consigne.
+   *
+   * Un candidat `relay` d'un côté ou de l'autre veut dire que la connexion
+   * n'aurait PAS abouti sans serveur TURN. C'est la seule façon honnête de
+   * répondre à « faut-il en payer un ? » : par des chiffres tirés des vraies
+   * visites, plutôt que par la fourchette de 20-30 % qu'on lit partout.
+   *
+   * On interroge périodiquement : la paire gagnante n'est désignée qu'une fois
+   * la connexion établie, quelques secondes après l'offre.
+   */
+  function mesurerChemin(pc, quiSuisJe) {
+    if (!pc || typeof pc.getStats !== 'function') return;
+
+    var essais = 0;
+    var horloge = setInterval(function () {
+      essais++;
+      // ~20 s de patience : au-delà, la connexion a échoué et il n'y a rien à
+      // mesurer. On s'arrête aussi dès qu'elle est fermée.
+      if (essais > 20 || pc.connectionState === 'closed' || pc.iceConnectionState === 'closed') {
+        clearInterval(horloge);
+        return;
+      }
+      pc.getStats(null).then(function (rapport) {
+        var paire = null, candidats = {};
+        rapport.forEach(function (s) {
+          if (s.type === 'local-candidate' || s.type === 'remote-candidate') candidats[s.id] = s;
+          // `selected` sur Firefox, `nominated` + `succeeded` sur Chromium.
+          if (s.type === 'candidate-pair' && (s.selected || (s.nominated && s.state === 'succeeded'))) {
+            paire = s;
+          }
+        });
+        if (!paire) return;
+        clearInterval(horloge);
+
+        var l = candidats[paire.localCandidateId];
+        var r = candidats[paire.remoteCandidateId];
+        var local = (l && l.candidateType) || '';
+        var distant = (r && r.candidateType) || '';
+        if (!local || !distant) return;
+
+        var relais = local === 'relay' || distant === 'relay';
+        console.info('[LiveGuide] voix : ' + local + ' ↔ ' + distant +
+                     (relais ? ' — a nécessité un relais TURN' : ' — connexion directe'));
+
+        postForm('api/liveguide-session.php?action=ice',
+                 { session: session, role: quiSuisJe, local: local, remote: distant }, noop);
+      }).catch(noop);
+    }, 1000);
+  }
 
   // POST en formulaire vers l'API du site (PHP lit $_POST). cb reçoit la
   // réponse JSON, ou null si la requête a échoué.

@@ -48,6 +48,8 @@ $project = $project ?: [
     'has_tour' => false,
     'detail_url' => '',
     'tour_url' => '',
+    'tour_maison' => false,
+    'tour_dossier' => '',
     'brochure_pdf' => '',
     'name' => ['fr' => '', 'en' => '', 'ar' => '', 'es' => ''],
     'location' => ['fr' => '', 'en' => '', 'ar' => '', 'es' => ''],
@@ -129,8 +131,25 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
             <input name="detail_url" value="<?= htmlspecialchars($project['detail_url'] ?? '') ?>">
         </label>
         <label class="full">
-            URL visite 360
-            <input name="tour_url" value="<?= htmlspecialchars($project['tour_url'] ?? '') ?>">
+            Visionneuse 360
+            <span><input name="tour_maison" type="checkbox" value="1"
+                         <?= ! empty($project['tour_maison']) ? 'checked' : '' ?>> Utiliser la visionneuse maison (Pannellum)</span>
+            <small style="color:#64748b">
+                Cochée, l'URL ci-dessous est composée automatiquement à partir du
+                dossier de visite et le champ devient un simple chemin de dossier
+                (ex. <code>jawhara/Tour</code>). Décochée, l'URL est libre — pour
+                pointer le lecteur 3DVista (<code>jawhara/Tour/index.htm</code>)
+                ou un service externe.
+            </small>
+        </label>
+        <label class="full">
+            URL visite 360 <em style="font-weight:400">— ou dossier du tour si la visionneuse maison est cochée</em>
+            <?php // En régime « maison », on réaffiche le dossier saisi, pas l'URL composée. ?>
+            <input name="tour_url" value="<?= htmlspecialchars(
+                ! empty($project['tour_maison'])
+                    ? ($project['tour_dossier'] ?? '')
+                    : ($project['tour_url'] ?? '')
+            ) ?>">
         </label>
         <label class="full">
             PDF brochure / plan

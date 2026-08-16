@@ -66,8 +66,83 @@ CREATE TABLE IF NOT EXISTS liveguide_sessions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL);
 
+  // Journal des chemins WebRTC réellement empruntés par la voix. Sert à
+  // répondre par des chiffres, et non au jugé, à la question « faut-il payer un
+  // serveur TURN ? ». Une ligne par connexion vocale établie.
+  $pdo->exec(<<<'SQL'
+CREATE TABLE IF NOT EXISTS liveguide_ice (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  session     VARCHAR(64) NOT NULL,
+  role        ENUM('host','viewer') NOT NULL,
+  local_type  VARCHAR(16) NOT NULL DEFAULT '',
+  remote_type VARCHAR(16) NOT NULL DEFAULT '',
+  relais      TINYINT(1)  NOT NULL DEFAULT 0,
+  created_at  DATETIME    NOT NULL,
+  INDEX idx_session (session),
+  INDEX idx_relais (relais)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL);
+
   $ready = true;
   return $pdo;
+}
+
+/** Types de candidats ICE possibles ; tout le reste est refusé. */
+const LG_ICE_TYPES = ['host', 'srflx', 'prflx', 'relay'];
+
+/**
+ * Consigne le chemin qu'une connexion vocale a fini par emprunter.
+ *
+ * `relay` d'un côté ou de l'autre signifie que la connexion n'a PU aboutir que
+ * par un relais TURN : sans serveur TURN, cette visite aurait été muette.
+ */
+function nj_lg_ice(string $session, string $role, string $local, string $remote): bool {
+  if (!in_array($local, LG_ICE_TYPES, true) || !in_array($remote, LG_ICE_TYPES, true)) {
+    return false;
+  }
+  if (!nj_lg_get($session)) return false; // session inconnue : on ne journalise pas
+
+  $relais = ($local === 'relay' || $remote === 'relay') ? 1 : 0;
+  $st = nj_lgdb()->prepare(
+    'INSERT INTO liveguide_ice (session, role, local_type, remote_type, relais, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)'
+  );
+  $st->execute([
+    $session,
+    $role === 'host' ? 'host' : 'viewer',
+    $local, $remote, $relais,
+    (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'),
+  ]);
+  return true;
+}
+
+/**
+ * Bilan des chemins observés : combien de connexions ont exigé un relais.
+ *
+ * @return array{total:int,relais:int,pourcentage:float,detail:array}
+ */
+function nj_lg_ice_bilan(int $jours = 90): array {
+  $st = nj_lgdb()->prepare(
+    'SELECT local_type, remote_type, relais, COUNT(*) AS n
+       FROM liveguide_ice
+      WHERE created_at > (NOW() - INTERVAL ? DAY)
+      GROUP BY local_type, remote_type, relais
+      ORDER BY n DESC'
+  );
+  $st->execute([$jours]);
+  $lignes = $st->fetchAll();
+
+  $total = 0; $relais = 0;
+  foreach ($lignes as $l) {
+    $total += (int) $l['n'];
+    if ((int) $l['relais']) $relais += (int) $l['n'];
+  }
+  return [
+    'total'       => $total,
+    'relais'      => $relais,
+    'pourcentage' => $total ? round($relais * 100 / $total, 1) : 0.0,
+    'detail'      => $lignes,
+  ];
 }
 
 /**

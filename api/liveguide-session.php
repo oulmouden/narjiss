@@ -62,6 +62,18 @@ try {
       nj_lg_json(['ok' => true, 'valid' => true]);
     }
 
+    /* Chemin réellement emprunté par une connexion vocale. Déclaré par le
+       navigateur, donc indicatif : ce n'est qu'une statistique, elle n'ouvre
+       aucun droit. On vérifie tout de même que la session existe et que les
+       types annoncés sont ceux du vocabulaire ICE. */
+    case 'ice': {
+      $session = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($_POST['session'] ?? ''));
+      $role    = ($_POST['role'] ?? '') === 'host' ? 'host' : 'viewer';
+      $local   = preg_replace('/[^a-z]/', '', (string) ($_POST['local'] ?? ''));
+      $remote  = preg_replace('/[^a-z]/', '', (string) ($_POST['remote'] ?? ''));
+      nj_lg_json(['ok' => nj_lg_ice($session, $role, $local, $remote)]);
+    }
+
     case 'end': {
       $session = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($_POST['session'] ?? ''));
       $token   = preg_replace('/[^a-f0-9]/', '', (string) ($_POST['host_token'] ?? ''));
