@@ -169,6 +169,7 @@
      ====================================================================== */
   function initHost(channel) {
     var ui = buildHostBar();
+    initChat(channel, ui.chat, 'Conseiller');
     var viewers = {};   // viewerId -> true
     var pcs = {};       // viewerId -> RTCPeerConnection (voix)
     var localStream = null;
@@ -485,6 +486,7 @@
      ====================================================================== */
   function initViewer(channel) {
     var banner = buildViewerBanner();
+    initChat(channel, banner.chat, SS.getItem('lg_nom') || 'Visiteur');
     var here = cleanUrl(window.location.href);
     var pc = null;       // connexion voix avec l'hôte
     var audioEl = null;
@@ -862,6 +864,11 @@
     point.textContent = '👉 Pointeur';
     point.title = 'Suit la souris dans une vue 360°';
 
+    var chat = el('button', 'lg-btn lg-btn-ghost');
+    chat.type = 'button';
+    chat.textContent = '💬 Chat';
+    chat.setAttribute('aria-expanded', 'false');
+
     var copy = el('button', 'lg-btn lg-btn-primary');
     copy.type = 'button';
     copy.textContent = 'Copier le lien visiteur';
@@ -881,6 +888,7 @@
     bar.appendChild(codeBox);
     bar.appendChild(mic);
     bar.appendChild(point);
+    bar.appendChild(chat);
     bar.appendChild(copy);
     bar.appendChild(end);
     document.body.appendChild(bar);
@@ -888,7 +896,7 @@
     document.body.classList.add('lg-host'); // barre plus haute : voir liveguide.css
 
     return { bar: bar, status: status, count: count, code: codeBox,
-             mic: mic, point: point, copy: copy, end: end };
+             mic: mic, point: point, chat: chat, copy: copy, end: end };
   }
 
   function updateCount(ui, n, micros) {
@@ -914,6 +922,11 @@
     talk.type = 'button';
     talk.textContent = '🎙️ Prendre la parole';
 
+    var chat = el('button', 'lg-btn lg-btn-ghost');
+    chat.type = 'button';
+    chat.textContent = '💬 Chat';
+    chat.setAttribute('aria-expanded', 'false');
+
     var leave = el('button', 'lg-btn lg-btn-ghost');
     leave.type = 'button';
     leave.textContent = 'Quitter';
@@ -921,11 +934,12 @@
     bar.appendChild(status);
     bar.appendChild(sound);
     bar.appendChild(talk);
+    bar.appendChild(chat);
     bar.appendChild(leave);
     document.body.appendChild(bar);
     document.body.classList.add('lg-has-bar');
 
-    return { bar: bar, status: status, sound: sound, talk: talk, leave: leave };
+    return { bar: bar, status: status, sound: sound, talk: talk, chat: chat, leave: leave };
   }
 
   /**
@@ -953,6 +967,16 @@
     input.maxLength = 6;
     input.placeholder = '••••••';
     input.setAttribute('aria-label', 'Code d\'accès à la visite guidée');
+
+    // Facultatif, mais il change tout pour le conseiller : pouvoir répondre
+    // « Bonjour Karim » plutôt qu'à un « Visiteur » anonyme dans le chat.
+    var nom = el('input', 'lg-gate-nom');
+    nom.type = 'text';
+    nom.maxLength = 30;
+    nom.autocomplete = 'given-name';
+    nom.placeholder = 'Votre prénom (facultatif)';
+    nom.setAttribute('aria-label', 'Votre prénom, facultatif');
+    nom.value = SS.getItem('lg_nom') || '';
 
     var err = el('p', 'lg-gate-error');
     err.setAttribute('role', 'alert');     // lu par les lecteurs d'écran
@@ -999,6 +1023,8 @@
         if (res.valid) {
           code = value;
           SS.setItem('lg_code', code);
+          var prenom = (nom.value || '').trim().slice(0, 30);
+          if (prenom) SS.setItem('lg_nom', prenom); else SS.removeItem('lg_nom');
           removeEl(ov);
           done(true);
           return;
@@ -1020,12 +1046,124 @@
     box.appendChild(title);
     box.appendChild(help);
     box.appendChild(input);
+    box.appendChild(nom);
     box.appendChild(err);
     box.appendChild(submit);
     box.appendChild(cancel);
     ov.appendChild(box);
     document.body.appendChild(ov);
     input.focus();
+  }
+
+  /* ======================================================================
+     CHAT ÉCRIT (conseiller ↔ visiteurs)
+     ====================================================================== */
+
+  /**
+   * Panneau de discussion, partagé par le conseiller et les visiteurs.
+   *
+   * Contrairement au reste de la synchronisation, le chat n'est PAS filtré sur
+   * le seul hôte : chacun doit pouvoir écrire. Le rôle affiché ne vient donc
+   * pas du message — qu'un visiteur pourrait falsifier — mais de la liste de
+   * présence Pusher, dont `info.role` est signé par api/pusher-auth.php.
+   *
+   * @param {object} channel  canal Pusher déjà abonné
+   * @param {Element} bouton  bouton de la barre qui ouvre le panneau
+   * @param {string} monNom   nom affiché à côté de nos messages
+   */
+  function initChat(channel, bouton, monNom) {
+    var panneau = el('div', 'lg-chat');
+    panneau.hidden = true;
+
+    var liste = el('div', 'lg-chat-liste');
+    var form = el('form', 'lg-chat-form');
+
+    var saisie = el('input', 'lg-chat-input');
+    saisie.type = 'text';
+    saisie.maxLength = 500;
+    saisie.placeholder = 'Votre message…';
+    saisie.setAttribute('aria-label', 'Message');
+
+    var envoi = el('button', 'lg-btn lg-btn-primary');
+    envoi.type = 'submit';
+    envoi.textContent = 'Envoyer';
+
+    form.appendChild(saisie);
+    form.appendChild(envoi);
+    panneau.appendChild(liste);
+    panneau.appendChild(form);
+    document.body.appendChild(panneau);
+
+    var nonLus = 0;
+
+    bouton.addEventListener('click', function () {
+      panneau.hidden = !panneau.hidden;
+      bouton.setAttribute('aria-expanded', panneau.hidden ? 'false' : 'true');
+      if (!panneau.hidden) { nonLus = 0; majBouton(); saisie.focus(); }
+    });
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var texte = (saisie.value || '').trim();
+      if (!texte) return;
+      saisie.value = '';
+      channel.trigger('client-chat', { nom: monNom, texte: texte });
+      // Pusher ne renvoie pas à l'expéditeur ses propres client events :
+      // on affiche donc le message localement.
+      ajouter(monNom, texte, true, role === 'host');
+    });
+
+    channel.bind('client-chat', function (msg, meta) {
+      if (!msg || typeof msg.texte !== 'string') return;
+
+      // Rôle pris sur la liste de présence, jamais sur le message.
+      var estHote = false;
+      try {
+        var m = meta && meta.user_id && channel.members.get(meta.user_id);
+        estHote = !!(m && m.info && m.info.role === 'host');
+      } catch (e) {}
+
+      ajouter(nomAffiche(msg.nom, estHote), msg.texte.slice(0, 500), false, estHote);
+
+      if (panneau.hidden) { nonLus++; majBouton(); }
+    });
+
+    /**
+     * Nom à afficher, en refusant qu'un visiteur se fasse passer pour l'hôte.
+     *
+     * Le fond vert des messages du conseiller n'est déjà pas usurpable — il
+     * découle du rôle signé. Mais le NOM, lui, est du texte libre : sans ce
+     * garde-fou, un visiteur pourrait signer « Conseiller » et le fil de
+     * discussion deviendrait trompeur à la relecture.
+     */
+    function nomAffiche(revendique, estHote) {
+      if (estHote) return 'Conseiller'; // le vrai hôte est nommé par son rôle
+      var n = String(revendique || '').slice(0, 40).trim();
+      if (!n) return 'Visiteur';
+      if (/^conseiller$/i.test(n)) return n + ' (visiteur)';
+      return n;
+    }
+
+    function ajouter(nom, texte, deMoi, estHote) {
+      var ligne = el('div', 'lg-chat-msg' + (deMoi ? ' lg-chat-moi' : '') + (estHote ? ' lg-chat-hote' : ''));
+      var qui = el('b', 'lg-chat-nom');
+      qui.textContent = nom;
+      var quoi = el('span', 'lg-chat-texte');
+      // textContent et non innerHTML : un message est du texte, jamais du
+      // balisage. C'est la seule barrière nécessaire ici.
+      quoi.textContent = texte;
+      ligne.appendChild(qui);
+      ligne.appendChild(quoi);
+      liste.appendChild(ligne);
+      liste.scrollTop = liste.scrollHeight;
+    }
+
+    function majBouton() {
+      bouton.textContent = nonLus ? '💬 Chat (' + nonLus + ')' : '💬 Chat';
+      bouton.classList.toggle('lg-btn-on', nonLus > 0);
+    }
+
+    return { panneau: panneau, retirer: function () { removeEl(panneau); } };
   }
 
   /* ======================================================================

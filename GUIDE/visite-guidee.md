@@ -81,25 +81,30 @@ démarrer plutôt que de s'ouvrir sans contrôle.
    > panorama, les deux gestes se marcheraient dessus. Fonction pensée pour un
    > conseiller sur ordinateur.
 
-6. Naviguer normalement : chaque page / défilement est répercuté chez le visiteur.
+6. **Chat (option)** : **« 💬 Chat »** ouvre un fil de discussion écrit. Utile
+   quand le client ne peut pas parler, ou pour laisser une adresse, un chiffre,
+   un nom de rue. Le bouton affiche le nombre de messages non lus.
+7. Naviguer normalement : chaque page / défilement est répercuté chez le visiteur.
    La barre indique le **nombre de spectateurs connectés**, et **« 🎤 n »** quand
    des visiteurs ont pris la parole — tu les entends sans rien faire de plus,
    même si ton propre micro est coupé.
-7. Cliquer **« Terminer »** pour clore la session.
+8. Cliquer **« Terminer »** pour clore la session.
 
 ### Visiteur
 1. Cliquer sur le lien reçu (`…/index.html?lg=XXXX`).
-2. Un écran demande le **code à 6 chiffres** communiqué par le conseiller. Il
-   n'est saisi **qu'une fois** : le visiteur peut ensuite être emmené de page en
-   page sans le retaper. Le bouton « Visiter librement » permet de refuser la
-   visite et de naviguer normalement.
+2. Un écran demande le **code à 6 chiffres** communiqué par le conseiller, plus
+   un **prénom facultatif** — il ne sert qu'à signer ses messages dans le chat.
+   Le code n'est saisi **qu'une fois** : le visiteur peut ensuite être emmené de
+   page en page sans le retaper. Le bouton « Visiter librement » permet de
+   refuser la visite et de naviguer normalement.
 3. Une bannière « Visite guidée en cours » s'affiche : sa page **suit le conseiller**.
 4. Si la voix est active, un bouton **« 🔊 Activer le son »** peut apparaître
    (les navigateurs bloquent le son automatique) → un clic et il entend le conseiller.
 5. **« 🎙️ Prendre la parole »** pour répondre : le navigateur demande
    l'autorisation micro, puis le bouton affiche « Vous parlez ». Un second clic
    rend la parole et **libère réellement le micro**.
-6. Bouton **« Quitter »** pour reprendre une navigation libre.
+6. **« 💬 Chat »** pour écrire au conseiller, avec le compteur de non-lus.
+7. Bouton **« Quitter »** pour reprendre une navigation libre.
 
 > **Voix — prérequis** : le site doit être en **HTTPS** (le micro est bloqué en
 > HTTP sauf sur `localhost`) — vrai pour le conseiller **comme pour le
@@ -149,6 +154,12 @@ Ce que ça change concrètement :
   vers l'URL de son choix. Le rôle est maintenant inscrit dans `channel_data`,
   donc **signé par le serveur**, et le visiteur n'écoute que le membre de rôle
   `host`.
+- **Le chat ne se laisse pas usurper.** C'est la seule fonction où chacun peut
+  émettre — sinon personne ne pourrait écrire. Le fond vert des messages du
+  conseiller ne vient donc **pas du message** mais du rôle signé, lu dans la
+  liste de présence Pusher. Un visiteur qui signerait « Conseiller » se voit
+  affiché « Conseiller (visiteur) », sans le fond vert. Et les messages sont
+  insérés en `textContent` : du HTML dans un message reste du texte.
 - **« Terminer » révoque vraiment.** La session passe à `ended` : ni le lien ni
   le code ne rouvrent le tour ensuite.
 - **Expiration automatique** au bout de 8 h (`LG_SESSION_TTL_HOURS`).

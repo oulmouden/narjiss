@@ -909,7 +909,7 @@ function switchLang(lang, activePage, basePath) {
 // bumper LIVEGUIDE_VERSION ICI **et** le "?v=" de <script src="shared/menu.js?v=...">
 // dans TOUTES les pages HTML — sinon les navigateurs gardent l'ancien menu.js
 // indéfiniment et ne rechargeront jamais le nouveau code (même après F5/Ctrl+F5).
-var LIVEGUIDE_VERSION = '13'; // bump à chaque modif de liveguide.* pour casser le cache
+var LIVEGUIDE_VERSION = '15'; // bump à chaque modif de liveguide.* pour casser le cache
 
 // ----- Capture des cartes Leaflet pour la visite guidée ----------------------
 // Ce bloc s'exécute AU CHARGEMENT de menu.js, et non depuis installLiveGuide()
