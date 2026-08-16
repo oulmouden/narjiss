@@ -245,6 +245,38 @@
     // panorama 360° est affiché. Envoi immédiat au changement + réémission
     // périodique (~1 s) : les client events Pusher étant best-effort, cette
     // réémission auto-répare un événement perdu (sinon désync permanente).
+    /* --- Pointeur du conseiller ------------------------------------------
+       « Regardez cette baie vitrée » : un point que le conseiller promène dans
+       le panorama et que tous les visiteurs voient.
+
+       Il voyage avec le message « pano » plutôt que sur un flux à lui : Pusher
+       plafonne les événements client à 10 par seconde et par connexion, et le
+       panorama et les cartes en consomment déjà. Greffé ici, le pointeur ne
+       coûte pas un événement de plus. */
+    var pointeurActif = false;
+    var pointPos = null;   // {yaw, pitch} sous le curseur, en degrés
+
+    ui.point.addEventListener('click', function () {
+      pointeurActif = !pointeurActif;
+      if (!pointeurActif) pointPos = null;
+      ui.point.textContent = pointeurActif ? '👉 Pointeur actif' : '👉 Pointeur';
+      ui.point.classList.toggle('lg-btn-on', pointeurActif);
+    });
+
+    // Simple relevé local : rien ne part sur le réseau ici, c'est le battement
+    // du panorama qui emporte la position.
+    document.addEventListener('mousemove', function (ev) {
+      if (!pointeurActif) return;
+      var v = window.LG_PANO;
+      if (!v || typeof v.mouseEventToCoords !== 'function') return;
+      var t = ev.target;
+      if (!t || !t.closest || !t.closest('.pnlm-container')) return;
+      var c;
+      try { c = v.mouseEventToCoords(ev); } catch (e) { return; }
+      if (!c || c.length < 2) return;
+      pointPos = { pitch: Math.round(c[0] * 10) / 10, yaw: Math.round(c[1] * 10) / 10 };
+    }, true);
+
     var lastPano = '';
     var panoTicks = 0;
     var panoBeat = setInterval(function () {
@@ -259,11 +291,16 @@
       // pas : le champ reste absent et le visiteur ne change simplement pas de
       // scène.
       var sc = typeof v.getScene === 'function' ? v.getScene() : null;
-      var key = sc + '|' + y + '|' + p + '|' + h;
+      var pt = (pointeurActif && pointPos) ? pointPos : null;
+      // Le pointeur entre dans la clé : sans cela, le conseiller pourrait le
+      // déplacer sans bouger la vue, et rien ne partirait avant 600 ms.
+      var key = sc + '|' + y + '|' + p + '|' + h + '|' + (pt ? pt.yaw + ',' + pt.pitch : '');
       panoTicks++;
       if (key === lastPano && panoTicks % 3 !== 0) return; // inchangé : resync ~600ms
       lastPano = key;
-      channel.trigger('client-action', { kind: 'pano', scene: sc, yaw: y, pitch: p, hfov: h });
+      var msg = { kind: 'pano', scene: sc, yaw: y, pitch: p, hfov: h };
+      if (pt) { msg.px = pt.yaw; msg.py = pt.pitch; }
+      channel.trigger('client-action', msg);
     }, 200);
 
     // Diffusion de la vue des cartes Leaflet (centre + zoom). Un déplacement de
@@ -470,6 +507,42 @@
       }, 8000);
     }
 
+    var pointeur = null; // objet hotspot du pointeur, injecté dans Pannellum
+
+    /**
+     * Affiche, déplace ou retire le point que le conseiller promène.
+     *
+     * Les coordonnées arrivent dans le message « pano » (px/py). Absentes, le
+     * conseiller a coupé son pointeur : on l'efface.
+     */
+    function majPointeur(v, msg) {
+      if (typeof v.getConfig !== 'function' || typeof v.addHotSpot !== 'function') return;
+
+      if (typeof msg.px !== 'number' || typeof msg.py !== 'number') {
+        if (pointeur) {
+          try { v.removeHotSpot('lg-pointeur'); } catch (e) {}
+          pointeur = null;
+        }
+        return;
+      }
+
+      if (!pointeur) {
+        pointeur = {
+          id: 'lg-pointeur', yaw: msg.px, pitch: msg.py,
+          cssClass: 'lg-pointeur',
+          createTooltipFunc: function () {} // pastille nue, habillée en CSS
+        };
+        try { v.addHotSpot(pointeur); } catch (e) { pointeur = null; }
+        return;
+      }
+
+      // addHotSpot pousse l'objet dans la configuration VIVANTE de Pannellum
+      // (getConfig rend l'objet interne) : le muter suffit, il repositionne à
+      // l'image suivante. Le recréer à chaque message ferait clignoter le point.
+      pointeur.yaw = msg.px;
+      pointeur.pitch = msg.py;
+    }
+
     // --- Qui est le conseiller ? ---
     // Le rôle vient de channel_data, signé par api/pusher-auth.php : le serveur
     // ne l'accorde qu'au porteur du jeton hôte, un navigateur ne peut donc pas
@@ -602,6 +675,10 @@
             if (sceneEnCours !== msg.scene) {
               sceneEnCours = msg.scene;
               armerSecuriteScene(msg.scene);
+              // Changer de pièce reconstruit les hotspots depuis la config de
+              // la scène : notre pointeur disparaît avec eux, il faudra le
+              // réinjecter.
+              pointeur = null;
               try {
                 v.loadScene(msg.scene, msg.pitch, msg.yaw, msg.hfov);
               } catch (e) {
@@ -619,6 +696,8 @@
           v.setPitch(msg.pitch, false);
           v.setHfov(msg.hfov, false);
         } catch (e) {}
+
+        majPointeur(v, msg);
       }
     });
 
@@ -777,6 +856,12 @@
     mic.type = 'button';
     mic.textContent = '🎙️ Activer le micro';
 
+    // Montrer du doigt dans le panorama, comme le fait le Live Tour de 3DVista.
+    var point = el('button', 'lg-btn lg-btn-ghost');
+    point.type = 'button';
+    point.textContent = '👉 Pointeur';
+    point.title = 'Suit la souris dans une vue 360°';
+
     var copy = el('button', 'lg-btn lg-btn-primary');
     copy.type = 'button';
     copy.textContent = 'Copier le lien visiteur';
@@ -795,13 +880,15 @@
     bar.appendChild(count);
     bar.appendChild(codeBox);
     bar.appendChild(mic);
+    bar.appendChild(point);
     bar.appendChild(copy);
     bar.appendChild(end);
     document.body.appendChild(bar);
     document.body.classList.add('lg-has-bar');
     document.body.classList.add('lg-host'); // barre plus haute : voir liveguide.css
 
-    return { bar: bar, status: status, count: count, code: codeBox, mic: mic, copy: copy, end: end };
+    return { bar: bar, status: status, count: count, code: codeBox,
+             mic: mic, point: point, copy: copy, end: end };
   }
 
   function updateCount(ui, n, micros) {

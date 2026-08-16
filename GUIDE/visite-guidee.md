@@ -72,11 +72,20 @@ démarrer plutôt que de s'ouvrir sans contrôle.
    > ouvre donc pas la visite.
 4. **Voix (option)** : cliquer **« 🎙️ Activer le micro »** (le navigateur demande
    l'autorisation). Ta voix est alors diffusée aux visiteurs.
-5. Naviguer normalement : chaque page / défilement est répercuté chez le visiteur.
+5. **Pointeur (option)** : dans une vue 360°, cliquer **« 👉 Pointeur »**. Un
+   point rouge suit alors ta souris et s'affiche chez tous les visiteurs — pour
+   montrer une baie vitrée, un rangement, une finition. Second clic pour
+   l'éteindre.
+
+   > Il suit la **souris** : sur tablette tactile, le glissement fait tourner le
+   > panorama, les deux gestes se marcheraient dessus. Fonction pensée pour un
+   > conseiller sur ordinateur.
+
+6. Naviguer normalement : chaque page / défilement est répercuté chez le visiteur.
    La barre indique le **nombre de spectateurs connectés**, et **« 🎤 n »** quand
    des visiteurs ont pris la parole — tu les entends sans rien faire de plus,
    même si ton propre micro est coupé.
-6. Cliquer **« Terminer »** pour clore la session.
+7. Cliquer **« Terminer »** pour clore la session.
 
 ### Visiteur
 1. Cliquer sur le lien reçu (`…/index.html?lg=XXXX`).
@@ -155,6 +164,12 @@ Ce que ça change concrètement :
 
 ## 5. Détails techniques
 - Transport : **Pusher Channels**, canal de présence `presence-lg-<session>`.
+- **Le pointeur voyage dans le message `pano`** (champs `px`/`py`), il n'a pas de
+  flux à lui : Pusher plafonne les événements client à **10 par seconde et par
+  connexion**, et le panorama et les cartes en consomment déjà. Greffé là, il ne
+  coûte pas un événement de plus. Côté visiteur, on mute l'objet hotspot dans la
+  configuration vivante de Pannellum plutôt que de le recréer — sinon le point
+  clignoterait à chaque message.
 - L'hôte diffuse des événements `client-state` `{ url, scroll }` (scroll throttlé
   ~150 ms + battement toutes les 4 s pour resynchroniser les retardataires).
 - Auth : `api/pusher-auth.php` signe l'abonnement en HMAC-SHA256 (secret côté
