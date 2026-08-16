@@ -107,6 +107,25 @@ body.lg-has-bar {
   100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
 }
 
+/* Code d'accès à dicter au visiteur : doit se lire d'un coup d'œil, le
+   conseiller l'annonce au téléphone tout en commentant la visite. */
+.lg-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  white-space: nowrap;
+}
+
+.lg-code b {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
 /* Barre hôte : bouton "Terminer" poussé à droite. */
 .lg-hostbar .lg-btn-end { margin-left: auto; }
 
@@ -114,7 +133,90 @@ body.lg-has-bar {
   .lg-hostbar, .lg-viewerbar { font-size: 13px; gap: 10px; padding: 9px 12px; }
   .lg-hostbar .lg-btn-end { margin-left: 0; }
   body.lg-has-bar { padding-bottom: 116px; }
+  /* La barre hôte porte deux éléments de plus que celle du visiteur (code et
+     micro) : sur un écran étroit elle occupe une ligne supplémentaire. */
+  body.lg-has-bar.lg-host { padding-bottom: 152px; }
 }
+
+/* ============================================================
+   ÉCRAN DE SAISIE DU CODE (visiteur)
+   ============================================================ */
+
+.lg-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100000; /* au-dessus des barres de visite */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 10, 15, 0.82);
+  backdrop-filter: blur(4px);
+  font-family: 'Outfit', system-ui, sans-serif;
+}
+
+/* Carte volontairement sombre, comme la bannière visiteur : elle reste lisible
+   en thème clair comme en thème nocturne, sans dépendre des variables du site. */
+.lg-gate-box {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px 24px;
+  border-radius: 16px;
+  background: #1c1c1e;
+  color: #fff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.lg-gate-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.lg-gate-help {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.lg-gate-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 12px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  /* 16px minimum : en dessous, iOS zoome sur le champ à la mise au point. */
+  font-size: 24px;
+  letter-spacing: 8px;
+  text-align: center;
+}
+
+.lg-gate-input:focus {
+  outline: none;
+  border-color: #4ade80;
+}
+
+.lg-gate-input:disabled { opacity: 0.5; }
+
+.lg-gate-error {
+  margin: 0;
+  min-height: 18px; /* réserve la place : le message ne fait pas sauter la carte */
+  font-size: 13px;
+  font-weight: 600;
+  color: #fca5a5;
+}
+
+.lg-gate-submit { padding: 12px 16px; font-size: 15px; }
+
+.lg-gate-submit:disabled { opacity: 0.6; cursor: default; }
 
 /* En RTL (arabe), la barre reste lisible. */
 [dir="rtl"] .lg-hostbar .lg-btn-end { margin-left: 0; margin-right: auto; }

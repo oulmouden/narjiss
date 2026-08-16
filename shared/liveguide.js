@@ -38,15 +38,26 @@
   var role = SS.getItem('lg_role') || '';
   var session = SS.getItem('lg_session') || '';
   var userId = SS.getItem('lg_uid') || '';
+  var hostToken = SS.getItem('lg_host_token') || ''; // conseiller : droit d'émettre
+  var code = SS.getItem('lg_code') || '';            // visiteur : droit d'entrer
 
   if (params.get('lghost') != null) {
+    // La session n'est plus tirée au sort ici : c'est le serveur qui la crée
+    // (voir ensureCredentials) et qui délivre le code et le jeton hôte. Une
+    // session déjà en cours survit à un rechargement de page.
     role = 'host';
-    if (!session) session = genId();
     persistIdentity();
     stripParam('lghost'); // évite de re-déclencher / de partager ce paramètre
   } else if (params.get('lg')) {
+    var asked = sanitize(params.get('lg'));
+    // Lien d'une AUTRE visite que celle en cours dans cet onglet : le code
+    // mémorisé ne vaut plus rien, il faut redemander celui de la nouvelle.
+    if (asked !== session) { code = ''; SS.removeItem('lg_code'); }
+    // Cet onglet a pu servir à animer une visite : on ne garde pas un jeton
+    // hôte alors qu'on entre comme simple spectateur.
+    hostToken = ''; SS.removeItem('lg_host_token');
     role = 'viewer';
-    session = sanitize(params.get('lg'));
+    session = asked;
     persistIdentity();
     stripParam('lg'); // l'URL reste propre ; sessionStorage garde le rôle
   }
@@ -66,21 +77,59 @@
   // Configuration ICE pour la voix WebRTC.
   var ICE = buildIce();
 
-  // ----- Chargement paresseux du SDK Pusher --------------------------------
-  loadScript(PUSHER_SDK, function (ok) {
-    if (!ok || typeof window.Pusher === 'undefined') {
-      console.error('[LiveGuide] Impossible de charger le SDK Pusher.');
+  // ----- Identifiants, puis chargement paresseux du SDK Pusher -------------
+  // Rien n'est chargé tant qu'on n'a pas de quoi entrer : le conseiller doit
+  // obtenir sa session du serveur, le visiteur doit avoir saisi son code.
+  ensureCredentials(function (ok) {
+    if (!ok) return;
+    loadScript(PUSHER_SDK, function (loaded) {
+      if (!loaded || typeof window.Pusher === 'undefined') {
+        console.error('[LiveGuide] Impossible de charger le SDK Pusher.');
+        return;
+      }
+      start();
+    });
+  });
+
+  /**
+   * Réunit ce qu'il faut pour rejoindre le canal, puis appelle done(ok).
+   *
+   * Conseiller : ouvre une session côté serveur (identifiant + code + jeton).
+   * Visiteur   : demande le code, sauf s'il l'a déjà saisi dans cet onglet —
+   *              sinon il le retaperait à chaque page suivie.
+   */
+  function ensureCredentials(done) {
+    if (role === 'host') {
+      if (session && hostToken) { done(true); return; } // reprise après un F5
+      postForm('api/liveguide-session.php?action=start', {}, function (res) {
+        if (!res || !res.ok || !res.session) {
+          console.error('[LiveGuide] Impossible d\'ouvrir la session.');
+          done(false);
+          return;
+        }
+        session = res.session;
+        hostToken = res.host_token;
+        code = res.code;
+        SS.setItem('lg_session', session);
+        SS.setItem('lg_host_token', hostToken);
+        SS.setItem('lg_code', code);
+        done(true);
+      });
       return;
     }
-    start();
-  });
+    if (code) { done(true); return; }
+    askCode(done);
+  }
 
   // ----- Démarrage ---------------------------------------------------------
   function start() {
     var pusher = new window.Pusher(CFG.pusherKey, {
       cluster: CFG.pusherCluster,
       authEndpoint: absPath('api/pusher-auth.php'),
-      auth: { params: { role: role, user_id: userId } }
+      // Le serveur refuse de signer sans le bon secret : le code pour un
+      // visiteur, le jeton pour le conseiller. Renvoyés à chaque
+      // reconnexion, donc une session fermée entre-temps ne se rouvre pas.
+      auth: { params: { role: role, user_id: userId, code: code, host_token: hostToken } }
     });
 
     var channelName = 'presence-lg-' + session;
@@ -202,11 +251,16 @@
       var y = Math.round(v.getYaw() * 10) / 10;
       var p = Math.round(v.getPitch() * 10) / 10;
       var h = Math.round(v.getHfov() * 10) / 10;
-      var key = y + '|' + p + '|' + h;
+      // Pièce courante, sur une visite à plusieurs panoramas (tour-360.html).
+      // Sur une vue 360° isolée (fiche projet, galerie), getScene() n'existe
+      // pas : le champ reste absent et le visiteur ne change simplement pas de
+      // scène.
+      var sc = typeof v.getScene === 'function' ? v.getScene() : null;
+      var key = sc + '|' + y + '|' + p + '|' + h;
       panoTicks++;
       if (key === lastPano && panoTicks % 3 !== 0) return; // inchangé : resync ~600ms
       lastPano = key;
-      channel.trigger('client-action', { kind: 'pano', yaw: y, pitch: p, hfov: h });
+      channel.trigger('client-action', { kind: 'pano', scene: sc, yaw: y, pitch: p, hfov: h });
     }, 200);
 
     // Diffusion de la vue des cartes Leaflet (centre + zoom). Un déplacement de
@@ -303,9 +357,14 @@
       clearInterval(mapBeat);
       window.removeEventListener('scroll', onScroll);
       stopVoice();
+      // Ferme la session côté serveur : le lien ET le code deviennent inertes.
+      // Sans cet appel, un visiteur pourrait revenir dans le tour après coup.
+      postForm('api/liveguide-session.php?action=end',
+               { session: session, host_token: hostToken }, noop);
       endSession();
       removeEl(ui.bar);
       document.body.classList.remove('lg-has-bar');
+      document.body.classList.remove('lg-host');
     });
   }
 
@@ -325,10 +384,60 @@
     var pc = null;       // connexion voix avec l'hôte
     var audioEl = null;
     var lastScroll = null;   // dernière position reçue (voir le filtre plus bas)
+    var hostUid = null;      // identifiant Pusher du conseiller (voir fromHost)
+    var sceneEnCours = null; // pièce en cours de chargement (verrou, voir 'pano')
+
+    /**
+     * Filet de sécurité du verrou de scène.
+     *
+     * Si un chargement échoue (tuile manquante, coupure réseau), `sceneEnCours`
+     * resterait armé et le visiteur ne suivrait plus RIEN, même les rotations.
+     * Au bout de 8 s on relâche : la réémission suivante de l'hôte relancera le
+     * chargement proprement.
+     */
+    function armerSecuriteScene(scene) {
+      setTimeout(function () {
+        if (sceneEnCours === scene) sceneEnCours = null;
+      }, 8000);
+    }
+
+    // --- Qui est le conseiller ? ---
+    // Le rôle vient de channel_data, signé par api/pusher-auth.php : le serveur
+    // ne l'accorde qu'au porteur du jeton hôte, un navigateur ne peut donc pas
+    // s'en réclamer. C'est ce qui rend le filtre ci-dessous digne de confiance.
+    channel.bind('pusher:subscription_succeeded', function (members) {
+      members.each(function (m) { if (m.info && m.info.role === 'host') hostUid = m.id; });
+    });
+    channel.bind('pusher:member_added', function (m) {
+      if (m.info && m.info.role === 'host') hostUid = m.id;
+    });
+    channel.bind('pusher:member_removed', function (m) {
+      if (m.id === hostUid) hostUid = null;
+    });
+
+    /**
+     * N'accepte un message que s'il vient bien du conseiller.
+     *
+     * Sur un canal de présence, Pusher autorise TOUT membre à émettre. Sans ce
+     * filtre, un visiteur pouvait diffuser un 'client-state' et envoyer tous
+     * les autres sur l'URL de son choix — le poste du visiteur suit sans
+     * poser de question.
+     *
+     * Pusher joint l'expéditeur en second argument des client events. Si cette
+     * métadonnée venait à manquer (SDK plus ancien), on laisse passer plutôt
+     * que de rendre la visite muette : on retombe alors sur l'ancien
+     * comportement, le code d'accès restant la première barrière.
+     */
+    function fromHost(meta) {
+      if (!meta || !meta.user_id) return true;
+      // hostUid vaut null quand aucun conseiller n'est présent : il n'y a alors
+      // aucun message légitime à recevoir, on rejette (comparaison à null).
+      return meta.user_id === hostUid;
+    }
 
     // --- Suivi de la navigation de l'hôte ---
-    channel.bind('client-state', function (data) {
-      if (!data || !data.url) return;
+    channel.bind('client-state', function (data, meta) {
+      if (!data || !data.url || !fromHost(meta)) return;
       // Changement de page : on suit l'hôte.
       if (normalize(data.url) !== normalize(here)) {
         window.location.href = data.url; // sessionStorage garde le rôle visiteur
@@ -353,8 +462,8 @@
     });
 
     // --- Rejoue les actions de l'hôte : clics, <select>/cases à cocher, vue 360° ---
-    channel.bind('client-action', function (msg) {
-      if (!msg) return;
+    channel.bind('client-action', function (msg, meta) {
+      if (!msg || !fromHost(meta)) return;
       if (msg.kind === 'click' && msg.selector) {
         var elt;
         try { elt = document.querySelector(msg.selector); } catch (e) { return; }
@@ -407,6 +516,29 @@
       if (msg.kind === 'pano') {
         var v = window.LG_PANO;
         if (!v || typeof v.setYaw !== 'function') return;
+
+        // Le conseiller a changé de pièce : on le suit à l'intérieur du tour.
+        // C'est ce qui manquait pour égaler le Live Tour de 3DVista.
+        if (msg.scene && typeof v.getScene === 'function' && typeof v.loadScene === 'function') {
+          if (msg.scene !== v.getScene()) {
+            // loadScene est asynchrone, et l'hôte réémet toutes les 200 ms :
+            // sans ce verrou on relancerait le chargement une dizaine de fois
+            // pendant qu'il est déjà en cours, et la pièce ne s'afficherait
+            // jamais. L'angle part avec le chargement, pas après.
+            if (sceneEnCours !== msg.scene) {
+              sceneEnCours = msg.scene;
+              armerSecuriteScene(msg.scene);
+              try {
+                v.loadScene(msg.scene, msg.pitch, msg.yaw, msg.hfov);
+              } catch (e) {
+                sceneEnCours = null;
+              }
+            }
+            return;
+          }
+          sceneEnCours = null; // arrivé : on reprend le suivi des angles
+        }
+
         try {
           if (v.stopAutoRotate) v.stopAutoRotate();
           v.setYaw(msg.yaw, false);
@@ -417,8 +549,10 @@
     });
 
     // --- Voix : réception de l'offre de l'hôte ---
-    channel.bind('client-webrtc', function (msg) {
-      if (!msg || msg.to !== userId) return;
+    // Filtré comme le reste : sans cela, un visiteur pouvait ouvrir une
+    // connexion WebRTC avec les autres et leur diffuser son propre micro.
+    channel.bind('client-webrtc', function (msg, meta) {
+      if (!msg || msg.to !== userId || !fromHost(meta)) return;
       if (msg.type === 'offer' && msg.sdp) {
         closePc();
         pc = new RTCPeerConnection(ICE);
@@ -500,6 +634,13 @@
     var count = el('span', 'lg-count');
     count.innerHTML = '<span class="lg-dot"></span><b>0</b> spectateur(s)';
 
+    // Le code se DIT (téléphone, WhatsApp), il ne s'envoie pas avec le lien :
+    // un lien qui contiendrait déjà le code ne protégerait plus rien. D'où un
+    // affichage bien lisible ici, et un bouton « copier » qui ne prend que le lien.
+    var codeBox = el('span', 'lg-code');
+    codeBox.innerHTML = 'Code : <b>' + code.replace(/[^0-9]/g, '') + '</b>';
+    codeBox.title = 'À communiquer de vive voix au visiteur';
+
     var mic = el('button', 'lg-btn lg-btn-ghost');
     mic.type = 'button';
     mic.textContent = '🎙️ Activer le micro';
@@ -520,13 +661,15 @@
 
     bar.appendChild(status);
     bar.appendChild(count);
+    bar.appendChild(codeBox);
     bar.appendChild(mic);
     bar.appendChild(copy);
     bar.appendChild(end);
     document.body.appendChild(bar);
     document.body.classList.add('lg-has-bar');
+    document.body.classList.add('lg-host'); // barre plus haute : voir liveguide.css
 
-    return { bar: bar, status: status, count: count, mic: mic, copy: copy, end: end };
+    return { bar: bar, status: status, count: count, code: codeBox, mic: mic, copy: copy, end: end };
   }
 
   function updateCount(ui, n) {
@@ -557,6 +700,106 @@
     return { bar: bar, status: status, sound: sound, leave: leave };
   }
 
+  /**
+   * Écran de saisie du code, côté visiteur. Appelle done(true) une fois le
+   * code validé, done(false) si le visiteur préfère naviguer librement.
+   *
+   * Cet écran est un confort, pas une serrure : la serrure est dans
+   * api/pusher-auth.php, qui ne signe l'abonnement qu'avec le bon code. Le
+   * contourner (console, requête directe) ne donne accès à rien.
+   */
+  function askCode(done) {
+    var ov = el('div', 'lg-gate');
+    var box = el('form', 'lg-gate-box');
+
+    var title = el('h2', 'lg-gate-title');
+    title.textContent = 'Visite guidée';
+
+    var help = el('p', 'lg-gate-help');
+    help.textContent = 'Saisissez le code à 6 chiffres que vous a communiqué votre conseiller.';
+
+    var input = el('input', 'lg-gate-input');
+    input.type = 'text';
+    input.inputMode = 'numeric';           // clavier chiffres sur mobile
+    input.autocomplete = 'one-time-code';
+    input.maxLength = 6;
+    input.placeholder = '••••••';
+    input.setAttribute('aria-label', 'Code d\'accès à la visite guidée');
+
+    var err = el('p', 'lg-gate-error');
+    err.setAttribute('role', 'alert');     // lu par les lecteurs d'écran
+
+    var submit = el('button', 'lg-btn lg-btn-primary lg-gate-submit');
+    submit.type = 'submit';
+    submit.textContent = 'Rejoindre';
+
+    var cancel = el('button', 'lg-btn lg-btn-ghost');
+    cancel.type = 'button';
+    cancel.textContent = 'Visiter librement';
+    cancel.addEventListener('click', function () {
+      endSession();                        // oublie le rôle : navigation normale
+      removeEl(ov);
+      done(false);
+    });
+
+    function fail(message) {
+      err.textContent = message;
+      input.select();
+    }
+
+    // Session close ou saturée : réessayer n'a plus de sens, il faut un
+    // nouveau lien. On ne laisse que la sortie.
+    function lock() {
+      input.disabled = true;
+      submit.disabled = true;
+      cancel.textContent = 'Continuer sur le site';
+    }
+
+    box.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var value = (input.value || '').replace(/\D/g, '');
+      if (value.length !== 6) { fail('Le code comporte 6 chiffres.'); return; }
+
+      submit.disabled = true;
+      submit.textContent = 'Vérification…';
+      postForm('api/liveguide-session.php?action=verify',
+               { session: session, code: value }, function (res) {
+        submit.disabled = false;
+        submit.textContent = 'Rejoindre';
+
+        if (!res || !res.ok) { fail('Connexion impossible. Réessayez.'); return; }
+        if (res.valid) {
+          code = value;
+          SS.setItem('lg_code', code);
+          removeEl(ov);
+          done(true);
+          return;
+        }
+        if (res.reason === 'closed') {
+          fail('Cette visite est terminée.');
+          lock();
+          return;
+        }
+        if (res.reason === 'locked') {
+          fail('Trop d\'essais. Demandez un nouveau lien à votre conseiller.');
+          lock();
+          return;
+        }
+        fail('Code incorrect.');
+      });
+    });
+
+    box.appendChild(title);
+    box.appendChild(help);
+    box.appendChild(input);
+    box.appendChild(err);
+    box.appendChild(submit);
+    box.appendChild(cancel);
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    input.focus();
+  }
+
   /* ======================================================================
      UTILITAIRES
      ====================================================================== */
@@ -576,6 +819,8 @@
     SS.removeItem('lg_role');
     SS.removeItem('lg_session');
     SS.removeItem('lg_uid');
+    SS.removeItem('lg_host_token');
+    SS.removeItem('lg_code');
   }
 
   function persistIdentity() {
@@ -667,6 +912,18 @@
   function removeEl(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
 
   function noop() {}
+
+  // POST en formulaire vers l'API du site (PHP lit $_POST). cb reçoit la
+  // réponse JSON, ou null si la requête a échoué.
+  function postForm(rel, data, cb) {
+    var body = new URLSearchParams();
+    Object.keys(data).forEach(function (k) { body.append(k, data[k]); });
+    fetch(absPath(rel), { method: 'POST', body: body, credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      // Deux arguments plutôt qu'un .catch() : une erreur levée DANS cb ne doit
+      // pas déclencher un second appel avec null.
+      .then(function (j) { cb(j); }, function () { cb(null); });
+  }
 
   function loadScript(src, cb) {
     var s = document.createElement('script');
