@@ -262,14 +262,78 @@ function extract(tourDir) {
   const firstItem = all.find((o) => o.class === 'PanoramaPlayListItem');
   const firstScene = (firstItem && deref(firstItem.media)) || Object.keys(scenes)[0];
 
+  const plan = extraireMap(tourDir, all, byId, scenes);
+  if (plan && plan.points.length < Object.keys(scenes).length) {
+    warnings.push(`plan de sol : ${plan.points.length} pastilles pour ` +
+                  `${Object.keys(scenes).length} scènes`);
+  }
+
   return {
     source: path.basename(tourDir),
     tileResolution: TILE_RESOLUTION,
     firstScene: scenes[firstScene] ? firstScene : Object.keys(scenes)[0],
     scenes: scenes,
+    map: plan,
     warnings: warnings,
     tuiles: lienspyramide,
   };
+}
+
+/**
+ * Extrait le plan de sol : image, dimensions, et position de chaque pièce.
+ *
+ * 3DVista range ces informations à trois endroits distincts :
+ *   - un objet `Map` donne les dimensions logiques du plan ;
+ *   - chaque `AreaHotspotMapOverlay` porte un `image.x` / `image.y`, exprimés
+ *     dans ces dimensions ;
+ *   - la pièce visée n'est pas référencée proprement, elle est enfouie dans la
+ *     chaîne d'action `click` de la zone cliquable, sous la forme
+ *     `this.setPanoramaCameraWithSpot(…, this.PanoramaPlayListItem_XXX, …)`.
+ *     D'où la lecture à l'expression régulière — c'est le seul lien disponible.
+ *
+ * L'URL de l'image est absente du script (les niveaux ont une `url` vide) : on
+ * la retrouve sur le disque, où 3DVista la nomme `<idMap>_<langue>_0.webp`.
+ *
+ * @returns {object|null} null si le tour n'a pas de plan.
+ */
+function extraireMap(tourDir, all, byId, scenes) {
+  const map = all.find((o) => o.class === 'Map');
+  if (!map || !map.id) return null;
+
+  // Le niveau 0 est le plus fin, et sa taille correspond au plan lui-même.
+  let image = null;
+  for (const langue of ['fr', 'en', 'ar', 'es', null]) {
+    const nom = langue ? `${map.id}_${langue}_0.webp` : `${map.id}_0.webp`;
+    if (fs.existsSync(path.join(tourDir, 'media', nom))) { image = 'media/' + nom; break; }
+  }
+  if (!image) return null;
+
+  const points = [];
+  (map.overlays || []).forEach((ref) => {
+    const ov = byId[deref(ref)];
+    if (!ov || !ov.image) return;
+
+    const zone = byId[deref((ov.areas || [])[0])];
+    const clic = zone && typeof zone.click === 'string' ? zone.click : '';
+    const trouve = clic.match(/this\.(PanoramaPlayListItem_[A-Za-z0-9_]+)/);
+    if (!trouve) return;
+
+    const item = byId[trouve[1]];
+    const sceneId = item ? deref(item.media) : null;
+    if (!sceneId || !scenes[sceneId]) return;
+
+    // x/y désignent le CENTRE de la pastille : 3DVista y adjoint un offset
+    // valant la moitié de sa taille, qui n'est là que pour la dessiner.
+    points.push({
+      x: ov.image.x,
+      y: ov.image.y,
+      sceneId: sceneId,
+      title: scenes[sceneId].title || '',
+    });
+  });
+
+  if (!points.length) return null;
+  return { image: image, width: map.width, height: map.height, points: points };
 }
 
 /**
@@ -326,6 +390,9 @@ if (require.main === module) {
   console.log(`${out}`);
   console.log(`  ${n} scènes, ${liens} passages, première scène : ${result.firstScene}`);
   console.log(`  ${result.tuiles} tuiles rattachées sous ${tourDir}/${PYRAMIDE}/`);
+  console.log(result.map
+    ? `  plan de sol : ${result.map.points.length} pastilles sur ${result.map.image}`
+    : '  plan de sol : aucun dans cet export');
   result.warnings.forEach((w) => console.log(`  ⚠ ${w}`));
 
   const soucis = verifier(tourDir, result);

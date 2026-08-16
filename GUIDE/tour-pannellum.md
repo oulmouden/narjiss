@@ -92,6 +92,38 @@ d = cubeResolution × 2^(niveau − maxLevel)     tuiles = ceil(d / tileResoluti
 Il vérifie que chaque tuile attendue existe et, surtout, que **le niveau 1 n'en
 compte qu'une**. Il sort en erreur sinon.
 
+### Le plan de sol
+
+Bouton **« 🗺️ Plan »** en haut à droite : le plan de l'étage, une pastille par
+pièce, celle où l'on se trouve mise en évidence, et un clic pour s'y rendre.
+
+3DVista éparpille ces informations à trois endroits :
+
+| Ce qu'on cherche | Où c'est |
+|---|---|
+| Dimensions du plan | objet `Map` (ici 1467 × 1112) |
+| Position d'une pièce | `AreaHotspotMapOverlay` → `image.x` / `image.y` |
+| Pièce visée | **enfouie dans la chaîne d'action `click`** de la zone cliquable |
+
+Ce dernier point est le seul lien disponible : la zone ne référence pas le
+panorama proprement, elle porte un bout de code
+`this.setPanoramaCameraWithSpot(…, this.PanoramaPlayListItem_XXX, …)`. On le lit
+donc à l'expression régulière, puis on résout l'élément de playlist vers son
+panorama.
+
+L'URL de l'image est **absente** du script (les niveaux ont une `url` vide) : on
+la retrouve sur le disque, où 3DVista la nomme `<idMap>_<langue>_0.webp`.
+L'extracteur essaie `fr`, `en`, `ar`, `es`, puis sans suffixe.
+
+Les pastilles sont posées en **pourcentage** des dimensions logiques du plan, et
+non en pixels : le panneau peut donc être redimensionné librement — il l'est
+d'ailleurs selon la taille de l'écran.
+
+> Toutes les pièces n'ont pas forcément de pastille : sur `jawhara/Tour`, le
+> Couloir n'en a pas — 3DVista ne lui en donne pas non plus. L'extracteur le
+> signale (`12 pastilles pour 13 scènes`) et le repère reste simplement éteint
+> dans cette pièce.
+
 ### Les faces du cube
 
 Vérifié objectivement plutôt que supposé : en mesurant l'écart entre les bords
@@ -199,8 +231,6 @@ même en 4G, ce qui est exactement le reproche fait au lecteur 3DVista.
 
 ## 6. Ce qui manque encore
 
-- **Pas de plan de sol**, alors que les données existent : 3DVista publie des
-  `HotspotMapOverlay` avec la position de chaque pièce sur le plan.
 - Pas de vidéos incrustées, pas de mode VR, pas de mesures.
 
 ## 7. Qualité des sources

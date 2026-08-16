@@ -106,6 +106,59 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
+  /* --- Plan de sol ------------------------------------------------------
+     Repris de l'export 3DVista : image du plan et position de chaque pièce. */
+  #planBtn {
+    position: absolute; top: 16px; right: 16px; z-index: 6;
+    padding: 8px 14px; border: 0; border-radius: 999px;
+    background: rgba(15, 17, 23, 0.72);
+    backdrop-filter: blur(6px);
+    color: #fff; font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+
+  #planBtn[aria-expanded="true"] { background: var(--or); color: #1b1400; }
+
+  #plan {
+    position: absolute; top: 60px; right: 16px; z-index: 6;
+    width: min(300px, 46vw);
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(15, 17, 23, 0.92);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  #plan[hidden] { display: none; }
+
+  /* Conteneur au ratio exact du plan : les pastilles sont posées en
+     POURCENTAGE, elles restent donc justes à n'importe quelle taille. */
+  #planCadre { position: relative; width: 100%; }
+  #planCadre img { display: block; width: 100%; border-radius: 6px; }
+
+  .planPt {
+    position: absolute;
+    width: 14px; height: 14px; margin: -7px 0 0 -7px;
+    border: 0; padding: 0;
+    border-radius: 50%;
+    background: rgba(232, 168, 56, 0.85);
+    box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+  }
+
+  .planPt[aria-current="true"] {
+    background: #fff;
+    box-shadow: 0 0 0 3px var(--or), 0 0 10px rgba(232, 168, 56, 0.9);
+    width: 16px; height: 16px; margin: -8px 0 0 -8px;
+  }
+
+  /* Le visiteur guidé voit où il se trouve, mais ne s'y déplace pas. */
+  body.suit-le-guide .planPt { pointer-events: none; }
+
+  @media (max-height: 480px) {
+    #plan { width: min(220px, 34vw); top: 48px; }
+    #planBtn { top: 10px; right: 10px; padding: 5px 10px; font-size: 12px; }
+  }
+
   #erreur {
     position: absolute; inset: 0; z-index: 10;
     display: none; flex-direction: column; gap: 10px;
@@ -190,6 +243,12 @@
 
 <div id="scene"></div>
 <div id="piece">Chargement…</div>
+
+<button id="planBtn" type="button" aria-expanded="false" aria-controls="plan" hidden>🗺️ Plan</button>
+<div id="plan" hidden>
+  <div id="planCadre"><img id="planImg" alt="Plan de l'étage"></div>
+</div>
+
 <div id="pieces"></div>
 
 <div id="erreur">
@@ -310,7 +369,46 @@
     visionneuse.on('error', function (msg) { echouer(msg); });
 
     construireVignettes();
+    construirePlan(tour.map);
     marquerPiece(tour.firstScene);
+  }
+
+  /* --- Plan de sol -------------------------------------------------------
+     Les pastilles sont positionnées en POURCENTAGE des dimensions logiques du
+     plan données par 3DVista, et non en pixels : le panneau peut alors être
+     redimensionné librement — il l'est d'ailleurs selon la taille de l'écran. */
+  function construirePlan(plan) {
+    if (!plan || !plan.points || !plan.points.length) return; // export sans plan
+
+    var btn = document.getElementById('planBtn');
+    var panneau = document.getElementById('plan');
+    var cadre = document.getElementById('planCadre');
+    var img = document.getElementById('planImg');
+
+    img.src = DOSSIER + plan.image;
+    img.alt = 'Plan de l\'étage — ' + plan.points.length + ' pièces';
+
+    plan.points.forEach(function (p) {
+      var pt = document.createElement('button');
+      pt.type = 'button';
+      pt.className = 'planPt';
+      pt.dataset.scene = p.sceneId;
+      pt.title = p.title;
+      pt.setAttribute('aria-label', 'Aller : ' + p.title);
+      pt.style.left = (p.x / plan.width * 100) + '%';
+      pt.style.top = (p.y / plan.height * 100) + '%';
+      pt.addEventListener('click', function () {
+        if (visionneuse) visionneuse.loadScene(p.sceneId);
+      });
+      cadre.appendChild(pt);
+    });
+
+    btn.hidden = false;
+    btn.addEventListener('click', function () {
+      var ouvert = panneau.hidden;
+      panneau.hidden = !ouvert;
+      btn.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+    });
   }
 
   // Pannellum crée un div nu par point de passage : on y met la flèche et son
@@ -348,11 +446,19 @@
   function marquerPiece(id) {
     var s = scenes[id];
     document.getElementById('piece').textContent = (s && s.title) || '';
+
     var rail = document.getElementById('pieces');
     Array.prototype.forEach.call(rail.children, function (b) {
       var actif = b.dataset.scene === id;
       b.setAttribute('aria-current', actif ? 'true' : 'false');
       if (actif) b.scrollIntoView({ block: 'nearest', inline: 'center' });
+    });
+
+    // Sur le plan aussi : le visiteur doit voir où il se trouve. Une pièce peut
+    // n'avoir aucune pastille (3DVista n'en place pas partout), le repère reste
+    // alors simplement éteint.
+    Array.prototype.forEach.call(document.querySelectorAll('.planPt'), function (pt) {
+      pt.setAttribute('aria-current', pt.dataset.scene === id ? 'true' : 'false');
     });
   }
 
