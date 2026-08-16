@@ -173,25 +173,28 @@
     var pcs = {};       // viewerId -> RTCPeerConnection (voix)
     var localStream = null;
     var micOn = false;
+    var parleurs = {};  // viewerId -> true : visiteurs ayant pris la parole
+    var ecoutes = {};   // viewerId -> <audio> par lequel on les entend
 
     // --- Présence + synchronisation de la navigation ---
     channel.bind('pusher:subscription_succeeded', function (members) {
       viewers = {};
       members.each(function (m) { if (m.id !== userId) viewers[m.id] = true; });
-      updateCount(ui, keyCount(viewers));
+      updateCount(ui, keyCount(viewers), keyCount(parleurs));
       publishState(channel);
-      if (micOn) forEachKey(viewers, startPeer);
+      forEachKey(viewers, startPeer); // startPeer ne fait rien si nul n'émet
     });
     channel.bind('pusher:member_added', function (m) {
       if (m.id !== userId) viewers[m.id] = true;
-      updateCount(ui, keyCount(viewers));
+      updateCount(ui, keyCount(viewers), keyCount(parleurs));
       publishState(channel);        // resynchronise le nouvel arrivant
-      if (micOn) startPeer(m.id);   // et lui envoie la voix si active
+      startPeer(m.id);              // et lui envoie la voix si elle est active
     });
     channel.bind('pusher:member_removed', function (m) {
       delete viewers[m.id];
+      delete parleurs[m.id];
       closePeer(m.id);
-      updateCount(ui, keyCount(viewers));
+      updateCount(ui, keyCount(viewers), keyCount(parleurs));
     });
     channel.bind('pusher:subscription_error', function () {
       ui.status.textContent = 'Erreur de connexion';
@@ -297,6 +300,19 @@
     // --- Voix : réception des réponses / ICE des visiteurs ---
     channel.bind('client-webrtc', function (msg) {
       if (!msg || msg.to !== userId) return;
+
+      // Prise de parole d'un visiteur. Traité AVANT de chercher la connexion :
+      // il n'y en a justement pas encore quand le conseiller a son micro coupé.
+      // On relance la négociation pour que l'offre porte une ligne audio dans
+      // laquelle le visiteur pourra poser sa voix.
+      if (msg.type === 'ask-mic' || msg.type === 'drop-mic') {
+        if (msg.type === 'ask-mic') parleurs[msg.from] = true;
+        else delete parleurs[msg.from];
+        updateCount(ui, keyCount(viewers), keyCount(parleurs));
+        refreshPeer(msg.from);
+        return;
+      }
+
       var pc = pcs[msg.from];
       if (!pc) return;
       if (msg.type === 'answer' && msg.sdp) {
@@ -318,17 +334,36 @@
         micOn = true;
         ui.mic.textContent = '🎙️ Micro actif';
         ui.mic.classList.add('lg-btn-on');
-        forEachKey(viewers, startPeer);
+        // refreshPeer et non startPeer : une connexion peut déjà exister avec
+        // un visiteur qui avait pris la parole, et elle ne porte pas encore
+        // notre voix.
+        forEachKey(viewers, refreshPeer);
       }).catch(function () {
         ui.mic.textContent = '🎙️ Micro refusé';
       });
     });
 
     function startPeer(viewerId) {
-      if (!micOn || !localStream || pcs[viewerId]) return;
+      if (pcs[viewerId]) return;
+      var jEmets = micOn && !!localStream;
+      var ilEmet = !!parleurs[viewerId];
+      if (!jEmets && !ilEmet) return; // personne n'a rien à dire : pas de connexion
+
       var pc = new RTCPeerConnection(ICE);
       pcs[viewerId] = pc;
-      localStream.getTracks().forEach(function (t) { pc.addTrack(t, localStream); });
+
+      if (jEmets) {
+        // addTrack ouvre une ligne audio bidirectionnelle : le visiteur pourra
+        // y répondre avec sa propre voix s'il prend la parole.
+        localStream.getTracks().forEach(function (t) { pc.addTrack(t, localStream); });
+      } else {
+        // Conseiller muet mais visiteur qui parle : il faut tout de même une
+        // ligne audio dans l'offre, sinon le visiteur n'a nulle part où poser
+        // sa voix et l'on ne l'entendrait pas.
+        pc.addTransceiver('audio', { direction: 'recvonly' });
+      }
+
+      pc.ontrack = function (ev) { ecouterVisiteur(viewerId, ev.streams[0]); };
       pc.onicecandidate = function (ev) {
         if (ev.candidate) sig(channel, { type: 'ice', to: viewerId, from: userId, candidate: ev.candidate });
       };
@@ -338,16 +373,49 @@
         .catch(noop);
     }
 
+    // Le conseiller entend un visiteur : un élément audio par interlocuteur.
+    function ecouterVisiteur(id, stream) {
+      var a = ecoutes[id];
+      if (!a) {
+        a = document.createElement('audio');
+        a.autoplay = true;
+        a.setAttribute('playsinline', '');
+        document.body.appendChild(a);
+        ecoutes[id] = a;
+      }
+      a.srcObject = stream;
+      // L'autoplay est acquis : le conseiller a forcément cliqué avant.
+      var p = a.play();
+      if (p && p.catch) p.catch(noop);
+    }
+
+    /**
+     * Rejoue la négociation avec un visiteur.
+     *
+     * Ajouter ou retirer une piste en cours de route exigerait une
+     * renégociation où chacun peut se retrouver à émettre une offre en même
+     * temps (« glare »). Pour un appel audio à deux, refaire la connexion est
+     * plus simple et parfaitement fiable : l'interruption dure une seconde, et
+     * l'offre part toujours du conseiller.
+     */
+    function refreshPeer(id) {
+      closePeer(id);
+      startPeer(id);
+    }
+
     function closePeer(id) {
       if (pcs[id]) { try { pcs[id].close(); } catch (e) {} delete pcs[id]; }
+      if (ecoutes[id]) { removeEl(ecoutes[id]); delete ecoutes[id]; }
     }
 
     function stopVoice() {
       micOn = false;
       if (localStream) { localStream.getTracks().forEach(function (t) { t.stop(); }); localStream = null; }
-      forEachKey(pcs, closePeer);
       ui.mic.textContent = '🎙️ Activer le micro';
       ui.mic.classList.remove('lg-btn-on');
+      // On ne coupe pas tout : les visiteurs à qui l'on a donné la parole
+      // doivent rester audibles même quand le conseiller se tait.
+      forEachKey(viewers, refreshPeer);
     }
 
     // Fin de session : nettoyage complet.
@@ -383,6 +451,7 @@
     var here = cleanUrl(window.location.href);
     var pc = null;       // connexion voix avec l'hôte
     var audioEl = null;
+    var monMicro = null; // flux local quand le visiteur a pris la parole
     var lastScroll = null;   // dernière position reçue (voir le filtre plus bas)
     var hostUid = null;      // identifiant Pusher du conseiller (voir fromHost)
     var sceneEnCours = null; // pièce en cours de chargement (verrou, voir 'pano')
@@ -409,7 +478,12 @@
       members.each(function (m) { if (m.info && m.info.role === 'host') hostUid = m.id; });
     });
     channel.bind('pusher:member_added', function (m) {
-      if (m.info && m.info.role === 'host') hostUid = m.id;
+      if (!m.info || m.info.role !== 'host') return;
+      hostUid = m.id;
+      // Conseiller revenu après une coupure : il a perdu la liste de ceux à qui
+      // il avait donné la parole. On se re-signale, sinon le visiteur croirait
+      // parler dans le vide.
+      if (monMicro) sig(channel, { type: 'ask-mic', to: hostUid, from: userId });
     });
     channel.bind('pusher:member_removed', function (m) {
       if (m.id === hostUid) hostUid = null;
@@ -561,7 +635,16 @@
         };
         pc.ontrack = function (ev) { attachAudio(ev.streams[0]); };
         pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
-          .then(function () { return pc.createAnswer(); })
+          .then(function () {
+            // Notre voix, si le visiteur a pris la parole. Ajoutée APRÈS la
+            // description distante : la piste se greffe alors sur la ligne
+            // audio déjà ouverte par l'hôte, au lieu d'en réclamer une
+            // nouvelle que l'offre ne prévoyait pas.
+            if (monMicro) {
+              monMicro.getTracks().forEach(function (t) { pc.addTrack(t, monMicro); });
+            }
+            return pc.createAnswer();
+          })
           .then(function (ans) { return pc.setLocalDescription(ans); })
           .then(function () { sig(channel, { type: 'answer', to: msg.from, from: userId, sdp: pc.localDescription }); })
           .catch(noop);
@@ -590,9 +673,58 @@
       audioEl.play().then(function () { banner.sound.style.display = 'none'; }).catch(noop);
     });
 
+    /* --- Prise de parole du visiteur ------------------------------------
+       La visite était à sens unique : le client devait ouvrir WhatsApp en
+       parallèle pour poser une question. Il peut désormais répondre dans la
+       visite elle-même.
+
+       C'est le CONSEILLER qui réémet l'offre (voir 'ask-mic' côté hôte) : si
+       le visiteur ajoutait sa piste de son côté, les deux pourraient émettre
+       une offre en même temps, et la négociation se bloquerait. */
+    banner.talk.addEventListener('click', function () {
+      if (monMicro) { couperMonMicro(); return; }
+
+      if (!hostUid) {
+        // Sans conseiller sur le canal, la demande n'aurait aucun destinataire
+        // et échouerait en silence.
+        banner.talk.textContent = '🎙️ Conseiller absent';
+        setTimeout(function () { banner.talk.textContent = '🎙️ Prendre la parole'; }, 2500);
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // getUserMedia n'existe qu'en HTTPS (ou sur localhost) : en HTTP, le
+        // navigateur ne propose même pas l'autorisation.
+        banner.talk.textContent = '🎙️ Micro indisponible';
+        banner.talk.disabled = true;
+        return;
+      }
+
+      banner.talk.textContent = '🎙️ Autorisation…';
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+        monMicro = stream;
+        banner.talk.textContent = '🎙️ Vous parlez';
+        banner.talk.classList.add('lg-btn-on');
+        sig(channel, { type: 'ask-mic', to: hostUid, from: userId });
+      }).catch(function () {
+        banner.talk.textContent = '🎙️ Micro refusé';
+      });
+    });
+
+    function couperMonMicro() {
+      if (monMicro) {
+        monMicro.getTracks().forEach(function (t) { t.stop(); });
+        monMicro = null;
+      }
+      banner.talk.textContent = '🎙️ Prendre la parole';
+      banner.talk.classList.remove('lg-btn-on');
+      sig(channel, { type: 'drop-mic', to: hostUid, from: userId });
+    }
+
     function closePc() { if (pc) { try { pc.close(); } catch (e) {} pc = null; } }
 
     banner.leave.addEventListener('click', function () {
+      if (monMicro) couperMonMicro();
       closePc();
       endSession();
       window.location.href = cleanUrl(window.location.href); // reste sur la page, sans suivre
@@ -672,8 +804,11 @@
     return { bar: bar, status: status, count: count, code: codeBox, mic: mic, copy: copy, end: end };
   }
 
-  function updateCount(ui, n) {
-    ui.count.innerHTML = '<span class="lg-dot"></span><b>' + n + '</b> spectateur(s)';
+  function updateCount(ui, n, micros) {
+    var t = '<span class="lg-dot"></span><b>' + n + '</b> spectateur(s)';
+    // Le conseiller doit voir d'un coup d'œil qui peut lui répondre.
+    if (micros) t += ' · 🎤 <b>' + micros + '</b>';
+    ui.count.innerHTML = t;
   }
 
   function buildViewerBanner() {
@@ -687,17 +822,23 @@
     sound.textContent = '🔊 Activer le son';
     sound.style.display = 'none'; // affiché seulement si l'autoplay est bloqué
 
+    // Le visiteur peut répondre au conseiller sans passer par un appel séparé.
+    var talk = el('button', 'lg-btn lg-btn-ghost');
+    talk.type = 'button';
+    talk.textContent = '🎙️ Prendre la parole';
+
     var leave = el('button', 'lg-btn lg-btn-ghost');
     leave.type = 'button';
     leave.textContent = 'Quitter';
 
     bar.appendChild(status);
     bar.appendChild(sound);
+    bar.appendChild(talk);
     bar.appendChild(leave);
     document.body.appendChild(bar);
     document.body.classList.add('lg-has-bar');
 
-    return { bar: bar, status: status, sound: sound, leave: leave };
+    return { bar: bar, status: status, sound: sound, talk: talk, leave: leave };
   }
 
   /**

@@ -3,7 +3,8 @@
 Permet à un conseiller de **guider des visiteurs sur tout le site Narjiss** en
 temps réel : quand le conseiller change de page ou fait défiler l'écran, la page
 des visiteurs **suit automatiquement**. Sens unique — les visiteurs regardent.
-La voix passe par un **appel WhatsApp en parallèle** (rien à installer côté voix).
+La **voix est bidirectionnelle** : le conseiller commente, et le visiteur peut
+prendre la parole pour poser ses questions, sans appel téléphonique séparé.
 
 L'accès est protégé par un **code à 6 chiffres** que le conseiller communique de
 vive voix, à la manière du Live Tour de 3DVista (voir §4).
@@ -69,11 +70,12 @@ démarrer plutôt que de s'ouvrir sans contrôle.
    > Le code n'est **pas** dans le lien, et c'est voulu : un lien qui le
    > contiendrait ne protégerait plus rien. Un lien transféré à un tiers ne lui
    > ouvre donc pas la visite.
-4. **Voix intégrée (option)** : cliquer **« 🎙️ Activer le micro »** (le navigateur
-   demande l'autorisation micro). Ta voix est alors diffusée aux visiteurs.
-   Sinon, tu peux garder un **appel WhatsApp** en parallèle.
+4. **Voix (option)** : cliquer **« 🎙️ Activer le micro »** (le navigateur demande
+   l'autorisation). Ta voix est alors diffusée aux visiteurs.
 5. Naviguer normalement : chaque page / défilement est répercuté chez le visiteur.
-   La barre indique le **nombre de spectateurs connectés**.
+   La barre indique le **nombre de spectateurs connectés**, et **« 🎤 n »** quand
+   des visiteurs ont pris la parole — tu les entends sans rien faire de plus,
+   même si ton propre micro est coupé.
 6. Cliquer **« Terminer »** pour clore la session.
 
 ### Visiteur
@@ -85,18 +87,29 @@ démarrer plutôt que de s'ouvrir sans contrôle.
 3. Une bannière « Visite guidée en cours » s'affiche : sa page **suit le conseiller**.
 4. Si la voix est active, un bouton **« 🔊 Activer le son »** peut apparaître
    (les navigateurs bloquent le son automatique) → un clic et il entend le conseiller.
-5. Bouton **« Quitter »** pour reprendre une navigation libre.
+5. **« 🎙️ Prendre la parole »** pour répondre : le navigateur demande
+   l'autorisation micro, puis le bouton affiche « Vous parlez ». Un second clic
+   rend la parole et **libère réellement le micro**.
+6. Bouton **« Quitter »** pour reprendre une navigation libre.
 
 > **Voix — prérequis** : le site doit être en **HTTPS** (le micro est bloqué en
-> HTTP sauf sur `localhost`). En cross-réseau, ~20-30% des cas nécessitent un
+> HTTP sauf sur `localhost`) — vrai pour le conseiller **comme pour le
+> visiteur**. En test sur le réseau local en HTTP, le bouton affichera
+> « Micro indisponible ». En cross-réseau, ~20-30% des cas nécessitent un
 > serveur **TURN** (voir `shared/liveguide-config.js`, champ `turn`). STUN public
 > suffit dans la majorité des cas.
+
+> **Pourquoi c'est le conseiller qui relance la négociation** : quand un visiteur
+> prend la parole, il ne fabrique pas l'offre WebRTC lui-même — il envoie une
+> demande, et l'hôte réémet l'offre. Si les deux côtés pouvaient offrir en même
+> temps, la négociation se bloquerait (« glare »). L'offre part donc toujours du
+> même côté.
 
 ---
 
 ## 3. Limites de cette v1
-- **Sens unique** : le visiteur suit, il ne pilote pas (choix voulu). La voix
-  aussi est à sens unique (hôte → visiteurs).
+- **Écran à sens unique** : le visiteur suit, il ne pilote pas (choix voulu).
+  La **voix**, elle, va dans les deux sens depuis la v2.
 - **Tours 360°** : deux cas, selon la visionneuse.
   - **`tour-360.html` (Pannellum, la nôtre)** : tout est synchronisé — angle,
     zoom **et changement de pièce**. Voir [tour-pannellum.md](tour-pannellum.md).
