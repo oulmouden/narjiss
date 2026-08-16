@@ -84,3 +84,7 @@ data/acces-*.txt
 #   bibliothèque elle-même, et doit rester versionnée.
 tour-pannellum.json
 jawhara/*/pannellum/
+
+# Visites 360 montées dans le back-office : photos et fichier publié,
+# engendrés par les commerciaux — jamais du code.
+visites/
