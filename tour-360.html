@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visite 360°</title>
+
+<!--
+  PREUVE DE CONCEPT — visionneuse de remplacement pour les tours 3DVista.
+
+  Pourquoi : le Live Tour de 3DVista dépend de remote.3dvista.com et se montre
+  capricieux sur smartphone. Ici, tout est servi par notre propre serveur.
+
+  Les images sont EXACTEMENT celles de l'export 3DVista (<tour>/media/…) : cette
+  page ne duplique aucun média. La description des scènes vient de
+  <tour>/tour-pannellum.json, produit par tools/extract_3dvista_tour.js.
+
+  Choix du tour par l'URL, la page sert les trois :
+    tour-360.html?tour=jawhara/Tour
+    tour-360.html?tour=jawhara/Tour-FloorPlan
+    tour-360.html?tour=jawhara/tour-bureau
+
+  À la racine du site et non dans jawhara/ : deploy.sh n'envoie que les .html
+  de la racine (bucket « code ») et le contenu des dossiers de visite
+  (bucket « tours »). Une page rangée dans jawhara/ ne partirait jamais.
+-->
+
+<link rel="stylesheet" href="assets/vendor/pannellum/pannellum.css">
+<style>
+  :root {
+    --or: #e8a838;
+    --nuit: #0f1117;
+    --rail: 96px;                          /* hauteur du bandeau de vignettes */
+    --marge: env(safe-area-inset-bottom, 0px); /* barre d'accueil des iPhone */
+    --barre: 0px;                          /* barre de visite guidée, mesurée en JS */
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    height: 100vh;
+    height: 100dvh;   /* suit le repli des barres du navigateur mobile */
+    background: var(--nuit); color: #fff;
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    /* Sans ça, un glissement vers le bas dans le panorama déclenche le
+       « tirer pour rafraîchir » de Chrome Android au lieu de tourner la vue. */
+    overscroll-behavior: none;
+  }
+
+  /* Hauteur EXPLICITE, et non un calage par `inset` : pannellum.css impose
+     `height: 100%` à son conteneur, ce qui écrasait le calage et faisait
+     déborder le panorama de 96 px sous le bandeau — son centre optique se
+     retrouvait caché. Le sélecteur par identifiant l'emporte sur la classe. */
+  #scene {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: calc(100dvh - var(--rail) - var(--marge) - var(--barre));
+    /* Les gestes appartiennent à Pannellum, pas au navigateur. */
+    touch-action: none;
+  }
+
+  /* Nom de la pièce, en surimpression. */
+  #piece {
+    position: absolute; top: 16px; left: 16px; z-index: 5;
+    padding: 8px 16px; border-radius: 999px;
+    background: rgba(15, 17, 23, 0.72);
+    backdrop-filter: blur(6px);
+    font-size: 15px; font-weight: 600;
+    pointer-events: none;
+  }
+
+  /* Bandeau de vignettes : accès direct à chaque pièce. */
+  #pieces {
+    position: absolute; left: 0; right: 0; z-index: 5;
+    bottom: var(--barre);   /* posé au-dessus de la barre de visite guidée */
+    height: calc(var(--rail) + var(--marge));
+    display: flex; gap: 8px; align-items: center;
+    padding: 10px 12px calc(10px + var(--marge));
+    background: rgba(15, 17, 23, 0.92);
+    overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain; /* le défilé du rail ne fait pas reculer la page */
+  }
+
+  .vignette {
+    flex: 0 0 auto; width: 104px; height: 68px;
+    border: 2px solid transparent; border-radius: 8px;
+    background: #222 center/cover no-repeat;
+    cursor: pointer; position: relative;
+    transition: border-color 0.15s ease, transform 0.08s ease;
+  }
+
+  .vignette:hover { border-color: rgba(232, 168, 56, 0.6); }
+  .vignette:active { transform: translateY(1px); }
+  .vignette[aria-current="true"] { border-color: var(--or); }
+
+  .vignette span {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 3px 6px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    border-radius: 0 0 6px 6px;
+    font-size: 10px; line-height: 1.2;
+    /* Les noms de pièces sont longs ("chambre parentale virtuelle") : on coupe
+       plutôt que de laisser la vignette s'étirer et casser l'alignement. */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  #erreur {
+    position: absolute; inset: 0; z-index: 10;
+    display: none; flex-direction: column; gap: 10px;
+    align-items: center; justify-content: center;
+    padding: 24px; text-align: center;
+  }
+
+  #erreur code {
+    font-size: 12px; color: rgba(255, 255, 255, 0.6);
+    max-width: 90vw; word-break: break-all;
+  }
+
+  /* Les flèches de passage d'une pièce à l'autre. Pannellum place un div vide,
+     qu'il positionne à chaque image via un `transform` EN LIGNE.
+
+     D'où la règle absolue : ne jamais animer `transform` sur ce div. Une
+     animation CSS l'emporte sur le style en ligne — elle remplacerait donc le
+     positionnement par son propre `scale`, et les pastilles s'empileraient
+     toutes à l'origine du conteneur, hors écran, invisibles mais cliquables.
+
+     Le div ne sert donc qu'à la position et à la zone de clic ; toute
+     l'apparence, animation comprise, vit dans l'élément interne. */
+  .passage {
+    width: 44px; height: 44px; margin: -22px 0 0 -22px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .passage b {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: rgba(232, 168, 56, 0.94);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    color: #1b1400; font-size: 22px; font-weight: 700; line-height: 1;
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1);    opacity: 0.92; }
+    50%      { transform: scale(1.12); opacity: 1; }
+  }
+
+  /* Un mouvement permanent gêne certaines personnes : on le coupe si le
+     système le demande, la pastille reste parfaitement visible. */
+  @media (prefers-reduced-motion: reduce) {
+    .passage b { animation: none; }
+  }
+
+  /* Visiteur d'une visite guidée : il suit, il ne pilote pas. Les flèches et
+     les vignettes deviennent inertes — sinon il change de pièce et la
+     resynchronisation le ramène 200 ms plus tard, ce qui donne un va-et-vient
+     incompréhensible. Même parti pris que le verrouillage du panorama et des
+     cartes dans shared/liveguide.js. */
+  body.suit-le-guide .passage,
+  body.suit-le-guide .vignette { pointer-events: none; }
+
+  /* Le visiteur guidé ne navigue pas : le bandeau ne lui sert à rien et, sur
+     un téléphone, la barre de visite guidée viendrait s'empiler par-dessus.
+     On le retire et l'image récupère la place. */
+  body.suit-le-guide #pieces { display: none; }
+  body.suit-le-guide #scene { height: calc(100dvh - var(--marge) - var(--barre)); }
+
+  @media (max-width: 560px) {
+    :root { --rail: 84px; }
+    .vignette { width: 88px; height: 58px; }
+    #piece { font-size: 13px; padding: 6px 12px; }
+  }
+
+  /* Téléphone en paysage : l'écran ne fait plus que ~375 px de haut, où le
+     bandeau normal mangerait le quart de l'image. On le compacte — c'est
+     justement l'orientation qu'on prend pour regarder un panorama. */
+  @media (max-height: 480px) {
+    :root { --rail: 62px; }
+    .vignette { width: 74px; height: 42px; }
+    .vignette span { font-size: 9px; }
+    #pieces { gap: 6px; padding: 6px 10px calc(6px + var(--marge)); }
+    #piece { font-size: 12px; padding: 5px 10px; top: 10px; left: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scene"></div>
+<div id="piece">Chargement…</div>
+<div id="pieces"></div>
+
+<div id="erreur">
+  <strong>La visite n'a pas pu être chargée.</strong>
+  <code id="erreurDetail"></code>
+</div>
+
+<!-- menu.js n'est pas là pour construire le menu (initPage n'est jamais appelé)
+     mais pour installLiveGuide() : il détient LIVEGUIDE_VERSION, la version de
+     cache de la visite guidée. La dupliquer ici, c'est se garantir un jour de
+     débogage sur un liveguide.js périmé servi depuis le cache. -->
+<script src="shared/menu.js?v=25"></script>
+<script src="assets/vendor/pannellum/pannellum.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // Visiteur d'une visite guidée ? Détection identique à celle de liveguide.js,
+  // faite AVANT de créer le panorama : il faut le brider dès sa construction.
+  var suitLeGuide = (function () {
+    try {
+      var p = new URLSearchParams(location.search);
+      if (p.get('lg')) return true;
+      return sessionStorage.getItem('lg_role') === 'viewer';
+    } catch (e) { return false; }
+  })();
+  if (suitLeGuide) document.body.classList.add('suit-le-guide');
+
+  // Charge la visite guidée (config + css + cœur). Sans appel, cette page
+  // resterait muette pendant une visite : elle n'a pas le reste du site.
+  if (typeof installLiveGuide === 'function') installLiveGuide('');
+
+  // Dossier du tour, choisi par l'URL. Filtré : on n'accepte qu'un chemin
+  // relatif simple, sans remontée d'arborescence ni protocole.
+  var demande = new URLSearchParams(location.search).get('tour') || '';
+  var DOSSIER = /^[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*$/.test(demande)
+    ? demande + '/'
+    : 'jawhara/Tour/';
+  var CONFIG = DOSSIER + 'tour-pannellum.json';
+
+  var visionneuse = null;
+  var scenes = {};
+
+  fetch(CONFIG)
+    .then(function (r) {
+      if (!r.ok) throw new Error(CONFIG + ' → HTTP ' + r.status);
+      return r.json();
+    })
+    .then(demarrer)
+    .catch(function (e) { echouer(e.message); });
+
+  function demarrer(tour) {
+    scenes = tour.scenes;
+
+    var config = {
+      default: {
+        firstScene: tour.firstScene,
+        sceneFadeDuration: 900,   // enchaînement doux, comme 3DVista
+        autoLoad: true,
+        hotSpotDebug: false,
+        // Pendant une visite guidée, le visiteur regarde : on coupe ses propres
+        // commandes. Appliqué ici plutôt que de compter sur le crochet de
+        // liveguide.js — celui-ci n'enveloppe pannellum.viewer que s'il s'est
+        // chargé avant, ce que rien ne garantit sur cette page.
+        draggable: !suitLeGuide,
+        mouseZoom: !suitLeGuide,
+        keyboardZoom: !suitLeGuide,
+        showControls: !suitLeGuide,
+        autoRotate: false
+      },
+      scenes: {}
+    };
+
+    Object.keys(scenes).forEach(function (id) {
+      var s = scenes[id];
+      config.scenes[id] = {
+        type: 'multires',
+        title: s.title,
+        yaw: s.yaw,
+        pitch: s.pitch,
+        multiRes: {
+          basePath: DOSSIER,
+          path: s.path,
+          extension: 'webp',
+          tileResolution: tour.tileResolution,
+          // Pyramide complète : le niveau 1 tient en une tuile, chaque niveau
+          // suivant double. Numérotation reconstruite par l'extracteur — celle
+          // de 3DVista est inversée (voir tools/extract_3dvista_tour.js).
+          maxLevel: s.maxLevel,
+          cubeResolution: s.faceSize
+        },
+        hotSpots: s.hotSpots.map(function (h) {
+          return {
+            pitch: h.pitch,
+            yaw: h.yaw,
+            type: 'scene',
+            text: h.text,
+            sceneId: h.sceneId,
+            targetYaw: h.targetYaw,
+            cssClass: 'passage',
+            createTooltipFunc: dessinerPassage,
+            createTooltipArgs: h.text
+          };
+        })
+      };
+    });
+
+    visionneuse = pannellum.viewer('scene', config);
+
+    // La visite guidée en direct lit cette variable pour diffuser l'angle de vue
+    // (voir shared/liveguide.js). On la pose explicitement : le crochet de
+    // liveguide n'enveloppe pannellum.viewer que si son script s'est chargé
+    // avant celui-ci, ce qui n'est pas garanti.
+    window.LG_PANO = visionneuse;
+
+    visionneuse.on('scenechange', function (id) { marquerPiece(id); });
+    visionneuse.on('load', function () { marquerPiece(visionneuse.getScene()); });
+    visionneuse.on('error', function (msg) { echouer(msg); });
+
+    construireVignettes();
+    marquerPiece(tour.firstScene);
+  }
+
+  // Pannellum crée un div nu par point de passage : on y met la flèche et son
+  // infobulle native (l'attribut title suffit, et fonctionne au toucher).
+  function dessinerPassage(element, libelle) {
+    element.classList.add('passage');
+    element.title = 'Aller : ' + libelle;
+    // Pastille dans un enfant, jamais sur `element` lui-même : voir la règle
+    // sur `transform` dans la feuille de style.
+    var pastille = document.createElement('b');
+    pastille.textContent = '›';
+    element.appendChild(pastille);
+  }
+
+  function construireVignettes() {
+    var rail = document.getElementById('pieces');
+    Object.keys(scenes).forEach(function (id) {
+      var s = scenes[id];
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'vignette';
+      b.dataset.scene = id;
+      b.title = s.title;
+      if (s.thumbnail) b.style.backgroundImage = 'url("' + DOSSIER + s.thumbnail + '")';
+      var nom = document.createElement('span');
+      nom.textContent = s.title || '(sans nom)';
+      b.appendChild(nom);
+      b.addEventListener('click', function () {
+        if (visionneuse) visionneuse.loadScene(id);
+      });
+      rail.appendChild(b);
+    });
+  }
+
+  function marquerPiece(id) {
+    var s = scenes[id];
+    document.getElementById('piece').textContent = (s && s.title) || '';
+    var rail = document.getElementById('pieces');
+    Array.prototype.forEach.call(rail.children, function (b) {
+      var actif = b.dataset.scene === id;
+      b.setAttribute('aria-current', actif ? 'true' : 'false');
+      if (actif) b.scrollIntoView({ block: 'nearest', inline: 'center' });
+    });
+  }
+
+  function echouer(detail) {
+    document.getElementById('erreur').style.display = 'flex';
+    document.getElementById('erreurDetail').textContent = detail || '';
+    document.getElementById('piece').style.display = 'none';
+  }
+
+  /* --- Place laissée à la barre de visite guidée --------------------------
+     liveguide.js pose une barre fixe en bas de page. Sa hauteur varie : elle
+     passe sur deux ou trois lignes sur un téléphone. On la mesure pour que le
+     panorama et le bandeau s'arrêtent juste au-dessus, plutôt que d'être
+     recouverts. */
+  function suivreLaBarre() {
+    var barre = document.querySelector('.lg-hostbar, .lg-viewerbar');
+    var h = barre ? Math.round(barre.getBoundingClientRect().height) : 0;
+    document.documentElement.style.setProperty('--barre', h + 'px');
+    // Pannellum ne surveille que le redimensionnement de la FENÊTRE. Sans cet
+    // appel, sa toile garderait son ancienne hauteur et l'image serait étirée.
+    if (visionneuse && visionneuse.resize) visionneuse.resize();
+    return barre;
+  }
+
+  // La barre arrive tard : liveguide charge son SDK, s'authentifie, puis
+  // l'injecte. On l'attend, puis on suit ses changements de taille.
+  new MutationObserver(function () {
+    var barre = suivreLaBarre();
+    if (barre && !barre.__suivie) {
+      barre.__suivie = true;
+      new ResizeObserver(suivreLaBarre).observe(barre);
+    }
+  }).observe(document.body, { childList: true });
+
+  window.addEventListener('resize', suivreLaBarre);
+})();
+</script>
+</body>
+</html>

@@ -75,3 +75,12 @@ sql/prod-sync.sql
 data/phpmyadmin-serveur.txt
 data/*-serveur.txt
 data/acces-*.txt
+
+# Visionneuse 360 maison : arborescence de tuiles et configuration RÉGÉNÉRÉES
+# depuis l'export 3DVista par tools/extract_3dvista_tour.js
+# (voir GUIDE/tour-pannellum.md). Les versionner reviendrait à embarquer les
+# tuiles d'un tour périmé dès le prochain ré-export.
+# ⚠ Ne surtout pas élargir en **/pannellum/ : assets/vendor/pannellum/ est la
+#   bibliothèque elle-même, et doit rester versionnée.
+tour-pannellum.json
+jawhara/*/pannellum/
