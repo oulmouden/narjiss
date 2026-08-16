@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Éditeur de visite 360 — Narjiss Immobilière</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css?v=22">
+<link rel="stylesheet" href="assets/vendor/pannellum/pannellum.css">
+
+<!--
+  ÉDITEUR DE VISITE 360 — monter une visite sans 3DVista.
+
+  Le commercial téléverse ses photos équirectangulaires (Ricoh Theta), nomme
+  ses pièces, et pose les passages en CLIQUANT dans le panorama — c'est ce
+  clic qui remplace vraiment le logiciel de bureau : il capture le yaw et le
+  pitch qu'il aurait fallu écrire à la main.
+
+  Page à part et non un onglet de l'espace agent : l'édition d'un panorama
+  demande tout l'écran.
+
+  Le format produit est celui que lit déjà tour-360.html — donc la visite
+  guidée, le pointeur et le chat fonctionnent dessus sans rien de plus.
+-->
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Outfit', system-ui, sans-serif;
+    background: var(--bg, #f6f7f9);
+    color: var(--text, #1f2430);
+  }
+
+  header {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 18px;
+    background: var(--card, #fff);
+    border-bottom: 1px solid var(--line, #e3e6ea);
+  }
+
+  header h1 { margin: 0; font-size: 17px; font-weight: 700; }
+  header .creux { flex: 1; }
+
+  .btn {
+    border: 1px solid var(--line, #d7dbe0); border-radius: 8px;
+    padding: 8px 14px;
+    background: var(--card, #fff); color: inherit;
+    font: inherit; font-weight: 600; font-size: 14px;
+    cursor: pointer;
+  }
+
+  .btn:hover { border-color: #9aa4ad; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn-or { background: #e8a838; border-color: #e8a838; color: #1b1400; }
+  .btn-vert { background: #157347; border-color: #157347; color: #fff; }
+
+  /* Deux colonnes : le montage à gauche, l'aperçu à droite. */
+  main {
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    gap: 16px;
+    padding: 16px;
+    align-items: start;
+  }
+
+  .carte {
+    background: var(--card, #fff);
+    border: 1px solid var(--line, #e3e6ea);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .carte h2 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+
+  .liste { display: flex; flex-direction: column; gap: 6px; }
+
+  .item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--line, #e3e6ea); border-radius: 8px;
+    background: var(--bg, #f6f7f9);
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    width: 100%;
+  }
+
+  .item[aria-current="true"] { border-color: #e8a838; background: rgba(232,168,56,.12); }
+  .item img { width: 52px; height: 34px; object-fit: cover; border-radius: 4px; flex: 0 0 auto; }
+  .item .nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .marque { font-size: 11px; opacity: .6; }
+
+  input[type="text"], select {
+    width: 100%; padding: 9px 10px;
+    border: 1px solid var(--line, #d7dbe0); border-radius: 8px;
+    background: var(--card, #fff); color: inherit;
+    font: inherit; font-size: 15px;
+  }
+
+  .rang { display: flex; gap: 8px; align-items: center; }
+  .rang > * { min-width: 0; }
+
+  #apercu { position: relative; height: min(70vh, 620px); border-radius: 12px; overflow: hidden; background: #0f1117; }
+  #pano { position: absolute; inset: 0; }
+
+  /* En mode pose, le curseur annonce qu'un clic va déposer un passage. */
+  #apercu.pose #pano { cursor: crosshair; }
+
+  #consigne {
+    position: absolute; left: 12px; top: 12px; z-index: 4;
+    padding: 8px 14px; border-radius: 999px;
+    background: rgba(15,17,23,.82); color: #fff;
+    font-size: 13px; font-weight: 600;
+    pointer-events: none;
+  }
+
+  /* Choix de la destination, ancré au point cliqué. */
+  #cible {
+    position: absolute; z-index: 5;
+    display: none; flex-direction: column; gap: 8px;
+    width: 240px; padding: 12px;
+    border-radius: 10px;
+    background: #1c1c1e; color: #fff;
+    box-shadow: 0 12px 34px rgba(0,0,0,.5);
+  }
+
+  #cible.ouvert { display: flex; }
+  #cible select { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.2); }
+
+  .vide { padding: 22px 12px; text-align: center; opacity: .6; font-size: 14px; }
+
+  .avert {
+    margin-top: 10px; padding: 9px 11px;
+    border-radius: 8px;
+    background: rgba(232,168,56,.16);
+    border: 1px solid rgba(232,168,56,.5);
+    font-size: 13px;
+  }
+
+  .passage { width: 40px; height: 40px; margin: -20px 0 0 -20px; display: flex; align-items: center; justify-content: center; }
+  .passage b {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: rgba(232,168,56,.94); color: #1b1400;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+    box-shadow: 0 3px 12px rgba(0,0,0,.5);
+  }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+    #apercu { height: 52vh; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Éditeur de visite 360</h1>
+  <span id="qui" class="marque" style="opacity:.7;font-size:13px"></span>
+  <span class="creux"></span>
+  <button id="bEnregistrer" class="btn" type="button" disabled>Enregistrer</button>
+  <button id="bPublier" class="btn btn-vert" type="button" disabled>Publier</button>
+  <a class="btn" href="espace-agent.html">Espace agent</a>
+</header>
+
+<main>
+  <div>
+    <div class="carte" style="margin-bottom:16px">
+      <h2>Mes visites</h2>
+      <div id="visites" class="liste"></div>
+      <div class="rang" style="margin-top:10px">
+        <input id="nouveauTitre" type="text" placeholder="Titre de la visite" maxlength="80">
+        <button id="bCreer" class="btn btn-or" type="button">Créer</button>
+      </div>
+    </div>
+
+    <div class="carte" id="carteScenes" hidden>
+      <h2>Pièces</h2>
+      <div id="scenes" class="liste"></div>
+      <div id="messagePhoto"></div>
+      <label class="btn" style="display:block;text-align:center;margin-top:10px">
+        ➕ Ajouter une photo 360°
+        <input id="fichier" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+      </label>
+      <p style="font-size:12px;opacity:.6;margin:8px 0 0">
+        Photos équirectangulaires — deux fois plus larges que hautes, telles que
+        les sort un appareil 360°.
+      </p>
+    </div>
+  </div>
+
+  <div class="carte">
+    <div class="rang" style="margin-bottom:10px">
+      <input id="titrePiece" type="text" placeholder="Nom de la pièce" maxlength="60" disabled>
+      <button id="bDepart" class="btn" type="button" disabled title="La visite s'ouvrira sur cette pièce">Pièce de départ</button>
+      <button id="bPassage" class="btn" type="button" disabled>➕ Passage</button>
+      <button id="bSupprimer" class="btn" type="button" disabled>Retirer</button>
+    </div>
+
+    <div id="apercu">
+      <div id="pano"></div>
+      <div id="consigne" hidden></div>
+      <div id="cible">
+        <strong style="font-size:13px">Ce passage mène à…</strong>
+        <select id="cibleScene"></select>
+        <div class="rang">
+          <button id="cibleOk" class="btn btn-or" type="button" style="flex:1">Poser</button>
+          <button id="cibleNon" class="btn" type="button">Annuler</button>
+        </div>
+      </div>
+      <div id="vide" class="vide" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff">
+        Choisissez une visite, puis ajoutez une photo.
+      </div>
+    </div>
+
+    <div id="passages" style="margin-top:10px"></div>
+  </div>
+</main>
+
+<script src="assets/vendor/pannellum/pannellum.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var API = 'api/visites.php';
+  var etat = { slug: null, titre: '', brouillon: null, scene: null, modifie: false };
+  var visionneuse = null;
+  var posePrete = null; // {yaw, pitch} du point cliqué, en attente de destination
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* --- Réseau ---------------------------------------------------------- */
+
+  function envoyer(action, donnees) {
+    var corps = new FormData();
+    Object.keys(donnees || {}).forEach(function (k) { corps.append(k, donnees[k]); });
+    return fetch(API + '?action=' + action, { method: 'POST', body: corps, credentials: 'same-origin' })
+      .then(function (r) { return r.json(); });
+  }
+
+  function lire(action, params) {
+    var q = new URLSearchParams(params || {});
+    q.set('action', action);
+    return fetch(API + '?' + q.toString(), { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); });
+  }
+
+  /* --- Démarrage ------------------------------------------------------- */
+
+  fetch('api/agent-auth.php?action=me', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r || !r.ok || !r.agent) {
+        document.querySelector('main').innerHTML =
+          '<div class="carte"><h2>Connexion requise</h2>' +
+          '<p>Cet éditeur est réservé aux commerciaux. Connectez-vous depuis ' +
+          '<a href="espace-agent.html">l\'espace agent</a>, puis revenez ici.</p></div>';
+        return;
+      }
+      $('qui').textContent = r.agent.name + ' · ' + r.agent.role;
+      chargerVisites();
+    });
+
+  /* --- Visites --------------------------------------------------------- */
+
+  function chargerVisites() {
+    lire('list').then(function (r) {
+      var boite = $('visites');
+      boite.innerHTML = '';
+      if (!r.ok || !r.visites.length) {
+        boite.innerHTML = '<div class="vide">Aucune visite pour l\'instant.</div>';
+        return;
+      }
+      r.visites.forEach(function (v) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'item';
+        b.setAttribute('aria-current', v.slug === etat.slug ? 'true' : 'false');
+        b.innerHTML = '<span class="nom"></span><span class="marque"></span>';
+        b.querySelector('.nom').textContent = v.titre;
+        b.querySelector('.marque').textContent = v.publiee_at ? 'publiée' : 'brouillon';
+        b.addEventListener('click', function () { ouvrir(v.slug); });
+        boite.appendChild(b);
+      });
+    });
+  }
+
+  $('bCreer').addEventListener('click', function () {
+    var titre = $('nouveauTitre').value.trim();
+    if (!titre) { $('nouveauTitre').focus(); return; }
+    envoyer('create', { titre: titre, projet: '' }).then(function (r) {
+      if (!r.ok) { alert(r.error || 'Création impossible.'); return; }
+      $('nouveauTitre').value = '';
+      chargerVisites();
+      ouvrir(r.slug);
+    });
+  });
+
+  function ouvrir(slug) {
+    lire('get', { slug: slug }).then(function (r) {
+      if (!r.ok) { alert(r.error || 'Ouverture impossible.'); return; }
+      var b = r.brouillon || {};
+      etat.slug = r.slug;
+      etat.titre = r.titre;
+      // `scenes` doit être un OBJET. Reçu en tableau — ce que produit un aller
+      // -retour PHP sur un objet vide — les pièces s'y poseraient en propriétés
+      // nommées, que JSON.stringify laisserait tomber à l'enregistrement.
+      etat.brouillon = {
+        source: b.source || r.slug,
+        firstScene: b.firstScene || null,
+        scenes: (b.scenes && !Array.isArray(b.scenes)) ? b.scenes : {}
+      };
+      etat.scene = etat.brouillon.firstScene || Object.keys(etat.brouillon.scenes)[0] || null;
+      etat.modifie = false;
+      $('carteScenes').hidden = false;
+      chargerVisites();
+      rendre();
+    });
+  }
+
+  /* --- Photos ---------------------------------------------------------- */
+
+  $('fichier').addEventListener('change', function (ev) {
+    var fichiers = Array.prototype.slice.call(ev.target.files || []);
+    ev.target.value = '';
+    if (!fichiers.length || !etat.slug) return;
+    $('messagePhoto').innerHTML = '';
+    // En série et non en parallèle : l'envoi de plusieurs panoramas saturerait
+    // la liaison, et les messages d'erreur se marcheraient dessus.
+    (function suivant(i) {
+      if (i >= fichiers.length) { marquerModifie(); rendre(); return; }
+      var corps = new FormData();
+      corps.append('slug', etat.slug);
+      corps.append('photo', fichiers[i]);
+      fetch(API + '?action=upload', { method: 'POST', body: corps, credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (!r.ok) { avertir(fichiers[i].name + ' : ' + (r.error || 'refusée')); }
+          else {
+            ajouterScene(fichiers[i].name, r);
+            if (r.avertissement) avertir(fichiers[i].name + ' : ' + r.avertissement);
+          }
+          suivant(i + 1);
+        })
+        .catch(function () { avertir(fichiers[i].name + ' : envoi impossible.'); suivant(i + 1); });
+    })(0);
+  });
+
+  function avertir(texte) {
+    var d = document.createElement('div');
+    d.className = 'avert';
+    d.textContent = texte;
+    $('messagePhoto').appendChild(d);
+  }
+
+  function ajouterScene(nomFichier, photo) {
+    var titre = nomFichier.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').trim() || 'Pièce';
+    var id = identifiant(titre);
+    etat.brouillon.scenes[id] = {
+      title: titre,
+      panorama: photo.fichier,
+      thumbnail: photo.vignette || undefined,
+      yaw: 0, pitch: 0,
+      hotSpots: []
+    };
+    if (!etat.brouillon.firstScene) etat.brouillon.firstScene = id;
+    etat.scene = id;
+  }
+
+  /** Identifiant de scène, unique dans la visite. */
+  function identifiant(titre) {
+    var base = titre.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'piece';
+    var id = base, n = 2;
+    while (etat.brouillon.scenes[id]) id = base + '-' + (n++);
+    return id;
+  }
+
+  /* --- Affichage ------------------------------------------------------- */
+
+  function rendre() {
+    var ids = Object.keys(etat.brouillon.scenes);
+
+    var boite = $('scenes');
+    boite.innerHTML = '';
+    ids.forEach(function (id) {
+      var s = etat.brouillon.scenes[id];
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'item';
+      b.setAttribute('aria-current', id === etat.scene ? 'true' : 'false');
+      var vue = s.thumbnail || s.panorama;
+      b.innerHTML = (vue ? '<img alt="" loading="lazy">' : '') +
+                    '<span class="nom"></span><span class="marque"></span>';
+      if (vue) b.querySelector('img').src = 'visites/' + etat.slug + '/' + vue;
+      b.querySelector('.nom').textContent = s.title;
+      b.querySelector('.marque').textContent =
+        (id === etat.brouillon.firstScene ? '★ ' : '') + (s.hotSpots || []).length + ' ↗';
+      b.addEventListener('click', function () { etat.scene = id; rendre(); });
+      boite.appendChild(b);
+    });
+
+    var s = etat.scene ? etat.brouillon.scenes[etat.scene] : null;
+    $('titrePiece').value = s ? s.title : '';
+    ['titrePiece', 'bDepart', 'bPassage', 'bSupprimer'].forEach(function (k) { $(k).disabled = !s; });
+    $('bEnregistrer').disabled = !etat.slug || !etat.modifie;
+    $('bPublier').disabled = !etat.slug || !ids.length;
+    $('vide').style.display = s ? 'none' : 'flex';
+
+    listerPassages(s);
+    apercu(s);
+  }
+
+  function listerPassages(s) {
+    var boite = $('passages');
+    boite.innerHTML = '';
+    if (!s || !(s.hotSpots || []).length) return;
+    s.hotSpots.forEach(function (h, i) {
+      var ligne = document.createElement('div');
+      ligne.className = 'rang';
+      ligne.style.marginTop = '6px';
+      var nom = (etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId;
+      var t = document.createElement('span');
+      t.style.flex = '1';
+      t.textContent = '↗ ' + nom + '  (' + Math.round(h.yaw) + '° / ' + Math.round(h.pitch) + '°)';
+      var x = document.createElement('button');
+      x.type = 'button'; x.className = 'btn'; x.textContent = 'Retirer';
+      x.addEventListener('click', function () {
+        s.hotSpots.splice(i, 1);
+        marquerModifie(); rendre();
+      });
+      ligne.appendChild(t); ligne.appendChild(x);
+      boite.appendChild(ligne);
+    });
+  }
+
+  /** Recrée l'aperçu Pannellum sur la pièce courante. */
+  function apercu(s) {
+    if (visionneuse) { try { visionneuse.destroy(); } catch (e) {} visionneuse = null; }
+    if (!s || !s.panorama) return;
+
+    visionneuse = pannellum.viewer('pano', {
+      type: 'equirectangular',
+      panorama: 'visites/' + etat.slug + '/' + s.panorama,
+      autoLoad: true,
+      showControls: true,
+      yaw: s.yaw || 0,
+      pitch: s.pitch || 0,
+      hotSpots: (s.hotSpots || []).map(function (h) {
+        return {
+          yaw: h.yaw, pitch: h.pitch, type: 'info', cssClass: 'passage',
+          createTooltipFunc: function (el) {
+            var b = document.createElement('b');
+            b.textContent = '›';
+            el.appendChild(b);
+            el.title = 'Vers ' + ((etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId);
+          }
+        };
+      })
+    });
+  }
+
+  /* --- Pose d'un passage ------------------------------------------------
+     C'est le geste qui remplace 3DVista : le clic dans le panorama capture le
+     yaw et le pitch qu'il aurait fallu écrire à la main. */
+
+  $('bPassage').addEventListener('click', function () {
+    var autres = Object.keys(etat.brouillon.scenes).filter(function (id) { return id !== etat.scene; });
+    if (!autres.length) { alert('Ajoutez une seconde pièce : un passage doit mener quelque part.'); return; }
+    armerPose(true);
+  });
+
+  function armerPose(actif) {
+    $('apercu').classList.toggle('pose', actif);
+    $('consigne').hidden = !actif;
+    $('consigne').textContent = 'Cliquez dans le panorama, à l\'endroit du passage';
+    if (!actif) { $('cible').classList.remove('ouvert'); posePrete = null; }
+  }
+
+  $('pano').addEventListener('click', function (ev) {
+    if (!$('apercu').classList.contains('pose') || !visionneuse) return;
+    var c;
+    try { c = visionneuse.mouseEventToCoords(ev); } catch (e) { return; }
+    if (!c) return;
+    posePrete = { pitch: Math.round(c[0] * 10) / 10, yaw: Math.round(c[1] * 10) / 10 };
+
+    var select = $('cibleScene');
+    select.innerHTML = '';
+    Object.keys(etat.brouillon.scenes).forEach(function (id) {
+      if (id === etat.scene) return;
+      var o = document.createElement('option');
+      o.value = id;
+      o.textContent = etat.brouillon.scenes[id].title;
+      select.appendChild(o);
+    });
+
+    var boite = $('apercu').getBoundingClientRect();
+    var panneau = $('cible');
+    panneau.style.left = Math.min(ev.clientX - boite.left, boite.width - 252) + 'px';
+    panneau.style.top = Math.min(ev.clientY - boite.top, boite.height - 150) + 'px';
+    panneau.classList.add('ouvert');
+  });
+
+  $('cibleOk').addEventListener('click', function () {
+    if (!posePrete || !etat.scene) return;
+    var s = etat.brouillon.scenes[etat.scene];
+    s.hotSpots = s.hotSpots || [];
+    s.hotSpots.push({
+      type: 'scene',
+      sceneId: $('cibleScene').value,
+      yaw: posePrete.yaw,
+      pitch: posePrete.pitch,
+      text: (etat.brouillon.scenes[$('cibleScene').value] || {}).title || ''
+    });
+    armerPose(false);
+    marquerModifie();
+    rendre();
+  });
+
+  $('cibleNon').addEventListener('click', function () { armerPose(false); });
+
+  /* --- Réglages de la pièce -------------------------------------------- */
+
+  $('titrePiece').addEventListener('input', function () {
+    if (!etat.scene) return;
+    etat.brouillon.scenes[etat.scene].title = this.value;
+    marquerModifie();
+  });
+
+  $('bDepart').addEventListener('click', function () {
+    if (!etat.scene) return;
+    etat.brouillon.firstScene = etat.scene;
+    marquerModifie(); rendre();
+  });
+
+  $('bSupprimer').addEventListener('click', function () {
+    if (!etat.scene) return;
+    var s = etat.brouillon.scenes[etat.scene];
+    if (!confirm('Retirer « ' + s.title +' » de la visite ?')) return;
+    delete etat.brouillon.scenes[etat.scene];
+
+    // Les passages qui y menaient deviendraient des impasses.
+    Object.keys(etat.brouillon.scenes).forEach(function (id) {
+      var autre = etat.brouillon.scenes[id];
+      autre.hotSpots = (autre.hotSpots || []).filter(function (h) { return h.sceneId !== etat.scene; });
+    });
+
+    var reste = Object.keys(etat.brouillon.scenes);
+    if (etat.brouillon.firstScene === etat.scene) etat.brouillon.firstScene = reste[0] || null;
+    etat.scene = reste[0] || null;
+    marquerModifie(); rendre();
+  });
+
+  /* --- Enregistrer / publier ------------------------------------------- */
+
+  function marquerModifie() {
+    etat.modifie = true;
+    $('bEnregistrer').disabled = false;
+  }
+
+  function enregistrer() {
+    if (!etat.slug) return Promise.resolve(false);
+    // La vue courante de l'aperçu devient la vue d'arrivée de la pièce : le
+    // commercial cadre ce qu'il veut montrer, et c'est ce cadrage qui est gardé.
+    if (etat.scene && visionneuse) {
+      var s = etat.brouillon.scenes[etat.scene];
+      try { s.yaw = Math.round(visionneuse.getYaw() * 10) / 10; s.pitch = Math.round(visionneuse.getPitch() * 10) / 10; } catch (e) {}
+    }
+    return envoyer('save', { slug: etat.slug, brouillon: JSON.stringify(etat.brouillon) })
+      .then(function (r) {
+        if (!r.ok) { alert(r.error || 'Enregistrement impossible.'); return false; }
+        etat.modifie = false;
+        $('bEnregistrer').disabled = true;
+        return true;
+      });
+  }
+
+  $('bEnregistrer').addEventListener('click', enregistrer);
+
+  $('bPublier').addEventListener('click', function () {
+    // On publie ce qui est enregistré : on enregistre donc d'abord, sinon le
+    // commercial publierait l'état d'avant sa dernière modification.
+    enregistrer().then(function (ok) {
+      if (!ok) return;
+      envoyer('publish', { slug: etat.slug }).then(function (r) {
+        if (!r.ok) { alert(r.error || 'Publication impossible.'); return; }
+        chargerVisites();
+        if (confirm('Visite publiée.\n\nL\'ouvrir dans un nouvel onglet ?')) {
+          window.open(r.url, '_blank', 'noopener');
+        }
+      });
+    });
+  });
+
+  window.addEventListener('beforeunload', function (e) {
+    if (etat.modifie) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
+</script>
+</body>
+</html>

@@ -78,7 +78,11 @@ SQL);
  */
 function nj_visite_slug(string $titre): string {
   $s = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $titre) ?: $titre;
-  $s = strtolower((string) $s);
+  // La translittération rend « é » sous la forme "'e" selon les plateformes.
+  // Sans ce nettoyage, l'apostrophe devient un séparateur et « témoin » sort
+  // en « t-emoin ». On efface ces marques avant de découper.
+  $s = str_replace(["'", '"', '`', '^', '~', '¨'], '', $s);
+  $s = strtolower($s);
   $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
   $s = trim($s, '-');
   return $s !== '' ? substr($s, 0, 48) : 'visite';

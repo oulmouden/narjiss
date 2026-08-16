@@ -65,13 +65,25 @@ try {
 
     case 'get': {
       $visite = nj_v_visite_autorisee($moi);
+      $brouillon = json_decode((string) $visite['brouillon'], true);
+      if (!is_array($brouillon)) $brouillon = [];
+
+      /* `scenes` DOIT repartir en objet JSON, jamais en tableau.
+       *
+       * PHP décode `{}` en tableau vide, qui se ré-encode en `[]`. Le
+       * navigateur y poserait alors ses pièces comme propriétés nommées d'un
+       * Array : Object.keys les voit — l'écran semble juste — mais
+       * JSON.stringify d'un tableau IGNORE les propriétés non indexées, et
+       * les pièces s'évaporaient à l'enregistrement. */
+      if (empty($brouillon['scenes'])) $brouillon['scenes'] = new stdClass();
+
       nj_v_json([
         'ok'         => true,
         'slug'       => $visite['slug'],
         'titre'      => $visite['titre'],
         'projet'     => $visite['projet'],
         'publiee_at' => $visite['publiee_at'],
-        'brouillon'  => json_decode((string) $visite['brouillon'], true) ?: ['scenes' => []],
+        'brouillon'  => $brouillon,
         'url'        => 'tour-360.html?tour=' . NJ_VISITES_DIR . '/' . $visite['slug'],
       ]);
     }
