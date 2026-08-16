@@ -86,9 +86,21 @@
   .vignette {
     flex: 0 0 auto; width: 104px; height: 68px;
     border: 2px solid transparent; border-radius: 8px;
-    background: #222 center/cover no-repeat;
+    background: #222;
     cursor: pointer; position: relative;
+    padding: 0; overflow: hidden;
     transition: border-color 0.15s ease, transform 0.08s ease;
+  }
+
+  /* L'aperçu remplit la vignette. `object-fit: cover` recadre au centre : sur
+     un panorama équirectangulaire, cela tombe sur l'horizon — bien plus
+     parlant qu'une réduction complète où l'on ne verrait que du plafond et du
+     sol étirés. */
+  .vignette img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
   }
 
   .vignette:hover { border-color: rgba(232, 168, 56, 0.6); }
@@ -194,6 +206,19 @@
     display: flex; align-items: center; justify-content: center;
     color: #1b1400; font-size: 22px; font-weight: 700; line-height: 1;
     animation: pulse 2.2s ease-in-out infinite;
+  }
+
+  /* Passage habillé d'une image : on retire le fond et le cadre, l'image parle
+     d'elle-même (flèche au sol, pictogramme). */
+  .passage b.passage-image {
+    background: none;
+    box-shadow: none;
+  }
+
+  .passage b img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
   }
 
   @keyframes pulse {
@@ -339,7 +364,14 @@
             targetYaw: h.targetYaw,
             cssClass: 'passage',
             createTooltipFunc: dessinerPassage,
-            createTooltipArgs: h.text
+            // Habillage transmis au dessin : voir dessinerPassage.
+            createTooltipArgs: {
+              libelle: h.text,
+              icone: h.icone,
+              image: h.image,
+              couleur: h.couleur,
+              taille: h.taille
+            }
           };
         })
       };
@@ -431,13 +463,41 @@
 
   // Pannellum crée un div nu par point de passage : on y met la flèche et son
   // infobulle native (l'attribut title suffit, et fonctionne au toucher).
-  function dessinerPassage(element, libelle) {
+  /**
+   * Dessine un passage. `args` porte le libellé et l'habillage éventuel.
+   *
+   * L'apparence n'a rien d'imposé par Pannellum : il ne fournit qu'un div vide
+   * et sa position. Tout le reste — forme, couleur, symbole ou image — est à
+   * nous, et se règle passage par passage depuis le JSON :
+   *
+   *   "icone"   : un caractère ou un emoji à la place du chevron ("↑", "🚪")
+   *   "image"   : une image (flèche au sol, pictogramme), relative au tour
+   *   "couleur" : la teinte de la pastille
+   */
+  function dessinerPassage(element, args) {
     element.classList.add('passage');
-    element.title = 'Aller : ' + libelle;
+    element.title = 'Aller : ' + args.libelle;
+
     // Pastille dans un enfant, jamais sur `element` lui-même : voir la règle
     // sur `transform` dans la feuille de style.
     var pastille = document.createElement('b');
-    pastille.textContent = '›';
+
+    if (args.image) {
+      var img = document.createElement('img');
+      img.src = DOSSIER + args.image;
+      img.alt = '';
+      pastille.appendChild(img);
+      pastille.classList.add('passage-image');
+    } else {
+      pastille.textContent = args.icone || '›';
+    }
+
+    if (args.couleur) pastille.style.background = args.couleur;
+    if (args.taille) {
+      element.style.width = element.style.height = args.taille + 'px';
+      element.style.margin = (-args.taille / 2) + 'px 0 0 ' + (-args.taille / 2) + 'px';
+    }
+
     element.appendChild(pastille);
   }
 
@@ -450,7 +510,24 @@
       b.className = 'vignette';
       b.dataset.scene = id;
       b.title = s.title;
-      if (s.thumbnail) b.style.backgroundImage = 'url("' + DOSSIER + s.thumbnail + '")';
+
+      // Vignette dédiée si l'export en fournit une (3DVista en génère), sinon
+      // le panorama lui-même — une visite montée à la main n'a que ça.
+      //
+      // Un <img loading="lazy"> et non un fond CSS : le repli sur le panorama
+      // ferait sans cela télécharger toutes les photos pleine taille au seul
+      // affichage du bandeau. En paresseux, seules les vignettes réellement
+      // visibles sont chargées.
+      var source = s.thumbnail || s.panorama;
+      if (source) {
+        var vue = document.createElement('img');
+        vue.loading = 'lazy';
+        vue.decoding = 'async';
+        vue.alt = '';
+        vue.src = DOSSIER + source;
+        b.appendChild(vue);
+      }
+
       var nom = document.createElement('span');
       nom.textContent = s.title || '(sans nom)';
       b.appendChild(nom);
