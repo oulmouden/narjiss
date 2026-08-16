@@ -161,7 +161,14 @@
     document.addEventListener('click', function (ev) {
       var t = ev.target;
       if (!(t instanceof Element)) return;
-      if (t.closest('.lg-hostbar') || t.closest('.lg-viewerbar') || t.closest('a[href]')) return;
+      if (t.closest('.lg-hostbar') || t.closest('.lg-viewerbar')) return;
+      // On ignore les liens qui NAVIGUENT réellement (la synchro d'URL s'en
+      // charge déjà). Mais pas les faux liens : Leaflet construit TOUS ses
+      // contrôles en <a href="#"> — zoom + / −, plein écran, mode compact,
+      // sélecteur de fonds, fermeture de popup. L'ancien filtre `a[href]` les
+      // avalait tous, d'où une carte totalement muette côté visiteur.
+      var link = t.closest('a[href]');
+      if (link && !isFakeLink(link)) return;
       var sel = cssPath(t);
       if (sel) channel.trigger('client-action', { kind: 'click', selector: sel });
     }, true);
@@ -200,6 +207,37 @@
       if (key === lastPano && panoTicks % 3 !== 0) return; // inchangé : resync ~600ms
       lastPano = key;
       channel.trigger('client-action', { kind: 'pano', yaw: y, pitch: p, hfov: h });
+    }, 200);
+
+    // Diffusion de la vue des cartes Leaflet (centre + zoom). Un déplacement de
+    // carte se fait au glisser/molette : il ne produit ni clic, ni 'change', ni
+    // changement d'URL — rien de ce que le reste de la synchro sait capter. Sans
+    // cette émission, la carte du visiteur reste figée là où il l'a trouvée
+    // pendant que l'hôte commente une autre ville.
+    //
+    // Même schéma que le panorama : envoi au changement + réémission
+    // périodique (~600 ms), les client events Pusher étant best-effort — un
+    // événement perdu figerait la carte jusqu'au mouvement suivant.
+    var lastMapKeys = [];
+    var mapTicks = 0;
+    var mapBeat = setInterval(function () {
+      var maps = window.LG_MAPS || [];
+      mapTicks++;
+      for (var i = 0; i < maps.length; i++) {
+        var m = maps[i];
+        if (!m || typeof m.getCenter !== 'function' || !m._loaded) continue;
+        var c, z;
+        try { c = m.getCenter(); z = m.getZoom(); } catch (e) { continue; }
+        var key = c.lat.toFixed(5) + '|' + c.lng.toFixed(5) + '|' + z;
+        if (key === lastMapKeys[i] && mapTicks % 3 !== 0) continue; // inchangé : resync ~600 ms
+        lastMapKeys[i] = key;
+        channel.trigger('client-action', {
+          kind: 'map', i: i,
+          lat: Math.round(c.lat * 1e6) / 1e6,
+          lng: Math.round(c.lng * 1e6) / 1e6,
+          zoom: z
+        });
+      }
     }, 200);
 
     // --- Voix : réception des réponses / ICE des visiteurs ---
@@ -262,6 +300,7 @@
     ui.end.addEventListener('click', function () {
       clearInterval(beat);
       clearInterval(panoBeat);
+      clearInterval(mapBeat);
       window.removeEventListener('scroll', onScroll);
       stopVoice();
       endSession();
@@ -285,6 +324,7 @@
     var here = cleanUrl(window.location.href);
     var pc = null;       // connexion voix avec l'hôte
     var audioEl = null;
+    var lastScroll = null;   // dernière position reçue (voir le filtre plus bas)
 
     // --- Suivi de la navigation de l'hôte ---
     channel.bind('client-state', function (data) {
@@ -294,8 +334,18 @@
         window.location.href = data.url; // sessionStorage garde le rôle visiteur
         return;
       }
-      // Même page : on applique le scroll de l'hôte.
-      if (typeof data.scroll === 'number') applyScroll(data.scroll);
+      // Même page : on applique le scroll de l'hôte — mais SEULEMENT s'il a
+      // réellement bougé. L'hôte réémet son état toutes les 4 s (battement pour
+      // les retardataires) ; on repositionnait donc le visiteur de force toutes
+      // les 4 secondes, y compris quand l'hôte n'avait pas bougé d'un pixel. Le
+      // visiteur qui jetait un œil ailleurs était ramené en boucle et ne pouvait
+      // rien regarder. Le battement continue à rattraper un vrai déplacement
+      // manqué, et un visiteur qui arrive en cours de route est bien positionné
+      // (lastScroll vaut null à la première réception).
+      if (typeof data.scroll !== 'number') return;
+      if (lastScroll !== null && Math.abs(data.scroll - lastScroll) < 0.002) return;
+      lastScroll = data.scroll;
+      applyScroll(data.scroll);
     });
 
     channel.bind('pusher:subscription_error', function () {
@@ -319,6 +369,39 @@
         else if (elt2.tagName === 'INPUT' && elt2.type === 'radio') elt2.checked = true;
         else elt2.value = msg.value;
         elt2.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+      if (msg.kind === 'map') {
+        var idx = msg.i || 0;
+        var maps = window.LG_MAPS || [];
+        var mp = maps[idx];
+        if (!mp || typeof mp.setView !== 'function') return;
+        // Carte déjà en place ? On ne la touche pas. Un setView rejoue un
+        // _resetView complet (tuiles et marqueurs repositionnés) ; appliqué à
+        // chaque réémission de sécurité (~600 ms) sur une carte qui n'a pas
+        // bougé, c'est le clignotement permanent côté visiteur.
+        //
+        // La tolérance sur le zoom n'est pas cosmétique : après un flyTo,
+        // l'hôte s'arrête sur un zoom FRACTIONNAIRE (vu en test :
+        // 10.985407116604048) que le visiteur ne peut pas reproduire — Leaflet
+        // l'arrondit à 11 via zoomSnap. Une égalité stricte laisserait donc un
+        // écart qui ne se résorbe jamais, donc un setView toutes les 600 ms
+        // pour l'éternité. C'était exactement ça, le clignotement sans fin.
+        //
+        // On compare bien à l'ÉTAT de la carte et non au dernier message reçu :
+        // c'est ce qui garde l'auto-réparation. Si le code de la page repositionne
+        // la carte du visiteur (fitBounds au rendu, invalidateSize…), la
+        // réémission suivante le rattrape.
+        var cur, curZoom;
+        try { cur = mp.getCenter(); curZoom = mp.getZoom(); } catch (e) { return; }
+        if (Math.abs(curZoom - msg.zoom) < 0.51 &&
+            Math.abs(cur.lat - msg.lat) < 1e-4 &&
+            Math.abs(cur.lng - msg.lng) < 1e-4) return;
+        try {
+          lockMap(mp); // le visiteur suit, il ne pilote pas
+          if (typeof mp.stop === 'function') mp.stop(); // coupe un flyTo en cours
+          mp.setView([msg.lat, msg.lng], msg.zoom, { animate: false });
+        } catch (e) {}
         return;
       }
       if (msg.kind === 'pano') {
@@ -380,6 +463,19 @@
       endSession();
       window.location.href = cleanUrl(window.location.href); // reste sur la page, sans suivre
     });
+  }
+
+  // Côté visiteur, la carte suit l'hôte : on coupe ses propres interactions
+  // (sinon il se bat contre la resynchronisation qui arrive ~600 ms plus tard).
+  // Pendant du config.draggable=false appliqué au panorama Pannellum.
+  function lockMap(m) {
+    if (m.__lgLocked) return;
+    m.__lgLocked = true;
+    var handlers = ['dragging', 'touchZoom', 'doubleClickZoom', 'scrollWheelZoom', 'boxZoom', 'keyboard', 'tap'];
+    for (var i = 0; i < handlers.length; i++) {
+      var h = m[handlers[i]];
+      if (h && typeof h.disable === 'function') { try { h.disable(); } catch (e) {} }
+    }
   }
 
   function applyScroll(frac) {
@@ -550,6 +646,13 @@
       el = parent;
     }
     return parts.join(' > ');
+  }
+
+  // Un <a> qui ne quitte pas la page : ancre pure ("#", "#close") ou
+  // pseudo-lien javascript:. C'est la forme que prennent les boutons Leaflet.
+  function isFakeLink(a) {
+    var href = a.getAttribute('href') || '';
+    return href.charAt(0) === '#' || /^javascript:/i.test(href);
   }
 
   function cssEscape(s) {
