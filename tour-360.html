@@ -324,23 +324,12 @@
 
     Object.keys(scenes).forEach(function (id) {
       var s = scenes[id];
-      config.scenes[id] = {
-        type: 'multires',
+
+      var scene = {
         title: s.title,
         yaw: s.yaw,
         pitch: s.pitch,
-        multiRes: {
-          basePath: DOSSIER,
-          path: s.path,
-          extension: 'webp',
-          tileResolution: tour.tileResolution,
-          // Pyramide complète : le niveau 1 tient en une tuile, chaque niveau
-          // suivant double. Numérotation reconstruite par l'extracteur — celle
-          // de 3DVista est inversée (voir tools/extract_3dvista_tour.js).
-          maxLevel: s.maxLevel,
-          cubeResolution: s.faceSize
-        },
-        hotSpots: s.hotSpots.map(function (h) {
+        hotSpots: (s.hotSpots || []).map(function (h) {
           return {
             pitch: h.pitch,
             yaw: h.yaw,
@@ -354,6 +343,35 @@
           };
         })
       };
+
+      // Deux origines possibles, et c'est ce qui rend la visionneuse
+      // indépendante de 3DVista :
+      //
+      //   `panorama` → une simple photo ÉQUIRECTANGULAIRE, telle que la sort un
+      //                Ricoh Theta. Aucun traitement, aucun découpage : c'est
+      //                la voie des visites montées dans notre back-office.
+      //   `path`     → la pyramide de tuiles reconstruite depuis un export
+      //                3DVista (voir tools/extract_3dvista_tour.js).
+      if (s.panorama) {
+        scene.type = 'equirectangular';
+        scene.panorama = DOSSIER + s.panorama;
+        if (s.hfov) scene.hfov = s.hfov;
+      } else {
+        scene.type = 'multires';
+        scene.multiRes = {
+          basePath: DOSSIER,
+          path: s.path,
+          extension: 'webp',
+          tileResolution: tour.tileResolution,
+          // Pyramide complète : le niveau 1 tient en une tuile, chaque niveau
+          // suivant double. Numérotation reconstruite par l'extracteur — celle
+          // de 3DVista est inversée (voir tools/extract_3dvista_tour.js).
+          maxLevel: s.maxLevel,
+          cubeResolution: s.faceSize
+        };
+      }
+
+      config.scenes[id] = scene;
     });
 
     visionneuse = pannellum.viewer('scene', config);
