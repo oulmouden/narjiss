@@ -368,6 +368,7 @@
 
   function demarrer(tour) {
     scenes = tour.scenes;
+    appliquerEtat(tour, new URLSearchParams(location.search).get('etat'));
 
     var config = {
       default: {
@@ -588,6 +589,70 @@
     });
   }
 
+  /**
+   * Fait entrer TOUTE la visite dans l'état demandé — meublé ou vide.
+   *
+   *   tour-360.html?tour=jawhara/Tour            → visite du bien nu
+   *   tour-360.html?tour=jawhara/Tour&etat=meuble → visite aménagée
+   *
+   * Deux liens à diffuser, un seul jeu de fichiers : le même tour, pris par un
+   * bout ou par l'autre. Et la bascule pièce par pièce reste disponible des
+   * deux côtés — devant un bien meublé on veut vérifier l'état réel, devant un
+   * bien nu on veut se projeter.
+   *
+   * Le point délicat : il ne suffit pas de changer la pièce d'entrée. Les
+   * PASSAGES visent des scènes précises ; sans les rediriger, la première porte
+   * franchie ramènerait le visiteur dans l'autre état, et la visite deviendrait
+   * un panachage incohérent.
+   */
+  function appliquerEtat(tour, voulu) {
+    if (voulu !== 'meuble' && voulu !== 'vide') return; // rien demandé : on garde l'export tel quel
+
+    // Pour une scène donnée, celle des deux qui correspond à l'état demandé.
+    function versEtat(id) {
+      var s = scenes[id];
+      if (!s || !s.variante || !s.etat) return id;
+      return s.etat === voulu ? id : s.variante;
+    }
+
+    Object.keys(scenes).forEach(function (id) {
+      var s = scenes[id];
+      if (!s.etat || !s.variante) return;
+      // Seule la prise de vue de l'état voulu figure au bandeau et sur le plan.
+      s.secondaire = s.etat !== voulu;
+    });
+
+    // Le NOM d'une pièce est celui de la pièce, pas de son ameublement : les
+    // deux prises de vue portent donc le même titre, celui de la version nue.
+    // Sans cela, une visite aménagée afficherait « Salon virtuel », « Cuisine
+    // Virtuelle » — l'étiquette d'un fichier, pas un nom de pièce.
+    Object.keys(scenes).forEach(function (id) {
+      var s = scenes[id];
+      if (s.etat === 'vide' && s.variante && scenes[s.variante]) {
+        scenes[s.variante].title = s.title;
+      }
+    });
+
+    Object.keys(scenes).forEach(function (id) {
+      (scenes[id].hotSpots || []).forEach(function (h) {
+        if (!h.sceneId) return;
+        var vers = versEtat(h.sceneId);
+        if (vers === h.sceneId) return;
+        h.sceneId = vers;
+        // Le libellé avait été figé sur l'ancienne cible : on le reprend, sinon
+        // la flèche annoncerait une pièce et en ouvrirait une autre.
+        if (scenes[vers] && scenes[vers].title) h.text = scenes[vers].title;
+      });
+    });
+
+    tour.firstScene = versEtat(tour.firstScene);
+
+    // Les points du plan aussi, sans quoi ils renverraient vers l'autre état.
+    if (tour.map && tour.map.points) {
+      tour.map.points.forEach(function (p) { p.sceneId = versEtat(p.sceneId); });
+    }
+  }
+
   /* --- Vide ↔ meublé -----------------------------------------------------
      Deux prises de vue d'une même pièce, l'une nue et l'autre aménagée. Elles
      restent deux scènes à part entière — les passages continuent d'y mener —
@@ -623,7 +688,11 @@
     // tant que cette vue reste affichée. Un acheteur ne doit pas confondre un
     // rendu avec l'état réel du bien.
     var m = document.getElementById('mention');
-    var virtuel = !!(s && s.secondaire);
+    // On se fie à l'ÉTAT de la prise de vue, jamais à `secondaire` : ce dernier
+    // dit seulement laquelle figure au bandeau, et il s'inverse en mode meublé.
+    // La mention doit suivre le meublé, pas la mise en avant — sans quoi une
+    // visite entièrement aménagée n'en porterait aucune.
+    var virtuel = !!(s && (s.etat ? s.etat === 'meuble' : s.secondaire));
     m.hidden = !virtuel;
     if (virtuel) m.textContent = s.mention || 'Aménagement virtuel — à titre d\'illustration';
   }

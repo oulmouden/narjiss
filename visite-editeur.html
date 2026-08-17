@@ -565,8 +565,8 @@
   function relier(mere, meuble) {
     var m = etat.brouillon.scenes[mere], v = etat.brouillon.scenes[meuble];
     if (!m || !v) return;
-    m.variante = meuble;  m.varianteLabel = 'Voir meublé';
-    v.variante = mere;    v.varianteLabel = 'Voir vide';
+    m.variante = meuble;  m.varianteLabel = 'Voir meublé';  m.etat = 'vide';
+    v.variante = mere;    v.varianteLabel = 'Voir vide';    v.etat = 'meuble';
     v.secondaire = true;
     // L'ameublement venant le plus souvent d'une génération par IA, la
     // visionneuse le mentionne tant que la vue est affichée.
@@ -583,9 +583,10 @@
     var autre = etat.brouillon.scenes[s.variante];
     if (autre) {
       delete autre.variante; delete autre.varianteLabel;
-      delete autre.secondaire; delete autre.mention;
+      delete autre.secondaire; delete autre.mention; delete autre.etat;
     }
-    delete s.variante; delete s.varianteLabel; delete s.secondaire; delete s.mention;
+    delete s.variante; delete s.varianteLabel; delete s.secondaire;
+    delete s.mention; delete s.etat;
   }
 
   /** Identifiant de scène, unique dans la visite. */

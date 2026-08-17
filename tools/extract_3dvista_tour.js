@@ -345,8 +345,10 @@ function apparierVariantes(scenes, warnings) {
 
     scenes[mere].variante = fille;
     scenes[mere].varianteLabel = 'Voir meublé';
+    scenes[mere].etat = 'vide';
     scenes[fille].variante = mere;
     scenes[fille].varianteLabel = 'Voir vide';
+    scenes[fille].etat = 'meuble';
     scenes[fille].secondaire = true;
     // L'ameublement est presque toujours une image de synthèse : la visionneuse
     // l'affiche tant que cette vue est à l'écran, pour qu'un acheteur ne la

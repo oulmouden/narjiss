@@ -164,6 +164,30 @@ de défaire — l'automatique assiste, il ne décide pas.
 Repères dans la liste des pièces : `★` pièce de départ, `🛋` appariée,
 `↳ meublé` c'est la vue meublée.
 
+### Deux visites, un seul jeu de fichiers
+
+L'état d'entrée se choisit par l'URL :
+
+```
+tour-360.html?tour=jawhara/Tour              → la visite du bien nu
+tour-360.html?tour=jawhara/Tour&etat=meuble  → la visite aménagée
+```
+
+Deux liens à diffuser, aucune duplication de fichiers : le même tour, pris par
+un bout ou par l'autre. **Et la bascule pièce par pièce reste disponible des
+deux côtés** — devant un bien meublé on veut vérifier l'état réel, devant un
+bien nu on veut se projeter.
+
+Changer la pièce d'entrée ne suffit pas : les **passages** visent des scènes
+précises, et sans les rediriger, la première porte franchie ramènerait le
+visiteur dans l'autre état. `appliquerEtat()` réoriente donc les passages, les
+pastilles du plan et la pièce de départ, et reprend les libellés des flèches —
+faute de quoi une flèche annoncerait une pièce et en ouvrirait une autre.
+
+Les deux prises de vue portent alors le **même nom** — celui de la pièce, pas de
+son ameublement. Sans cela une visite aménagée afficherait « Salon virtuel » ou
+« Cuisine Virtuelle » : l'étiquette d'un fichier, pas un nom de pièce.
+
 ### La mention d'aménagement virtuel
 
 Le meublé est le plus souvent **généré par une IA**. Tant que cette vue est à
@@ -175,6 +199,11 @@ un rendu avec l'état réel du bien, et la mention protège autant le client que
 conseiller. Elle est portée par le champ `mention` de la scène, donc modifiable
 si le service juridique préfère une autre formulation. Elle n'intercepte aucun
 clic.
+
+> Elle se règle sur le champ `etat` de la prise de vue, **jamais** sur
+> `secondaire`. Ce dernier dit seulement laquelle figure au bandeau, et il
+> s'inverse en mode meublé : une visite entièrement aménagée n'aurait alors
+> porté aucune mention — exactement le cas où elle est le plus nécessaire.
 
 ### Les faces du cube
 
