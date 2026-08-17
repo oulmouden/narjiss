@@ -131,6 +131,30 @@ try {
       ]);
     }
 
+    case 'rename': {
+      if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      $visite = nj_v_visite_autorisee($moi);
+      $titre = trim((string) ($_POST['titre'] ?? ''));
+      if ($titre === '') nj_v_json(['ok' => false, 'error' => 'Titre vide.'], 400);
+      nj_v_json(['ok' => nj_visite_renommer($visite['slug'], $titre), 'titre' => $titre]);
+    }
+
+    /* Retire de la ligne sans rien détruire : le brouillon et les photos
+       restent, la visite peut être republiée. */
+    case 'unpublish': {
+      if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      $visite = nj_v_visite_autorisee($moi);
+      nj_v_json(['ok' => nj_visite_depublier($visite['slug'])]);
+    }
+
+    /* Irréversible : la ligne ET les photos disparaissent. La confirmation est
+       demandée côté navigateur, mais la propriété est vérifiée ici. */
+    case 'delete': {
+      if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      $visite = nj_v_visite_autorisee($moi);
+      nj_v_json(['ok' => nj_visite_supprimer($visite['slug'])]);
+    }
+
     default:
       nj_v_json(['ok' => false, 'error' => 'Action inconnue.'], 400);
   }

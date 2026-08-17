@@ -91,6 +91,23 @@
   }
 
   .item[aria-current="true"] { border-color: #e8a838; background: rgba(232,168,56,.12); }
+
+  /* Boutons d'action dans une ligne de liste : sans cadre, ils ne concurrencent
+     pas le titre, qui reste la zone à cliquer pour ouvrir. */
+  .nu {
+    border: 0; background: none; color: inherit;
+    font: inherit; cursor: pointer;
+    padding: 2px 4px; border-radius: 5px;
+    flex: 0 0 auto;
+  }
+
+  .nu:hover { background: rgba(0,0,0,.08); }
+  .nu.nom { flex: 1; min-width: 0; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nu.danger:hover { background: rgba(220,38,38,.16); }
+
+  /* Les pièces sont des boutons entiers ; les visites, des lignes à plusieurs
+     actions. Le curseur doit dire lequel des deux on survole. */
+  div.item { cursor: default; }
   .item img { width: 52px; height: 34px; object-fit: cover; border-radius: 4px; flex: 0 0 auto; }
   .item .nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .item .marque { font-size: 11px; opacity: .6; }
@@ -277,17 +294,91 @@
         return;
       }
       r.visites.forEach(function (v) {
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'item';
-        b.setAttribute('aria-current', v.slug === etat.slug ? 'true' : 'false');
-        b.innerHTML = '<span class="nom"></span><span class="marque"></span>';
-        b.querySelector('.nom').textContent = v.titre;
-        b.querySelector('.marque').textContent = v.publiee_at ? 'publiée' : 'brouillon';
-        b.addEventListener('click', function () { ouvrir(v.slug); });
-        boite.appendChild(b);
+        // Un <div> et non un <button> : le HTML interdit d'imbriquer des
+        // boutons, et il en faut trois par ligne (ouvrir, renommer, supprimer).
+        var ligne = document.createElement('div');
+        ligne.className = 'item';
+        ligne.setAttribute('aria-current', v.slug === etat.slug ? 'true' : 'false');
+
+        var ouvre = document.createElement('button');
+        ouvre.type = 'button';
+        ouvre.className = 'nu nom';
+        ouvre.textContent = v.titre;
+        ouvre.title = 'Ouvrir cette visite';
+        ouvre.addEventListener('click', function () { ouvrir(v.slug); });
+
+        var etiquette = document.createElement('span');
+        etiquette.className = 'marque';
+        etiquette.textContent = v.publiee_at ? 'publiée' : 'brouillon';
+
+        var renomme = document.createElement('button');
+        renomme.type = 'button';
+        renomme.className = 'nu';
+        renomme.textContent = '✎';
+        renomme.title = 'Renommer';
+        renomme.addEventListener('click', function () {
+          var titre = prompt('Nouveau titre de la visite :', v.titre);
+          if (titre === null) return;
+          titre = titre.trim();
+          if (!titre) return;
+          envoyer('rename', { slug: v.slug, titre: titre }).then(function (res) {
+            if (!res.ok) { alert(res.error || 'Renommage impossible.'); return; }
+            if (etat.slug === v.slug) etat.titre = titre;
+            chargerVisites();
+          });
+        });
+
+        var jette = document.createElement('button');
+        jette.type = 'button';
+        jette.className = 'nu danger';
+        jette.textContent = '🗑';
+        jette.title = 'Supprimer définitivement';
+        jette.addEventListener('click', function () {
+          if (!confirm('Supprimer « ' + v.titre + ' » ?\n\n' +
+                       'Les photos de cette visite seront effacées. ' +
+                       'Cette action est irréversible.')) return;
+          envoyer('delete', { slug: v.slug }).then(function (res) {
+            if (!res.ok) { alert(res.error || 'Suppression impossible.'); return; }
+            if (etat.slug === v.slug) fermer();
+            chargerVisites();
+          });
+        });
+
+        ligne.appendChild(ouvre);
+        ligne.appendChild(etiquette);
+        if (v.publiee_at) ligne.appendChild(retirerDeLaLigne(v));
+        ligne.appendChild(renomme);
+        ligne.appendChild(jette);
+        boite.appendChild(ligne);
       });
     });
+  }
+
+  /** Bouton « retirer de la ligne » : n'apparaît que sur une visite publiée. */
+  function retirerDeLaLigne(v) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'nu';
+    b.textContent = '⇩';
+    b.title = 'Retirer de la ligne — les photos et le montage sont conservés';
+    b.addEventListener('click', function () {
+      if (!confirm('Retirer « ' + v.titre + ' » de la ligne ?\n\n' +
+                   'Elle ne sera plus visible du public, mais rien n\'est perdu : ' +
+                   'vous pourrez la republier.')) return;
+      envoyer('unpublish', { slug: v.slug }).then(function (res) {
+        if (!res.ok) { alert(res.error || 'Retrait impossible.'); return; }
+        chargerVisites();
+      });
+    });
+    return b;
+  }
+
+  /** Referme la visite ouverte, après suppression par exemple. */
+  function fermer() {
+    etat.slug = null; etat.titre = ''; etat.scene = null; etat.modifie = false;
+    etat.brouillon = { source: '', firstScene: null, scenes: {} };
+    $('carteScenes').hidden = true;
+    rendre();
   }
 
   $('bCreer').addEventListener('click', function () {

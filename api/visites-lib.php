@@ -325,6 +325,69 @@ function nj_visite_vignette(string $dossier, string $fichier, string $nom): stri
   }
 }
 
+/** Change le titre d'une visite. Le slug, lui, ne bouge jamais. */
+function nj_visite_renommer(string $slug, string $titre): bool {
+  $titre = trim($titre);
+  if ($titre === '') return false;
+  // Le slug reste figé à dessein : il nomme le dossier des photos et se
+  // retrouve dans les liens déjà partagés. Le renommer casserait les deux.
+  $st = nj_vdb()->prepare('UPDATE visites_360 SET titre = ?, updated_at = ? WHERE slug = ?');
+  return $st->execute([substr($titre, 0, 160),
+                       (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'), $slug]);
+}
+
+/**
+ * Retire une visite de la ligne sans rien détruire.
+ *
+ * On efface le seul fichier que le public lise ; photos et brouillon restent,
+ * la visite redevient un brouillon qu'on pourra republier.
+ */
+function nj_visite_depublier(string $slug): bool {
+  if (!nj_visite_slug_valide($slug)) return false;
+  $fichier = nj_visite_dossier($slug) . '/tour-pannellum.json';
+  if (is_file($fichier)) @unlink($fichier);
+  return nj_vdb()->prepare('UPDATE visites_360 SET publiee_at = NULL, updated_at = ? WHERE slug = ?')
+    ->execute([(new DateTimeImmutable('now'))->format('Y-m-d H:i:s'), $slug]);
+}
+
+/**
+ * Supprime une visite : sa ligne en base ET son dossier de photos.
+ *
+ * Irréversible, d'où le garde-fou : on refuse d'effacer quoi que ce soit qui ne
+ * se trouve pas SOUS la racine des visites, après résolution des liens
+ * symboliques. Un slug malformé, un chemin qui s'échappe, et l'on ne touche à
+ * rien — la ligne en base est tout de même retirée pour ne pas laisser
+ * d'entrée fantôme.
+ */
+function nj_visite_supprimer(string $slug): bool {
+  if (!nj_visite_slug_valide($slug)) return false;
+
+  $racine = realpath(nj_visite_racine() . '/' . NJ_VISITES_DIR);
+  $dossier = realpath(nj_visite_dossier($slug));
+
+  if ($racine && $dossier && strncmp($dossier, $racine . DIRECTORY_SEPARATOR, strlen($racine) + 1) === 0) {
+    nj_visite_effacer_recursif($dossier);
+  }
+
+  return nj_vdb()->prepare('DELETE FROM visites_360 WHERE slug = ?')->execute([$slug]);
+}
+
+/**
+ * Efface un dossier et son contenu.
+ *
+ * N'est appelé qu'après la vérification de nj_visite_supprimer(). On ne suit
+ * jamais un lien symbolique : on le retire tel quel, sans descendre dedans.
+ */
+function nj_visite_effacer_recursif(string $dossier): void {
+  foreach (scandir($dossier) ?: [] as $entree) {
+    if ($entree === '.' || $entree === '..') continue;
+    $chemin = $dossier . '/' . $entree;
+    if (is_link($chemin) || is_file($chemin)) @unlink($chemin);
+    elseif (is_dir($chemin)) nj_visite_effacer_recursif($chemin);
+  }
+  @rmdir($dossier);
+}
+
 /** Supprime une photo et sa vignette (appelé au retrait d'une pièce). */
 function nj_visite_photo_supprimer(string $slug, string $relatif): void {
   // On n'accepte qu'un chemin que l'on a nous-mêmes produit.
