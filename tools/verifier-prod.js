@@ -35,6 +35,27 @@ const DOMAINE = 'www.narjiss.company';
 const APEX = 'narjiss.company';
 const IP_ATTENDUE = '147.79.101.154';
 
+/**
+ * Résout un nom en interrogeant les serveurs FAISANT AUTORITÉ du domaine.
+ *
+ * Passer par un résolveur ordinaire ferait lire un cache : le 18/08/2026, une
+ * AAAA supprimée à la source était encore servie par la box du réseau local ET
+ * par 8.8.8.8, et `ipconfig /flushdns` n'y change rien (il ne vide que le cache
+ * de Windows). Le contrôle annonçait donc une panne déjà réparée — et il
+ * pourrait tout aussi bien taire une panne réelle masquée par un cache.
+ *
+ * La question posée ici est « la zone est-elle bien configurée ? », et seuls les
+ * serveurs d'autorité y répondent sans délai. Les caches suivent ensuite tout
+ * seuls (TTL de 600 s sur ce domaine).
+ */
+async function resoudreAutorite(nom, type) {
+  const ns = await dns.resolveNs(APEX);
+  const adresses = await dns.resolve4(ns[0]);
+  const r = new dns.Resolver();
+  r.setServers(adresses);
+  return type === 'A' ? r.resolve4(nom) : r.resolve6(nom);
+}
+
 /** Requête HTTPS simple ; rejette si le certificat est invalide. */
 function demander(url, methode = 'GET') {
   return new Promise((resolve, reject) => {
@@ -62,7 +83,7 @@ async function verifier() {
       // visible : le résolveur alterne, donc une partie seulement des visiteurs
       // atterrit sur l'autre serveur. C'est précisément ce qui restait le
       // 18/08/2026, l'apex pointant encore vers l'ancien mutualisé.
-      const a = await dns.resolve4(nom);
+      const a = await resoudreAutorite(nom, 'A');
       const intrus = a.filter((ip) => ip !== IP_ATTENDUE);
       noter(a.includes(IP_ATTENDUE) && !intrus.length, `${nom} → A`,
             a.join(', ') + (intrus.length ? ` — ${intrus.join(', ')} en trop` : ''));
@@ -73,7 +94,7 @@ async function verifier() {
     // Une AAAA est une anomalie ici : le VPS n'a pas d'IPv6, donc elle mènerait
     // forcément ailleurs — et seuls les visiteurs en IPv6 s'en apercevraient.
     try {
-      const aaaa = await dns.resolve6(nom);
+      const aaaa = await resoudreAutorite(nom, 'AAAA');
       noter(false, `${nom} → AAAA`, 'présente, à supprimer : ' + aaaa.join(', '));
     } catch (e) {
       noter(true, `${nom} → AAAA`, 'absente, comme attendu');
