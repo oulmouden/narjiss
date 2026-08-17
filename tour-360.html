@@ -557,9 +557,28 @@
     element.appendChild(pastille);
   }
 
+  /**
+   * Pièces dans l'ordre de visite.
+   *
+   * L'ordre est porté par un champ `ordre` EXPLICITE, et non par l'ordre des
+   * clés de l'objet : celui-ci se trouve préservé par JavaScript comme par PHP,
+   * mais s'y fier reviendrait à faire dépendre le parcours d'un détail
+   * d'implémentation, qu'un simple passage par un autre outil casserait sans
+   * bruit. Les pièces sans `ordre` — un export 3DVista, par exemple — gardent
+   * leur ordre d'apparition.
+   */
+  function piecesOrdonnees() {
+    var ids = Object.keys(scenes);
+    return ids.slice().sort(function (a, b) {
+      var oa = typeof scenes[a].ordre === 'number' ? scenes[a].ordre : ids.indexOf(a);
+      var ob = typeof scenes[b].ordre === 'number' ? scenes[b].ordre : ids.indexOf(b);
+      return oa - ob;
+    });
+  }
+
   function construireVignettes() {
     var rail = document.getElementById('pieces');
-    Object.keys(scenes).forEach(function (id) {
+    piecesOrdonnees().forEach(function (id) {
       var s = scenes[id];
       // Une prise de vue secondaire n'a pas sa vignette : c'est la même pièce,
       // atteinte par la bascule vide/meublé.

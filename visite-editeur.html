@@ -625,10 +625,21 @@
      passage peut ensuite s'en écarter : c'est utile pour distinguer une sortie
      ou un extérieur du reste. */
 
+  // Une visite ne se signale pas d'un seul symbole : on va tout droit dans un
+  // couloir, on tourne, on descend. Les libellés disent l'USAGE, pas le
+  // caractère — c'est ce que cherche le commercial.
   var SYMBOLES = [
-    ['', 'Chevron ›  (défaut)'], ['↑', 'Flèche ↑'], ['➜', 'Flèche ➜'],
-    ['🚪', 'Porte 🚪'], ['🪜', 'Escalier 🪜'], ['🌳', 'Extérieur 🌳'],
-    ['👁', 'Regarder 👁'], ['+', 'Plus +']
+    ['', 'Chevron ›  (défaut)'],
+    ['↑', '↑  Tout droit'],
+    ['→', '→  À droite'],
+    ['←', '←  À gauche'],
+    ['↓', '↓  Revenir en arrière'],
+    ['⌃', '⌃  Monter'],
+    ['⌄', '⌄  Descendre'],
+    ['🚪', '🚪  Porte'],
+    ['🪜', '🪜  Escalier'],
+    ['🌳', '🌳  Extérieur'],
+    ['👁', '👁  Regarder']
   ];
 
   function styleVisite() {
@@ -705,6 +716,35 @@
       });
   });
 
+  /* --- Ordre de visite ---------------------------------------------------
+     C'est l'ordre du bandeau que verra le visiteur. Porté par un champ `ordre`
+     EXPLICITE plutôt que par l'ordre des clés de l'objet : celui-ci se trouve
+     préservé par JavaScript comme par PHP, mais s'y fier ferait dépendre le
+     parcours d'un détail d'implémentation. */
+
+  function ordreDesPieces() {
+    var ids = Object.keys(etat.brouillon.scenes);
+    return ids.slice().sort(function (a, b) {
+      var sa = etat.brouillon.scenes[a], sb = etat.brouillon.scenes[b];
+      var oa = typeof sa.ordre === 'number' ? sa.ordre : ids.indexOf(a);
+      var ob = typeof sb.ordre === 'number' ? sb.ordre : ids.indexOf(b);
+      return oa - ob;
+    });
+  }
+
+  /** Déplace une pièce d'un cran, puis renumérote tout proprement. */
+  function deplacerPiece(ordonnees, rang, sens) {
+    var cible = rang + sens;
+    if (cible < 0 || cible >= ordonnees.length) return;
+    var liste = ordonnees.slice();
+    var tmp = liste[rang]; liste[rang] = liste[cible]; liste[cible] = tmp;
+    // Renumérotation complète : des rangs contigus évitent de dériver au fil
+    // des déplacements, et rendent le fichier produit lisible.
+    liste.forEach(function (id, i) { etat.brouillon.scenes[id].ordre = i; });
+    marquerModifie();
+    rendre();
+  }
+
   /** Identifiant de scène, unique dans la visite. */
   function identifiant(titre) {
     var base = titre.toLowerCase()
@@ -722,24 +762,50 @@
 
     var boite = $('scenes');
     boite.innerHTML = '';
-    ids.forEach(function (id) {
+    var ordonnees = ordreDesPieces();
+    ordonnees.forEach(function (id, rang) {
       var s = etat.brouillon.scenes[id];
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'item';
-      b.setAttribute('aria-current', id === etat.scene ? 'true' : 'false');
+      // Un <div> et non un <button> : la ligne porte aussi les flèches d'ordre.
+      var ligne = document.createElement('div');
+      ligne.className = 'item';
+      ligne.setAttribute('aria-current', id === etat.scene ? 'true' : 'false');
+
       var vue = s.thumbnail || s.panorama;
-      b.innerHTML = (vue ? '<img alt="" loading="lazy">' : '') +
-                    '<span class="nom"></span><span class="marque"></span>';
-      if (vue) b.querySelector('img').src = 'visites/' + etat.slug + '/' + vue;
-      b.querySelector('.nom').textContent = s.title;
+      if (vue) {
+        var im = document.createElement('img');
+        im.loading = 'lazy'; im.alt = '';
+        im.src = 'visites/' + etat.slug + '/' + vue;
+        ligne.appendChild(im);
+      }
+
+      var ouvre = document.createElement('button');
+      ouvre.type = 'button';
+      ouvre.className = 'nu nom';
+      ouvre.textContent = s.title;
+      ouvre.title = 'Modifier cette pièce';
+      ouvre.addEventListener('click', function () { etat.scene = id; rendre(); });
+      ligne.appendChild(ouvre);
+
+      var marque = document.createElement('span');
+      marque.className = 'marque';
       // ★ pièce de départ · 🛋 appariée vide/meublé · ↳ c'est la vue meublée
-      b.querySelector('.marque').textContent =
+      marque.textContent =
         (id === etat.brouillon.firstScene ? '★ ' : '') +
         (s.secondaire ? '↳ meublé ' : (s.variante ? '🛋 ' : '')) +
         (s.hotSpots || []).length + ' ↗';
-      b.addEventListener('click', function () { etat.scene = id; rendre(); });
-      boite.appendChild(b);
+      ligne.appendChild(marque);
+
+      // Ordre de visite : c'est celui du bandeau que verra le visiteur.
+      [['▲', -1, 'Monter dans l\'ordre'], ['▼', 1, 'Descendre dans l\'ordre']].forEach(function (f) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'nu'; b.textContent = f[0]; b.title = f[2];
+        b.disabled = (f[1] < 0 && rang === 0) || (f[1] > 0 && rang === ordonnees.length - 1);
+        b.style.opacity = b.disabled ? '.25' : '';
+        b.addEventListener('click', function () { deplacerPiece(ordonnees, rang, f[1]); });
+        ligne.appendChild(b);
+      });
+
+      boite.appendChild(ligne);
     });
 
     var s = etat.scene ? etat.brouillon.scenes[etat.scene] : null;
@@ -856,30 +922,6 @@
         t.appendChild(n);
       });
 
-      // Surcharge de ce seul passage : utile pour distinguer une sortie ou un
-      // extérieur du reste de la visite. Vide = on suit le style commun.
-      var perso = document.createElement('input');
-      perso.type = 'color';
-      perso.value = h.couleur || (etat.brouillon.passageStyle || {}).couleur || '#e8a838';
-      perso.title = 'Couleur de ce passage seulement';
-      perso.style.cssText = 'width:40px;padding:2px;flex:0 0 auto';
-      perso.addEventListener('change', function () {
-        h.couleur = this.value;
-        marquerModifie();
-        apercu(etat.brouillon.scenes[etat.scene]);
-      });
-      t.appendChild(perso);
-
-      var suit = document.createElement('button');
-      suit.type = 'button'; suit.className = 'nu'; suit.textContent = '↺';
-      suit.title = 'Revenir au style commun de la visite';
-      suit.addEventListener('click', function () {
-        delete h.couleur; delete h.icone; delete h.image; delete h.taille;
-        marquerModifie();
-        rendre();
-      });
-      t.appendChild(suit);
-
       var x = document.createElement('button');
       x.type = 'button'; x.className = 'btn'; x.textContent = 'Retirer';
       x.addEventListener('click', function () {
@@ -888,7 +930,82 @@
       });
       ligne.appendChild(t); ligne.appendChild(x);
       boite.appendChild(ligne);
+      boite.appendChild(habillageDuPassage(h));
     });
+  }
+
+  /**
+   * Habillage propre à UN passage : symbole, image, couleur.
+   *
+   * Une visite ne se signale pas d'un seul symbole : on va tout droit dans un
+   * couloir, on tourne à droite, on descend un escalier. Chaque passage peut
+   * donc porter le sien, et retomber sur le style commun s'il ne dit rien.
+   *
+   * Sur une seconde ligne : la première porte déjà le nom, les angles et le
+   * retrait, et tout entasser la rendrait illisible sur un écran étroit.
+   */
+  function habillageDuPassage(h) {
+    var rang = document.createElement('div');
+    rang.className = 'rang';
+    rang.style.cssText = 'margin:4px 0 10px;padding-left:14px';
+
+    var commun = etat.brouillon.passageStyle || {};
+
+    var sym = document.createElement('select');
+    sym.title = 'Symbole de ce passage';
+    sym.style.cssText = 'flex:0 0 auto;width:132px';
+    [['', '— style commun —']].concat(SYMBOLES.filter(function (s) { return s[0]; }))
+      .forEach(function (s) {
+        var o = document.createElement('option');
+        o.value = s[0]; o.textContent = s[1];
+        sym.appendChild(o);
+      });
+    sym.value = h.icone || '';
+    sym.addEventListener('change', function () {
+      if (this.value) h.icone = this.value; else delete h.icone;
+      marquerModifie();
+      apercu(etat.brouillon.scenes[etat.scene]);
+    });
+
+    var img = document.createElement('select');
+    img.title = 'Image de ce passage';
+    img.style.cssText = 'flex:1;min-width:0';
+    var rien = document.createElement('option');
+    rien.value = ''; rien.textContent = '— style commun —';
+    img.appendChild(rien);
+    (etat.icones || []).forEach(function (f) {
+      var o = document.createElement('option');
+      o.value = f; o.textContent = f.replace(/^icones\//, '');
+      img.appendChild(o);
+    });
+    img.value = h.image || '';
+    img.addEventListener('change', function () {
+      if (this.value) h.image = this.value; else delete h.image;
+      marquerModifie();
+      apercu(etat.brouillon.scenes[etat.scene]);
+    });
+
+    var coul = document.createElement('input');
+    coul.type = 'color';
+    coul.value = h.couleur || commun.couleur || '#e8a838';
+    coul.title = 'Couleur de ce passage';
+    coul.style.cssText = 'width:40px;padding:2px;flex:0 0 auto';
+    coul.addEventListener('change', function () {
+      h.couleur = this.value;
+      marquerModifie();
+      apercu(etat.brouillon.scenes[etat.scene]);
+    });
+
+    var reset = document.createElement('button');
+    reset.type = 'button'; reset.className = 'nu'; reset.textContent = '↺';
+    reset.title = 'Revenir au style commun de la visite';
+    reset.addEventListener('click', function () {
+      delete h.couleur; delete h.icone; delete h.image; delete h.taille;
+      marquerModifie(); rendre();
+    });
+
+    [sym, img, coul, reset].forEach(function (e) { rang.appendChild(e); });
+    return rang;
   }
 
   /**

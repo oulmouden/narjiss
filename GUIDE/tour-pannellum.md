@@ -188,6 +188,18 @@ Les deux prises de vue portent alors le **même nom** — celui de la pièce, pa
 son ameublement. Sans cela une visite aménagée afficherait « Salon virtuel » ou
 « Cuisine Virtuelle » : l'étiquette d'un fichier, pas un nom de pièce.
 
+### L'ordre de visite
+
+Les pièces se réordonnent dans l'éditeur, avec ▲ et ▼ : c'est l'ordre du bandeau
+que verra le visiteur, et il n'a aucune raison de suivre l'ordre de
+téléversement.
+
+Il est porté par un champ `ordre` **explicite**, et non par l'ordre des clés de
+l'objet. Celui-ci se trouve préservé par JavaScript comme par PHP, mais s'y fier
+ferait dépendre le parcours d'un détail d'implémentation, qu'un simple passage
+par un autre outil casserait sans bruit. Les pièces sans `ordre` — un export
+3DVista — gardent leur ordre d'apparition.
+
 ### L'habillage des passages
 
 Comme les styles de 3DVista : un habillage **commun à la visite**, que chaque
@@ -203,7 +215,10 @@ passage peut surcharger.
 Dans le fichier, l'habillage commun vit sous `passageStyle`, et chaque passage
 peut porter les mêmes champs — les siens l'emportent. Sans ce niveau commun, il
 faudrait régler les quarante-deux passages d'un tour un par un pour changer une
-couleur.
+couleur ; sans le niveau propre, tous les passages se ressembleraient alors
+qu'une visite se lit par ses directions — on va tout droit dans un couloir, on
+tourne à droite, on descend un escalier. Les symboles proposés portent donc des
+libellés d'usage (« → À droite », « ⌄ Descendre ») et non des noms de caractères.
 
 Les icônes se déposent depuis l'éditeur et se rangent dans `<visite>/icones/`,
 réutilisables d'un passage à l'autre. **PNG et WebP seulement** : un SVG est un
