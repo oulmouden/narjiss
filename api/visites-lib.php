@@ -29,8 +29,22 @@ require_once __DIR__ . '/db.php';
 /** Racine des visites montées maison, relative à la racine du site. */
 const NJ_VISITES_DIR = 'visites';
 
-/** Côté minimal d'un panorama exploitable (largeur). */
-const NJ_VISITE_MIN_LARGEUR = 1600;
+/**
+ * Largeur minimale d'un panorama accepté.
+ *
+ * En dessous, l'image est trop pauvre pour une vue 360° : à un champ de 100°,
+ * on n'étire qu'environ un tiers de la largeur source sur tout l'écran.
+ */
+const NJ_VISITE_MIN_LARGEUR = 1400;
+
+/**
+ * En dessous de cette largeur, on accepte mais on avertit.
+ *
+ * Un panorama de 1400 px reste affichable, seulement il paraîtra flou dès
+ * qu'on zoome ou qu'on passe en plein écran. Autant que le commercial le sache
+ * au moment du dépôt, plutôt qu'en le découvrant devant un client.
+ */
+const NJ_VISITE_LARGEUR_CONFORT = 2400;
 
 /** Tolérance sur le rapport 2:1 d'une image équirectangulaire. */
 const NJ_VISITE_TOLERANCE_RATIO = 0.04;
@@ -238,14 +252,24 @@ function nj_visite_photo(string $slug, array $envoi): array {
                                NJ_VISITE_MIN_LARGEUR . ' minimum).');
   }
 
-  // Un équirectangulaire fait deux fois plus large que haut. On avertit sans
-  // refuser : une photo légèrement rognée reste affichable.
-  $avertissement = '';
+  // Ce qui suit informe sans refuser : la photo est exploitable, seulement
+  // imparfaite. Mieux vaut le dire au dépôt qu'être surpris devant un client.
+  $remarques = [];
+
+  // Un équirectangulaire fait deux fois plus large que haut.
   if (abs($largeur / max(1, $hauteur) - 2) > NJ_VISITE_TOLERANCE_RATIO) {
-    $avertissement = 'Rapport inhabituel (' . $largeur . '×' . $hauteur .
-                     ') : un panorama 360° fait normalement deux fois plus large que haut. ' .
-                     'L\'image risque d\'être déformée.';
+    $remarques[] = 'Rapport inhabituel (' . $largeur . '×' . $hauteur .
+                   ') : un panorama 360° fait normalement deux fois plus large que haut. ' .
+                   'L\'image risque d\'être déformée.';
   }
+
+  if ($largeur < NJ_VISITE_LARGEUR_CONFORT) {
+    $remarques[] = 'Définition modeste (' . $largeur . ' px de large) : la pièce ' .
+                   'paraîtra floue en plein écran ou au zoom. Comptez ' .
+                   NJ_VISITE_LARGEUR_CONFORT . ' px ou plus pour un rendu net.';
+  }
+
+  $avertissement = implode(' ', $remarques);
 
   $dossier = nj_visite_dossier($slug) . '/photos';
   if (!is_dir($dossier) && !mkdir($dossier, 0775, true)) {
