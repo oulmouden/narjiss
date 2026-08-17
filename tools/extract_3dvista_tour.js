@@ -348,6 +348,10 @@ function apparierVariantes(scenes, warnings) {
     scenes[fille].variante = mere;
     scenes[fille].varianteLabel = 'Voir vide';
     scenes[fille].secondaire = true;
+    // L'ameublement est presque toujours une image de synthèse : la visionneuse
+    // l'affiche tant que cette vue est à l'écran, pour qu'un acheteur ne la
+    // prenne pas pour l'état réel du bien.
+    scenes[fille].mention = 'Aménagement virtuel — à titre d\'illustration';
     paires++;
   });
 

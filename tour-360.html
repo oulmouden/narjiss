@@ -132,8 +132,25 @@
   #variante[hidden] { display: none; }
   #variante:hover { background: #f2b74a; }
 
+  /* Mention de l'ameublement virtuel.
+     Le meublé est le plus souvent une image de synthèse : elle ne doit jamais
+     pouvoir passer pour l'état réel du bien. La mention reste donc affichée tant
+     que cette vue est à l'écran — discrète, mais présente. */
+  #mention {
+    position: absolute; top: 98px; left: 16px; z-index: 6;
+    padding: 5px 12px; border-radius: 999px;
+    background: rgba(15, 17, 23, 0.72);
+    backdrop-filter: blur(6px);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px; font-weight: 500;
+    pointer-events: none;
+  }
+
+  #mention[hidden] { display: none; }
+
   @media (max-height: 480px) {
     #variante { top: 42px; left: 10px; padding: 6px 12px; font-size: 12px; }
+    #mention  { top: 76px; left: 10px; font-size: 11px; padding: 4px 10px; }
   }
 
   /* --- Plan de sol ------------------------------------------------------
@@ -287,6 +304,7 @@
 <div id="scene"></div>
 <div id="piece">Chargement…</div>
 <button id="variante" type="button" hidden></button>
+<div id="mention" hidden></div>
 
 <button id="planBtn" type="button" aria-expanded="false" aria-controls="plan" hidden>🗺️ Plan</button>
 <div id="plan" hidden>
@@ -598,6 +616,14 @@
       b.textContent = s.varianteLabel || ('Voir ' + autre.title);
       b.title = 'Même point de vue, ' + (s.varianteLabel || autre.title).toLowerCase();
     }
+
+    // L'ameublement est presque toujours une image de synthèse : on le dit,
+    // tant que cette vue reste affichée. Un acheteur ne doit pas confondre un
+    // rendu avec l'état réel du bien.
+    var m = document.getElementById('mention');
+    var virtuel = !!(s && s.secondaire);
+    m.hidden = !virtuel;
+    if (virtuel) m.textContent = s.mention || 'Aménagement virtuel — à titre d\'illustration';
   }
 
   function marquerPiece(id) {

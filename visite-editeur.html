@@ -245,6 +245,9 @@
       <button id="bSupprimer" class="btn" type="button" disabled>Retirer</button>
     </div>
 
+    <!-- Appariement vide / meublé, rempli en JS selon la pièce choisie. -->
+    <div class="rang" id="boiteVariante" style="margin-bottom:10px"></div>
+
     <div id="apercu">
       <div id="pano"></div>
       <div id="consigne" hidden></div>
@@ -450,7 +453,12 @@
     // En série et non en parallèle : l'envoi de plusieurs panoramas saturerait
     // la liaison, et les messages d'erreur se marcheraient dessus.
     (function suivant(i) {
-      if (i >= fichiers.length) { marquerModifie(); rendre(); return; }
+      if (i >= fichiers.length) {
+        var n = apparierAuto();
+        if (n) avertir(n + ' pièce(s) appariée(s) automatiquement en vide / meublé. ' +
+                       'Vérifiez ci-dessous, vous pouvez défaire.');
+        marquerModifie(); rendre(); return;
+      }
       var corps = new FormData();
       corps.append('slug', etat.slug);
       corps.append('photo', fichiers[i]);
@@ -489,6 +497,92 @@
     etat.scene = id;
   }
 
+  /* --- Vide ↔ meublé -----------------------------------------------------
+     Le commercial photographie la pièce nue, puis fait générer l'ameublement
+     (Nano Banana et compagnie). Les deux fichiers portent presque toujours le
+     même nom, à un mot près : on les apparie donc tout seuls à l'envoi.
+
+     Mêmes listes de mots que tools/extract_3dvista_tour.js, pour que les deux
+     chemins — 3DVista et maison — se comportent pareil. */
+  var MOTS_MEUBLE = ['virtuel','virtuelle','virtuels','virtuelles','staged','staging',
+                     'meuble','meublee','meublé','meublée','amenage','aménagé','ia','ai'];
+  var MOTS_NU = ['reel','reelle','réel','réelle','vide','brut','nu','original'];
+
+  function motsDe(titre) {
+    return String(titre).toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .split(/[^a-z0-9]+/).filter(Boolean);
+  }
+
+  /** Titre réduit à la pièce : « Salon staged » et « Salon » se rejoignent. */
+  function pieceNue(titre) {
+    return motsDe(titre).filter(function (m) {
+      return MOTS_MEUBLE.indexOf(m) < 0 && MOTS_NU.indexOf(m) < 0;
+    }).join(' ');
+  }
+
+  function estMeuble(titre) {
+    return motsDe(titre).some(function (m) { return MOTS_MEUBLE.indexOf(m) >= 0; });
+  }
+
+  /**
+   * Apparie les pièces dont les titres ne diffèrent que par un mot d'ameublement.
+   *
+   * On ne touche jamais à un appariement déjà posé à la main : l'automatique
+   * assiste, il ne décide pas à la place du commercial.
+   */
+  function apparierAuto() {
+    var groupes = {};
+    Object.keys(etat.brouillon.scenes).forEach(function (id) {
+      var cle = pieceNue(etat.brouillon.scenes[id].title || '');
+      if (!cle) return;
+      (groupes[cle] = groupes[cle] || []).push(id);
+    });
+
+    var faites = 0;
+    Object.keys(groupes).forEach(function (cle) {
+      var ids = groupes[cle];
+      if (ids.length !== 2) return; // à trois, on ne devine pas
+      var a = ids[0], b = ids[1];
+      var sa = etat.brouillon.scenes[a], sb = etat.brouillon.scenes[b];
+      if (sa.variante || sb.variante) return; // déjà relié, on respecte
+
+      var meuble = estMeuble(sa.title) && !estMeuble(sb.title) ? a
+                 : (estMeuble(sb.title) && !estMeuble(sa.title) ? b : null);
+      if (!meuble) return; // aucune des deux ne s'annonce meublée
+      relier(meuble === a ? b : a, meuble);
+      faites++;
+    });
+    return faites;
+  }
+
+  /** Relie une pièce mère à sa variante meublée. */
+  function relier(mere, meuble) {
+    var m = etat.brouillon.scenes[mere], v = etat.brouillon.scenes[meuble];
+    if (!m || !v) return;
+    m.variante = meuble;  m.varianteLabel = 'Voir meublé';
+    v.variante = mere;    v.varianteLabel = 'Voir vide';
+    v.secondaire = true;
+    // L'ameublement venant le plus souvent d'une génération par IA, la
+    // visionneuse le mentionne tant que la vue est affichée.
+    v.mention = 'Aménagement virtuel — à titre d\'illustration';
+    delete m.secondaire;
+    delete m.mention;
+    if (etat.brouillon.firstScene === meuble) etat.brouillon.firstScene = mere;
+  }
+
+  /** Défait un appariement : les deux pièces redeviennent indépendantes. */
+  function delier(id) {
+    var s = etat.brouillon.scenes[id];
+    if (!s || !s.variante) return;
+    var autre = etat.brouillon.scenes[s.variante];
+    if (autre) {
+      delete autre.variante; delete autre.varianteLabel;
+      delete autre.secondaire; delete autre.mention;
+    }
+    delete s.variante; delete s.varianteLabel; delete s.secondaire; delete s.mention;
+  }
+
   /** Identifiant de scène, unique dans la visite. */
   function identifiant(titre) {
     var base = titre.toLowerCase()
@@ -517,8 +611,11 @@
                     '<span class="nom"></span><span class="marque"></span>';
       if (vue) b.querySelector('img').src = 'visites/' + etat.slug + '/' + vue;
       b.querySelector('.nom').textContent = s.title;
+      // ★ pièce de départ · 🛋 appariée vide/meublé · ↳ c'est la vue meublée
       b.querySelector('.marque').textContent =
-        (id === etat.brouillon.firstScene ? '★ ' : '') + (s.hotSpots || []).length + ' ↗';
+        (id === etat.brouillon.firstScene ? '★ ' : '') +
+        (s.secondaire ? '↳ meublé ' : (s.variante ? '🛋 ' : '')) +
+        (s.hotSpots || []).length + ' ↗';
       b.addEventListener('click', function () { etat.scene = id; rendre(); });
       boite.appendChild(b);
     });
@@ -530,8 +627,75 @@
     $('bPublier').disabled = !etat.slug || !ids.length;
     $('vide').style.display = s ? 'none' : 'flex';
 
+    rendreVariante(s);
     listerPassages(s);
     apercu(s);
+  }
+
+  /**
+   * Commande d'appariement vide / meublé de la pièce courante.
+   *
+   * Reconstruite à chaque affichage : les candidats dépendent de ce qui est déjà
+   * relié ailleurs, et il ne faut proposer ni la pièce elle-même, ni une pièce
+   * déjà engagée dans une autre paire.
+   */
+  function rendreVariante(s) {
+    var boite = $('boiteVariante');
+    boite.innerHTML = '';
+    if (!s) return;
+
+    var etiquette = document.createElement('span');
+    etiquette.style.cssText = 'font-size:13px;opacity:.7;flex:0 0 auto';
+
+    // Sur la vue meublée elle-même : on rappelle de quoi elle dépend.
+    if (s.secondaire && s.variante) {
+      etiquette.textContent = 'Version meublée de « ' +
+        ((etat.brouillon.scenes[s.variante] || {}).title || '?') + ' »';
+      var defaire = document.createElement('button');
+      defaire.type = 'button'; defaire.className = 'btn'; defaire.textContent = 'Défaire';
+      defaire.addEventListener('click', function () {
+        delier(etat.scene); marquerModifie(); rendre();
+      });
+      boite.appendChild(etiquette);
+      boite.appendChild(defaire);
+      return;
+    }
+
+    etiquette.textContent = 'Version meublée :';
+    var sel = document.createElement('select');
+
+    var vide = document.createElement('option');
+    vide.value = ''; vide.textContent = '— aucune —';
+    sel.appendChild(vide);
+
+    Object.keys(etat.brouillon.scenes).forEach(function (id) {
+      if (id === etat.scene) return;
+      var autre = etat.brouillon.scenes[id];
+      // Déjà engagée dans une autre paire : on ne la propose pas, sauf si c'est
+      // justement la variante de la pièce courante.
+      if (autre.variante && autre.variante !== etat.scene) return;
+      var o = document.createElement('option');
+      o.value = id;
+      o.textContent = autre.title;
+      if (s.variante === id) o.selected = true;
+      sel.appendChild(o);
+    });
+
+    sel.addEventListener('change', function () {
+      delier(etat.scene);
+      if (this.value) relier(etat.scene, this.value);
+      marquerModifie(); rendre();
+    });
+
+    boite.appendChild(etiquette);
+    boite.appendChild(sel);
+
+    if (s.variante) {
+      var note = document.createElement('span');
+      note.style.cssText = 'font-size:12px;opacity:.6';
+      note.textContent = 'Le visiteur basculera sans perdre son angle de vue.';
+      boite.appendChild(note);
+    }
   }
 
   function listerPassages(s) {

@@ -155,6 +155,27 @@ visiteurs sans une ligne de plus.
 > vue. À trois, on ne saurait pas laquelle va avec laquelle : l'outil le signale
 > et s'abstient, plutôt que de masquer une pièce à tort.
 
+**Dans l'éditeur maison**, même logique et mêmes listes de mots : les photos
+sont appariées à l'envoi, puisque les deux fichiers ne diffèrent en général que
+par un mot (`balcon.jpg` et `balcon staged.jpg`). L'éditeur annonce combien de
+paires il a formées, et une commande « Version meublée » permet de corriger ou
+de défaire — l'automatique assiste, il ne décide pas.
+
+Repères dans la liste des pièces : `★` pièce de départ, `🛋` appariée,
+`↳ meublé` c'est la vue meublée.
+
+### La mention d'aménagement virtuel
+
+Le meublé est le plus souvent **généré par une IA**. Tant que cette vue est à
+l'écran, la visionneuse affiche donc « Aménagement virtuel — à titre
+d'illustration ».
+
+Ce n'est pas un détail d'affichage : un acheteur ne doit pas pouvoir confondre
+un rendu avec l'état réel du bien, et la mention protège autant le client que le
+conseiller. Elle est portée par le champ `mention` de la scène, donc modifiable
+si le service juridique préfère une autre formulation. Elle n'intercepte aucun
+clic.
+
 ### Les faces du cube
 
 Vérifié objectivement plutôt que supposé : en mesurant l'écart entre les bords
