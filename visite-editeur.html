@@ -185,7 +185,10 @@
     font-size: 13px;
   }
 
-  .passage { width: 40px; height: 40px; margin: -20px 0 0 -20px; display: flex; align-items: center; justify-content: center; }
+  /* Pas de marge négative : Pannellum centre lui-même la pastille sur son point,
+     en retranchant la moitié de sa taille dans le `transform`. En ajouter une
+     décalait tout d'une demi-pastille vers le haut à gauche. */
+  .passage { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
   .passage b {
     width: 100%; height: 100%; border-radius: 50%;
     background: rgba(232,168,56,.94); color: #1b1400;
@@ -276,7 +279,9 @@
   var API = 'api/visites.php';
   var etat = { slug: null, titre: '', brouillon: null, scene: null, modifie: false };
   var visionneuse = null;
-  var posePrete = null; // {yaw, pitch} du point cliqué, en attente de destination
+  var apercuScene = null; // pièce actuellement montrée par l'aperçu
+  var posePrete = null;   // {yaw, pitch} du point cliqué, en attente de destination
+  var deplace = null;     // passage en cours de déplacement à la souris
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -708,8 +713,31 @@
       ligne.style.marginTop = '6px';
       var nom = (etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId;
       var t = document.createElement('span');
-      t.style.flex = '1';
-      t.textContent = '↗ ' + nom + '  (' + Math.round(h.yaw) + '° / ' + Math.round(h.pitch) + '°)';
+      t.style.cssText = 'flex:1;display:flex;align-items:center;gap:6px;min-width:0';
+      var libelle = document.createElement('span');
+      libelle.style.cssText = 'flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      libelle.textContent = '↗ ' + nom;
+      t.appendChild(libelle);
+
+      // Réglage au degré près, quand le glisser dans le panorama est trop fin —
+      // pour aligner deux passages sur un même mur, par exemple.
+      ['yaw', 'pitch'].forEach(function (axe) {
+        var n = document.createElement('input');
+        n.type = 'number';
+        n.step = '1';
+        n.value = Math.round(h[axe]);
+        n.title = axe === 'yaw' ? 'Orientation, en degrés' : 'Hauteur, en degrés';
+        n.style.cssText = 'width:74px;flex:0 0 auto;padding:6px 8px';
+        n.addEventListener('change', function () {
+          var v = parseFloat(this.value);
+          if (isNaN(v)) { this.value = Math.round(h[axe]); return; }
+          h[axe] = v;
+          marquerModifie();
+          apercu(etat.brouillon.scenes[etat.scene]); // la pastille suit
+        });
+        t.appendChild(n);
+      });
+
       var x = document.createElement('button');
       x.type = 'button'; x.className = 'btn'; x.textContent = 'Retirer';
       x.addEventListener('click', function () {
@@ -721,9 +749,33 @@
     });
   }
 
-  /** Recrée l'aperçu Pannellum sur la pièce courante. */
+  /**
+   * Recrée l'aperçu Pannellum sur la pièce courante.
+   *
+   * L'aperçu est reconstruit à chaque modification — poser un passage, en
+   * retirer un. Il faut donc REPRENDRE LA VUE EN COURS, sinon l'image saute à
+   * l'orientation enregistrée juste après la pose, et le commercial a
+   * l'impression que sa pastille a atterri n'importe où alors qu'elle est au
+   * bon endroit : c'est le décor qui a tourné sous elle.
+   */
   function apercu(s) {
-    if (visionneuse) { try { visionneuse.destroy(); } catch (e) {} visionneuse = null; }
+    var reprise = null;
+    if (visionneuse) {
+      try {
+        // On ne reprend la vue que si l'on reste sur la même pièce ; changer de
+        // pièce doit bien ouvrir sur son cadrage à elle.
+        if (apercuScene === etat.scene) {
+          reprise = {
+            yaw: visionneuse.getYaw(),
+            pitch: visionneuse.getPitch(),
+            hfov: visionneuse.getHfov()
+          };
+        }
+        visionneuse.destroy();
+      } catch (e) {}
+      visionneuse = null;
+    }
+    apercuScene = etat.scene;
     if (!s || !s.panorama) return;
 
     visionneuse = pannellum.viewer('pano', {
@@ -731,18 +783,33 @@
       panorama: 'visites/' + etat.slug + '/' + s.panorama,
       autoLoad: true,
       showControls: true,
-      yaw: s.yaw || 0,
-      pitch: s.pitch || 0,
-      hotSpots: (s.hotSpots || []).map(function (h) {
-        return {
+      yaw: reprise ? reprise.yaw : (s.yaw || 0),
+      pitch: reprise ? reprise.pitch : (s.pitch || 0),
+      hfov: reprise ? reprise.hfov : 100,
+      hotSpots: (s.hotSpots || []).map(function (h, rang) {
+        // L'objet remis à Pannellum est CELUI qu'on mutera pendant un
+        // déplacement : il vit dans sa configuration, et il repositionne la
+        // pastille à l'image suivante sans qu'on touche au DOM.
+        var vif = {
           yaw: h.yaw, pitch: h.pitch, type: 'info', cssClass: 'passage',
           createTooltipFunc: function (el) {
             var b = document.createElement('b');
             b.textContent = '›';
             el.appendChild(b);
-            el.title = 'Vers ' + ((etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId);
+            el.title = 'Vers ' + ((etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId) +
+                       ' — glissez pour déplacer';
+            el.style.cursor = 'grab';
+            el.addEventListener('mousedown', function (ev) {
+              // Sans cela, Pannellum prendrait le glissement pour une rotation
+              // du panorama et la pastille resterait sur place.
+              ev.preventDefault();
+              ev.stopPropagation();
+              deplace = { rang: rang, vif: vif, element: el };
+              el.style.cursor = 'grabbing';
+            });
           }
         };
+        return vif;
       })
     });
   }
@@ -763,6 +830,31 @@
     $('consigne').textContent = 'Cliquez dans le panorama, à l\'endroit du passage';
     if (!actif) { $('cible').classList.remove('ouvert'); posePrete = null; }
   }
+
+  /* Déplacement d'un passage : on suit la souris en mutant l'objet vif, puis on
+     inscrit la position finale dans le brouillon au relâchement. */
+  document.addEventListener('mousemove', function (ev) {
+    if (!deplace || !visionneuse) return;
+    var c;
+    try { c = visionneuse.mouseEventToCoords(ev); } catch (e) { return; }
+    if (!c || c.length < 2) return;
+    deplace.vif.pitch = Math.round(c[0] * 10) / 10;
+    deplace.vif.yaw   = Math.round(c[1] * 10) / 10;
+  });
+
+  document.addEventListener('mouseup', function () {
+    if (!deplace) return;
+    var s = etat.brouillon.scenes[etat.scene];
+    var h = s && (s.hotSpots || [])[deplace.rang];
+    if (h) {
+      h.yaw = deplace.vif.yaw;
+      h.pitch = deplace.vif.pitch;
+      marquerModifie();
+      listerPassages(s); // la liste affiche les angles, on la rafraîchit
+    }
+    if (deplace.element) deplace.element.style.cursor = 'grab';
+    deplace = null;
+  });
 
   $('pano').addEventListener('click', function (ev) {
     if (!$('apercu').classList.contains('pose') || !visionneuse) return;

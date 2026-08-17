@@ -228,8 +228,12 @@
 
      Le div ne sert donc qu'à la position et à la zone de clic ; toute
      l'apparence, animation comprise, vit dans l'élément interne. */
+  /* Aucune marge négative ici : Pannellum centre déjà la pastille sur son point,
+     en retranchant la moitié de sa taille dans le `transform` qu'il calcule
+     (`f[0] += (largeurToile - div.offsetWidth) / 2`). Une marge en plus
+     décalerait chaque passage d'une demi-pastille vers le haut à gauche. */
   .passage {
-    width: 44px; height: 44px; margin: -22px 0 0 -22px;
+    width: 44px; height: 44px;
     display: flex; align-items: center; justify-content: center;
   }
 
@@ -322,7 +326,7 @@
      mais pour installLiveGuide() : il détient LIVEGUIDE_VERSION, la version de
      cache de la visite guidée. La dupliquer ici, c'est se garantir un jour de
      débogage sur un liveguide.js périmé servi depuis le cache. -->
-<script src="shared/menu.js?v=30"></script>
+<script src="shared/menu.js?v=31"></script>
 <script src="assets/vendor/pannellum/pannellum.js"></script>
 <script>
 (function () {
@@ -538,10 +542,8 @@
     }
 
     if (args.couleur) pastille.style.background = args.couleur;
-    if (args.taille) {
-      element.style.width = element.style.height = args.taille + 'px';
-      element.style.margin = (-args.taille / 2) + 'px 0 0 ' + (-args.taille / 2) + 'px';
-    }
+    // La taille seule suffit : le centrage est l'affaire de Pannellum.
+    if (args.taille) element.style.width = element.style.height = args.taille + 'px';
 
     element.appendChild(pastille);
   }
