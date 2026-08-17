@@ -225,6 +225,35 @@
       </div>
     </div>
 
+    <!-- Habillage commun des passages. Réglé une fois pour toute la visite,
+         chaque passage pouvant ensuite s'en écarter. -->
+    <div class="carte" id="carteStyle" hidden style="margin-bottom:16px">
+      <h2>Style des passages</h2>
+      <div class="rang" style="margin-bottom:8px">
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Couleur</label>
+        <input id="styleCouleur" type="color" value="#e8a838" style="width:52px;padding:2px;flex:0 0 auto">
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Taille</label>
+        <input id="styleTaille" type="number" min="20" max="120" step="2" placeholder="44" style="width:74px;flex:0 0 auto">
+      </div>
+      <div class="rang" style="margin-bottom:8px">
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Symbole</label>
+        <select id="styleIcone"></select>
+      </div>
+      <div class="rang">
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Image</label>
+        <select id="styleImage" style="flex:1"></select>
+        <label class="btn" style="flex:0 0 auto">
+          Déposer
+          <input id="fichierIcone" type="file" accept="image/png,image/webp" hidden>
+        </label>
+      </div>
+      <p style="font-size:12px;opacity:.6;margin:8px 0 0">
+        Une image remplace la pastille et son symbole — flèche au sol, pictogramme.
+        PNG ou WebP, 256 Ko au plus.
+      </p>
+      <div id="messageIcone"></div>
+    </div>
+
     <div class="carte" id="carteScenes" hidden>
       <h2>Pièces</h2>
       <div id="scenes" class="liste"></div>
@@ -438,8 +467,10 @@
       etat.brouillon = {
         source: b.source || r.slug,
         firstScene: b.firstScene || null,
+        passageStyle: b.passageStyle || {},
         scenes: (b.scenes && !Array.isArray(b.scenes)) ? b.scenes : {}
       };
+      etat.icones = r.icones || [];
       etat.scene = etat.brouillon.firstScene || Object.keys(etat.brouillon.scenes)[0] || null;
       etat.modifie = false;
       $('carteScenes').hidden = false;
@@ -589,6 +620,91 @@
     delete s.mention; delete s.etat;
   }
 
+  /* --- Habillage des passages -------------------------------------------
+     Réglé pour toute la visite, comme le fait 3DVista avec ses styles. Un
+     passage peut ensuite s'en écarter : c'est utile pour distinguer une sortie
+     ou un extérieur du reste. */
+
+  var SYMBOLES = [
+    ['', 'Chevron ›  (défaut)'], ['↑', 'Flèche ↑'], ['➜', 'Flèche ➜'],
+    ['🚪', 'Porte 🚪'], ['🪜', 'Escalier 🪜'], ['🌳', 'Extérieur 🌳'],
+    ['👁', 'Regarder 👁'], ['+', 'Plus +']
+  ];
+
+  function styleVisite() {
+    etat.brouillon.passageStyle = etat.brouillon.passageStyle || {};
+    return etat.brouillon.passageStyle;
+  }
+
+  function rendreStyle() {
+    var st = styleVisite();
+    $('carteStyle').hidden = !etat.slug;
+
+    $('styleCouleur').value = st.couleur || '#e8a838';
+    $('styleTaille').value = st.taille || '';
+
+    var sel = $('styleIcone');
+    if (!sel.options.length) {
+      SYMBOLES.forEach(function (s) {
+        var o = document.createElement('option');
+        o.value = s[0]; o.textContent = s[1];
+        sel.appendChild(o);
+      });
+    }
+    sel.value = st.icone || '';
+
+    var img = $('styleImage');
+    img.innerHTML = '';
+    var rien = document.createElement('option');
+    rien.value = ''; rien.textContent = '— aucune (pastille) —';
+    img.appendChild(rien);
+    (etat.icones || []).forEach(function (f) {
+      var o = document.createElement('option');
+      o.value = f;
+      o.textContent = f.replace(/^icones\//, '');
+      img.appendChild(o);
+    });
+    img.value = st.image || '';
+  }
+
+  ['styleCouleur', 'styleTaille', 'styleIcone', 'styleImage'].forEach(function (id) {
+    $(id).addEventListener('change', function () {
+      var st = styleVisite();
+      st.couleur = $('styleCouleur').value || undefined;
+      var t = parseInt($('styleTaille').value, 10);
+      st.taille = isNaN(t) ? undefined : t;
+      st.icone = $('styleIcone').value || undefined;
+      st.image = $('styleImage').value || undefined;
+      marquerModifie();
+      apercu(etat.brouillon.scenes[etat.scene]); // les pastilles se redessinent
+    });
+  });
+
+  $('fichierIcone').addEventListener('change', function (ev) {
+    var f = (ev.target.files || [])[0];
+    ev.target.value = '';
+    if (!f || !etat.slug) return;
+    $('messageIcone').innerHTML = '';
+    var corps = new FormData();
+    corps.append('slug', etat.slug);
+    corps.append('icone', f);
+    fetch(API + '?action=icone', { method: 'POST', body: corps, credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) {
+          var d = document.createElement('div');
+          d.className = 'avert'; d.textContent = r.error || 'Icône refusée.';
+          $('messageIcone').appendChild(d);
+          return;
+        }
+        etat.icones = r.icones || [];
+        styleVisite().image = r.fichier; // on adopte celle qu'on vient de déposer
+        marquerModifie();
+        rendreStyle();
+        apercu(etat.brouillon.scenes[etat.scene]);
+      });
+  });
+
   /** Identifiant de scène, unique dans la visite. */
   function identifiant(titre) {
     var base = titre.toLowerCase()
@@ -633,6 +749,7 @@
     $('bPublier').disabled = !etat.slug || !ids.length;
     $('vide').style.display = s ? 'none' : 'flex';
 
+    rendreStyle();
     rendreVariante(s);
     listerPassages(s);
     apercu(s);
@@ -739,6 +856,30 @@
         t.appendChild(n);
       });
 
+      // Surcharge de ce seul passage : utile pour distinguer une sortie ou un
+      // extérieur du reste de la visite. Vide = on suit le style commun.
+      var perso = document.createElement('input');
+      perso.type = 'color';
+      perso.value = h.couleur || (etat.brouillon.passageStyle || {}).couleur || '#e8a838';
+      perso.title = 'Couleur de ce passage seulement';
+      perso.style.cssText = 'width:40px;padding:2px;flex:0 0 auto';
+      perso.addEventListener('change', function () {
+        h.couleur = this.value;
+        marquerModifie();
+        apercu(etat.brouillon.scenes[etat.scene]);
+      });
+      t.appendChild(perso);
+
+      var suit = document.createElement('button');
+      suit.type = 'button'; suit.className = 'nu'; suit.textContent = '↺';
+      suit.title = 'Revenir au style commun de la visite';
+      suit.addEventListener('click', function () {
+        delete h.couleur; delete h.icone; delete h.image; delete h.taille;
+        marquerModifie();
+        rendre();
+      });
+      t.appendChild(suit);
+
       var x = document.createElement('button');
       x.type = 'button'; x.className = 'btn'; x.textContent = 'Retirer';
       x.addEventListener('click', function () {
@@ -794,9 +935,30 @@
         var vif = {
           yaw: h.yaw, pitch: h.pitch, type: 'info', cssClass: 'passage',
           createTooltipFunc: function (el) {
+            // L'aperçu doit montrer l'habillage réel, sinon le commercial règle
+            // à l'aveugle : mêmes règles de priorité que la visionneuse.
+            var st = etat.brouillon.passageStyle || {};
+            var image   = h.image   || st.image;
+            var couleur = h.couleur || st.couleur;
+            var taille  = h.taille  || st.taille;
+
             var b = document.createElement('b');
-            b.textContent = '›';
+            if (image) {
+              var im = document.createElement('img');
+              im.src = 'visites/' + etat.slug + '/' + image;
+              im.alt = '';
+              im.style.cssText = 'width:100%;height:100%;object-fit:contain';
+              b.appendChild(im);
+              b.style.background = 'none';
+              b.style.boxShadow = 'none';
+            } else {
+              b.textContent = h.icone || st.icone || '›';
+              if (couleur) b.style.background = couleur;
+            }
             el.appendChild(b);
+            if (taille) {
+              el.style.width = el.style.height = taille + 'px';
+            }
             el.title = 'Vers ' + ((etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId) +
                        ' — glissez pour déplacer';
             el.style.cursor = 'grab';

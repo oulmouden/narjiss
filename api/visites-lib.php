@@ -388,6 +388,101 @@ function nj_visite_effacer_recursif(string $dossier): void {
   @rmdir($dossier);
 }
 
+/** Poids maximal d'une icône de passage. Au-delà, ce n'est plus une icône. */
+const NJ_VISITE_ICONE_MAX = 262144; // 256 Ko
+
+/**
+ * Range une icône de passage (la flèche ou le pictogramme d'une pastille).
+ *
+ * Rien à voir avec un panorama : ni rapport 2:1, ni taille minimale. En
+ * revanche on refuse le SVG. Il s'agit d'un document, pas d'une image : il peut
+ * embarquer du script, et rien ne garantit qu'il ne sera jamais servi ailleurs
+ * que dans une balise <img> — PNG et WebP ne posent pas cette question.
+ *
+ * @return array{fichier:string,largeur:int,hauteur:int}
+ * @throws RuntimeException message destiné à l'utilisateur.
+ */
+function nj_visite_icone(string $slug, array $envoi): array {
+  if (($envoi['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+    throw new RuntimeException('Envoi interrompu.');
+  }
+  $tmp = $envoi['tmp_name'] ?? '';
+  if (!is_uploaded_file($tmp)) throw new RuntimeException('Fichier invalide.');
+  if (filesize($tmp) > NJ_VISITE_ICONE_MAX) {
+    throw new RuntimeException('Icône trop lourde (256 Ko au plus).');
+  }
+
+  $info = @getimagesize($tmp);
+  if (!$info) throw new RuntimeException('Ce fichier n\'est pas une image.');
+  if (!in_array($info[2], [IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
+    throw new RuntimeException('Icône en PNG ou WebP (le SVG n\'est pas accepté).');
+  }
+
+  $dossier = nj_visite_dossier($slug) . '/icones';
+  if (!is_dir($dossier) && !mkdir($dossier, 0775, true)) {
+    throw new RuntimeException('Dossier d\'icônes non créable.');
+  }
+
+  $nom = nj_visite_slug(pathinfo((string) ($envoi['name'] ?? 'icone'), PATHINFO_FILENAME))
+       . '-' . substr(bin2hex(random_bytes(3)), 0, 4)
+       . ($info[2] === IMAGETYPE_PNG ? '.png' : '.webp');
+
+  if (!move_uploaded_file($tmp, $dossier . '/' . $nom)) {
+    throw new RuntimeException('Enregistrement impossible.');
+  }
+
+  // Une pastille fait 44 px : inutile d'en télécharger 3000. Un aplat compresse
+  // si bien qu'il passe sous la limite de poids tout en restant démesuré, d'où
+  // ce garde-fou sur les DIMENSIONS. On réduit plutôt que de refuser.
+  $dim = nj_visite_reduire_icone($dossier . '/' . $nom, $info[2]);
+
+  return ['fichier' => 'icones/' . $nom, 'largeur' => $dim[0], 'hauteur' => $dim[1]];
+}
+
+/** Côté maximal d'une icône conservée. */
+const NJ_VISITE_ICONE_COTE = 256;
+
+/**
+ * Ramène une icône à une taille raisonnable, en préservant la transparence.
+ *
+ * @return array{0:int,1:int} dimensions finales.
+ */
+function nj_visite_reduire_icone(string $chemin, int $type): array {
+  $src = @imagecreatefromstring((string) file_get_contents($chemin));
+  if (!$src) return [0, 0];
+
+  $l = imagesx($src); $h = imagesy($src);
+  if (max($l, $h) <= NJ_VISITE_ICONE_COTE) { imagedestroy($src); return [$l, $h]; }
+
+  $ratio = NJ_VISITE_ICONE_COTE / max($l, $h);
+  $nl = max(1, (int) round($l * $ratio));
+  $nh = max(1, (int) round($h * $ratio));
+
+  $dst = imagecreatetruecolor($nl, $nh);
+  // Sans ces deux appels, le fond transparent d'une flèche PNG virerait au noir.
+  imagealphablending($dst, false);
+  imagesavealpha($dst, true);
+  imagecopyresampled($dst, $src, 0, 0, 0, 0, $nl, $nh, $l, $h);
+
+  if ($type === IMAGETYPE_WEBP) imagewebp($dst, $chemin, 90);
+  else imagepng($dst, $chemin, 6);
+
+  imagedestroy($src);
+  imagedestroy($dst);
+  return [$nl, $nh];
+}
+
+/** Icônes déjà déposées pour une visite, réutilisables d'un passage à l'autre. */
+function nj_visite_icones(string $slug): array {
+  $dossier = nj_visite_dossier($slug) . '/icones';
+  if (!is_dir($dossier)) return [];
+  $liste = [];
+  foreach (scandir($dossier) ?: [] as $f) {
+    if (preg_match('/\.(png|webp)$/i', $f)) $liste[] = 'icones/' . $f;
+  }
+  return $liste;
+}
+
 /** Supprime une photo et sa vignette (appelé au retrait d'une pièce). */
 function nj_visite_photo_supprimer(string $slug, string $relatif): void {
   // On n'accepte qu'un chemin que l'on a nous-mêmes produit.

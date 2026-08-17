@@ -84,6 +84,7 @@ try {
         'projet'     => $visite['projet'],
         'publiee_at' => $visite['publiee_at'],
         'brouillon'  => $brouillon,
+        'icones'     => nj_visite_icones($visite['slug']),
         'url'        => 'tour-360.html?tour=' . NJ_VISITES_DIR . '/' . $visite['slug'],
       ]);
     }
@@ -101,6 +102,20 @@ try {
         nj_v_json(['ok' => false, 'error' => $e->getMessage()], 400);
       }
       nj_v_json(['ok' => true] + $photo);
+    }
+
+    /* Icône de passage : la flèche ou le pictogramme d'une pastille. Déposée
+       une fois, réutilisable sur tous les passages de la visite. */
+    case 'icone': {
+      if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      $visite = nj_v_visite_autorisee($moi);
+      if (empty($_FILES['icone'])) nj_v_json(['ok' => false, 'error' => 'Aucune icône.'], 400);
+      try {
+        $icone = nj_visite_icone($visite['slug'], $_FILES['icone']);
+      } catch (RuntimeException $e) {
+        nj_v_json(['ok' => false, 'error' => $e->getMessage()], 400);
+      }
+      nj_v_json(['ok' => true] + $icone + ['icones' => nj_visite_icones($visite['slug'])]);
     }
 
     case 'save': {

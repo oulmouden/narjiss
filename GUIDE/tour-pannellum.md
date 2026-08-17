@@ -188,6 +188,32 @@ Les deux prises de vue portent alors le **même nom** — celui de la pièce, pa
 son ameublement. Sans cela une visite aménagée afficherait « Salon virtuel » ou
 « Cuisine Virtuelle » : l'étiquette d'un fichier, pas un nom de pièce.
 
+### L'habillage des passages
+
+Comme les styles de 3DVista : un habillage **commun à la visite**, que chaque
+passage peut surcharger.
+
+| Réglage | Effet |
+|---|---|
+| `couleur` | teinte de la pastille |
+| `icone` | symbole affiché — chevron par défaut, flèche, porte, escalier… |
+| `image` | remplace la pastille : flèche au sol, pictogramme |
+| `taille` | diamètre en pixels |
+
+Dans le fichier, l'habillage commun vit sous `passageStyle`, et chaque passage
+peut porter les mêmes champs — les siens l'emportent. Sans ce niveau commun, il
+faudrait régler les quarante-deux passages d'un tour un par un pour changer une
+couleur.
+
+Les icônes se déposent depuis l'éditeur et se rangent dans `<visite>/icones/`,
+réutilisables d'un passage à l'autre. **PNG et WebP seulement** : un SVG est un
+document, pas une image — il peut embarquer du script, et rien ne garantit qu'il
+ne sera jamais servi hors d'une balise `<img>`.
+
+Une icône plus large que 256 px est **réduite** à l'envoi, transparence
+préservée : une pastille fait 44 px, et un aplat de 3000 px passe sous la limite
+de poids tout en restant démesuré à télécharger.
+
 ### La mention d'aménagement virtuel
 
 Le meublé est le plus souvent **généré par une IA**. Tant que cette vue est à

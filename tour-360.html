@@ -366,8 +366,14 @@
     .then(demarrer)
     .catch(function (e) { echouer(e.message); });
 
+  /** Première valeur réellement fournie ; '' et null ne comptent pas. */
+  function choisir(a, b) {
+    return (a === undefined || a === null || a === '') ? b : a;
+  }
+
   function demarrer(tour) {
     scenes = tour.scenes;
+    var style = tour.passageStyle || {}; // habillage commun des passages
     appliquerEtat(tour, new URLSearchParams(location.search).get('etat'));
 
     var config = {
@@ -406,13 +412,15 @@
             targetYaw: h.targetYaw,
             cssClass: 'passage',
             createTooltipFunc: dessinerPassage,
-            // Habillage transmis au dessin : voir dessinerPassage.
+            // Habillage transmis au dessin : le style de la visite, que chaque
+            // passage peut surcharger. Sans cela il faudrait régler les
+            // quarante-deux passages un par un pour changer une couleur.
             createTooltipArgs: {
               libelle: h.text,
-              icone: h.icone,
-              image: h.image,
-              couleur: h.couleur,
-              taille: h.taille
+              icone:   choisir(h.icone, style.icone),
+              image:   choisir(h.image, style.image),
+              couleur: choisir(h.couleur, style.couleur),
+              taille:  choisir(h.taille, style.taille)
             }
           };
         })
