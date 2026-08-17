@@ -2325,6 +2325,11 @@
 
     var tabs = "";
     if (panos.length) tabs += '<button type="button" class="hero-tab" data-tab="p360">🌐 ' + m.tab360 + '</button>';
+    // La visite du projet a son onglet comme les autres médias. Sans lui elle
+    // n'était atteignable qu'en repli, quand le projet n'avait aucun panorama
+    // (voir plus bas) — donc invisible dès qu'il y en avait un, alors même que
+    // le back-office l'avait bien enregistrée.
+    if (project.tour_url) tabs += '<button type="button" class="hero-tab" data-tab="tour">🏢 ' + m.tabTour + '</button>';
     if (project.apartment_tour_url) tabs += '<button type="button" class="hero-tab" data-tab="apartment">🏠 ' + m.tabApartment + '</button>';
     if (project.plan_architecte_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-arch">📐 ' + m.tabPlanArch + '</button>';
     if (project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-vis">🖼️ ' + m.tabPlanVis + '</button>';
