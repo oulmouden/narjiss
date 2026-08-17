@@ -30,21 +30,19 @@ require_once __DIR__ . '/db.php';
 const NJ_VISITES_DIR = 'visites';
 
 /**
- * Largeur minimale d'un panorama accepté.
+ * AUCUNE taille n'est refusée : c'est le commercial qui juge de ce qui est
+ * montrable. Les deux seuils ci-dessous ne servent qu'à graduer un
+ * avertissement — jamais à bloquer un dépôt.
  *
- * En dessous, l'image est trop pauvre pour une vue 360° : à un champ de 100°,
- * on n'étire qu'environ un tiers de la largeur source sur tout l'écran.
+ * Seuls restent rédhibitoires les fichiers qui ne sont pas des images, ou dans
+ * un format que le navigateur ne saurait pas afficher.
  */
-const NJ_VISITE_MIN_LARGEUR = 1400;
 
-/**
- * En dessous de cette largeur, on accepte mais on avertit.
- *
- * Un panorama de 1400 px reste affichable, seulement il paraîtra flou dès
- * qu'on zoome ou qu'on passe en plein écran. Autant que le commercial le sache
- * au moment du dépôt, plutôt qu'en le découvrant devant un client.
- */
+/** En deçà : l'image paraîtra floue en plein écran ou au zoom. */
 const NJ_VISITE_LARGEUR_CONFORT = 2400;
+
+/** En deçà : le rendu sera franchement dégradé, voire ce n'est pas un panorama. */
+const NJ_VISITE_LARGEUR_FAIBLE = 1000;
 
 /** Tolérance sur le rapport 2:1 d'une image équirectangulaire. */
 const NJ_VISITE_TOLERANCE_RATIO = 0.04;
@@ -247,10 +245,6 @@ function nj_visite_photo(string $slug, array $envoi): array {
   if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
     throw new RuntimeException('Format non accepté : JPEG, PNG ou WebP.');
   }
-  if ($largeur < NJ_VISITE_MIN_LARGEUR) {
-    throw new RuntimeException('Panorama trop petit (' . $largeur . ' px de large, ' .
-                               NJ_VISITE_MIN_LARGEUR . ' minimum).');
-  }
 
   // Ce qui suit informe sans refuser : la photo est exploitable, seulement
   // imparfaite. Mieux vaut le dire au dépôt qu'être surpris devant un client.
@@ -263,7 +257,11 @@ function nj_visite_photo(string $slug, array $envoi): array {
                    'L\'image risque d\'être déformée.';
   }
 
-  if ($largeur < NJ_VISITE_LARGEUR_CONFORT) {
+  if ($largeur < NJ_VISITE_LARGEUR_FAIBLE) {
+    $remarques[] = 'Définition très faible (' . $largeur . ' px de large) : le rendu ' .
+                   'sera nettement dégradé. Vérifiez qu\'il s\'agit bien d\'une photo ' .
+                   '360° et non d\'une vignette. La pièce est tout de même ajoutée.';
+  } elseif ($largeur < NJ_VISITE_LARGEUR_CONFORT) {
     $remarques[] = 'Définition modeste (' . $largeur . ' px de large) : la pièce ' .
                    'paraîtra floue en plein écran ou au zoom. Comptez ' .
                    NJ_VISITE_LARGEUR_CONFORT . ' px ou plus pour un rendu net.';
