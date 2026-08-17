@@ -147,7 +147,33 @@
   }
 
   #cible.ouvert { display: flex; }
-  #cible select { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.2); }
+
+  /* Le panneau est sombre, mais la liste déroulante que dessine le SYSTÈME ne
+     l'est pas : mettre `color: #fff` sur le <select> teintait aussi les
+     <option>, qui se retrouvaient en blanc sur le fond blanc du menu natif —
+     invisibles, sauf celle survolée. `color-scheme` prévient le navigateur que
+     la zone est sombre et il dessine le menu en conséquence ; les couleurs
+     explicites sur <option> couvrent ceux qui l'ignorent encore. */
+  #cible select {
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, .2);
+    color-scheme: dark;
+  }
+
+  #cible select option { background: #1c1c1e; color: #fff; }
+
+  /* Même piège pour les boutons : `.btn` pose un fond blanc et `color: inherit`,
+     qui vaut ici le blanc du panneau. « Annuler » devenait blanc sur blanc. */
+  #cible .btn {
+    background: rgba(255, 255, 255, .14);
+    border-color: rgba(255, 255, 255, .28);
+    color: #fff;
+  }
+
+  #cible .btn:hover { background: rgba(255, 255, 255, .24); }
+  #cible .btn-or { background: #e8a838; border-color: #e8a838; color: #1b1400; }
+  #cible .btn-or:hover { background: #f2b74a; }
 
   .vide { padding: 22px 12px; text-align: center; opacity: .6; font-size: 14px; }
 
