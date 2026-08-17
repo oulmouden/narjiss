@@ -118,6 +118,24 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
+  /* Bascule vide ↔ meublé. Placée sous le nom de la pièce, à la même verticale :
+     c'est une propriété de la pièce affichée, pas une commande de la visite. */
+  #variante {
+    position: absolute; top: 56px; left: 16px; z-index: 6;
+    padding: 9px 16px; border: 0; border-radius: 999px;
+    background: var(--or); color: #1b1400;
+    font-family: inherit; font-size: 14px; font-weight: 700;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+  }
+
+  #variante[hidden] { display: none; }
+  #variante:hover { background: #f2b74a; }
+
+  @media (max-height: 480px) {
+    #variante { top: 42px; left: 10px; padding: 6px 12px; font-size: 12px; }
+  }
+
   /* --- Plan de sol ------------------------------------------------------
      Repris de l'export 3DVista : image du plan et position de chaque pièce. */
   #planBtn {
@@ -268,6 +286,7 @@
 
 <div id="scene"></div>
 <div id="piece">Chargement…</div>
+<button id="variante" type="button" hidden></button>
 
 <button id="planBtn" type="button" aria-expanded="false" aria-controls="plan" hidden>🗺️ Plan</button>
 <div id="plan" hidden>
@@ -438,17 +457,25 @@
     img.src = DOSSIER + plan.image;
     img.alt = 'Plan de l\'étage — ' + plan.points.length + ' pièces';
 
+    // Les deux prises de vue d'une même pièce ont chacune leur pastille dans
+    // l'export : on les ramène à la pièce mère et on n'en garde qu'une, sinon
+    // deux points se superposeraient au même endroit du plan.
+    var posees = {};
     plan.points.forEach(function (p) {
+      var cible = pieceMere(p.sceneId);
+      if (posees[cible]) return;
+      posees[cible] = true;
+
       var pt = document.createElement('button');
       pt.type = 'button';
       pt.className = 'planPt';
-      pt.dataset.scene = p.sceneId;
-      pt.title = p.title;
-      pt.setAttribute('aria-label', 'Aller : ' + p.title);
+      pt.dataset.scene = cible;
+      pt.title = (scenes[cible] || p).title;
+      pt.setAttribute('aria-label', 'Aller : ' + pt.title);
       pt.style.left = (p.x / plan.width * 100) + '%';
       pt.style.top = (p.y / plan.height * 100) + '%';
       pt.addEventListener('click', function () {
-        if (visionneuse) visionneuse.loadScene(p.sceneId);
+        if (visionneuse) visionneuse.loadScene(cible);
       });
       cadre.appendChild(pt);
     });
@@ -505,6 +532,9 @@
     var rail = document.getElementById('pieces');
     Object.keys(scenes).forEach(function (id) {
       var s = scenes[id];
+      // Une prise de vue secondaire n'a pas sa vignette : c'est la même pièce,
+      // atteinte par la bascule vide/meublé.
+      if (s.secondaire) return;
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'vignette';
@@ -538,13 +568,50 @@
     });
   }
 
+  /* --- Vide ↔ meublé -----------------------------------------------------
+     Deux prises de vue d'une même pièce, l'une nue et l'autre aménagée. Elles
+     restent deux scènes à part entière — les passages continuent d'y mener —
+     mais une seule apparaît dans le bandeau et sur le plan : la seconde est
+     marquée `secondaire` et ne s'atteint que par la bascule.
+
+     Le basculement conserve l'angle et le zoom courants : c'est ce qui en fait
+     un avant/après, et non deux photos sans rapport. */
+
+  /** La pièce telle qu'elle figure au bandeau, pour une scène quelconque. */
+  function pieceMere(id) {
+    var s = scenes[id];
+    return (s && s.secondaire && s.variante) ? s.variante : id;
+  }
+
+  document.getElementById('variante').addEventListener('click', function () {
+    var s = scenes[visionneuse && visionneuse.getScene()];
+    if (!s || !s.variante || !visionneuse) return;
+    // On repart exactement de la même orientation et du même zoom.
+    visionneuse.loadScene(s.variante, visionneuse.getPitch(), visionneuse.getYaw(), visionneuse.getHfov());
+  });
+
+  function majVariante(s) {
+    var b = document.getElementById('variante');
+    var autre = s && s.variante ? scenes[s.variante] : null;
+    b.hidden = !autre;
+    if (autre) {
+      b.textContent = s.varianteLabel || ('Voir ' + autre.title);
+      b.title = 'Même point de vue, ' + (s.varianteLabel || autre.title).toLowerCase();
+    }
+  }
+
   function marquerPiece(id) {
     var s = scenes[id];
     document.getElementById('piece').textContent = (s && s.title) || '';
+    majVariante(s);
+
+    // Sur une prise de vue secondaire, c'est la pièce mère qui reste soulignée :
+    // le visiteur n'a pas changé de pièce, seulement d'ameublement.
+    var repere = pieceMere(id);
 
     var rail = document.getElementById('pieces');
     Array.prototype.forEach.call(rail.children, function (b) {
-      var actif = b.dataset.scene === id;
+      var actif = b.dataset.scene === repere;
       b.setAttribute('aria-current', actif ? 'true' : 'false');
       if (actif) b.scrollIntoView({ block: 'nearest', inline: 'center' });
     });
@@ -553,7 +620,7 @@
     // n'avoir aucune pastille (3DVista n'en place pas partout), le repère reste
     // alors simplement éteint.
     Array.prototype.forEach.call(document.querySelectorAll('.planPt'), function (pt) {
-      pt.setAttribute('aria-current', pt.dataset.scene === id ? 'true' : 'false');
+      pt.setAttribute('aria-current', pt.dataset.scene === repere ? 'true' : 'false');
     });
   }
 

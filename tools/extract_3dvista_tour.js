@@ -262,6 +262,7 @@ function extract(tourDir) {
   const firstItem = all.find((o) => o.class === 'PanoramaPlayListItem');
   const firstScene = (firstItem && deref(firstItem.media)) || Object.keys(scenes)[0];
 
+  const paires = apparierVariantes(scenes, warnings);
   const plan = extraireMap(tourDir, all, byId, scenes);
   if (plan && plan.points.length < Object.keys(scenes).length) {
     warnings.push(`plan de sol : ${plan.points.length} pastilles pour ` +
@@ -274,9 +275,83 @@ function extract(tourDir) {
     firstScene: scenes[firstScene] ? firstScene : Object.keys(scenes)[0],
     scenes: scenes,
     map: plan,
+    paires: paires,
     warnings: warnings,
     tuiles: lienspyramide,
   };
+}
+
+/** Mots qui, dans un titre, désignent une mise en scène plutôt qu'une pièce. */
+const MOTS_AMENAGEMENT = [
+  'virtuel', 'virtuelle', 'virtuels', 'virtuelles',
+  'staged', 'staging', 'meuble', 'meublee', 'meublé', 'meublée', 'amenage', 'aménagé',
+];
+
+/** Mots qui désignent au contraire la prise de vue nue. */
+const MOTS_NU = ['reel', 'reelle', 'réel', 'réelle', 'vide', 'brut', 'nu'];
+
+/** Titre réduit à la pièce elle-même : « Salon virtuel » et « Salon » se rejoignent. */
+function pieceNue(titre) {
+  const mots = String(titre).toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .split(/[^a-z0-9]+/).filter(Boolean);
+  return mots
+    .filter((m) => !MOTS_AMENAGEMENT.includes(m) && !MOTS_NU.includes(m))
+    .join(' ');
+}
+
+/**
+ * Apparie les deux prises de vue d'une même pièce : nue et aménagée.
+ *
+ * Les tours immobiliers photographient souvent chaque pièce deux fois — vide,
+ * puis meublée en home staging — et 3DVista n'en fait que deux scènes sans
+ * lien. Le visiteur se retrouve avec « Salon » et « Salon virtuel » côte à côte
+ * dans le bandeau, sans comprendre que c'est la même pièce.
+ *
+ * On les relie ici sur leur titre, une fois retirés les mots d'aménagement. La
+ * visionneuse n'affiche alors que la pièce mère, avec une bascule qui conserve
+ * l'angle de vue — l'avant/après qui fait vendre.
+ *
+ * Appariement seulement si le groupe compte EXACTEMENT deux scènes : à trois,
+ * on ne saurait pas laquelle va avec laquelle, et mieux vaut ne rien faire que
+ * de masquer une pièce à tort.
+ */
+function apparierVariantes(scenes, warnings) {
+  const groupes = {};
+  Object.entries(scenes).forEach(([id, s]) => {
+    if (!s.title) return;
+    const cle = pieceNue(s.title);
+    if (!cle) return;
+    (groupes[cle] = groupes[cle] || []).push(id);
+  });
+
+  let paires = 0;
+  Object.entries(groupes).forEach(([cle, ids]) => {
+    if (ids.length !== 2) {
+      if (ids.length > 2) warnings.push(`« ${cle} » : ${ids.length} prises de vue, appariement ignoré`);
+      return;
+    }
+
+    const estAmenagee = (id) => String(scenes[id].title).toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .split(/[^a-z0-9]+/).some((m) => MOTS_AMENAGEMENT.includes(m));
+
+    const [a, b] = ids;
+    // La pièce mère est celle qui n'est PAS la mise en scène. Si aucune ne
+    // porte de marque, on garde l'ordre d'origine.
+    const mere = estAmenagee(a) && !estAmenagee(b) ? b : a;
+    const fille = mere === a ? b : a;
+    if (!estAmenagee(fille) && estAmenagee(mere)) return; // incohérent, on s'abstient
+
+    scenes[mere].variante = fille;
+    scenes[mere].varianteLabel = 'Voir meublé';
+    scenes[fille].variante = mere;
+    scenes[fille].varianteLabel = 'Voir vide';
+    scenes[fille].secondaire = true;
+    paires++;
+  });
+
+  return paires;
 }
 
 /**
@@ -393,6 +468,9 @@ if (require.main === module) {
   console.log(result.map
     ? `  plan de sol : ${result.map.points.length} pastilles sur ${result.map.image}`
     : '  plan de sol : aucun dans cet export');
+  console.log(result.paires
+    ? `  bascule vide/meublé : ${result.paires} pièce(s) appariée(s)`
+    : '  bascule vide/meublé : aucune paire détectée');
   result.warnings.forEach((w) => console.log(`  ⚠ ${w}`));
 
   const soucis = verifier(tourDir, result);

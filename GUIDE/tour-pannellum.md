@@ -124,6 +124,37 @@ d'ailleurs selon la taille de l'écran.
 > signale (`12 pastilles pour 13 scènes`) et le repère reste simplement éteint
 > dans cette pièce.
 
+### La bascule vide ↔ meublé
+
+Les tours immobiliers photographient souvent chaque pièce **deux fois** — nue,
+puis meublée en home staging. 3DVista n'en fait que deux scènes sans lien, et le
+visiteur découvre « Salon » et « Salon virtuel » côte à côte sans comprendre que
+c'est la même pièce.
+
+L'extracteur les apparie sur leur titre, une fois retirés les mots
+d'aménagement (`virtuel`, `staged`, `meublé`…) et de prise de vue nue (`réel`,
+`vide`…). Sur `jawhara/Tour` : **6 paires** trouvées, le bandeau passe de 13 à
+7 vignettes et le plan de 12 à 6 pastilles.
+
+Dans le fichier produit, la pièce mère et sa variante se pointent mutuellement,
+la seconde étant marquée `secondaire` :
+
+```json
+"salon":         { "title": "Salon",         "variante": "salon-virtuel", "varianteLabel": "Voir meublé" },
+"salon-virtuel": { "title": "Salon virtuel", "variante": "salon", "varianteLabel": "Voir vide",
+                   "secondaire": true }
+```
+
+Seule la pièce mère figure au bandeau et sur le plan ; la variante ne s'atteint
+que par le bouton. **Le basculement conserve l'angle et le zoom** — c'est ce qui
+en fait un avant/après, et non deux photos sans rapport. Et comme c'est un
+changement de scène ordinaire, la visite guidée le répercute déjà chez les
+visiteurs sans une ligne de plus.
+
+> L'appariement n'a lieu que si le groupe compte **exactement deux** prises de
+> vue. À trois, on ne saurait pas laquelle va avec laquelle : l'outil le signale
+> et s'abstient, plutôt que de masquer une pièce à tort.
+
 ### Les faces du cube
 
 Vérifié objectivement plutôt que supposé : en mesurant l'écart entre les bords
