@@ -984,7 +984,20 @@
      ====================================================================== */
   function buildHostBar() {
     var bar = el('div', 'lg-hostbar');
-    var viewerLink = absUrl('index.html') + '?lg=' + session;
+    /* Le lien mène à LA PAGE OÙ SE TROUVE LE CONSEILLER, pas à l'accueil.
+
+       Il pointait sur index.html quelle que soit la page partagée : le
+       visiteur atterrissait sur la page d'accueil et devait attendre que la
+       synchronisation d'URL le déplace. Constaté sur un iPad ouvrant une
+       démo — le visiteur voyait l'accueil, et rien ne disait que c'était
+       normal. Un lien qui montre déjà la bonne page supprime cette attente,
+       et le doute qui va avec.
+
+       cleanUrl retire un lg/lghost déjà présent : sans quoi le conseiller
+       qui a rejoint par un lien partagerait un lien portant deux sessions. */
+    var lienBase = new URL(cleanUrl(window.location.href));
+    lienBase.searchParams.set('lg', session);
+    var viewerLink = lienBase.href;
 
     var status = el('span', 'lg-status');
     status.textContent = 'Visite guidée active';

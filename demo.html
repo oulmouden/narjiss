@@ -190,7 +190,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
    ne dit ce qu'on regarde. */
 #njSceneBarre {
   position: fixed;
-  left: 50%; bottom: 1rem;
+  /* --lg-barre : hauteur de la barre de visite guidée, mesurée plus bas.
+     liveguide.js pose une barre fixe en bas de page, qui recouvrait celle-ci
+     — le conseiller ne voyait plus « Retour à la carte » ni « Voir mes
+     choix ». Sa hauteur varie (deux ou trois lignes sur un téléphone), donc
+     on la mesure au lieu de la deviner. */
+  left: 50%; bottom: calc(1rem + var(--lg-barre, 0px));
   z-index: 52;
   transform: translateX(-50%);
   display: flex;
@@ -210,7 +215,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 /* La page des disponibilités porte sa propre barre en bas (« Ma sélection »,
    « Envoyer mes choix »). On monte la nôtre au-dessus plutôt que de la poser
    dessus : deux barres superposées, on ne sait plus laquelle on vise. */
-#njSceneBarre.nj-barre-haute { bottom: 5.6rem; }
+#njSceneBarre.nj-barre-haute { bottom: calc(5.6rem + var(--lg-barre, 0px)); }
 #njSceneTitre {
   color: #fff;
   font-family: var(--font-serif, 'Playfair Display'), serif;
@@ -412,7 +417,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 <div id="njInvite"></div>
 <button type="button" id="njPasser">Passer ⏎</button>
 
-<script src="shared/menu.js?v=32"></script>
+<script src="shared/menu.js?v=33"></script>
 <script>
 (function () {
   'use strict';
@@ -473,7 +478,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   // quand l'une des pages de la scène change (localisation.html,
   // disponibilites.html, ma-selection.html), sinon le cadre resservira
   // l'ancienne copie.
-  var VERSION = '12';
+  var VERSION = '13';
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
@@ -843,6 +848,27 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     $('njSceneCadre').src = pages[etape] + '?projet=' + encodeURIComponent(projetOuvert) +
       '&embed=1&v=' + VERSION + '#' + langue;
   }
+
+  /* La barre de visite guidée arrive tard — liveguide charge son SDK,
+     s'authentifie, puis l'injecte — et change de hauteur quand la fenêtre
+     tourne. On l'observe donc au lieu de la mesurer une fois. */
+  (function suivreBarreVisite() {
+    function mesurer() {
+      var barre = document.querySelector('.lg-hostbar, .lg-viewerbar');
+      var h = barre ? Math.round(barre.getBoundingClientRect().height) : 0;
+      document.documentElement.style.setProperty('--lg-barre', h ? (h + 8) + 'px' : '0px');
+      return barre;
+    }
+    var suivie = null;
+    new MutationObserver(function () {
+      var barre = mesurer();
+      if (!barre || barre === suivie) return;
+      suivie = barre;
+      if (window.ResizeObserver) new ResizeObserver(mesurer).observe(barre);
+    }).observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('resize', mesurer);
+    mesurer();
+  })();
 
   function sceneOuverte() { return !$('njScene').hidden; }
 
