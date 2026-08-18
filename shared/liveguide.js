@@ -105,6 +105,18 @@
     return null;
   }
 
+  /* Trace des quatre maillons du relais : cadre → parent → Pusher → cadre.
+     Bornée aux premiers passages de chaque maillon — le panorama et les
+     cartes émettent en continu, une trace non bornée noierait la console en
+     quelques secondes et deviendrait inutilisable. */
+  var traces = {};
+  function tracer(etape, detail) {
+    traces[etape] = (traces[etape] || 0) + 1;
+    if (traces[etape] > 3) return;
+    console.debug('[LiveGuide] ' + etape + ' · ' + detail +
+      (traces[etape] === 3 ? ' (traces suivantes masquées)' : ''));
+  }
+
   /**
    * Fait descendre une action vers le cadre désigné par `chemin`.
    *
@@ -189,12 +201,14 @@
       // Destiné à un cadre plus bas : on le fait suivre sans le lire.
       if (d.msg && d.msg.lgCadre) { versCadre(d.msg.lgCadre, d.ev, d.msg); return; }
       var liste = abonnes[d.ev] || [];
+      tracer('4. cadre applique', d.ev + ' ' + ((d.msg && d.msg.kind) || '') + ' · ' + liste.length + ' abonné(s)');
       for (var i = 0; i < liste.length; i++) liste[i](d.msg, d.meta || {});
     });
 
     var canal = {
       trigger: function (ev, msg) {
         try {
+          tracer('1. cadre émet', ev + ' ' + ((msg && msg.kind) || ''));
           window.parent.postMessage({ __lg: 1, dir: 'haut', ev: ev, msg: msg }, window.location.origin);
         } catch (e) {}
       },
@@ -224,6 +238,7 @@
       var msg = {};
       for (var k in d.msg) if (Object.prototype.hasOwnProperty.call(d.msg, k)) msg[k] = d.msg[k];
       msg.lgCadre = nomCadre(cadre) + (d.msg && d.msg.lgCadre ? '>' + d.msg.lgCadre : '');
+      tracer('2. parent relaie', msg.lgCadre + ' ' + ((msg && msg.kind) || '') + (canal ? ' → Pusher' : ' → parent'));
       if (canal) canal.trigger(d.ev, msg);
       else {
         try { window.parent.postMessage({ __lg: 1, dir: 'haut', ev: d.ev, msg: msg }, window.location.origin); } catch (e) {}
@@ -288,6 +303,7 @@
       // client events de tous ses membres, seule la signature du rôle dans
       // channel_data distingue le conseiller.
       if (!msg || !msg.lgCadre || !fromHost(meta)) return;
+      tracer('3. visiteur route', msg.lgCadre + ' ' + (msg.kind || ''));
       versCadre(msg.lgCadre, 'client-action', msg);
     });
 
