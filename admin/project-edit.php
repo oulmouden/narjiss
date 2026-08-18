@@ -152,6 +152,19 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
             ) ?>">
         </label>
         <label class="full">
+            URL visite d'un appartement
+            <input name="apartment_tour_url" value="<?= htmlspecialchars($project['apartment_tour_url'] ?? '') ?>">
+            <small style="color:#64748b">
+                Visite d'un logement témoin, distincte de la visite du projet.
+                C'est elle qu'ouvre le bouton ◎ d'un lot dans la démo et le
+                parcours client, qui la préfèrent à la visite du projet.
+                Champ libre : lecteur 3DVista
+                (<code>jawhara/Tour-FloorPlan/index.htm</code>) ou visionneuse
+                maison (<code>tour-360.html?tour=jawhara/Tour-FloorPlan</code>).
+                Vide, aucun onglet « appartement » ne s'affiche.
+            </small>
+        </label>
+        <label class="full">
             PDF brochure / plan
             <input name="brochure_pdf" value="<?= htmlspecialchars($project['brochure_pdf'] ?? '') ?>">
         </label>

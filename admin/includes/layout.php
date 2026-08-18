@@ -16,7 +16,7 @@ function admin_header(string $title): void
                  pour que la grille du back-office et le plan vu par le client ne
                  puissent pas se contredire. Chargé avant admin.css, qui s'en sert. */ ?>
         <link rel="stylesheet" href="../shared/statuts-lots.css?v=1">
-        <link rel="stylesheet" href="assets/admin.css?v=4">
+        <link rel="stylesheet" href="assets/admin.css?v=5">
     </head>
     <body>
     <header class="topbar">

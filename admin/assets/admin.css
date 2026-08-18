@@ -169,6 +169,34 @@ textarea {
   background: #fff;
   color: var(--ink);
   font: inherit;
+  /* font: inherit reprenait aussi le font-weight:700 de label, ce qui mettait
+     en gras la valeur de chaque champ. On garde la famille et la taille, on
+     rend le poids normal : le gras doit distinguer l'intitule, pas la saisie. */
+  font-weight: 400;
+}
+
+/* Les cases a cocher etaient prises dans la regle ci-dessus : etirees a 100 %
+   de large et 40 px de haut, elles devenaient d'enormes carres bleus sans
+   rapport avec leur role. Elles reprennent ici leur taille propre. C'est ce
+   que .media-remove input corrigeait deja plus bas, mais pour les seules
+   vignettes de medias : le defaut etait general. */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--green);
+  vertical-align: -2px;
+}
+
+/* Textes d'aide a l'interieur d'un label : ils accompagnent l'intitule, ils
+   n'ont pas a en partager le gras. */
+label small,
+label em,
+label span {
+  font-weight: 400;
 }
 
 textarea {

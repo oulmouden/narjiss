@@ -156,6 +156,19 @@ function posted_project(?array $existing = null): array
         $project['tour_dossier'] = '';
         $project['tour_url'] = $saisieTour;
     }
+    /* Visite d'un APPARTEMENT : champ distinct de la visite du projet.
+     *
+     * Il pilote l'onglet 🏠 de la fiche projet et, surtout, le bouton ◎ d'un
+     * lot dans la démo, qui le préfère à `tour_url` — devant un lot, la
+     * visite de l'appartement est plus pertinente que celle du projet.
+     * Il n'était éditable nulle part : le seul moyen de le changer était de
+     * modifier data/projects.json à la main.
+     *
+     * Champ libre, délibérément NON gouverné par la case « visionneuse
+     * maison ». Sinon le formulaire afficherait un dossier vide au premier
+     * chargement — le dossier n'ayant jamais été saisi — et l'enregistrement
+     * effacerait sans prévenir le lien 3DVista qui fonctionne. */
+    $project['apartment_tour_url'] = trim((string) ($_POST['apartment_tour_url'] ?? $existing['apartment_tour_url'] ?? ''));
     $project['brochure_pdf'] = trim((string) ($_POST['brochure_pdf'] ?? $existing['brochure_pdf'] ?? ''));
 
     foreach (['fr', 'en', 'ar', 'es'] as $lang) {
