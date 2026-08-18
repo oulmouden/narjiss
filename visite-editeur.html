@@ -277,6 +277,23 @@
       <button id="bSupprimer" class="btn" type="button" disabled>Retirer</button>
     </div>
 
+    <!-- Noms traduits. Le champ ci-dessus reste le nom SOURCE : c'est lui qui
+         s'affiche quand une langue n'a pas de traduction, et lui que voit le
+         commercial dans son propre outil. -->
+    <details id="blocLangues">
+      <summary>Noms traduits <span id="etatLangues" class="marque"></span></summary>
+      <div class="rang" style="margin-top:8px">
+        <input id="titreEn" type="text" placeholder="English" maxlength="80" disabled>
+        <input id="titreAr" type="text" placeholder="العربية" maxlength="80" dir="rtl" disabled>
+        <input id="titreEs" type="text" placeholder="Español" maxlength="80" disabled>
+      </div>
+      <div class="rang" style="margin-top:8px">
+        <button id="bTraduire" class="btn" type="button" disabled
+                title="Traduit les noms de toutes les pièces d'un coup. Les champs déjà remplis ne sont pas touchés.">🌐 Traduire toutes les pièces</button>
+        <span id="msgTraduire" class="marque"></span>
+      </div>
+    </details>
+
     <!-- Appariement vide / meublé, rempli en JS selon la pièce choisie. -->
     <div class="rang" id="boiteVariante" style="margin-bottom:10px"></div>
 
@@ -815,7 +832,13 @@
 
     var s = etat.scene ? etat.brouillon.scenes[etat.scene] : null;
     $('titrePiece').value = s ? s.title : '';
-    ['titrePiece', 'bDepart', 'bPassage', 'bSupprimer'].forEach(function (k) { $(k).disabled = !s; });
+    LANGUES.forEach(function (l) {
+      $(l.champ).value = (s && s.titles && s.titles[l.code]) || '';
+    });
+    majEtatLangues(s);
+    ['titrePiece', 'bDepart', 'bPassage', 'bSupprimer', 'titreEn', 'titreAr', 'titreEs']
+      .forEach(function (k) { $(k).disabled = !s; });
+    $('bTraduire').disabled = !etat.slug || !ids.length;
     $('bEnregistrer').disabled = !etat.slug || !etat.modifie;
     $('bPublier').disabled = !etat.slug || !ids.length;
     $('vide').style.display = s ? 'none' : 'flex';
@@ -1184,6 +1207,85 @@
   $('cibleNon').addEventListener('click', function () { armerPose(false); });
 
   /* --- Réglages de la pièce -------------------------------------------- */
+
+  /* --- Noms traduits ---------------------------------------------------
+     Les traductions vivent dans `titles` à côté du nom source, jamais à sa
+     place : une visite sans traduction doit continuer de s'afficher comme
+     avant, et le commercial doit garder un repère dans SA langue.
+
+     La traduction automatique ne remplit que les cases VIDES. Écraser une
+     correction faite à la main serait le plus sûr moyen de rendre le bouton
+     inutilisable : on n'ose plus le toucher de peur de perdre son travail. */
+  var LANGUES = [
+    { code: 'en', champ: 'titreEn' },
+    { code: 'ar', champ: 'titreAr' },
+    { code: 'es', champ: 'titreEs' }
+  ];
+
+  function majEtatLangues(s) {
+    var e = $('etatLangues');
+    if (!s) { e.textContent = ''; return; }
+    var faites = LANGUES.filter(function (l) {
+      return s.titles && (s.titles[l.code] || '').trim();
+    }).length;
+    e.textContent = faites === LANGUES.length ? '— complet'
+                  : faites ? '— ' + faites + '/' + LANGUES.length
+                  : '— aucun';
+  }
+
+  LANGUES.forEach(function (l) {
+    $(l.champ).addEventListener('input', function () {
+      if (!etat.scene) return;
+      var s = etat.brouillon.scenes[etat.scene];
+      var v = this.value.trim();
+      if (!s.titles) s.titles = {};
+      if (v) s.titles[l.code] = v; else delete s.titles[l.code];
+      if (!Object.keys(s.titles).length) delete s.titles;
+      majEtatLangues(s);
+      marquerModifie();
+    });
+  });
+
+  $('bTraduire').addEventListener('click', function () {
+    if (!etat.slug || !etat.brouillon) return;
+    var scenes = etat.brouillon.scenes || {};
+    var noms = [];
+    Object.keys(scenes).forEach(function (id) {
+      var t = (scenes[id].title || '').trim();
+      if (t && noms.indexOf(t) === -1) noms.push(t);
+    });
+    if (!noms.length) { $('msgTraduire').textContent = 'Aucune pièce nommée.'; return; }
+
+    var b = this;
+    b.disabled = true;
+    $('msgTraduire').textContent = 'Traduction en cours…';
+    envoyer('traduire', { slug: etat.slug, noms: JSON.stringify(noms) }).then(function (res) {
+      b.disabled = false;
+      if (!res || !res.ok) {
+        $('msgTraduire').textContent = (res && res.error) || 'Traduction impossible.';
+        return;
+      }
+      var posees = 0;
+      Object.keys(scenes).forEach(function (id) {
+        var s = scenes[id];
+        var t = res.traductions[(s.title || '').trim()];
+        if (!t) return;
+        LANGUES.forEach(function (l) {
+          if (!t[l.code]) return;
+          // Une case déjà remplie a été validée ou corrigée : on la respecte.
+          if (s.titles && (s.titles[l.code] || '').trim()) return;
+          if (!s.titles) s.titles = {};
+          s.titles[l.code] = t[l.code];
+          posees++;
+        });
+      });
+      $('msgTraduire').textContent = posees
+        ? posees + ' traduction(s) ajoutée(s) — à relire.'
+        : 'Rien à ajouter : tout est déjà renseigné.';
+      if (posees) marquerModifie();
+      rendre();
+    });
+  });
 
   $('titrePiece').addEventListener('input', function () {
     if (!etat.scene) return;

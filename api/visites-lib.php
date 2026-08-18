@@ -490,3 +490,82 @@ function nj_visite_photo_supprimer(string $slug, string $relatif): void {
   $chemin = nj_visite_dossier($slug) . '/' . $relatif;
   if (is_file($chemin)) @unlink($chemin);
 }
+
+/**
+ * Traduit des noms de pièces en anglais, arabe et espagnol.
+ *
+ * Tous les noms partent dans UN SEUL appel : c'est moins cher, plus rapide,
+ * et surtout plus cohérent — le modèle voit « Salon » et « Petit salon »
+ * ensemble et ne les traduit pas de deux façons étrangères l'une à l'autre.
+ *
+ * La traduction automatique est un POINT DE DÉPART, pas une vérité : le
+ * commercial corrige ensuite dans l'éditeur. D'où la consigne au modèle de
+ * rester littéral et bref — un nom de pièce inventif se repère mal dans une
+ * liste et se corrige donc rarement.
+ *
+ * @param  array<string> $noms Noms sources, tels que saisis.
+ * @return array<string, array{en:string,ar:string,es:string}> vide si indisponible.
+ */
+function nj_visite_traduire(array $noms): array {
+  $key = trim(nj_config('OPENAI_API_KEY', ''));
+  if ($key === '' || !function_exists('curl_init')) return [];
+
+  $propres = [];
+  foreach ($noms as $n) {
+    $n = trim((string) $n);
+    if ($n !== '' && !in_array($n, $propres, true)) $propres[] = $n;
+  }
+  $noms = $propres;
+  if (!$noms) return [];
+  // Garde-fou : une visite raisonnable compte quelques dizaines de pièces.
+  $noms = array_slice($noms, 0, 60);
+
+  $consigne = "Tu traduis des noms de pièces d'un logement, pour une visite "
+    . "virtuelle immobilière au Maroc. Reste littéral et bref : ce sont des "
+    . "étiquettes, pas des phrases. Garde les numéros et les distinctions "
+    . "('Chambre 1', 'Petit salon'). Si un nom est déjà dans la langue "
+    . "demandée, recopie-le. Réponds en JSON strict : un objet dont chaque "
+    . "clé est le nom source EXACT reçu, et la valeur un objet {en, ar, es}.";
+
+  $ch = curl_init('https://api.openai.com/v1/chat/completions');
+  curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT        => 30,
+    CURLOPT_HTTPHEADER     => [
+      'Authorization: Bearer ' . $key,
+      'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+      'model'           => 'gpt-4o-mini',
+      'temperature'     => 0,
+      'response_format' => ['type' => 'json_object'],
+      'messages'        => [
+        ['role' => 'system', 'content' => $consigne],
+        ['role' => 'user',   'content' => json_encode($noms, JSON_UNESCAPED_UNICODE)],
+      ],
+    ], JSON_UNESCAPED_UNICODE),
+  ]);
+  $res  = curl_exec($ch);
+  $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+  curl_close($ch);
+  if ($code !== 200 || !$res) return [];
+
+  $contenu = json_decode((string) $res, true)['choices'][0]['message']['content'] ?? '';
+  $brut = json_decode((string) $contenu, true);
+  if (!is_array($brut)) return [];
+
+  // On ne renvoie que ce qui correspond à un nom demandé : le modèle peut
+  // inventer une clé, il ne doit pas pour autant entrer dans la visite.
+  $sortie = [];
+  foreach ($noms as $nom) {
+    $t = $brut[$nom] ?? null;
+    if (!is_array($t)) continue;
+    $ligne = [];
+    foreach (['en', 'ar', 'es'] as $l) {
+      $v = trim((string) ($t[$l] ?? ''));
+      if ($v !== '') $ligne[$l] = mb_substr($v, 0, 80);
+    }
+    if ($ligne) $sortie[$nom] = $ligne;
+  }
+  return $sortie;
+}

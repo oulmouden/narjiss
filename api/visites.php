@@ -128,6 +128,22 @@ try {
       nj_v_json(['ok' => nj_visite_sauver($visite['slug'], $brouillon)]);
     }
 
+    case 'traduire': {
+      if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      // Autorisation vérifiée comme partout ailleurs : traduire consomme du
+      // crédit OpenAI, ce n'est pas une action anonyme.
+      nj_v_visite_autorisee($moi);
+      $noms = json_decode((string) ($_POST['noms'] ?? ''), true);
+      if (!is_array($noms)) {
+        nj_v_json(['ok' => false, 'error' => 'Liste de noms illisible.'], 400);
+      }
+      $t = nj_visite_traduire($noms);
+      if (!$t) {
+        nj_v_json(['ok' => false, 'error' => 'Traduction indisponible pour le moment.'], 503);
+      }
+      nj_v_json(['ok' => true, 'traductions' => $t]);
+    }
+
     case 'publish': {
       if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
       $visite = nj_v_visite_autorisee($moi);
