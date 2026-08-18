@@ -1461,14 +1461,66 @@
    * On remonte désormais jusqu'au bout, et on renonce franchement si
    * l'élément est hors de portée : mieux vaut rien qu'un mauvais élément.
    */
+  /**
+   * Sélecteur bâti sur les attributs data-* de l'élément, s'il en désigne un
+   * seul dans le document.
+   *
+   * Un chemin positionnel (:nth-of-type) suppose que l'arbre du visiteur est
+   * rigoureusement identique à celui de l'hôte. C'est vrai sur une page
+   * statique, faux sur une grille rendue dynamiquement : sur la page des
+   * disponibilités, l'hôte a sélectionné R+3 de l'immeuble B et le visiteur a
+   * basculé sur R+2 de l'immeuble A — le message passait, il désignait
+   * simplement autre chose. Les repères posés par la page (data-lot,
+   * data-etage + data-imm) survivent, eux, à toute différence de rendu.
+   *
+   * On essaie chaque attribut seul — data-lot suffit à identifier un logement
+   * — puis leur combinaison, car un étage n'est unique que par data-etage ET
+   * data-imm. L'unicité est vérifiée, jamais supposée.
+   */
+  function selecteurStable(el) {
+    var attrs = el.attributes || [];
+    var utiles = [];
+    for (var i = 0; i < attrs.length; i++) {
+      var nom = attrs[i].name;
+      var val = attrs[i].value;
+      if (nom.indexOf('data-') !== 0) continue;
+      // Les drapeaux d'état (data-choix-actif="1") décrivent la situation du
+      // moment, pas l'identité : ils diffèrent justement entre les deux écrans.
+      if (val === '' || val === 'true' || val === 'false' || val === '0' || val === '1') continue;
+      // Échappement des guillemets et antislashs : une valeur qui en contient
+      // casserait le sélecteur.
+      utiles.push('[' + nom + '=' + JSON.stringify(String(val)) + ']');
+    }
+    if (!utiles.length) return null;
+
+    var tag = el.nodeName.toLowerCase();
+    var essais = [];
+    for (var j = 0; j < utiles.length; j++) essais.push(tag + utiles[j]);
+    if (utiles.length > 1) essais.push(tag + utiles.join(''));
+
+    for (var k = 0; k < essais.length; k++) {
+      try {
+        var trouves = document.querySelectorAll(essais[k]);
+        if (trouves.length === 1 && trouves[0] === el) return essais[k];
+      } catch (e) {}
+    }
+    return null;
+  }
+
   function cssPath(el) {
     if (!(el instanceof Element)) return null;
     if (el.id) return '#' + cssEscape(el.id);
+    var stable = selecteurStable(el);
+    if (stable) return stable;
     var parts = [];
     while (el && el.nodeType === 1 && el !== document.body) {
       if (parts.length >= 25) return null; // profondeur déraisonnable : on renonce
       var sel = el.nodeName.toLowerCase();
       if (el.id) { parts.unshift('#' + cssEscape(el.id)); return parts.join(' > '); }
+      // Un ancêtre repérable ancre le chemin bien mieux que <body> : tout ce
+      // qui est au-dessus de lui cesse de compter.
+      var ancre = selecteurStable(el);
+      if (ancre) { parts.unshift(ancre); return parts.join(' > '); }
       var parent = el.parentNode;
       if (parent && parent.children) {
         var same = Array.prototype.filter.call(parent.children, function (c) { return c.nodeName === el.nodeName; });
