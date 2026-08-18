@@ -133,6 +133,9 @@
     return;
   }
 
+  console.info('[LiveGuide] ' + (dansCadre ? 'cadre' : 'page principale') +
+    ' · rôle ' + role + ' · ' + window.location.pathname);
+
   if (!userId) { userId = genId(); SS.setItem('lg_uid', userId); }
 
   // Configuration ICE pour la voix WebRTC.
