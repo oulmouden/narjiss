@@ -105,24 +105,6 @@
     return null;
   }
 
-  /* Trace des quatre maillons du relais : cadre → parent → Pusher → cadre.
-     Bornée aux premiers passages de chaque maillon — le panorama et les
-     cartes émettent en continu, une trace non bornée noierait la console en
-     quelques secondes et deviendrait inutilisable. */
-  var traces = {};
-  function tracer(etape, detail) {
-    /* Le budget est par ÉTAPE **et par type de message**, pas par étape
-       seule. Première version : les messages 'map' d'une carte, émis en
-       continu, épuisaient en deux secondes le budget du maillon 2 — et les
-       clics arrivés ensuite ne pouvaient plus rien afficher. La trace
-       devenait aveugle au moment précis où l'on en avait besoin. */
-    var cle = etape + ' | ' + String(detail).replace(/[^a-z-]+/gi, ' ').trim();
-    traces[cle] = (traces[cle] || 0) + 1;
-    if (traces[cle] > 3) return;
-    console.info('[LiveGuide] ' + etape + ' · ' + detail +
-      (traces[cle] === 3 ? ' (suivantes masquées pour ce type)' : ''));
-  }
-
   /**
    * Fait descendre une action vers le cadre désigné par `chemin`.
    *
@@ -165,9 +147,6 @@
     return;
   }
 
-  console.info('[LiveGuide] ' + (dansCadre ? 'cadre' : 'page principale') +
-    ' · rôle ' + role + ' · ' + window.location.pathname);
-
   if (!userId) { userId = genId(); SS.setItem('lg_uid', userId); }
 
   // Configuration ICE pour la voix WebRTC.
@@ -207,14 +186,12 @@
       // Destiné à un cadre plus bas : on le fait suivre sans le lire.
       if (d.msg && d.msg.lgCadre) { versCadre(d.msg.lgCadre, d.ev, d.msg); return; }
       var liste = abonnes[d.ev] || [];
-      tracer('4. cadre applique', d.ev + ' ' + ((d.msg && d.msg.kind) || '') + ' · ' + liste.length + ' abonné(s)');
       for (var i = 0; i < liste.length; i++) liste[i](d.msg, d.meta || {});
     });
 
     var canal = {
       trigger: function (ev, msg) {
         try {
-          tracer('1. cadre émet', ev + ' ' + ((msg && msg.kind) || ''));
           window.parent.postMessage({ __lg: 1, dir: 'haut', ev: ev, msg: msg }, window.location.origin);
         } catch (e) {}
       },
@@ -244,7 +221,6 @@
       var msg = {};
       for (var k in d.msg) if (Object.prototype.hasOwnProperty.call(d.msg, k)) msg[k] = d.msg[k];
       msg.lgCadre = nomCadre(cadre) + (d.msg && d.msg.lgCadre ? '>' + d.msg.lgCadre : '');
-      tracer('2. parent relaie', msg.lgCadre + ' ' + ((msg && msg.kind) || '') + (canal ? ' → Pusher' : ' → parent'));
       if (canal) canal.trigger(d.ev, msg);
       else {
         try { window.parent.postMessage({ __lg: 1, dir: 'haut', ev: d.ev, msg: msg }, window.location.origin); } catch (e) {}
@@ -800,7 +776,6 @@
          (traces 1 et 2), et côté visiteur rien ne se passait ni ne se
          plaignait. C'est ce qui rendait la panne si opaque. */
       if (msg.lgCadre) {
-        tracer('3. visiteur route', msg.lgCadre + ' ' + (msg.kind || ''));
         versCadre(msg.lgCadre, 'client-action', msg);
         return;
       }
