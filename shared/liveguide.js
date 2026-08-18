@@ -62,6 +62,67 @@
     stripParam('lg'); // l'URL reste propre ; sessionStorage garde le rôle
   }
 
+  // ----- Relais entre cadres (iframes de même origine) --------------------
+  /* demo.html n'affiche pas son contenu directement : il le charge dans une
+     iframe. Un écouteur posé sur le document parent ne voit PAS les clics à
+     l'intérieur du cadre, et un chemin CSS calculé dedans n'a aucun sens
+     dehors — le partage s'arrêterait à la bordure du cadre.
+
+     Chaque document embarqué parle donc à son parent par postMessage, et
+     SEUL le document du dessus tient la connexion Pusher. Une iframe qui
+     ouvrirait la sienne coûterait une connexion de plus par participant, et
+     la démo en imbrique jusqu'à deux (visite 360° DANS les disponibilités,
+     elles-mêmes dans la démo) : on paierait le triple.
+
+     Le relais est en chaîne, chaque étage n'ayant à connaître que le
+     suivant. La provenance voyage dans le message lui-même (`lgCadre`), et
+     non à côté : Pusher ne transporte que la charge utile, un champ posé
+     en dehors serait perdu au passage du réseau. */
+  var dansCadre = (function () {
+    try {
+      if (window.parent === window) return false;
+      // Lecture volontairement anodine : elle lève si le parent est d'une
+      // autre origine, auquel cas aucun relais n'est possible.
+      void window.parent.location.href;
+      return true;
+    } catch (e) { return false; }
+  })();
+
+  /** Nom stable d'une iframe, pour router un message vers le bon cadre. */
+  function nomCadre(el) {
+    if (el.id) return el.id;
+    var tous = document.getElementsByTagName('iframe');
+    for (var i = 0; i < tous.length; i++) if (tous[i] === el) return '#' + i;
+    return '';
+  }
+
+  /** Retrouve l'iframe d'où provient un postMessage. */
+  function cadreDe(source) {
+    var tous = document.getElementsByTagName('iframe');
+    for (var i = 0; i < tous.length; i++) {
+      try { if (tous[i].contentWindow === source) return tous[i]; } catch (e) {}
+    }
+    return null;
+  }
+
+  /** Fait descendre une action vers le cadre désigné par `chemin`. */
+  function versCadre(chemin, ev, msg, meta) {
+    var reste = String(chemin).split('>');
+    var tete = reste.shift();
+    var tous = document.getElementsByTagName('iframe');
+    for (var i = 0; i < tous.length; i++) {
+      if (nomCadre(tous[i]) !== tete) continue;
+      var suite = {};
+      for (var k in msg) if (Object.prototype.hasOwnProperty.call(msg, k)) suite[k] = msg[k];
+      suite.lgCadre = reste.join('>');
+      try {
+        tous[i].contentWindow.postMessage({ __lg: 1, dir: 'bas', ev: ev, msg: suite, meta: meta }, window.location.origin);
+      } catch (e) {}
+      return true;
+    }
+    return false; // cadre disparu (étape changée) : le message est perdu, sans conséquence
+  }
+
   // Ni hôte ni visiteur → visiteur normal : on ne charge rien.
   if (role !== 'host' && role !== 'viewer') return;
 
@@ -80,6 +141,11 @@
   // ----- Identifiants, puis chargement paresseux du SDK Pusher -------------
   // Rien n'est chargé tant qu'on n'a pas de quoi entrer : le conseiller doit
   // obtenir sa session du serveur, le visiteur doit avoir saisi son code.
+  // Dans un cadre, tout passe par le parent : ni code à saisir (le visiteur
+  // l'a déjà donné en haut), ni SDK à charger, ni connexion à ouvrir.
+  if (dansCadre) {
+    startCadre();
+  } else {
   ensureCredentials(function (ok) {
     if (!ok) return;
     loadScript(PUSHER_SDK, function (loaded) {
@@ -90,6 +156,63 @@
       start();
     });
   });
+  }
+
+  /**
+   * Démarrage dans un cadre : un faux canal qui parle au parent plutôt qu'à
+   * Pusher. initHost / initViewer fonctionnent tels quels — `trigger` et
+   * `bind` sont toute leur surface de communication.
+   */
+  function startCadre() {
+    var abonnes = {};
+    window.addEventListener('message', function (ev) {
+      if (ev.origin !== window.location.origin) return;
+      var d = ev.data;
+      if (!d || d.__lg !== 1 || d.dir !== 'bas') return;
+      // Destiné à un cadre plus bas : on le fait suivre sans le lire.
+      if (d.msg && d.msg.lgCadre) { versCadre(d.msg.lgCadre, d.ev, d.msg, d.meta); return; }
+      var liste = abonnes[d.ev] || [];
+      for (var i = 0; i < liste.length; i++) liste[i](d.msg, d.meta || {});
+    });
+
+    var canal = {
+      trigger: function (ev, msg) {
+        try {
+          window.parent.postMessage({ __lg: 1, dir: 'haut', ev: ev, msg: msg }, window.location.origin);
+        } catch (e) {}
+      },
+      bind: function (ev, cb) { (abonnes[ev] = abonnes[ev] || []).push(cb); }
+    };
+
+    hookPannellum();
+    installerRelais(null); // un cadre peut lui-même en contenir un autre
+    if (role === 'host') initHost(canal); else initViewer(canal);
+  }
+
+  /**
+   * Écoute les cadres enfants et fait remonter ce qu'ils émettent.
+   *
+   * `canal` vaut null quand nous sommes nous-mêmes dans un cadre : on ne
+   * publie alors pas sur Pusher, on repasse le message à notre propre parent
+   * en préfixant le chemin. C'est ce chaînage qui permet une imbrication
+   * quelconque sans que personne ait à connaître la profondeur totale.
+   */
+  function installerRelais(canal) {
+    window.addEventListener('message', function (ev) {
+      if (ev.origin !== window.location.origin) return;
+      var d = ev.data;
+      if (!d || d.__lg !== 1 || d.dir !== 'haut') return;
+      var cadre = cadreDe(ev.source);
+      if (!cadre) return; // message d'une fenêtre qui n'est pas un de nos cadres
+      var msg = {};
+      for (var k in d.msg) if (Object.prototype.hasOwnProperty.call(d.msg, k)) msg[k] = d.msg[k];
+      msg.lgCadre = nomCadre(cadre) + (d.msg && d.msg.lgCadre ? '>' + d.msg.lgCadre : '');
+      if (canal) canal.trigger(d.ev, msg);
+      else {
+        try { window.parent.postMessage({ __lg: 1, dir: 'haut', ev: d.ev, msg: msg }, window.location.origin); } catch (e) {}
+      }
+    });
+  }
 
   /**
    * Réunit ce qu'il faut pour rejoindre le canal, puis appelle done(ok).
@@ -136,6 +259,20 @@
     var channel = pusher.subscribe(channelName);
 
     hookPannellum(); // capture le visualiseur 360° pour synchroniser la vue
+    installerRelais(channel); // fait remonter ce qui se passe dans les iframes
+
+    // Une action étiquetée d'un cadre doit être rejouée DANS CE CADRE : un
+    // chemin CSS n'a de sens que dans le document où il a été calculé. On la
+    // route ici, avant que le gestionnaire local ne la voie.
+    channel.bind('client-action', function (msg, meta) {
+      // fromHost() est indispensable ici, pas seulement dans initViewer :
+      // sans lui, n'importe quel visiteur pourrait piloter les cadres des
+      // autres en fabriquant un message étiqueté — le canal accepte les
+      // client events de tous ses membres, seule la signature du rôle dans
+      // channel_data distingue le conseiller.
+      if (!msg || !msg.lgCadre || !fromHost(meta)) return;
+      versCadre(msg.lgCadre, 'client-action', msg, meta);
+    });
 
     if (role === 'host') initHost(channel);
     else initViewer(channel);
@@ -476,6 +613,10 @@
   }
 
   function publishState(channel) {
+    // Dans un cadre, l'URL et le défilement sont ceux du parent : c'est lui
+    // qui les publie. Les republier ici enverrait le visiteur naviguer sa
+    // fenêtre entière vers l'adresse d'une iframe.
+    if (dansCadre) return;
     channel.trigger('client-state', {
       url: cleanUrl(window.location.href),
       scroll: scrollFraction()
@@ -614,6 +755,8 @@
     // --- Rejoue les actions de l'hôte : clics, <select>/cases à cocher, vue 360° ---
     channel.bind('client-action', function (msg, meta) {
       if (!msg || !fromHost(meta)) return;
+      // Action d'un cadre : déjà routée vers lui, elle ne nous concerne pas.
+      if (msg.lgCadre) return;
       if (msg.kind === 'click' && msg.selector) {
         var elt;
         try { elt = document.querySelector(msg.selector); } catch (e) { return; }
@@ -893,7 +1036,10 @@
     bar.appendChild(chat);
     bar.appendChild(copy);
     bar.appendChild(end);
-    document.body.appendChild(bar);
+    // Dans un cadre, la barre est construite mais NON attachée : elle
+    // ferait doublon avec celle du document du dessus. Le reste du code
+    // continue de la manipuler sans le savoir, sur un élément détaché.
+    if (!dansCadre) document.body.appendChild(bar);
     document.body.classList.add('lg-has-bar');
     document.body.classList.add('lg-host'); // barre plus haute : voir liveguide.css
 
@@ -938,7 +1084,10 @@
     bar.appendChild(talk);
     bar.appendChild(chat);
     bar.appendChild(leave);
-    document.body.appendChild(bar);
+    // Dans un cadre, la barre est construite mais NON attachée : elle
+    // ferait doublon avec celle du document du dessus. Le reste du code
+    // continue de la manipuler sans le savoir, sur un élément détaché.
+    if (!dansCadre) document.body.appendChild(bar);
     document.body.classList.add('lg-has-bar');
 
     return { bar: bar, status: status, sound: sound, talk: talk, chat: chat, leave: leave };
@@ -1094,7 +1243,10 @@
     form.appendChild(envoi);
     panneau.appendChild(liste);
     panneau.appendChild(form);
-    document.body.appendChild(panneau);
+    // Dans un cadre, la barre est construite mais NON attachée : elle
+    // ferait doublon avec celle du document du dessus. Le reste du code
+    // continue de la manipuler sans le savoir, sur un élément détaché.
+    if (!dansCadre) document.body.appendChild(panneau);
 
     var nonLus = 0;
 

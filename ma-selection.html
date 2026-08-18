@@ -377,7 +377,13 @@
 
 <script src="assets/vendor/mrz/mrz-td1.js?v=20260724g"></script>
 <script src="assets/cin-mrz.js?v=3"></script>
-<script src="shared/menu.js?v=31"></script>
+<script src="shared/menu.js?v=32"></script>
 <script src="ma-selection.js?v=9"></script>
+<!-- Visite guidée : ces pages sont chargées DANS l'iframe de demo.html et
+     n'appellent pas initPage(), qui est le point d'où installLiveGuide() part
+     partout ailleurs. Sans cet appel, le conseiller partagerait la démo mais
+     rien de ce que le visiteur voit réellement — le contenu est ici, pas dans
+     le cadre parent. liveguide.js ne fait rien hors session guidée. -->
+<script>if (typeof installLiveGuide === 'function') installLiveGuide('');</script>
 </body>
 </html>
