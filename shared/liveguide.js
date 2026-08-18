@@ -293,19 +293,6 @@
     hookPannellum(); // capture le visualiseur 360° pour synchroniser la vue
     installerRelais(channel); // fait remonter ce qui se passe dans les iframes
 
-    // Une action étiquetée d'un cadre doit être rejouée DANS CE CADRE : un
-    // chemin CSS n'a de sens que dans le document où il a été calculé. On la
-    // route ici, avant que le gestionnaire local ne la voie.
-    channel.bind('client-action', function (msg, meta) {
-      // fromHost() est indispensable ici, pas seulement dans initViewer :
-      // sans lui, n'importe quel visiteur pourrait piloter les cadres des
-      // autres en fabriquant un message étiqueté — le canal accepte les
-      // client events de tous ses membres, seule la signature du rôle dans
-      // channel_data distingue le conseiller.
-      if (!msg || !msg.lgCadre || !fromHost(meta)) return;
-      tracer('3. visiteur route', msg.lgCadre + ' ' + (msg.kind || ''));
-      versCadre(msg.lgCadre, 'client-action', msg);
-    });
 
     if (role === 'host') initHost(channel);
     else initViewer(channel);
@@ -788,8 +775,20 @@
     // --- Rejoue les actions de l'hôte : clics, <select>/cases à cocher, vue 360° ---
     channel.bind('client-action', function (msg, meta) {
       if (!msg || !fromHost(meta)) return;
-      // Action d'un cadre : déjà routée vers lui, elle ne nous concerne pas.
-      if (msg.lgCadre) return;
+      /* Action venue d'un cadre : elle doit être rejouée DANS CE CADRE, un
+         chemin CSS n'ayant de sens que dans le document où il a été calculé.
+
+         Le routage vit ici et non dans start() — première version, qui ne
+         pouvait pas marcher : fromHost() et hostUid sont internes à
+         initViewer, donc l'appel levait une ReferenceError à chaque message,
+         avalée par le gestionnaire de Pusher. Côté hôte tout partait bien
+         (traces 1 et 2), et côté visiteur rien ne se passait ni ne se
+         plaignait. C'est ce qui rendait la panne si opaque. */
+      if (msg.lgCadre) {
+        tracer('3. visiteur route', msg.lgCadre + ' ' + (msg.kind || ''));
+        versCadre(msg.lgCadre, 'client-action', msg);
+        return;
+      }
       if (msg.kind === 'click' && msg.selector) {
         var elt;
         try { elt = document.querySelector(msg.selector); } catch (e) { return; }
