@@ -79,9 +79,16 @@
     justify-content: flex-end;
   }
 
-  /* Nom de la pièce, en surimpression. */
+  /* Nom de la pièce, en surimpression.
+
+     RÈGLE D'AFFORDANCE : une pilule (rayon 999px) annonce qu'on peut
+     cliquer, un rectangle (rayon 6px) qu'on ne peut que lire. Ce libellé
+     avait la silhouette exacte de #planBtn, qui est un vrai bouton — même
+     fond, même flou, même rayon — et ne s'en distinguait que par le curseur,
+     lequel n'existe pas sur écran tactile. On promettait une action qui
+     n'existe pas. */
   #piece {
-    padding: 8px 16px; border-radius: 999px;
+    padding: 8px 16px; border-radius: 6px;
     background: rgba(15, 17, 23, 0.72);
     backdrop-filter: blur(6px);
     font-size: 15px; font-weight: 600;
@@ -154,7 +161,8 @@
      pouvoir passer pour l'état réel du bien. La mention reste donc affichée tant
      que cette vue est à l'écran — discrète, mais présente. */
   #mention {
-    padding: 5px 12px; border-radius: 999px;
+    /* Rectangle, comme #piece : c'est une mention légale, pas une commande. */
+    padding: 5px 12px; border-radius: 6px;
     background: rgba(15, 17, 23, 0.72);
     backdrop-filter: blur(6px);
     color: rgba(255, 255, 255, 0.9);
