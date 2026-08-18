@@ -111,10 +111,16 @@
      quelques secondes et deviendrait inutilisable. */
   var traces = {};
   function tracer(etape, detail) {
-    traces[etape] = (traces[etape] || 0) + 1;
-    if (traces[etape] > 3) return;
+    /* Le budget est par ÉTAPE **et par type de message**, pas par étape
+       seule. Première version : les messages 'map' d'une carte, émis en
+       continu, épuisaient en deux secondes le budget du maillon 2 — et les
+       clics arrivés ensuite ne pouvaient plus rien afficher. La trace
+       devenait aveugle au moment précis où l'on en avait besoin. */
+    var cle = etape + ' | ' + String(detail).replace(/[^a-z-]+/gi, ' ').trim();
+    traces[cle] = (traces[cle] || 0) + 1;
+    if (traces[cle] > 3) return;
     console.info('[LiveGuide] ' + etape + ' · ' + detail +
-      (traces[etape] === 3 ? ' (traces suivantes masquées)' : ''));
+      (traces[cle] === 3 ? ' (suivantes masquées pour ce type)' : ''));
   }
 
   /**
@@ -1440,13 +1446,29 @@
   }
 
   // Sélecteur CSS unique pour un élément (les DOM hôte/visiteur sont identiques).
+  /**
+   * Chemin CSS d'un élément, destiné à être rejoué chez le visiteur.
+   *
+   * Le chemin est ANCRÉ : il part d'un id, ou de <body>. Sans ancrage, un
+   * sélecteur comme « div:nth-of-type(3) > button » désigne le premier
+   * élément du document qui correspond — donc potentiellement un AUTRE que
+   * celui visé. Faire cliquer le visiteur au mauvais endroit est pire que de
+   * ne rien faire.
+   *
+   * La version précédente abandonnait au-delà de 8 niveaux et renvoyait le
+   * fragment obtenu, flottant. Sur une grille de lots profondément imbriquée
+   * — la page des disponibilités — la limite était atteinte presque partout.
+   * On remonte désormais jusqu'au bout, et on renonce franchement si
+   * l'élément est hors de portée : mieux vaut rien qu'un mauvais élément.
+   */
   function cssPath(el) {
     if (!(el instanceof Element)) return null;
     if (el.id) return '#' + cssEscape(el.id);
     var parts = [];
-    while (el && el.nodeType === 1 && el !== document.body && parts.length < 8) {
+    while (el && el.nodeType === 1 && el !== document.body) {
+      if (parts.length >= 25) return null; // profondeur déraisonnable : on renonce
       var sel = el.nodeName.toLowerCase();
-      if (el.id) { parts.unshift('#' + cssEscape(el.id)); break; }
+      if (el.id) { parts.unshift('#' + cssEscape(el.id)); return parts.join(' > '); }
       var parent = el.parentNode;
       if (parent && parent.children) {
         var same = Array.prototype.filter.call(parent.children, function (c) { return c.nodeName === el.nodeName; });
@@ -1455,6 +1477,9 @@
       parts.unshift(sel);
       el = parent;
     }
+    // Remonté hors du document (élément détaché) : inexploitable chez le visiteur.
+    if (el !== document.body) return null;
+    parts.unshift('body');
     return parts.join(' > ');
   }
 
