@@ -113,7 +113,7 @@
   function tracer(etape, detail) {
     traces[etape] = (traces[etape] || 0) + 1;
     if (traces[etape] > 3) return;
-    console.debug('[LiveGuide] ' + etape + ' · ' + detail +
+    console.info('[LiveGuide] ' + etape + ' · ' + detail +
       (traces[etape] === 3 ? ' (traces suivantes masquées)' : ''));
   }
 
