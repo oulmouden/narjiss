@@ -365,7 +365,16 @@
     });
 
     // Diffusion du scroll (throttlé) + battement régulier pour les retardataires.
-    var onScroll = throttle(function () { publishState(channel); }, 150);
+    /* Dans un cadre, publishState() se tait — il emporterait le visiteur vers
+       l'adresse d'une iframe. Mais le DÉFILEMENT du cadre, lui, doit suivre :
+       la page des disponibilités est longue, et sans cela le conseiller
+       descend jusqu'à l'immeuble B pendant que le visiteur reste en haut.
+       On l'envoie donc comme une action ordinaire, qui emprunte le relais et
+       porte donc le cadre dont elle vient. */
+    var onScroll = throttle(function () {
+      if (dansCadre) channel.trigger('client-action', { kind: 'scroll', y: scrollFraction() });
+      else publishState(channel);
+    }, 150);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('hashchange', function () { publishState(channel); });
     var beat = setInterval(function () { publishState(channel); }, 4000);
@@ -798,7 +807,22 @@
       if (msg.kind === 'click' && msg.selector) {
         var elt;
         try { elt = document.querySelector(msg.selector); } catch (e) { return; }
-        if (elt) elt.click();
+        if (!elt) return;
+        /* Un vrai événement de souris plutôt que elt.click() : click() n'existe
+           que sur HTMLElement. Les logements de la maquette sont des <g> SVG
+           (class nj-mq-lot, data-id) — l'appel y échouait, et cliquer un lot ne
+           se synchronisait pas, alors que les étages, eux, passaient.
+           Un événement distribué déclenche le même comportement d'activation
+           que click() sur les cases à cocher et les liens. */
+        try {
+          elt.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        } catch (e) {
+          if (typeof elt.click === 'function') elt.click();
+        }
+        return;
+      }
+      if (msg.kind === 'scroll') {
+        if (typeof msg.y === 'number') applyScroll(msg.y);
         return;
       }
       if (msg.kind === 'value' && msg.selector) {
