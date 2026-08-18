@@ -596,8 +596,13 @@
   function relier(mere, meuble) {
     var m = etat.brouillon.scenes[mere], v = etat.brouillon.scenes[meuble];
     if (!m || !v) return;
-    m.variante = meuble;  m.varianteLabel = 'Voir meublé';  m.etat = 'vide';
-    v.variante = mere;    v.varianteLabel = 'Voir vide';    v.etat = 'meuble';
+    /* On n'écrit PLUS varianteLabel. Il figeait « Voir meublé » / « Voir vide »
+       en français au moment de la fabrication : une visite consultée en arabe
+       gardait ces deux mots en français au milieu d'une page lue de droite à
+       gauche. L'état porte la même information et se traduit, lui —
+       tour-360.html en déduit le libellé dans la langue du visiteur. */
+    m.variante = meuble;  m.etat = 'vide';
+    v.variante = mere;    v.etat = 'meuble';
     v.secondaire = true;
     // L'ameublement venant le plus souvent d'une génération par IA, la
     // visionneuse le mentionne tant que la vue est affichée.

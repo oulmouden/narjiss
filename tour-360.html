@@ -337,13 +337,13 @@
      pièce sur deux lignes décalait tout le reste. -->
 <div id="surcouche">
   <div id="ligneHaut">
-    <div id="piece">Chargement…</div>
-    <button id="planBtn" type="button" aria-expanded="false" aria-controls="plan" hidden>🗺️ Plan</button>
+    <div id="piece"></div>
+    <button id="planBtn" type="button" aria-expanded="false" aria-controls="plan" hidden></button>
   </div>
   <button id="variante" type="button" hidden></button>
   <div id="mention" hidden></div>
   <div id="plan" hidden>
-    <div id="planCadre"><img id="planImg" alt="Plan de l'étage"></div>
+    <div id="planCadre"><img id="planImg" alt=""></div>
   </div>
 </div>
 
@@ -385,6 +385,54 @@
   var DOSSIER = /^[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*$/.test(demande)
     ? demande + '/'
     : 'jawhara/Tour/';
+  /* --- Langue -----------------------------------------------------------
+     La visionneuse était la seule page à ne pas suivre la langue du site :
+     <html lang="fr"> figé et tous les textes en dur. En arabe, « Voir vide »
+     et « Aménagement virtuel » restaient en français au milieu d'une page
+     lue de droite à gauche.
+
+     Même convention que le reste du site : la langue vient du hash (#ar).
+     menu.js expose getLangFromHash() ; on ne s'y fie pas aveuglément, cette
+     page pouvant être ouverte seule dans un cadre. */
+  var TEXTES = {
+    fr: { chargement: 'Chargement…', plan: 'Plan', planEtage: "Plan de l'étage",
+          voirVide: 'Voir vide', voirMeuble: 'Voir meublé',
+          memePoint: 'Même point de vue, ',
+          mention: "Aménagement virtuel — à titre d'illustration" },
+    en: { chargement: 'Loading…', plan: 'Floor plan', planEtage: 'Floor plan',
+          voirVide: 'View empty', voirMeuble: 'View furnished',
+          memePoint: 'Same viewpoint, ',
+          mention: 'Virtual staging — for illustration only' },
+    ar: { chargement: '…جارٍ التحميل', plan: 'المخطط', planEtage: 'مخطط الطابق',
+          voirVide: 'عرض فارغًا', voirMeuble: 'عرض مفروشًا',
+          memePoint: 'نفس زاوية النظر، ',
+          mention: 'تأثيث افتراضي — للتوضيح فقط' },
+    es: { chargement: 'Cargando…', plan: 'Plano', planEtage: 'Plano de la planta',
+          voirVide: 'Ver vacío', voirMeuble: 'Ver amueblado',
+          memePoint: 'Mismo punto de vista, ',
+          mention: 'Amueblado virtual — solo a título ilustrativo' }
+  };
+
+  function langue() {
+    var h = (window.location.hash || '').replace('#', '').slice(0, 2);
+    if (TEXTES[h]) return h;
+    try { var g = getLangFromHash(); if (TEXTES[g]) return g; } catch (e) {}
+    return 'fr';
+  }
+  var LANG = langue();
+  var T = TEXTES[LANG];
+
+  // L'arabe se lit de droite à gauche : sans dir, la ponctuation et les
+  // chiffres se placent de travers dans les libellés.
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
+
+  // Textes du balisage, posés ici plutôt qu'écrits en dur dans le HTML : le
+  // document ne connaît pas la langue avant ce point.
+  document.getElementById('piece').textContent = T.chargement;
+  document.getElementById('planBtn').textContent = '🗺️ ' + T.plan;
+  document.getElementById('planImg').alt = T.planEtage;
+
   var CONFIG = DOSSIER + 'tour-pannellum.json';
 
   var visionneuse = null;
@@ -739,8 +787,17 @@
     var autre = s && s.variante ? scenes[s.variante] : null;
     b.hidden = !autre;
     if (autre) {
-      b.textContent = s.varianteLabel || ('Voir ' + autre.title);
-      b.title = 'Même point de vue, ' + (s.varianteLabel || autre.title).toLowerCase();
+      /* Le libellé est DÉDUIT de l'état, non lu dans les données.
+         L'éditeur y écrivait « Voir meublé » / « Voir vide » en français :
+         figé à la fabrication, il ne pouvait plus être traduit à
+         l'affichage. L'état (vide / meuble) porte la même information et se
+         traduit, lui. varianteLabel reste honoré si une visite ancienne en
+         porte un sans état, pour ne pas régresser sur l'existant. */
+      var libelle = autre.etat === 'vide' ? T.voirVide
+                  : autre.etat === 'meuble' ? T.voirMeuble
+                  : (s.varianteLabel || ('Voir ' + autre.title));
+      b.textContent = libelle;
+      b.title = T.memePoint + libelle.toLowerCase();
     }
 
     // L'ameublement est presque toujours une image de synthèse : on le dit,
@@ -753,7 +810,7 @@
     // visite entièrement aménagée n'en porterait aucune.
     var virtuel = !!(s && (s.etat ? s.etat === 'meuble' : s.secondaire));
     m.hidden = !virtuel;
-    if (virtuel) m.textContent = s.mention || 'Aménagement virtuel — à titre d\'illustration';
+    if (virtuel) m.textContent = s.mention || T.mention;
   }
 
   function marquerPiece(id) {
