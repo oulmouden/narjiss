@@ -105,8 +105,22 @@
     return null;
   }
 
-  /** Fait descendre une action vers le cadre désigné par `chemin`. */
-  function versCadre(chemin, ev, msg, meta) {
+  /**
+   * Fait descendre une action vers le cadre désigné par `chemin`.
+   *
+   * `meta` n'est VOLONTAIREMENT pas transmis. Il porte l'identifiant de
+   * l'émetteur, que fromHost() compare à hostUid — or hostUid n'est
+   * renseigné que par les événements de présence Pusher, qui ne se
+   * produisent jamais dans un cadre : il y vaut null, et le cadre rejetait
+   * donc en silence TOUT ce qu'on lui envoyait. C'était la cause du
+   * « rien ne se synchronise dès la carte des POI ».
+   *
+   * Sans meta, fromHost() répond vrai — ce qui est correct ici et non un
+   * contournement : la vérification a déjà eu lieu en haut, seul endroit
+   * qui connaisse la liste des membres, et le cadre est de même origine.
+   * Un message ne descend que si le document du dessus l'a validé.
+   */
+  function versCadre(chemin, ev, msg) {
     var reste = String(chemin).split('>');
     var tete = reste.shift();
     var tous = document.getElementsByTagName('iframe');
@@ -116,7 +130,7 @@
       for (var k in msg) if (Object.prototype.hasOwnProperty.call(msg, k)) suite[k] = msg[k];
       suite.lgCadre = reste.join('>');
       try {
-        tous[i].contentWindow.postMessage({ __lg: 1, dir: 'bas', ev: ev, msg: suite, meta: meta }, window.location.origin);
+        tous[i].contentWindow.postMessage({ __lg: 1, dir: 'bas', ev: ev, msg: suite }, window.location.origin);
       } catch (e) {}
       return true;
     }
@@ -173,7 +187,7 @@
       var d = ev.data;
       if (!d || d.__lg !== 1 || d.dir !== 'bas') return;
       // Destiné à un cadre plus bas : on le fait suivre sans le lire.
-      if (d.msg && d.msg.lgCadre) { versCadre(d.msg.lgCadre, d.ev, d.msg, d.meta); return; }
+      if (d.msg && d.msg.lgCadre) { versCadre(d.msg.lgCadre, d.ev, d.msg); return; }
       var liste = abonnes[d.ev] || [];
       for (var i = 0; i < liste.length; i++) liste[i](d.msg, d.meta || {});
     });
@@ -274,7 +288,7 @@
       // client events de tous ses membres, seule la signature du rôle dans
       // channel_data distingue le conseiller.
       if (!msg || !msg.lgCadre || !fromHost(meta)) return;
-      versCadre(msg.lgCadre, 'client-action', msg, meta);
+      versCadre(msg.lgCadre, 'client-action', msg);
     });
 
     if (role === 'host') initHost(channel);
