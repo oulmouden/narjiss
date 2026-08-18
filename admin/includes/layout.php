@@ -30,6 +30,16 @@ function admin_header(string $title): void
             <a href="agents.php">Agents</a>
             <a href="messages.php">Messages</a>
             <a href="audit.php">Audit</a>
+            <?php /* Pointeur, pas une seconde implémentation : l'éditeur de
+                     visites 360° vit dans l'espace commercial, où le modèle de
+                     droits sait déjà à quel agent appartient chaque visite. Le
+                     dupliquer ici obligerait api/visites.php — qui téléverse et
+                     supprime des fichiers — à accepter deux authentifications,
+                     donc à entretenir deux fois les mêmes garde-fous.
+                     Une session agent distincte reste nécessaire ; le rôle
+                     « gestionnaire » y donne accès aux visites de tous. */ ?>
+            <a href="../espace-agent.html" target="_blank"
+               title="Éditeur de visites 360°, fiches et messages. Connexion agent distincte ; le rôle « gestionnaire » voit les visites de tous.">Espace commercial</a>
             <a href="../index.html" target="_blank">Site</a>
             <a href="logout.php">Sortir</a>
         </nav>
