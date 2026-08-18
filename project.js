@@ -1177,6 +1177,13 @@
     majorRouteMarker = L.marker([poi.lat, poi.lng], {
       icon: makeIcon(poi, false)
     }).bindPopup(makePopup(poi, getLangFromHash())).addTo(mapInstance);
+    // La carte étant devenue un onglet, elle peut être masquée quand on demande
+    // un itinéraire depuis la grille des POI majeurs, en bas de page. On
+    // l'ouvre donc avant de faire défiler, sinon le défilement mènerait à un
+    // élément invisible.
+    var ongletCarte = document.querySelector('.hero-tab[data-tab="carte"]');
+    if (ongletCarte && !ongletCarte.classList.contains("active")) ongletCarte.click();
+
     var mapEl = document.getElementById("projectMapSection") || document.getElementById("projectMap");
     if (mapEl && typeof mapEl.scrollIntoView === "function") {
       mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2306,10 +2313,10 @@
      plan) + barre d'onglets + vignettes de pièces. Remplace le media-wall. ─── */
 
   var MEDIA_UI = {
-    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tabApartment: "Visiter un appartement", tabPlanArch: "Plan architecte", tabPlanVis: "Plan visuel", tabVideos: "Vidéos", videoSoon: "Vidéo bientôt disponible pour ce projet.", videoGeneric: "Vidéo de présentation Narjiss", videoPrev: "Vidéo précédente", videoSound: "Activer le son", videoNext: "Vidéo suivante", tourMissing: "Visite 3D bientôt disponible.", mediaSoon: "Images 360° bientôt disponibles pour ce projet.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
-    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tabApartment: "Visit an apartment", tabPlanArch: "Architect plan", tabPlanVis: "Visual plan", tabVideos: "Videos", videoSoon: "Video coming soon for this project.", videoGeneric: "Narjiss presentation video", videoPrev: "Previous video", videoSound: "Unmute", videoNext: "Next video", tourMissing: "3D tour coming soon.", mediaSoon: "360° images coming soon for this project.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
-    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tabApartment: "زيارة شقة", tabPlanArch: "مخطط معماري", tabPlanVis: "مخطط مرئي", tabVideos: "فيديوهات", videoSoon: "الفيديو سيتوفر قريبا لهذا المشروع.", videoGeneric: "فيديو تعريفي بنرجس", videoPrev: "الفيديو السابق", videoSound: "تشغيل الصوت", videoNext: "الفيديو التالي", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", mediaSoon: "صور 360° ستتوفر قريبا لهذا المشروع.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
-    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tabApartment: "Visitar un apartamento", tabPlanArch: "Plano arquitecto", tabPlanVis: "Plano visual", tabVideos: "Vídeos", videoSoon: "Vídeo próximamente para este proyecto.", videoGeneric: "Vídeo de presentación Narjiss", videoPrev: "Vídeo anterior", videoSound: "Activar el sonido", videoNext: "Vídeo siguiente", tourMissing: "Tour 3D próximamente.", mediaSoon: "Imágenes 360° próximamente para este proyecto.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
+    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tabApartment: "Visiter un appartement", tabPlanArch: "Plan architecte", tabPlanVis: "Plan visuel", tabVideos: "Vidéos", tabCarte: "Carte", videoSoon: "Vidéo bientôt disponible pour ce projet.", videoGeneric: "Vidéo de présentation Narjiss", videoPrev: "Vidéo précédente", videoSound: "Activer le son", videoNext: "Vidéo suivante", tourMissing: "Visite 3D bientôt disponible.", mediaSoon: "Images 360° bientôt disponibles pour ce projet.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
+    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tabApartment: "Visit an apartment", tabPlanArch: "Architect plan", tabPlanVis: "Visual plan", tabVideos: "Videos", tabCarte: "Map", videoSoon: "Video coming soon for this project.", videoGeneric: "Narjiss presentation video", videoPrev: "Previous video", videoSound: "Unmute", videoNext: "Next video", tourMissing: "3D tour coming soon.", mediaSoon: "360° images coming soon for this project.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
+    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tabApartment: "زيارة شقة", tabPlanArch: "مخطط معماري", tabPlanVis: "مخطط مرئي", tabVideos: "فيديوهات", tabCarte: "الخريطة", videoSoon: "الفيديو سيتوفر قريبا لهذا المشروع.", videoGeneric: "فيديو تعريفي بنرجس", videoPrev: "الفيديو السابق", videoSound: "تشغيل الصوت", videoNext: "الفيديو التالي", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", mediaSoon: "صور 360° ستتوفر قريبا لهذا المشروع.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
+    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tabApartment: "Visitar un apartamento", tabPlanArch: "Plano arquitecto", tabPlanVis: "Plano visual", tabVideos: "Vídeos", tabCarte: "Mapa", videoSoon: "Vídeo próximamente para este proyecto.", videoGeneric: "Vídeo de presentación Narjiss", videoPrev: "Vídeo anterior", videoSound: "Activar el sonido", videoNext: "Vídeo siguiente", tourMissing: "Tour 3D próximamente.", mediaSoon: "Imágenes 360° próximamente para este proyecto.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
   };
 
   /**
@@ -2337,6 +2344,10 @@
     // institutionnel plutôt que de masquer l'onglet.
     tabs += '<button type="button" class="hero-tab" data-tab="videos">🎬 ' + m.tabVideos + '</button>';
     if (floor && !project.plan_architecte_url && !project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan">⌗ ' + m.tabPlan + '</button>';
+    // La carte est un média comme les autres — elle répond à « à quoi ça
+    // ressemble ? », au même titre que les panoramas et les plans. Elle a donc
+    // sa place dans cette barre, pas au-dessus de la scène.
+    tabs += '<button type="button" class="hero-tab" data-tab="carte">🗺️ ' + m.tabCarte + '</button>';
 
     var thumbs = "";
     for (var i = 0; i < panos.length; i++) {
@@ -2349,10 +2360,17 @@
     return '<section class="hero-media">' +
       '<div class="property-summary"><div><h1>' + name + '</h1><p>📍 ' + location + '</p></div><div class="hero-actions">' + topActions + '</div></div>' +
     '</section>' +
-    (encart || "") +
     '<section class="hero-media">' +
       '<div class="hero-stage-wrap">' +
         '<div id="heroStage" class="hero-stage"></div>' +
+        /* La carte vit désormais DANS la zone média, en volet frère de la
+           scène : les deux ne s'affichent jamais ensemble, l'onglet bascule
+           de l'un à l'autre. C'est ce qui libère le haut de page — la carte
+           n'y était remontée que pour ne pas passer sous la ligne de
+           flottaison, la scène occupant à elle seule presque tout l'écran.
+           Volet frère et non contenu de #heroStage : les fonctions show*()
+           réécrivent l'innerHTML de la scène, ce qui détruirait Leaflet. */
+        '<div id="heroMapPane" class="hero-pane" hidden>' + (encart || "") + '</div>' +
         (tabs ? '<div class="hero-tabs">' + tabs + '</div>' : "") +
         (thumbs ? '<div class="hero-thumbs" id="heroThumbs">' + thumbs + '</div>' : "") +
       '</div>' +
@@ -2379,6 +2397,22 @@
       for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle("active", tabs[i].getAttribute("data-tab") === tab);
       var box = document.getElementById("heroThumbs");
       if (box) box.style.display = (tab === "p360") ? "" : "none";
+
+      // La bascule scène ↔ carte se fait ici et nulle part ailleurs, pour que
+      // tous les chemins en bénéficient : le clic, l'ouverture par défaut, et
+      // le repli de sonderVisite() quand une visite absente retire son onglet.
+      var carte = document.getElementById("heroMapPane");
+      var scene = document.getElementById("heroStage");
+      if (carte && scene) {
+        var surCarte = (tab === "carte");
+        carte.hidden = !surCarte;
+        scene.style.display = surCarte ? "none" : "";
+        // Leaflet a mesuré un conteneur masqué au chargement : sans ce
+        // recalcul la carte reste grise, les tuiles ne se chargeant jamais.
+        if (surCarte && mapInstance) {
+          window.setTimeout(function () { mapInstance.invalidateSize(); }, 0);
+        }
+      }
     }
 
     /** Rien à montrer : on l'annonce, plutôt que de laisser un cadre vide. */
@@ -2571,6 +2605,10 @@
           var tab = el.getAttribute("data-tab");
           markTab(tab);
           if (tab === "p360") show360(0);
+          // La carte n'a rien à monter dans la scène — markTab l'a déjà
+          // révélée. Reste à couper le lecteur qui tournait derrière, sinon
+          // une vidéo continuerait de jouer sous une carte plein cadre.
+          else if (tab === "carte") destroyViewer();
           else if (tab === "tour") showTour();
           else if (tab === "apartment") showApartment();
           else if (tab === "plan-arch") showPlanImage(project.plan_architecte_url);
