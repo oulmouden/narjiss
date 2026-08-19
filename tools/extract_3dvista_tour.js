@@ -263,7 +263,7 @@ function extract(tourDir) {
   const firstScene = (firstItem && deref(firstItem.media)) || Object.keys(scenes)[0];
 
   const paires = apparierVariantes(scenes, warnings);
-  const plan = extraireMap(tourDir, all, byId, scenes);
+  const plan = extraireMap(tourDir, all, byId, scenes, warnings);
   if (plan && plan.points.length < Object.keys(scenes).length) {
     warnings.push(`plan de sol : ${plan.points.length} pastilles pour ` +
                   `${Object.keys(scenes).length} scènes`);
@@ -377,9 +377,9 @@ function apparierVariantes(scenes, warnings) {
  *
  * @returns {object|null} null si le tour n'a pas de plan.
  */
-function extraireMap(tourDir, all, byId, scenes) {
+function extraireMap(tourDir, all, byId, scenes, warnings) {
   const map = all.find((o) => o.class === 'Map');
-  if (!map || !map.id) return null;
+  if (!map || !map.id) return null; // export sans plan : normal, on se tait
 
   // Le niveau 0 est le plus fin, et sa taille correspond au plan lui-même.
   let image = null;
@@ -387,7 +387,11 @@ function extraireMap(tourDir, all, byId, scenes) {
     const nom = langue ? `${map.id}_${langue}_0.webp` : `${map.id}_0.webp`;
     if (fs.existsSync(path.join(tourDir, 'media', nom))) { image = 'media/' + nom; break; }
   }
-  if (!image) return null;
+  if (!image) {
+    warnings.push(`plan de sol : objet Map ${map.id} présent, mais aucune ` +
+                  `image media/${map.id}_*_0.webp — plan ignoré`);
+    return null;
+  }
 
   const points = [];
   (map.overlays || []).forEach((ref) => {
@@ -396,11 +400,28 @@ function extraireMap(tourDir, all, byId, scenes) {
 
     const zone = byId[deref((ov.areas || [])[0])];
     const clic = zone && typeof zone.click === 'string' ? zone.click : '';
-    const trouve = clic.match(/this\.(PanoramaPlayListItem_[A-Za-z0-9_]+)/);
-    if (!trouve) return;
+    /* 3DVista écrit ce clic de DEUX façons, selon l'export :
 
-    const item = byId[trouve[1]];
-    const sceneId = item ? deref(item.media) : null;
+         this.PanoramaPlayListItem_ADD7…            → référence directe
+         this.setPlayListSelectedIndex(this.mainPlayList, 3)  → un index
+
+       Seule la première était reconnue. L'export jawhara/Tour-FloorPlan
+       n'emploie que la seconde : aucune pastille n'en sortait, le plan
+       était donc rejeté — dans la visite dont le nom annonce un plan. */
+    let sceneId = null;
+
+    const direct = clic.match(/this\.(PanoramaPlayListItem_[A-Za-z0-9_]+)/);
+    if (direct) {
+      const item = byId[direct[1]];
+      sceneId = item ? deref(item.media) : null;
+    } else {
+      const parIndex = clic.match(/setPlayListSelectedIndex\(\s*this\.([A-Za-z0-9_]+)\s*,\s*(\d+)\s*\)/);
+      if (parIndex) {
+        const liste = all.find((o) => o.id === parIndex[1]);
+        const item = liste && (liste.items || [])[Number(parIndex[2])];
+        sceneId = item ? deref(item.media) : null;
+      }
+    }
     if (!sceneId || !scenes[sceneId]) return;
 
     // x/y désignent le CENTRE de la pastille : 3DVista y adjoint un offset
@@ -413,7 +434,12 @@ function extraireMap(tourDir, all, byId, scenes) {
     });
   });
 
-  if (!points.length) return null;
+  if (!points.length) {
+    // Le cas qui a coûté le plan de Tour-FloorPlan sans que rien ne le dise.
+    warnings.push(`plan de sol : image trouvée mais aucune pastille exploitable ` +
+                  `(${(map.overlays || []).length} zone(s) examinée(s)) — plan ignoré`);
+    return null;
+  }
   return { image: image, width: map.width, height: map.height, points: points };
 }
 
