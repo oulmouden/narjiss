@@ -160,6 +160,18 @@
      Le meublé est le plus souvent une image de synthèse : elle ne doit jamais
      pouvoir passer pour l'état réel du bien. La mention reste donc affichée tant
      que cette vue est à l'écran — discrète, mais présente. */
+  #tip {
+    padding: 6px 12px; border-radius: 6px;
+    background: rgba(15, 17, 23, 0.72);
+    backdrop-filter: blur(6px);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 13px; font-weight: 500;
+    text-align: right; max-width: 320px;
+    pointer-events: none;
+  }
+
+  #tip[hidden] { display: none; }
+
   #mention {
     /* Rectangle, comme #piece : c'est une mention légale, pas une commande. */
     padding: 5px 12px; border-radius: 6px;
@@ -341,6 +353,9 @@
     <button id="planBtn" type="button" aria-expanded="false" aria-controls="plan" hidden></button>
   </div>
   <button id="variante" type="button" hidden></button>
+  <!-- Courte description de la pièce (surface, exposition, un argument).
+       Rectangle comme les autres libellés : on la lit, on ne clique pas. -->
+  <div id="tip" hidden></div>
   <div id="mention" hidden></div>
   <div id="plan" hidden>
     <div id="planCadre"><img id="planImg" alt=""></div>
@@ -446,6 +461,19 @@
     if (!s) return '';
     var t = s.titles && s.titles[LANG];
     return (typeof t === 'string' && t.trim()) ? t : (s.title || '');
+  }
+
+  /**
+   * Courte description d'une pièce, dans la langue du visiteur.
+   *
+   * Même structure que le nom : `tip` porte le texte source, `tips` les
+   * traductions. Une visite sans description ne montre rien —
+   * l'encart n'apparaît que s'il a quelque chose à dire.
+   */
+  function tipPiece(s) {
+    if (!s) return '';
+    var t = s.tips && s.tips[LANG];
+    return (typeof t === 'string' && t.trim()) ? t : (s.tip || '');
   }
 
   var CONFIG = DOSSIER + 'tour-pannellum.json';
@@ -755,6 +783,10 @@
         // Les traductions accompagnent le nom : sans cela une visite
         // aménagée retomberait sur le titre du fichier meublé.
         if (s.titles) scenes[s.variante].titles = s.titles;
+        // La description décrit la PIÈCE, pas son ameublement : elle vaut
+        // pour les deux prises de vue.
+        if (s.tip) scenes[s.variante].tip = s.tip;
+        if (s.tips) scenes[s.variante].tips = s.tips;
       }
     });
 
@@ -834,6 +866,10 @@
   function marquerPiece(id) {
     var s = scenes[id];
     document.getElementById('piece').textContent = nomPiece(s);
+    var encart = document.getElementById('tip');
+    var texte = tipPiece(s);
+    encart.textContent = texte;
+    encart.hidden = !texte;
     majVariante(s);
 
     // Sur une prise de vue secondaire, c'est la pièce mère qui reste soulignée :

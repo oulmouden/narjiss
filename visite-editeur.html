@@ -277,15 +277,26 @@
       <button id="bSupprimer" class="btn" type="button" disabled>Retirer</button>
     </div>
 
+    <div class="rang" style="margin-bottom:10px">
+      <input id="tipPiece" type="text" maxlength="160" disabled
+             placeholder="Description courte — ex. 24 m², double exposition sud"
+             title="Affichée au visiteur sous le nom de la pièce. Vide, rien ne s'affiche.">
+    </div>
+
     <!-- Noms traduits. Le champ ci-dessus reste le nom SOURCE : c'est lui qui
          s'affiche quand une langue n'a pas de traduction, et lui que voit le
          commercial dans son propre outil. -->
     <details id="blocLangues">
-      <summary>Noms traduits <span id="etatLangues" class="marque"></span></summary>
+      <summary>Traductions <span id="etatLangues" class="marque"></span></summary>
       <div class="rang" style="margin-top:8px">
         <input id="titreEn" type="text" placeholder="English" maxlength="80" disabled>
         <input id="titreAr" type="text" placeholder="العربية" maxlength="80" dir="rtl" disabled>
         <input id="titreEs" type="text" placeholder="Español" maxlength="80" disabled>
+      </div>
+      <div class="rang" style="margin-top:8px">
+        <input id="tipEn" type="text" placeholder="Description (English)" maxlength="200" disabled>
+        <input id="tipAr" type="text" placeholder="الوصف" maxlength="200" dir="rtl" disabled>
+        <input id="tipEs" type="text" placeholder="Descripción" maxlength="200" disabled>
       </div>
       <div class="rang" style="margin-top:8px">
         <button id="bTraduire" class="btn" type="button" disabled
@@ -832,11 +843,14 @@
 
     var s = etat.scene ? etat.brouillon.scenes[etat.scene] : null;
     $('titrePiece').value = s ? s.title : '';
+    $('tipPiece').value = (s && s.tip) || '';
     LANGUES.forEach(function (l) {
       $(l.champ).value = (s && s.titles && s.titles[l.code]) || '';
+      $(l.champTip).value = (s && s.tips && s.tips[l.code]) || '';
     });
     majEtatLangues(s);
-    ['titrePiece', 'bDepart', 'bPassage', 'bSupprimer', 'titreEn', 'titreAr', 'titreEs']
+    ['titrePiece', 'tipPiece', 'bDepart', 'bPassage', 'bSupprimer',
+     'titreEn', 'titreAr', 'titreEs', 'tipEn', 'tipAr', 'tipEs']
       .forEach(function (k) { $(k).disabled = !s; });
     $('bTraduire').disabled = !etat.slug || !ids.length;
     $('bEnregistrer').disabled = !etat.slug || !etat.modifie;
@@ -1216,10 +1230,13 @@
      La traduction automatique ne remplit que les cases VIDES. Écraser une
      correction faite à la main serait le plus sûr moyen de rendre le bouton
      inutilisable : on n'ose plus le toucher de peur de perdre son travail. */
+  /* Nom et description partagent la même mécanique : un texte source, des
+     traductions à côté. Une seule table les décrit tous les deux, pour que
+     rien ne puisse diverger entre l'un et l'autre. */
   var LANGUES = [
-    { code: 'en', champ: 'titreEn' },
-    { code: 'ar', champ: 'titreAr' },
-    { code: 'es', champ: 'titreEs' }
+    { code: 'en', champ: 'titreEn', champTip: 'tipEn' },
+    { code: 'ar', champ: 'titreAr', champTip: 'tipAr' },
+    { code: 'es', champ: 'titreEs', champTip: 'tipEs' }
   ];
 
   function majEtatLangues(s) {
@@ -1233,7 +1250,24 @@
                   : '— aucun';
   }
 
+  $('tipPiece').addEventListener('input', function () {
+    if (!etat.scene) return;
+    var s = etat.brouillon.scenes[etat.scene];
+    var v = this.value.trim();
+    if (v) s.tip = v; else delete s.tip;
+    marquerModifie();
+  });
+
   LANGUES.forEach(function (l) {
+    $(l.champTip).addEventListener('input', function () {
+      if (!etat.scene) return;
+      var s = etat.brouillon.scenes[etat.scene];
+      var v = this.value.trim();
+      if (!s.tips) s.tips = {};
+      if (v) s.tips[l.code] = v; else delete s.tips[l.code];
+      if (!Object.keys(s.tips).length) delete s.tips;
+      marquerModifie();
+    });
     $(l.champ).addEventListener('input', function () {
       if (!etat.scene) return;
       var s = etat.brouillon.scenes[etat.scene];
@@ -1250,9 +1284,13 @@
     if (!etat.slug || !etat.brouillon) return;
     var scenes = etat.brouillon.scenes || {};
     var noms = [];
+    // Noms et descriptions partent ensemble : un seul appel, et le modèle
+    // voit la description à côté du nom qu'elle décrit.
     Object.keys(scenes).forEach(function (id) {
-      var t = (scenes[id].title || '').trim();
-      if (t && noms.indexOf(t) === -1) noms.push(t);
+      [scenes[id].title, scenes[id].tip].forEach(function (v) {
+        var t = (v || '').trim();
+        if (t && noms.indexOf(t) === -1) noms.push(t);
+      });
     });
     if (!noms.length) { $('msgTraduire').textContent = 'Aucune pièce nommée.'; return; }
 
@@ -1266,18 +1304,21 @@
         return;
       }
       var posees = 0;
-      Object.keys(scenes).forEach(function (id) {
-        var s = scenes[id];
-        var t = res.traductions[(s.title || '').trim()];
+      // Même règle pour les deux : on ne remplit que le vide.
+      function poser(s, champSource, champTrad) {
+        var t = res.traductions[((s[champSource] || '') + '').trim()];
         if (!t) return;
         LANGUES.forEach(function (l) {
           if (!t[l.code]) return;
-          // Une case déjà remplie a été validée ou corrigée : on la respecte.
-          if (s.titles && (s.titles[l.code] || '').trim()) return;
-          if (!s.titles) s.titles = {};
-          s.titles[l.code] = t[l.code];
+          if (s[champTrad] && (s[champTrad][l.code] || '').trim()) return;
+          if (!s[champTrad]) s[champTrad] = {};
+          s[champTrad][l.code] = t[l.code];
           posees++;
         });
+      }
+      Object.keys(scenes).forEach(function (id) {
+        poser(scenes[id], 'title', 'titles');
+        poser(scenes[id], 'tip', 'tips');
       });
       $('msgTraduire').textContent = posees
         ? posees + ' traduction(s) ajoutée(s) — à relire.'
