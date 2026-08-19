@@ -158,10 +158,13 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
                 Visite d'un logement témoin, distincte de la visite du projet.
                 C'est elle qu'ouvre le bouton ◎ d'un lot dans la démo et le
                 parcours client, qui la préfèrent à la visite du projet.
-                Champ libre : lecteur 3DVista
-                (<code>jawhara/Tour-FloorPlan/index.htm</code>) ou visionneuse
-                maison (<code>tour-360.html?tour=jawhara/Tour-FloorPlan</code>).
-                Vide, aucun onglet « appartement » ne s'affiche.
+                Champ libre : un chemin de lecteur 3DVista, ou la visionneuse
+                maison sous la forme
+                <code>tour-360.html?tour=&lt;dossier&gt;</code>.
+                <strong>Vide</strong>, aucun onglet « appartement » ne
+                s'affiche et le bouton ◎ d'un lot retombe sur la visite du
+                projet ci-dessus — ce qui convient tant que vous n'avez pas
+                photographié un logement témoin à part.
             </small>
         </label>
         <label class="full">
