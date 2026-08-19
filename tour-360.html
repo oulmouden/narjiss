@@ -199,10 +199,16 @@
 
   #plan {
     width: min(300px, 46vw);
-    padding: 8px;
+    /* Marge réduite de 8 à 4 px : le plan occupe presque tout le panneau,
+       plutôt que de flotter dans un cadre qui le concurrence. */
+    padding: 4px;
     border-radius: 12px;
-    background: rgba(15, 17, 23, 0.92);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* Gris ardoise plutôt qu'un quasi-noir. Le support reste nécessaire — un
+       plan d'architecte est une image à fond blanc aux traits fins, illisible
+       posée telle quelle sur un panorama clair — mais un cadre trop sombre
+       pèse à l'écran et fait paraître le plan plus petit qu'il n'est. */
+    background: rgba(46, 51, 62, 0.88);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   }
 
   #plan[hidden] { display: none; }
