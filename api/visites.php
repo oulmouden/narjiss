@@ -128,6 +128,17 @@ try {
       nj_v_json(['ok' => nj_visite_sauver($visite['slug'], $brouillon)]);
     }
 
+    case 'plan': {
+      if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      $visite = nj_v_visite_autorisee($moi);
+      try {
+        $r = nj_visite_plan($visite['slug'], $_FILES['plan'] ?? []);
+      } catch (RuntimeException $e) {
+        nj_v_json(['ok' => false, 'error' => $e->getMessage()], 400);
+      }
+      nj_v_json(['ok' => true] + $r);
+    }
+
     case 'traduire': {
       if (!$post) nj_v_json(['ok' => false, 'error' => 'POST requis.'], 405);
       // Autorisation vérifiée comme partout ailleurs : traduire consomme du

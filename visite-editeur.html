@@ -112,6 +112,22 @@
   .item .nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .item .marque { font-size: 11px; opacity: .6; }
 
+/* --- Plan de sol ------------------------------------------------------
+   Le cadre porte le ratio exact de l'image : les pastilles sont posées en
+   POURCENTAGE, elles restent donc justes quelle que soit la taille à
+   l'écran — ici comme chez le visiteur. */
+#planCadre { position: relative; display: inline-block; max-width: 100%; }
+#planCadre img { display: block; max-width: 100%; border-radius: 6px; }
+#planCadre.pose { cursor: crosshair; outline: 2px dashed var(--or, #e8a33d); outline-offset: 3px; }
+.planPastille {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid #fff; background: var(--or, #e8a33d);
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  cursor: pointer; padding: 0; font-size: 0;
+}
+.planPastille.active { background: #2e7d32; }
+
   input[type="text"], select {
     width: 100%; padding: 9px 10px;
     border: 1px solid var(--line, #d7dbe0); border-radius: 8px;
@@ -303,6 +319,20 @@
                 title="Traduit les noms de toutes les pièces d'un coup. Les champs déjà remplis ne sont pas touchés.">🌐 Traduire toutes les pièces</button>
         <span id="msgTraduire" class="marque"></span>
       </div>
+    </details>
+
+    <!-- Plan de sol. Facultatif : une visite sans plan fonctionne, le
+         bouton « Plan » ne s'affiche simplement pas chez le visiteur. -->
+    <details id="blocPlan">
+      <summary>Plan de sol <span id="etatPlan" class="marque"></span></summary>
+      <div class="rang" style="margin-top:8px">
+        <input id="fichierPlan" type="file" accept="image/png,image/jpeg,image/webp" disabled>
+        <button id="bPoserPlan" class="btn" type="button" disabled
+                title="Puis cliquez sur le plan à l'emplacement de la pièce sélectionnée">📍 Placer la pièce</button>
+        <button id="bRetirerPlan" class="btn" type="button" disabled>Retirer le plan</button>
+      </div>
+      <div id="messagePlan" class="marque" style="margin-top:6px"></div>
+      <div id="planCadre" style="margin-top:8px"><img id="planImg" alt="" hidden></div>
     </details>
 
     <!-- Appariement vide / meublé, rempli en JS selon la pièce choisie. -->
@@ -853,6 +883,8 @@
      'titreEn', 'titreAr', 'titreEs', 'tipEn', 'tipAr', 'tipEs']
       .forEach(function (k) { $(k).disabled = !s; });
     $('bTraduire').disabled = !etat.slug || !ids.length;
+    $('fichierPlan').disabled = !etat.slug;
+    dessinerPlan();
     $('bEnregistrer').disabled = !etat.slug || !etat.modifie;
     $('bPublier').disabled = !etat.slug || !ids.length;
     $('vide').style.display = s ? 'none' : 'flex';
@@ -1220,6 +1252,135 @@
 
   $('cibleNon').addEventListener('click', function () { armerPose(false); });
 
+  /* --- Plan de sol -------------------------------------------------------
+
+     Format identique à celui produit par l'extraction d'un export 3DVista :
+     map = { image, width, height, points: [{x, y, sceneId, title}] }, les
+     coordonnées étant exprimées en PIXELS de l'image. La visionneuse les
+     convertit en pourcentage — un seul format à lire, quelle que soit
+     l'origine de la visite.
+
+     Une pastille par pièce : reposer la même pièce déplace sa pastille au
+     lieu d'en ajouter une seconde. Deux points pour un même lieu n'auraient
+     aucun sens, et le visiteur ne saurait lequel viser. */
+  var posePlan = false;
+
+  function planActuel() {
+    return (etat.brouillon && etat.brouillon.map) || null;
+  }
+
+  function dessinerPlan() {
+    var m = planActuel();
+    var img = $('planImg');
+    var cadre = $('planCadre');
+
+    // On efface les pastilles avant de redessiner, sans toucher à l'image.
+    Array.prototype.slice.call(cadre.querySelectorAll('.planPastille'))
+      .forEach(function (e) { e.remove(); });
+
+    if (!m || !m.image) {
+      img.hidden = true; img.removeAttribute('src');
+      $('etatPlan').textContent = '— aucun';
+      $('bPoserPlan').disabled = true;
+      $('bRetirerPlan').disabled = true;
+      return;
+    }
+
+    img.src = 'visites/' + etat.slug + '/' + m.image;
+    img.hidden = false;
+
+    (m.points || []).forEach(function (pt, rang) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'planPastille' + (pt.sceneId === etat.scene ? ' active' : '');
+      b.style.left = (pt.x / m.width * 100) + '%';
+      b.style.top = (pt.y / m.height * 100) + '%';
+      var s = etat.brouillon.scenes[pt.sceneId];
+      b.title = (s ? s.title : pt.sceneId) + ' — cliquer pour retirer';
+      b.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        m.points.splice(rang, 1);
+        marquerModifie();
+        dessinerPlan();
+      });
+      cadre.appendChild(b);
+    });
+
+    var total = Object.keys(etat.brouillon.scenes || {}).length;
+    $('etatPlan').textContent = '— ' + (m.points || []).length + '/' + total + ' pièce(s) placée(s)';
+    $('bPoserPlan').disabled = !etat.scene;
+    $('bRetirerPlan').disabled = false;
+  }
+
+  $('fichierPlan').addEventListener('change', function (ev) {
+    var f = (ev.target.files || [])[0];
+    ev.target.value = '';
+    if (!f || !etat.slug) return;
+    $('messagePlan').textContent = 'Envoi du plan…';
+    var corps = new FormData();
+    corps.append('slug', etat.slug);
+    corps.append('plan', f);
+    fetch(API + '?action=plan', { method: 'POST', body: corps, credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) { $('messagePlan').textContent = r.error || 'Plan refusé.'; return; }
+        // Les pastilles déjà posées sont conservées : changer une image de
+        // plan pour une version corrigée ne doit pas effacer le travail de
+        // placement. Si le cadrage a changé, elles se déplacent en
+        // proportion — visible aussitôt, donc corrigeable.
+        var anciens = (planActuel() || {}).points || [];
+        etat.brouillon.map = { image: r.fichier, width: r.largeur, height: r.hauteur, points: anciens };
+        $('messagePlan').textContent = 'Plan enregistré (' + r.largeur + '×' + r.hauteur + ').';
+        marquerModifie();
+        dessinerPlan();
+      })
+      .catch(function () { $('messagePlan').textContent = 'Envoi impossible.'; });
+  });
+
+  $('bPoserPlan').addEventListener('click', function () {
+    if (!planActuel() || !etat.scene) return;
+    posePlan = true;
+    $('planCadre').classList.add('pose');
+    $('messagePlan').textContent = 'Cliquez sur le plan à l\'emplacement de la pièce.';
+  });
+
+  $('planCadre').addEventListener('click', function (ev) {
+    if (!posePlan || !etat.scene) return;
+    var m = planActuel();
+    if (!m) return;
+    var img = $('planImg');
+    var r = img.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+
+    // De la position à l'écran vers les pixels de l'image d'origine : c'est
+    // cette échelle-là qui est enregistrée, indépendante de la taille
+    // d'affichage ici comme chez le visiteur.
+    var x = Math.round((ev.clientX - r.left) / r.width * m.width);
+    var y = Math.round((ev.clientY - r.top) / r.height * m.height);
+    if (x < 0 || y < 0 || x > m.width || y > m.height) return;
+
+    if (!m.points) m.points = [];
+    var s = etat.brouillon.scenes[etat.scene];
+    var deja = -1;
+    m.points.forEach(function (pt, i) { if (pt.sceneId === etat.scene) deja = i; });
+    var point = { x: x, y: y, sceneId: etat.scene, title: (s && s.title) || '' };
+    if (deja >= 0) m.points[deja] = point; else m.points.push(point);
+
+    posePlan = false;
+    $('planCadre').classList.remove('pose');
+    $('messagePlan').textContent = ((s && s.title) || 'Pièce') + ' placée.';
+    marquerModifie();
+    dessinerPlan();
+  });
+
+  $('bRetirerPlan').addEventListener('click', function () {
+    if (!planActuel()) return;
+    if (!confirm('Retirer le plan et toutes ses pastilles ?')) return;
+    delete etat.brouillon.map;
+    marquerModifie();
+    dessinerPlan();
+  });
+
   /* --- Réglages de la pièce -------------------------------------------- */
 
   /* --- Noms traduits ---------------------------------------------------
@@ -1351,6 +1512,13 @@
       var autre = etat.brouillon.scenes[id];
       autre.hotSpots = (autre.hotSpots || []).filter(function (h) { return h.sceneId !== etat.scene; });
     });
+
+    // Sa pastille sur le plan mènerait vers une pièce disparue : le visiteur
+    // cliquerait dans le vide, sans rien pour lui dire pourquoi.
+    var m = etat.brouillon.map;
+    if (m && m.points) {
+      m.points = m.points.filter(function (pt) { return pt.sceneId !== etat.scene; });
+    }
 
     var reste = Object.keys(etat.brouillon.scenes);
     if (etat.brouillon.firstScene === etat.scene) etat.brouillon.firstScene = reste[0] || null;

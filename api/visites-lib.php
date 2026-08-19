@@ -569,3 +569,56 @@ function nj_visite_traduire(array $noms): array {
   }
   return $sortie;
 }
+
+/** Poids maximal d'un plan de sol téléversé. */
+const NJ_VISITE_PLAN_MAX = 3 * 1024 * 1024;
+
+/**
+ * Range le plan de sol d'une visite.
+ *
+ * Un seul plan par visite : le fichier précédent est remplacé. Un logement
+ * n'a qu'un plan, et laisser s'accumuler des versions obligerait à en
+ * choisir une — une question de plus, sans réponse évidente.
+ *
+ * Les DIMENSIONS sont renvoyées et conservées dans le manifeste : la
+ * visionneuse positionne les pastilles en pourcentage de celles-ci, exactement
+ * comme pour un plan hérité d'un export 3DVista. Un seul format à lire.
+ *
+ * @return array{fichier:string,largeur:int,hauteur:int}
+ * @throws RuntimeException message destiné à l'utilisateur.
+ */
+function nj_visite_plan(string $slug, array $envoi): array {
+  if (($envoi['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+    throw new RuntimeException('Envoi interrompu.');
+  }
+  $tmp = $envoi['tmp_name'] ?? '';
+  if (!is_uploaded_file($tmp)) throw new RuntimeException('Fichier invalide.');
+  if (filesize($tmp) > NJ_VISITE_PLAN_MAX) {
+    throw new RuntimeException('Plan trop lourd (3 Mo au plus).');
+  }
+
+  $info = @getimagesize($tmp);
+  if (!$info) throw new RuntimeException('Ce fichier n\'est pas une image.');
+  $types = [IMAGETYPE_PNG => '.png', IMAGETYPE_JPEG => '.jpg', IMAGETYPE_WEBP => '.webp'];
+  if (!isset($types[$info[2]])) {
+    throw new RuntimeException('Plan en PNG, JPEG ou WebP.');
+  }
+
+  $dossier = nj_visite_dossier($slug) . '/plan';
+  if (!is_dir($dossier) && !mkdir($dossier, 0775, true)) {
+    throw new RuntimeException('Dossier du plan non créable.');
+  }
+
+  // Le nom porte une empreinte : un plan remplacé ne peut pas être servi
+  // depuis le cache du navigateur à la place du nouveau.
+  $nom = 'plan-' . substr(bin2hex(random_bytes(4)), 0, 6) . $types[$info[2]];
+
+  // Un seul plan : on efface les précédents avant de poser celui-ci.
+  foreach (glob($dossier . '/plan-*') ?: [] as $vieux) @unlink($vieux);
+
+  if (!move_uploaded_file($tmp, $dossier . '/' . $nom)) {
+    throw new RuntimeException('Enregistrement impossible.');
+  }
+
+  return ['fichier' => 'plan/' . $nom, 'largeur' => (int) $info[0], 'hauteur' => (int) $info[1]];
+}
