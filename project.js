@@ -2466,12 +2466,18 @@
     function showTour() {
       destroyViewer();
       if (!project.tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
-      stage.innerHTML = '<iframe class="hero-frame" src="' + versionne(project.tour_url) + '" allowfullscreen></iframe>';
+      /* Le hash de langue est indispensable : la visite est dans une iframe,
+         et elle lit SA propre adresse pour savoir en quelle langue parler.
+         Sans lui, une page en arabe affichait une visite en français — noms
+         de pièces, descriptions et bouton « Voir meublé » compris. L'iframe
+         des médias le passait déjà ; celles des visites avaient été
+         oubliées. */
+      stage.innerHTML = '<iframe class="hero-frame" src="' + versionne(project.tour_url) + '#' + lang + '" allowfullscreen></iframe>';
     }
     function showApartment() {
       destroyViewer();
       if (!project.apartment_tour_url) { stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>'; return; }
-      stage.innerHTML = '<iframe class="hero-frame" src="' + versionne(project.apartment_tour_url) + '" allowfullscreen></iframe>';
+      stage.innerHTML = '<iframe class="hero-frame" src="' + versionne(project.apartment_tour_url) + '#' + lang + '" allowfullscreen></iframe>';
     }
     /**
      * Lecture automatique. Les navigateurs refusent l'autoplay sonore tant que

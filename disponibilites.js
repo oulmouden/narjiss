@@ -992,7 +992,9 @@
          refuse de se lancer dans le cadre : une visite 3DVista est lourde, et
          un téléphone à court de mémoire la sert mieux seule. */
       corps = tour
-        ? '<iframe src="' + versionne(tour) + '" title="' + t('tour360') + '" allowfullscreen></iframe>'
+        // Même raison qu'ailleurs : la visite lit sa propre adresse pour
+        // connaître la langue du visiteur.
+        ? '<iframe src="' + versionne(tour) + '#' + langue() + '" title="' + t('tour360') + '" allowfullscreen></iframe>'
         : '<p class="nj-media-vide">' + t('sansTour') + '</p>';
       lienOnglet = tour ? versionne(tour) : '';
       if (tour && !lot.tour) note = t('mediaProjet');
