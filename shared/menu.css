@@ -904,3 +904,45 @@ html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
 }
 
 .nav-profil > .nav-details > summary { font-weight: 700; }
+
+/* ============================================================
+   BOUTON « CRÉER UN RACCOURCI » (installation PWA)
+   ------------------------------------------------------------
+   Masqué par défaut, et révélé par njMajRaccourci() uniquement
+   quand le navigateur sait faire quelque chose : Chrome/Edge et
+   Android par l'invite native, Safari iOS par l'explication du
+   geste. Ailleurs — Firefox bureau, ou site déjà installé — il
+   n'apparaît pas : un bouton sans effet vaut moins que rien.
+   ============================================================ */
+.footer-raccourci { margin-top: .9rem; }
+.footer-raccourci.hide-raccourci { display: none; }
+
+.footer-raccourci-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .55rem 1rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: .9;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.footer-raccourci-btn:hover { opacity: 1; transform: translateY(-1px); }
+.footer-raccourci-btn:active { transform: translateY(1px); }
+
+.footer-raccourci-aide {
+  margin: .5rem 0 0;
+  max-width: 34ch;
+  font-size: .82rem;
+  line-height: 1.45;
+  opacity: .82;
+}
+
+.footer-raccourci-aide[hidden] { display: none; }

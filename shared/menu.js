@@ -25,7 +25,10 @@ var MENU_UI = {
     footer_copyright: "Tous droits réservés",
     footer_pro: "Espace professionnel",
     footer_qr: "Affichettes QR",
-    footer_agent: "Espace commercial"
+    footer_agent: "Espace commercial",
+    footer_raccourci: "📲 Créer un raccourci",
+    footer_raccourci_aide: "Sur iPhone et iPad : touchez « Partager » en bas de Safari, puis « Sur l'écran d'accueil ».",
+    footer_raccourci_ok: "✓ Raccourci créé"
   },
   en: {
     home: "Home",
@@ -48,7 +51,10 @@ var MENU_UI = {
     footer_copyright: "All rights reserved",
     footer_pro: "Professional area",
     footer_qr: "QR posters",
-    footer_agent: "Sales area"
+    footer_agent: "Sales area",
+    footer_raccourci: "📲 Add a shortcut",
+    footer_raccourci_aide: "On iPhone and iPad: tap “Share” at the bottom of Safari, then “Add to Home Screen”.",
+    footer_raccourci_ok: "✓ Shortcut added"
   },
   ar: {
     home: "الرئيسية",
@@ -71,7 +77,10 @@ var MENU_UI = {
     footer_copyright: "جميع الحقوق محفوظة",
     footer_pro: "فضاء المهنيين",
     footer_qr: "ملصقات QR",
-    footer_agent: "فضاء المستشارين"
+    footer_agent: "فضاء المستشارين",
+    footer_raccourci: "📲 إضافة اختصار",
+    footer_raccourci_aide: "على iPhone وiPad: اضغط «مشاركة» أسفل Safari، ثم «إضافة إلى الشاشة الرئيسية».",
+    footer_raccourci_ok: "✓ تمت إضافة الاختصار"
   },
   es: {
     home: "Inicio",
@@ -94,9 +103,96 @@ var MENU_UI = {
     footer_copyright: "Todos los derechos reservados",
     footer_pro: "Espacio profesional",
     footer_qr: "Carteles QR",
-    footer_agent: "Espacio comercial"
+    footer_agent: "Espacio comercial",
+    footer_raccourci: "📲 Crear un acceso directo",
+    footer_raccourci_aide: "En iPhone y iPad: toca «Compartir» abajo en Safari, y luego «Añadir a pantalla de inicio».",
+    footer_raccourci_ok: "✓ Acceso directo creado"
   }
 };
+
+/* ============================================================================
+   RACCOURCI VERS LE SITE (installation PWA)
+   ----------------------------------------------------------------------------
+   Le site a déjà tout ce qu'il faut — manifest.json complet, icônes 192 et 512,
+   HTTPS — mais rien ne le PROPOSAIT. L'installation restait cachée derrière un
+   menu du navigateur que personne n'ouvre.
+
+   L'écoute est posée ICI, au chargement du script, et non dans la construction
+   du pied de page : Chrome émet `beforeinstallprompt` très tôt, une seule fois.
+   Un écouteur installé après coup ne verrait jamais rien passer, et le bouton
+   resterait muet sans qu'on comprenne pourquoi.
+
+   `preventDefault()` empêche l'infobar maison de Chrome : on garde la main pour
+   déclencher l'invite au clic sur NOTRE bouton, au moment choisi par l'usager.
+   ========================================================================== */
+
+var njInstallEvent = null;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    njInstallEvent = e;
+    njMajRaccourci();
+  });
+  // Installé depuis notre bouton OU depuis le menu du navigateur : dans les
+  // deux cas le bouton n'a plus lieu d'être.
+  window.addEventListener('appinstalled', function () {
+    njInstallEvent = null;
+    njMajRaccourci();
+  });
+}
+
+/** iOS ne propose aucune API d'installation : on l'explique au lieu de l'offrir. */
+function njEstIOS() {
+  var ua = navigator.userAgent || '';
+  // iPadOS 13+ se présente comme un Mac : le tactile le trahit.
+  return /iPad|iPhone|iPod/.test(ua) ||
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+/** Déjà lancé depuis le raccourci : plus rien à installer. */
+function njDejaInstalle() {
+  try {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true; // Safari iOS
+  } catch (e) { return false; }
+}
+
+/**
+ * Montre ou cache le bouton, selon ce que le navigateur sait faire.
+ *
+ * Trois cas seulement :
+ *   - Chrome / Edge / Android ont donné l'événement → bouton qui installe ;
+ *   - Safari iOS n'a pas d'API → bouton qui explique le geste ;
+ *   - le reste (Firefox bureau, déjà installé) → pas de bouton du tout.
+ * Mieux vaut aucun bouton qu'un bouton qui ne ferait rien.
+ */
+function njMajRaccourci() {
+  var zone = document.getElementById('footerRaccourci');
+  if (!zone) return;
+  var utile = !njDejaInstalle() && (njInstallEvent || njEstIOS());
+  zone.classList.toggle('hide-raccourci', !utile);
+}
+
+function njInstallerRaccourci(bouton, aide) {
+  var t = MENU_UI[currentLang] || MENU_UI.fr;
+
+  if (njInstallEvent) {
+    njInstallEvent.prompt();
+    njInstallEvent.userChoice.then(function (choix) {
+      // Refus : l'événement est consommé, Chrome n'en redonnera pas avant un
+      // moment. On retire le bouton plutôt que d'en laisser un sans effet.
+      njInstallEvent = null;
+      if (choix && choix.outcome === 'accepted') bouton.textContent = t.footer_raccourci_ok;
+      njMajRaccourci();
+    }, function () { njInstallEvent = null; njMajRaccourci(); });
+    return;
+  }
+
+  // iOS : le geste appartient au navigateur, on ne peut que le décrire.
+  aide.hidden = !aide.hidden;
+  bouton.setAttribute('aria-expanded', aide.hidden ? 'false' : 'true');
+}
 
 // ===== TYPES DE BIENS (centralisés) =====
 var PROJECT_TYPE_LABELS = {
@@ -793,6 +889,14 @@ function buildFooterHTML(basePath) {
           '<div class="footer-brand">NARJISS</div>' +
           '<p>' + t.footer_brand_text + '</p>' +
           '<div class="footer-contact-links" id="footerContactLinks"></div>' +
+          /* Raccourci vers le site. Masqué par défaut : njMajRaccourci() ne le
+             révèle que si le navigateur sait vraiment faire quelque chose. */
+          '<div class="footer-raccourci hide-raccourci" id="footerRaccourci">' +
+            '<button type="button" class="footer-raccourci-btn" id="footerRaccourciBtn" ' +
+              'aria-expanded="false">' + t.footer_raccourci + '</button>' +
+            '<p class="footer-raccourci-aide" id="footerRaccourciAide" hidden>' +
+              t.footer_raccourci_aide + '</p>' +
+          '</div>' +
           '</div>' +
           '<div class="footer-col">' +
           '<h4>' + t.footer_navigation + '</h4>' +
@@ -849,6 +953,14 @@ function installMenuAndFooter(activePage, basePath) {
   if (footerContainer) {
     footerContainer.innerHTML = buildFooterHTML(basePath);
     updateFooterContacts(siteContacts, currentLang);
+    // Le pied de page vient d'être réécrit : le bouton est neuf, il faut le
+    // rebrancher. switchLang() repasse par ici, d'où le recâblage à chaque fois.
+    var rBtn = document.getElementById('footerRaccourciBtn');
+    var rAide = document.getElementById('footerRaccourciAide');
+    if (rBtn && rAide) {
+      rBtn.addEventListener('click', function () { njInstallerRaccourci(rBtn, rAide); });
+    }
+    njMajRaccourci();
   }
 
   // Hook language buttons
