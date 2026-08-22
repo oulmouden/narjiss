@@ -19,6 +19,10 @@
 require __DIR__ . '/agents-lib.php';
 require_once __DIR__ . '/data.php';
 
+/* Nom de session par défaut (celui de l'admin), relevé AVANT que la session
+   agent — qui s'appelle NJAGENT — ne prenne la main. Voir nj_admin_connecte(). */
+$njSessionDefaut = session_name();
+
 nj_agent_session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -35,9 +39,18 @@ $post   = $_SERVER['REQUEST_METHOD'] === 'POST';
 try {
   switch ($action) {
 
+    /* « Qui suis-je ? » — l'entrée profil du menu principal s'appuie dessus, sur
+       toutes les pages du site. D'où la branche admin : sans elle, l'admin du
+       back-office recevait `agent: null` et le site le traitait en anonyme,
+       alors qu'il est bel et bien connecté. Deux espaces, deux sessions, mais
+       une seule question posée par le menu. */
     case 'me':
       $a = nj_agent_current();
-      nj_json(['ok' => true, 'agent' => $a ? nj_agent_public($a) : null]);
+      if ($a) nj_json(['ok' => true, 'agent' => nj_agent_public($a), 'admin' => false]);
+      if (nj_admin_connecte($njSessionDefaut)) {
+        nj_json(['ok' => true, 'admin' => true, 'agent' => null, 'name' => 'admin']);
+      }
+      nj_json(['ok' => true, 'agent' => null, 'admin' => false]);
 
     case 'register':
       if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.'], 405);

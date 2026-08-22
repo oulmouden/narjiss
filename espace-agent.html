@@ -14,7 +14,7 @@
 <title>Espace agent — Narjiss Immobilière</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=22">
+<link rel="stylesheet" href="shared/menu.css?v=8baeb8bf">
 <style>
   :root { --ok: oklch(58% 0.15 152); --warn: oklch(72% 0.16 75); --busy: oklch(62% 0.2 25); --off: #9aa4ad; }
   * { box-sizing: border-box; }
@@ -176,6 +176,10 @@
     <small id="whoMeta"></small>
   </div>
   <button class="btn ghost sm" id="themeBtn" type="button" aria-label="Thème clair / nocturne" title="Thème clair / nocturne" style="border-color:rgba(255,255,255,.5);color:#fff;width:42px;padding:0;font-size:1.05rem">🌙</button>
+  <!-- Un <a> et non un <button> : c'est une navigation. Le clic milieu et
+       « ouvrir dans un nouvel onglet » fonctionnent, et aucun JS n'est requis
+       pour l'activer. La session suit par le cookie. -->
+  <a class="btn ghost sm hide" id="gotoSiteBtn" href="index.html" style="border-color:rgba(255,255,255,.5);color:#fff" title="Revenir au site public — le bouton « Faire visiter » y sera disponible">Aller au site</a>
   <button class="btn ghost sm hide" id="logoutBtn" style="border-color:rgba(255,255,255,.5);color:#fff">Déconnexion</button>
 </header>
 
@@ -322,7 +326,7 @@
   </section>
 </main>
 
-<script src="assets/vendor/livekit/livekit-client.umd.js"></script>
-<script src="espace-agent.js"></script>
+<script src="assets/vendor/livekit/livekit-client.umd.js?v=83b83f21"></script>
+<script src="espace-agent.js?v=e86106fa"></script>
 </body>
 </html>

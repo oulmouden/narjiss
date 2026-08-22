@@ -16,13 +16,34 @@ declare(strict_types=1);
  *                         donc aucune porte.
  *   end    [conseiller] : ferme la session. Les visiteurs ne peuvent plus se
  *                         reconnecter, même avec le lien ET le code.
+ *   whoami [conseiller] : « ai-je le droit d'animer ? ». Sert au bouton
+ *                         « Faire visiter », qui ne doit apparaître que pour
+ *                         qui peut s'en servir. N'ouvre aucune session.
  *
- * « start » est volontairement ouvert, comme l'était le ?lghost=1 d'origine :
- * ouvrir une session à soi ne donne accès à rien : elle est vide tant que le
- * conseiller n'a pas transmis lui-même le lien et le code.
+ * POURQUOI « start » N'EST PLUS OUVERT
+ * Il l'a longtemps été, avec ce raisonnement : ouvrir une session à soi ne
+ * donne accès à rien, elle reste vide tant que le conseiller n'a pas transmis
+ * lui-même le lien et le code. C'est exact pour la confidentialité — et
+ * insuffisant pour deux raisons qui ne relèvent pas du secret :
+ *
+ *   - le quota Pusher. Rien ne limitait le nombre de sessions créées ; un
+ *     script en ouvre des milliers et épuise le forfait pour tout le monde.
+ *   - l'usurpation. N'importe qui pouvait se présenter en « conseiller
+ *     Narjiss » auprès de visiteurs qu'il recrutait lui-même, promener leur
+ *     navigateur sur le vrai site et leur parler par-dessus. Aucune donnée
+ *     dérobée, mais la voix de la marque prêtée à un inconnu.
+ *
+ * Animer exige donc maintenant une session : agent actif OU admin connecté.
+ * Rejoindre une visite, en revanche, n'a pas changé — le visiteur n'a toujours
+ * besoin que du lien et du code.
  */
 
 require __DIR__ . '/liveguide-lib.php';
+require_once __DIR__ . '/agents-lib.php';
+
+/* Nom de session par défaut (celui de l'admin), relevé AVANT que la session
+   agent — qui s'appelle NJAGENT — ne prenne la main. Voir nj_admin_connecte(). */
+$njSessionDefaut = session_name();
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -41,7 +62,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 try {
   switch ($action) {
 
+    /* Le bouton « Faire visiter » ne doit pas s'afficher pour un visiteur
+       ordinaire. Cette action ne dit QUE oui ou non : ni identité, ni rôle,
+       rien qu'un client anonyme puisse exploiter. */
+    case 'whoami': {
+      $qui = nj_agent_ou_admin($njSessionDefaut);
+      nj_lg_json(['ok' => true, 'peut_animer' => $qui !== null]);
+    }
+
     case 'start': {
+      $qui = nj_agent_ou_admin($njSessionDefaut);
+      if ($qui === null) {
+        nj_lg_json([
+          'ok'    => false,
+          'error' => 'Connexion requise pour animer une visite.',
+          'need'  => 'login',
+        ], 401);
+      }
       nj_lg_json(['ok' => true] + nj_lg_create());
     }
 

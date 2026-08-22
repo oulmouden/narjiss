@@ -838,6 +838,10 @@ function installMenuAndFooter(activePage, basePath) {
   var menuContainer = document.getElementById('mainMenu');
   if (menuContainer) {
     menuContainer.innerHTML = buildMenuHTML(activePage, basePath);
+    // Le menu vient d'être écrasé : l'entrée profil doit être reposée. Appelé
+    // ici plutôt que dans initPage() parce que switchLang() repasse par cette
+    // fonction — sinon le profil disparaîtrait au premier clic sur « EN ».
+    installProfilMenu(basePath);
   }
 
   // Inject footer
@@ -909,7 +913,7 @@ function switchLang(lang, activePage, basePath) {
 // bumper LIVEGUIDE_VERSION ICI **et** le "?v=" de <script src="shared/menu.js?v=...">
 // dans TOUTES les pages HTML — sinon les navigateurs gardent l'ancien menu.js
 // indéfiniment et ne rechargeront jamais le nouveau code (même après F5/Ctrl+F5).
-var LIVEGUIDE_VERSION = '28'; // bump à chaque modif de liveguide.* pour casser le cache
+var LIVEGUIDE_VERSION = 'ac60fe92'; // bump à chaque modif de liveguide.* pour casser le cache
 
 // ----- Capture des cartes Leaflet pour la visite guidée ----------------------
 // Ce bloc s'exécute AU CHARGEMENT de menu.js, et non depuis installLiveGuide()
@@ -1013,4 +1017,159 @@ function initPage(activePage, basePath) {
       }
     });
   });
+}
+
+/* ============================================================================
+   ENTRÉE PROFIL DU MENU PRINCIPAL
+   ----------------------------------------------------------------------------
+   Convention des sites à connexion : l'état « je suis connecté » se lit dans le
+   menu, pas dans une page qu'il faut déjà avoir ouverte. Jusqu'ici le site était
+   rigoureusement identique pour un visiteur anonyme et pour un commercial
+   connecté — seul un bouton flottant trahissait la session.
+
+   L'entrée n'apparaît QUE connecté. Pas de « Se connecter » pour le public :
+   ça n'intéresse aucun client, et le lien existe déjà en pied de page.
+
+   Deux précautions héritées du bouton « Faire visiter » :
+     - aucun cookie → on ne demande rien au serveur. Le site n'en pose aucun
+       aux visiteurs, donc l'écrasante majorité des pages ne coûte RIEN ;
+     - la réponse est mémorisée : switchLang() reconstruit tout le menu à chaque
+       changement de langue, et il serait absurde de redemander qui nous sommes
+       à chaque clic sur « EN ».
+   ========================================================================== */
+
+var PROFIL_UI = {
+  fr: { espace: 'Espace agent', visite: '🎥 Faire visiter', sortir: 'Déconnexion',
+        connecte: 'Connecté', seul: 'Seul en ligne', collegues: 'en ligne' },
+  en: { espace: 'Agent area', visite: '🎥 Start a tour', sortir: 'Sign out',
+        connecte: 'Signed in', seul: 'Only you online', collegues: 'online' },
+  es: { espace: 'Espacio agente', visite: '🎥 Iniciar visita', sortir: 'Cerrar sesión',
+        connecte: 'Conectado', seul: 'Solo tú en línea', collegues: 'en línea' },
+  ar: { espace: 'مساحة الوكيل', visite: '🎥 بدء الجولة', sortir: 'تسجيل الخروج',
+        connecte: 'متصل', seul: 'أنت وحدك متصل', collegues: 'متصل' }
+};
+
+var njProfil = null;      // réponse de ?action=me, mémorisée
+var njProfilDemande = false;
+
+function njRoleLabel(role) {
+  return role === 'superviseur' ? 'Superviseur'
+       : role === 'gestionnaire' ? 'Gestionnaire'
+       : role === 'commercial' ? 'Commercial' : '';
+}
+
+function installProfilMenu(basePath) {
+  basePath = basePath || '';
+  if (!document.getElementById('navLinks')) return;   // page sans menu
+  if (njProfil) { njRendreProfil(basePath); return; } // déjà connu : on redessine
+  if (njProfilDemande) return;                        // requête en vol
+  if (!document.cookie) return;                       // visiteur ordinaire
+
+  njProfilDemande = true;
+  fetch(basePath + 'api/agent-auth.php?action=me', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      njProfilDemande = false;
+      if (!j || !j.ok || (!j.agent && !j.admin)) return;
+      njProfil = j;
+      njRendreProfil(basePath);
+    })
+    .catch(function () { njProfilDemande = false; });
+}
+
+function njRendreProfil(basePath) {
+  var links = document.getElementById('navLinks');
+  if (!links || links.querySelector('.nav-profil')) return;
+
+  var t = PROFIL_UI[currentLang] || PROFIL_UI.fr;
+  var nom = njProfil.agent ? njProfil.agent.name : (njProfil.name || 'admin');
+  var role = njProfil.agent ? njRoleLabel(njProfil.agent.role) : 'Admin';
+
+  var li = document.createElement('li');
+  li.className = 'nav-groupe nav-profil';
+
+  var det = document.createElement('details');
+  det.className = 'nav-details';
+
+  var sum = document.createElement('summary');
+  sum.textContent = '👤 ' + nom;
+
+  var ul = document.createElement('ul');
+  ul.className = 'nav-sous-menu';
+
+  // Ligne d'état : le point vert est la réponse à « suis-je connecté ? ».
+  var etat = document.createElement('li');
+  etat.className = 'nav-profil-etat';
+  etat.textContent = '🟢 ' + t.connecte + (role ? ' · ' + role : '');
+  ul.appendChild(etat);
+
+  // Combien de collègues sont en ligne, en clair et sans ouvrir l'espace agent.
+  var collegues = document.createElement('li');
+  collegues.className = 'nav-profil-etat';
+  collegues.textContent = '·  ·  ·';
+  ul.appendChild(collegues);
+  njCompterCollegues(basePath, collegues, t);
+
+  ul.appendChild(njProfilLien(basePath + 'espace-agent.html', t.espace));
+
+  // « Faire visiter » : même geste que le bouton flottant. On inscrit le rôle
+  // puis on recharge, parce que la capture des cartes Leaflet (plus haut dans
+  // CE fichier) ne se joue qu'au chargement de la page et seulement si un rôle
+  // est déjà présent. Démarrer à chaud donnerait une visite où la carte ne
+  // suivrait pas le conseiller, sans aucune erreur pour le signaler.
+  var visite = njProfilLien('#', t.visite);
+  visite.firstChild.addEventListener('click', function (ev) {
+    ev.preventDefault();
+    try { window.sessionStorage.setItem('lg_role', 'host'); } catch (e) {}
+    window.location.reload();
+  });
+  ul.appendChild(visite);
+
+  var sortir = njProfilLien('#', t.sortir);
+  sortir.firstChild.addEventListener('click', function (ev) {
+    ev.preventDefault();
+    // L'admin du back-office a sa propre session et sa propre sortie.
+    if (njProfil.admin) { window.location.href = basePath + 'admin/logout.php'; return; }
+    fetch(basePath + 'api/agent-auth.php', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'action=logout'
+    }).then(function () {
+      njProfil = null;
+      try { window.sessionStorage.removeItem('lg_role'); } catch (e) {}
+      window.location.reload();
+    });
+  });
+  ul.appendChild(sortir);
+
+  det.appendChild(sum);
+  det.appendChild(ul);
+  li.appendChild(det);
+
+  // Avant le bloc de langues, qui n'est pas un <li> mais ferme la barre.
+  var langs = links.querySelector('.nav-langs');
+  if (langs) links.insertBefore(li, langs); else links.appendChild(li);
+}
+
+function njProfilLien(href, texte) {
+  var li = document.createElement('li');
+  var a = document.createElement('a');
+  a.href = href;
+  a.textContent = texte;
+  a.rel = 'nofollow noopener';
+  li.appendChild(a);
+  return li;
+}
+
+/** Nombre de collègues en ligne, hors soi-même. */
+function njCompterCollegues(basePath, cible, t) {
+  fetch(basePath + 'api/agent-presence.php?equipe=1', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (!j || !j.ok) { cible.remove(); return; }
+      var moi = njProfil.agent ? njProfil.agent.id : 0;
+      var n = (j.agents || []).filter(function (a) { return a.online && a.id !== moi; }).length;
+      cible.textContent = n ? '🟢 ' + n + ' ' + t.collegues : '⚪ ' + t.seul;
+    })
+    .catch(function () { cible.remove(); });
 }

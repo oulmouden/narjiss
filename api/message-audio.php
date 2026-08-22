@@ -38,16 +38,16 @@ if (!$row || $row['fichier'] === '') { http_response_code(404); exit('Introuvabl
 // Session commercial, sinon session admin. Les deux espaces utilisent des noms
 // de session différents (NJAGENT / PHPSESSID) et PHP n'en ouvre qu'une à la
 // fois : il faut refermer la première pour interroger la seconde.
+//
+// Le détour par nj_admin_connecte() n'est pas cosmétique. La séquence écrite
+// ici à la main oubliait de repositionner l'identifiant de session : PHP
+// rouvrait la session agent qu'on venait de fermer, l'admin passait pour
+// absent, et l'écoute d'un message vocal lui répondait « Accès refusé ».
 $autorise = false;
 $agent = nj_agent_current();
 if ($agent && nj_msg_agent_peut($agent, ['projet' => $row['projet']])) $autorise = true;
 
-if (!$autorise) {
-  if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
-  session_name($njSessionAdmin);
-  session_start();
-  $autorise = ($_SESSION['narjiss_admin'] ?? false) === true;
-}
+if (!$autorise) $autorise = nj_admin_connecte($njSessionAdmin);
 if (!$autorise) { http_response_code(403); exit('Accès refusé'); }
 
 $path = nj_msg_audio_path($row['fichier']);

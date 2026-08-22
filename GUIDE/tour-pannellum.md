@@ -370,9 +370,56 @@ Les pièces à 512 px paraîtront floues en plein écran, y compris dans 3DVista
 c'est la source qui est limitée, pas la visionneuse. À corriger au ré-export si
 le rendu ne convient pas — le Salon étant une pièce clé, ça vaut le coup.
 
-## 8. Fichiers
+## 8. Rapatrier une visite du VPS
+
+Une visite montée dans le back-office ne circule **dans aucun sens** toute
+seule : `visites/` est dans `.gitignore` (photos et fichier publié), et
+n'appartient à aucun bucket de `deploy.sh` — ni `code`, ni `images`, ni
+`videos`, ni `tours`. Publiée en ligne, elle n'existe donc que sur le VPS.
+
+C'est ainsi que la visite d'appartement de Jawhara, montée et publiée le
+18/08/2026, est restée introuvable en local : `data/projects.json` y pointait
+encore vers l'ancienne visite 3DVista, et le poste n'avait aucune copie.
+
+```bash
+C:/xampp/php/php.exe tools/rapatrier-visite.php jawhara-pannellum --projet jawhara
+```
+
+Le chemin complet n'est pas une coquetterie : XAMPP n'ajoute pas `php` au PATH,
+et `php tools/…` répond `command not found` dans Git Bash. Pour s'épargner le
+chemin, ajouter une bonne fois dans `~/.bashrc` :
+
+```bash
+alias php='C:/xampp/php/php.exe'
+```
+
+L'outil télécharge le descripteur et toutes les images qu'il référence, puis
+recopie le descripteur dans la colonne `brouillon`. La visite redevient
+**éditable**, pas seulement visible.
+
+**Pourquoi cette recopie suffit** : `nj_visite_publier()` écrit le brouillon
+verbatim dans `tour-pannellum.json` (un `json_encode`, rien d'autre). Le fichier
+publié *est* le brouillon — titres, paires vide/meublé, ordre des pièces et
+`yaw`/`pitch` de chaque passage compris. Remonter les photos une à une dans
+l'éditeur reviendrait à reconstruire à la main un fichier qu'on possède déjà.
+
+Options utiles : `--force` remplace le brouillon d'une visite déjà en base,
+`--local` réimporte des fichiers déjà présents sans toucher au réseau,
+`--dry-run` annonce ce qui serait fait. La date de publication est prise sur le
+`Last-Modified` du serveur, pas sur celle du téléchargement.
+
+Deux garde-fous : rien n'est écrit en base tant que toutes les images ne sont
+pas sur le disque — une visite importée sans ses panoramas s'ouvre sur un écran
+noir *sans le moindre message* — et chaque fichier passe par un `.part`, pour
+qu'une coupure ne laisse pas un panorama tronqué.
+
+L'outil ne renvoie jamais rien vers le VPS. Dans l'autre sens, il faut copier
+`visites/<slug>/` à la main et republier depuis le back-office en ligne.
+
+## 9. Fichiers
 
 - `tools/extract_3dvista_tour.js` — l'extracteur (Node, sans dépendance).
+- `tools/rapatrier-visite.php` — redescend une visite du VPS (voir § 8).
 - `tour-360.html` — la visionneuse. **À la racine du site** : `deploy.sh`
   n'envoie que les `.html` de la racine (bucket « code ») ; une page rangée dans
   `jawhara/` ne partirait jamais.

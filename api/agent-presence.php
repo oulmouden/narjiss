@@ -13,6 +13,9 @@
 require __DIR__ . '/agents-lib.php';
 header('Content-Type: application/json; charset=utf-8');
 
+/* Relevé avant tout appel touchant à la session agent. Voir nj_admin_connecte(). */
+$njSessionDefaut = session_name();
+
 function nj_p_json($data, int $code = 200): void {
   http_response_code($code);
   echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -35,6 +38,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $agentId = isset($_GET['agent_id']) ? (int)$_GET['agent_id'] : 0;
 if ($agentId > 0) {
   nj_p_json(['ok' => true, 'agent_id' => $agentId, 'online' => nj_agent_is_online($agentId)]);
+}
+
+/* Vue interne « qui est connecté » : toute l'équipe, gestionnaires compris.
+   Distincte du roster ?projet= juste en dessous, qui est ouvert et destiné aux
+   VISITEURS. La présence nominative de l'équipe entière n'a rien à faire sur un
+   endpoint sans session : elle dirait à n'importe qui combien de personnes
+   travaillent là et à quelle heure elles décrochent. */
+if (isset($_GET['equipe'])) {
+  // Agent OU admin : l'admin du back-office consulte la même vue, et
+  // nj_agent_require_json() l'aurait refusé — il n'a pas de session agent.
+  if (nj_agent_ou_admin($njSessionDefaut) === null) {
+    nj_p_json(['ok' => false, 'error' => 'Non connecté.'], 401);
+  }
+  nj_p_json(['ok' => true, 'agents' => nj_presence_equipe()]);
 }
 
 $projet = preg_replace('/[^a-z0-9_]/', '', strtolower($_GET['projet'] ?? ''));

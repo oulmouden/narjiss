@@ -137,8 +137,9 @@
     return false; // cadre disparu (étape changée) : le message est perdu, sans conséquence
   }
 
-  // Ni hôte ni visiteur → visiteur normal : on ne charge rien.
-  if (role !== 'host' && role !== 'viewer') return;
+  // Ni hôte ni visiteur → visiteur normal : on ne charge rien. Une seule chose
+  // reste possible ici : proposer à un conseiller connecté d'ouvrir une visite.
+  if (role !== 'host' && role !== 'viewer') { proposerAnimation(); return; }
 
   if (!CFG.enabled) {
     if (role === 'host') {
@@ -170,6 +171,157 @@
       start();
     });
   });
+  }
+
+  /* ======================================================================
+     OUVRIR UNE VISITE DEPUIS LE SITE — bouton « Faire visiter »
+     ======================================================================
+     Le `?lghost=1` d'origine suppose qu'on tape une URL à la main. Praticable
+     pour qui a écrit le code, beaucoup moins pour un commercial déjà au
+     téléphone avec son client. Le bouton fait la même chose, sans URL.
+
+     Il n'apparaît QUE pour qui peut s'en servir, et le test se fait en deux
+     temps pour ne rien coûter au public :
+
+       1. aucun cookie → visiteur ordinaire, on s'arrête là. Le site n'en pose
+          aucun (aucun `document.cookie` dans les pages, et aucune page
+          publique n'ouvre de session PHP), donc l'écrasante majorité des
+          visites ne déclenche AUCUNE requête ;
+
+       2. un cookie existe → on demande au serveur « puis-je animer ? ». Lui
+          seul peut répondre : la session commerciale s'appelle `NJAGENT`,
+          celle de l'admin porte le nom de php.ini, et rien côté navigateur ne
+          distingue une session admin d'une session PHP quelconque.
+     ====================================================================== */
+
+  function proposerAnimation() {
+    if (!CFG.enabled) return;
+    if (!document.cookie) return; // visiteur ordinaire : rien à demander
+
+    // Là où il y a un menu, « Faire visiter » est une ligne de l'entrée profil
+    // (voir menu.js) : le bouton flottant ferait doublon. Il ne subsiste que
+    // sur les pages autonomes — tour-360.html n'appelle jamais initPage() et
+    // n'a donc aucun menu où loger l'entrée.
+    if (document.getElementById('navLinks') || document.getElementById('mainMenu')) return;
+
+    postForm('api/liveguide-session.php?action=whoami', {}, function (res) {
+      if (res && res.ok && res.peut_animer) boutonAnimer();
+    });
+  }
+
+  /** Le bouton lui-même : discret, en bas, hors du chemin du contenu. */
+  function boutonAnimer() {
+    if (document.querySelector('.lg-lancer')) return;
+    var b = el('button', 'lg-lancer');
+    b.type = 'button';
+    b.textContent = '🎥 Faire visiter';
+    b.title = 'Ouvrir une visite guidée en direct depuis cette page';
+    b.addEventListener('click', function () {
+      b.disabled = true;
+      b.textContent = 'Ouverture…';
+
+      // POURQUOI UN RECHARGEMENT PLUTÔT QU'UN DÉMARRAGE À CHAUD
+      // Une partie de l'amorçage a déjà eu lieu, et ne se rejoue pas : menu.js
+      // enveloppe le constructeur de Leaflet AU CHARGEMENT de la page, parce
+      // que Leaflet n'offre aucun moyen de retrouver une carte déjà construite
+      // — rater son constructeur la met définitivement hors de portée. Et ce
+      // bloc ne s'exécute que si un rôle est déjà inscrit en sessionStorage.
+      // Démarrer à chaud donnerait donc une visite où la carte ne suivrait
+      // pas, sans la moindre erreur pour le signaler.
+      //
+      // On inscrit le rôle, on recharge, et tout l'amorçage normal se déroule
+      // — le même chemin, éprouvé, que celui du `?lghost=1`.
+      SS.setItem('lg_role', 'host');
+      window.location.reload();
+    });
+    document.body.appendChild(b);
+  }
+
+  /**
+   * Panneau de connexion — session expirée, ou arrivée par `?lghost=1` sans
+   * être connecté.
+   *
+   * Il ne connecte que les comptes COMMERCIAUX. L'admin a son propre espace,
+   * sa propre session et son propre formulaire : refaire ici une seconde porte
+   * où saisir le mot de passe de l'admin serait un endroit de plus à protéger,
+   * pour rien. Un lien l'y renvoie.
+   *
+   * @param {function(boolean)} done rappelé avec true si la connexion a réussi.
+   */
+  function demanderConnexion(done) {
+    var ov = el('div', 'lg-gate');
+    var box = el('form', 'lg-gate-box');
+
+    var title = el('h2', 'lg-gate-title');
+    title.textContent = 'Animer une visite';
+
+    var help = el('p', 'lg-gate-help');
+    help.textContent = 'Connectez-vous avec votre compte commercial pour ouvrir une visite guidée.';
+
+    var email = el('input', 'lg-gate-nom');
+    email.type = 'email';
+    email.autocomplete = 'username';
+    email.placeholder = 'E-mail';
+    email.setAttribute('aria-label', 'Adresse e-mail');
+
+    var pass = el('input', 'lg-gate-nom');
+    pass.type = 'password';
+    pass.autocomplete = 'current-password';
+    pass.placeholder = 'Mot de passe';
+    pass.setAttribute('aria-label', 'Mot de passe');
+
+    var err = el('p', 'lg-gate-error');
+    err.setAttribute('role', 'alert');
+
+    var submit = el('button', 'lg-btn lg-btn-primary lg-gate-submit');
+    submit.type = 'submit';
+    submit.textContent = 'Se connecter';
+
+    var cancel = el('button', 'lg-btn lg-btn-ghost');
+    cancel.type = 'button';
+    cancel.textContent = 'Annuler';
+    cancel.addEventListener('click', function () {
+      endSession();          // oublie le rôle : la page redevient normale
+      removeEl(ov);
+      done(false);
+    });
+
+    var lienAdmin = el('p', 'lg-gate-help');
+    var a = document.createElement('a');
+    a.href = absPath('admin/login.php');
+    a.textContent = 'Vous êtes administrateur ? Connectez-vous à l\'admin.';
+    a.rel = 'nofollow noopener';
+    lienAdmin.appendChild(a);
+
+    box.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var mail = (email.value || '').trim();
+      if (!mail || !pass.value) { err.textContent = 'E-mail et mot de passe requis.'; return; }
+
+      submit.disabled = true;
+      submit.textContent = 'Connexion…';
+      postForm('api/agent-auth.php', { action: 'login', email: mail, password: pass.value }, function (res) {
+        submit.disabled = false;
+        submit.textContent = 'Se connecter';
+        if (res && res.ok) { removeEl(ov); done(true); return; }
+        // Le serveur distingue « mauvais mot de passe » de « compte en attente
+        // de validation » ou « suspendu » : on montre SON message, pas le nôtre.
+        err.textContent = (res && res.error) ? res.error : 'Connexion impossible. Réessayez.';
+        pass.select();
+      });
+    });
+
+    box.appendChild(title);
+    box.appendChild(help);
+    box.appendChild(email);
+    box.appendChild(pass);
+    box.appendChild(err);
+    box.appendChild(submit);
+    box.appendChild(cancel);
+    box.appendChild(lienAdmin);
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    email.focus();
   }
 
   /**
@@ -239,6 +391,17 @@
     if (role === 'host') {
       if (session && hostToken) { done(true); return; } // reprise après un F5
       postForm('api/liveguide-session.php?action=start', {}, function (res) {
+        // Animer exige désormais une session (agent actif ou admin). Le serveur
+        // le dit explicitement plutôt que de renvoyer un échec indistinct : on
+        // ouvre le panneau de connexion, puis on retente. Sans ça, arriver par
+        // ?lghost=1 sans être connecté ne produirait qu'une ligne de console —
+        // une page qui ne fait rien, sans dire pourquoi.
+        if (res && res.need === 'login') {
+          demanderConnexion(function (ok) {
+            if (ok) ensureCredentials(done); else done(false);
+          });
+          return;
+        }
         if (!res || !res.ok || !res.session) {
           console.error('[LiveGuide] Impossible d\'ouvrir la session.');
           done(false);
@@ -388,6 +551,38 @@
       if (!sel2) return;
       var value = t.type === 'checkbox' ? t.checked : t.value;
       channel.trigger('client-action', { kind: 'value', selector: sel2, value: value });
+    }, true);
+
+    /* Curseurs — <input type="range">. Ni le clic ni le 'change' ne les
+       rendaient : le clic n'a pas de sens sur une glissière, et 'change' ne
+       part qu'au relâchement, quand il part.
+
+       Le comparateur de plans des disponibilités en est un : le conseiller fait
+       glisser le trait entre plan d'architecte et plan commercial, et rien ne
+       bougeait chez le visiteur. Le filtre de budget de la même page aussi.
+
+       On écoute donc 'input', seul événement émis PENDANT le glissement, et on
+       l'étrangle : un glissement en produit des dizaines par seconde, là où le
+       throttle garde le rythme des autres diffusions et conserve la dernière
+       valeur (bord de fuite), pour que la position finale parte toujours.
+
+       Volontairement limité aux curseurs. Diffuser la saisie de tous les champs
+       enverrait au visiteur ce que le conseiller tape — une recherche, un nom,
+       un montant — ce que personne n'a demandé en ouvrant une visite guidée. */
+    var rangeEnAttente = null;
+    var envoyerRange = throttle(function () {
+      var el = rangeEnAttente;
+      if (!el) return;
+      var sel3 = cssPath(el);
+      if (sel3) channel.trigger('client-action', { kind: 'value', selector: sel3, value: el.value });
+    }, 120);
+    document.addEventListener('input', function (ev) {
+      var t = ev.target;
+      if (!(t instanceof Element)) return;
+      if (t.tagName !== 'INPUT' || t.type !== 'range') return;
+      if (t.closest('.lg-hostbar') || t.closest('.lg-viewerbar')) return;
+      rangeEnAttente = t;
+      envoyerRange();
     }, true);
 
     // Diffusion de la vue panoramique Pannellum (angle + zoom) tant qu'un
@@ -620,6 +815,7 @@
       removeEl(ui.bar);
       document.body.classList.remove('lg-has-bar');
       document.body.classList.remove('lg-host');
+      document.body.classList.remove('lg-barre-repliee');
     });
   }
 
@@ -645,6 +841,29 @@
     var audioEl = null;
     var monMicro = null; // flux local quand le visiteur a pris la parole
     var lastScroll = null;   // dernière position reçue (voir le filtre plus bas)
+
+    /* La position reçue est une FRACTION de la hauteur de page. Or plusieurs
+       pages — disponibilités en tête — n'ont pas leur hauteur définitive au
+       moment où elles s'affichent : les lots arrivent d'une requête, et la page
+       s'allonge ensuite. Une fraction appliquée trop tôt visait donc une page
+       courte, et le visiteur restait près du haut. Rien ne venait le corriger :
+       le battement de l'hôte porte la même valeur, que le filtre juste en
+       dessous écarte comme un doublon.
+
+       C'est surtout vrai sur téléphone, où le chargement est plus lent et la
+       fenêtre d'erreur plus large. On réapplique donc la dernière position
+       connue quand la hauteur du document change vraiment. */
+    if (window.ResizeObserver) {
+      var hauteurVue = 0;
+      var ro = new ResizeObserver(throttle(function () {
+        var h = document.documentElement.scrollHeight;
+        if (h === hauteurVue) return;
+        var premier = hauteurVue === 0;
+        hauteurVue = h;
+        if (!premier && lastScroll !== null) applyScroll(lastScroll);
+      }, 200));
+      try { ro.observe(document.documentElement); } catch (e) { /* sans conséquence */ }
+    }
     var hostUid = null;      // identifiant Pusher du conseiller (voir fromHost)
     var sceneEnCours = null; // pièce en cours de chargement (verrou, voir 'pano')
 
@@ -807,6 +1026,13 @@
         if (elt2.tagName === 'INPUT' && elt2.type === 'checkbox') elt2.checked = !!msg.value;
         else if (elt2.tagName === 'INPUT' && elt2.type === 'radio') elt2.checked = true;
         else elt2.value = msg.value;
+        /* 'input' AVANT 'change', et les deux. Poser la valeur ne déclenche
+           rien de soi-même : c'est l'événement qui fait réagir la page. Or
+           celle-ci n'écoute pas toujours le même — le comparateur de plans des
+           disponibilités écoute 'input', pour suivre le glissement, et ne
+           voyait donc jamais passer un 'change' seul : la valeur changeait sans
+           que le trait bouge. Émettre les deux couvre les deux habitudes. */
+        elt2.dispatchEvent(new Event('input', { bubbles: true }));
         elt2.dispatchEvent(new Event('change', { bubbles: true }));
         return;
       }
@@ -1078,6 +1304,40 @@
     end.type = 'button';
     end.textContent = 'Terminer';
 
+    /* Repli de la barre.
+     *
+     * Sur un écran étroit, la barre hôte tient sur deux lignes et réserve
+     * 152 px de page (voir liveguide.css) : le conseiller montre un plan ou une
+     * photo et en perd un bon cinquième. Repliée, elle se réduit à une pastille
+     * dans un coin.
+     *
+     * Le compteur de spectateurs RESTE visible une fois repliée, et c'est
+     * délibéré : une barre qui disparaîtrait tout entière ferait oublier une
+     * visite ouverte — micro compris. Repliée, elle occupe peu de place mais
+     * continue de dire que quelqu'un est à l'écoute.
+     *
+     * L'état vit en sessionStorage et non dans une variable : la barre est
+     * reconstruite à CHAQUE page, et une visite guidée passe précisément de
+     * page en page. Sans mémoire, elle se redéploierait à chaque clic.
+     */
+    var replier = el('button', 'lg-btn lg-btn-ghost lg-btn-replier');
+    replier.type = 'button';
+
+    function appliquerRepli(replie) {
+      bar.classList.toggle('lg-repliee', replie);
+      document.body.classList.toggle('lg-barre-repliee', replie);
+      replier.textContent = replie ? '⌃' : '⌄';
+      var titre = replie ? 'Afficher la barre de visite guidée' : 'Réduire la barre';
+      replier.title = titre;
+      replier.setAttribute('aria-label', titre);
+      replier.setAttribute('aria-expanded', replie ? 'false' : 'true');
+      try { SS.setItem('lg_barre_repliee', replie ? '1' : ''); } catch (e) {}
+    }
+
+    replier.addEventListener('click', function () {
+      appliquerRepli(!bar.classList.contains('lg-repliee'));
+    });
+
     bar.appendChild(status);
     bar.appendChild(count);
     bar.appendChild(codeBox);
@@ -1086,12 +1346,16 @@
     bar.appendChild(chat);
     bar.appendChild(copy);
     bar.appendChild(end);
+    bar.appendChild(replier);
     // Dans un cadre, la barre est construite mais NON attachée : elle
     // ferait doublon avec celle du document du dessus. Le reste du code
     // continue de la manipuler sans le savoir, sur un élément détaché.
     if (!dansCadre) document.body.appendChild(bar);
     document.body.classList.add('lg-has-bar');
     document.body.classList.add('lg-host'); // barre plus haute : voir liveguide.css
+
+    // Rétablit le choix fait sur la page précédente.
+    appliquerRepli(SS.getItem('lg_barre_repliee') === '1');
 
     return { bar: bar, status: status, count: count, code: codeBox,
              mic: mic, point: point, chat: chat, copy: copy, end: end };
@@ -1387,6 +1651,7 @@
 
   function endSession() {
     SS.removeItem('lg_role');
+    SS.removeItem('lg_barre_repliee'); // le repli ne survit pas à la visite
     SS.removeItem('lg_session');
     SS.removeItem('lg_uid');
     SS.removeItem('lg_host_token');
@@ -1411,11 +1676,34 @@
     return u.href;
   }
 
-  // Compare deux URL en ignorant le hash de langue et les paramètres de contrôle.
+  /* Paramètres que les pages écrivent dans leur PROPRE URL pour se souvenir de
+     ce qu'on regarde, sans qu'il s'agisse d'un changement de page.
+
+     `disponibilites.html` le fait à chaque changement d'étage : un
+     history.replaceState() ajoute `imm` et `etage`, pour qu'un retour depuis le
+     bureau de vente retrouve l'immeuble quitté (voir memoriserVue() dans
+     disponibilites.js). Une commodité de navigation, invisible pour l'usager.
+
+     Mais la comparaison d'URL de la visite guidée y voyait une AUTRE page :
+     `?projet=jawhara` et `?projet=jawhara&imm=A&etage=3` ne se ressemblent pas.
+     Le visiteur partait donc en navigation complète — rechargement, position de
+     défilement perdue, et rebelote au clic d'étage suivant. Sur un téléphone,
+     lent à recharger, la page ne se stabilisait jamais : le défilement semblait
+     ne plus se synchroniser du tout, alors que c'était la page entière qui
+     repartait de zéro.
+
+     Les ignorer ici est sans perte : le clic sur l'étage est déjà répliqué chez
+     le visiteur comme n'importe quel clic (voir la diffusion des clics plus
+     haut), et c'est LUI qui doit changer l'étage — pas un rechargement. */
+  var PARAMS_VUE = ['imm', 'etage'];
+
+  // Compare deux URL en ignorant le hash de langue, les paramètres de contrôle
+  // et ceux qui ne décrivent que l'état de la vue.
   function normalize(href) {
     var u = new URL(href, window.location.href);
     u.searchParams.delete('lg');
     u.searchParams.delete('lghost');
+    PARAMS_VUE.forEach(function (p) { u.searchParams.delete(p); });
     u.hash = '';
     return u.href;
   }

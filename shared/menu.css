@@ -890,3 +890,17 @@ html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
 @media (max-width: 360px) {
   .nav-langs-mobile .lang-btn { min-width: 26px; padding: .15rem .22rem; font-size: .64rem; }
 }
+
+/* Entrée profil du menu : lignes d'état, non cliquables. Elles répondent à
+   « suis-je connecté, et qui d'autre l'est ? » — ce ne sont pas des liens, et
+   elles ne doivent donc ni réagir au survol ni prendre le curseur main. */
+.nav-profil-etat {
+  padding: .5rem .9rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--muted, #54627a);
+  cursor: default;
+  white-space: nowrap;
+}
+
+.nav-profil > .nav-details > summary { font-weight: 700; }

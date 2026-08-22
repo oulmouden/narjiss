@@ -490,3 +490,96 @@ function nj_agent_require_json(): array {
   }
   return $a;
 }
+
+/* ── Autorisation « agent OU admin » ─────────────────────────────────────── */
+
+/**
+ * L'espace commercial et le back-office admin ont chacun LEUR session, sous des
+ * noms différents — `NJAGENT` d'un côté, celui de php.ini de l'autre — et PHP
+ * n'en ouvre qu'UNE par requête : lire la seconde impose de refermer la
+ * première.
+ *
+ * D'où le paramètre, qui surprend au premier regard. Le nom de session par
+ * défaut doit être relevé AVANT que `nj_agent_current()` n'ouvre `NJAGENT` :
+ * après, `session_name()` ne renvoie plus que « NJAGENT » et l'on rouvrirait la
+ * mauvaise session — silencieusement, en concluant que l'admin n'est pas
+ * connecté. Les appelants le capturent donc en tête de fichier, avant tout
+ * appel touchant à la session agent.
+ *
+ * Attention : au retour, la session agent est REFERMÉE et celle de l'admin est
+ * ouverte. À n'appeler qu'après en avoir fini avec l'agent.
+ *
+ * Ce chemin était écrit à la main dans api/message-audio.php ; il est ici pour
+ * ne pas exister en trois exemplaires qui finiraient par diverger.
+ */
+function nj_admin_connecte(string $nomSessionDefaut): bool {
+  // Pas de cookie admin : inutile d'ouvrir quoi que ce soit, et surtout ne pas
+  // fermer la session agent pour rien.
+  $sid = (string) ($_COOKIE[$nomSessionDefaut] ?? '');
+  if ($sid === '') return false;
+
+  if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
+  session_name($nomSessionDefaut);
+
+  // LA LIGNE QUI FAIT TOUT LE TRAVAIL. `session_write_close()` referme la
+  // session agent mais PHP en GARDE l'identifiant : le `session_start()` qui
+  // suit rouvrirait celle-là, pas celle de l'admin. On lirait alors un tableau
+  // vide et l'on conclurait que l'admin n'est pas connecté — sans erreur,
+  // sans trace, avec un simple « accès refusé » incompréhensible côté écran.
+  session_id($sid);
+
+  session_start();
+  return ($_SESSION['narjiss_admin'] ?? false) === true;
+}
+
+/**
+ * Qui pilote cette requête : un agent actif, l'admin, ou personne.
+ *
+ * @param string $nomSessionDefaut relevé en tête de requête (voir nj_admin_connecte).
+ * @return array{type:string,nom:string,agent:?array}|null null si personne.
+ */
+function nj_agent_ou_admin(string $nomSessionDefaut): ?array {
+  $a = nj_agent_current();
+  if ($a) return ['type' => 'agent', 'nom' => (string) ($a['name'] ?? ''), 'agent' => $a];
+  if (nj_admin_connecte($nomSessionDefaut)) return ['type' => 'admin', 'nom' => 'admin', 'agent' => null];
+  return null;
+}
+
+/**
+ * Présence de TOUTE l'équipe — vue interne de l'espace agent.
+ *
+ * Volontairement distincte de nj_presence_roster(), et il faut qu'elle le
+ * reste : cette dernière alimente la page PUBLIQUE du bureau de vente
+ * (bureaudevente.js), où un visiteur voit qui peut lui répondre. Y ajouter les
+ * gestionnaires ferait apparaître au public des gens dont ce n'est pas le
+ * rôle, et les superviseurs de tous les bureaux avec eux. Deux besoins
+ * différents, deux requêtes différentes.
+ *
+ * Ici, au contraire : tous les comptes actifs, quel que soit le rôle ou le
+ * bureau, avec leur identifiant — pour que l'appariement côté client se fasse
+ * sur l'id et non sur le nom affiché, que deux homonymes suffiraient à
+ * confondre.
+ */
+function nj_presence_equipe(): array {
+  $st = nj_adb()->query(
+    'SELECT a.id, a.name, a.role, a.projet, p.last_seen, p.presence
+       FROM agents a
+       LEFT JOIN agent_presence p ON p.agent_id = a.id
+      WHERE a.statut = "active"
+      ORDER BY a.name'
+  );
+  $out = [];
+  foreach ($st->fetchAll() as $r) {
+    $online = $r['last_seen'] && (time() - strtotime($r['last_seen'])) <= NJ_PRESENCE_TTL;
+    $out[] = [
+      'id'        => (int) $r['id'],
+      'name'      => $r['name'],
+      'role'      => $r['role'],
+      'projet'    => $r['projet'],
+      'online'    => $online,
+      'presence'  => $online ? ($r['presence'] ?: 'en_ligne') : 'absent',
+      'last_seen' => $r['last_seen'],
+    ];
+  }
+  return $out;
+}

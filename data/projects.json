@@ -9,8 +9,10 @@
         "poi_count": 41,
         "has_tour": true,
         "detail_url": "",
-        "tour_url": "jawhara/Tour/index.htm",
-        "apartment_tour_url": "jawhara/Tour-FloorPlan/index.htm",
+        "tour_maison": true,
+        "tour_dossier": "jawhara/Tour",
+        "tour_url": "tour-360.html?tour=jawhara/Tour",
+        "apartment_tour_url": "tour-360.html?tour=visites/jawhara-pannellum",
         "plan_architecte_url": "jawhara/floorplan/plan-architecte.png",
         "plan_visuel_url": "jawhara/floorplan/plan-visuel.jpg",
         "brochure_pdf": "images/projects/jawhara/PLAN DE MASSE.pdf",
@@ -90,23 +92,93 @@
             "floorplan": "images/projects/jawhara/floorplan.jpg"
         },
         "commercialization": "on-sale",
-        "delivery": { "date": "2026-Q4", "state": "en-construction" },
+        "delivery": {
+            "date": "2026-Q4",
+            "state": "en-construction"
+        },
         "price_mode": "on-request",
         "standing": "moyen-standing",
         "promoteur": "Narjiss Immobilière",
-        "legal": { "titre": true },
+        "legal": {
+            "titre": true
+        },
         "typologies": [
-            { "label": "F2", "rooms": 2, "surface_min": 62, "surface_max": 68, "units_total": 20, "units_available": 6, "floorplan": "images/projects/jawhara/floorplan.jpg" },
-            { "label": "F3", "rooms": 3, "surface_min": 78, "surface_max": 92, "units_total": 30, "units_available": 12, "floorplan": "images/projects/jawhara/floorplan.jpg" },
-            { "label": "F4", "rooms": 4, "surface_min": 104, "surface_max": 118, "units_total": 14, "units_available": 3, "floorplan": "images/projects/jawhara/floorplan.jpg" }
+            {
+                "label": "F2",
+                "rooms": 2,
+                "surface_min": 62,
+                "surface_max": 68,
+                "units_total": 20,
+                "units_available": 6,
+                "floorplan": "images/projects/jawhara/floorplan.jpg"
+            },
+            {
+                "label": "F3",
+                "rooms": 3,
+                "surface_min": 78,
+                "surface_max": 92,
+                "units_total": 30,
+                "units_available": 12,
+                "floorplan": "images/projects/jawhara/floorplan.jpg"
+            },
+            {
+                "label": "F4",
+                "rooms": 4,
+                "surface_min": 104,
+                "surface_max": 118,
+                "units_total": 14,
+                "units_available": 3,
+                "floorplan": "images/projects/jawhara/floorplan.jpg"
+            }
         ],
-        "features": ["piscine", "securite-24-7", "parking-sous-sol", "espaces-verts", "ascenseur", "syndic"],
-        "gallery": ["images/projects/jawhara/concept-hero.jpg"],
+        "features": [
+            "piscine",
+            "securite-24-7",
+            "parking-sous-sol",
+            "espaces-verts",
+            "ascenseur",
+            "syndic"
+        ],
+        "gallery": [
+            "images/projects/jawhara/concept-hero.jpg"
+        ],
         "panoramas": [
-            { "src": "images/projects/jawhara/salon_19.jpeg", "room": { "fr": "Salon", "en": "Living room", "ar": "صالون", "es": "Salón" } },
-            { "src": "images/projects/jawhara/cuisine.jpeg", "room": { "fr": "Cuisine", "en": "Kitchen", "ar": "مطبخ", "es": "Cocina" } },
-            { "src": "images/projects/jawhara/chambre1_17.jpeg", "room": { "fr": "Chambre", "en": "Bedroom", "ar": "غرفة نوم", "es": "Dormitorio" } },
-            { "src": "images/projects/jawhara/couloir_18.jpeg", "room": { "fr": "Couloir", "en": "Hallway", "ar": "ممر", "es": "Pasillo" } }
+            {
+                "src": "images/projects/jawhara/salon_19.jpeg",
+                "room": {
+                    "fr": "Salon",
+                    "en": "Living room",
+                    "ar": "صالون",
+                    "es": "Salón"
+                }
+            },
+            {
+                "src": "images/projects/jawhara/cuisine.jpeg",
+                "room": {
+                    "fr": "Cuisine",
+                    "en": "Kitchen",
+                    "ar": "مطبخ",
+                    "es": "Cocina"
+                }
+            },
+            {
+                "src": "images/projects/jawhara/chambre1_17.jpeg",
+                "room": {
+                    "fr": "Chambre",
+                    "en": "Bedroom",
+                    "ar": "غرفة نوم",
+                    "es": "Dormitorio"
+                }
+            },
+            {
+                "src": "images/projects/jawhara/couloir_18.jpeg",
+                "room": {
+                    "fr": "Couloir",
+                    "en": "Hallway",
+                    "ar": "ممر",
+                    "es": "Pasillo"
+                }
+            }
         ]
     },
     {

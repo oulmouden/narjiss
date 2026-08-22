@@ -348,3 +348,96 @@ body.lg-has-bar {
 
 /* En RTL (arabe), la barre reste lisible. */
 [dir="rtl"] .lg-hostbar .lg-btn-end { margin-left: 0; margin-right: auto; }
+
+/* ============================================================
+   BOUTON « FAIRE VISITER »
+   ------------------------------------------------------------
+   Visible seulement pour un conseiller ou l'admin déjà connecté
+   (voir proposerAnimation() dans liveguide.js). Il reprend le
+   vert de la barre hôte — c'est ce qu'il ouvre — mais reste
+   volontairement petit et en retrait : c'est un outil d'équipe
+   posé sur une page destinée aux clients.
+   ============================================================ */
+.lg-lancer {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 99998; /* sous la barre hôte, qui le remplacera */
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f5132, #157347);
+  color: #fff;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.82;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.lg-lancer:hover { opacity: 1; transform: translateY(-1px); }
+.lg-lancer:active { transform: translateY(1px); }
+.lg-lancer:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+[dir="rtl"] .lg-lancer { left: auto; right: 16px; }
+
+/* Sur un petit écran, le bouton ne doit pas recouvrir le contenu ni les
+   commandes de la visite 360°, qui vivent elles aussi en bas. */
+@media (max-width: 560px) {
+  .lg-lancer { left: 10px; bottom: 10px; padding: 7px 11px; font-size: 12px; }
+  [dir="rtl"] .lg-lancer { left: auto; right: 10px; }
+}
+
+/* ============================================================
+   BARRE HÔTE REPLIÉE
+   ------------------------------------------------------------
+   Déployée, la barre réserve 116 px de page — 152 px sur un
+   écran étroit, où elle tient sur deux lignes. C'est beaucoup
+   quand ce qu'on montre au client est justement en dessous.
+
+   Repliée, elle devient une pastille dans un coin. Le compteur
+   de spectateurs y RESTE : une barre entièrement disparue
+   ferait oublier une visite ouverte, micro compris.
+   ============================================================ */
+
+.lg-btn-replier {
+  width: 38px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.lg-hostbar.lg-repliee {
+  left: auto;
+  right: 10px;
+  bottom: 10px;
+  width: auto;
+  gap: 8px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  flex-wrap: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Tout se retire sauf le compteur et le bouton qui la rouvre. */
+.lg-hostbar.lg-repliee > * { display: none; }
+.lg-hostbar.lg-repliee > .lg-count,
+.lg-hostbar.lg-repliee > .lg-btn-replier { display: inline-flex; }
+.lg-hostbar.lg-repliee > .lg-btn-end { margin-left: 0; }
+
+/* La page reprend toute sa hauteur : c'est l'objet même du repli. */
+body.lg-has-bar.lg-barre-repliee,
+body.lg-has-bar.lg-host.lg-barre-repliee { padding-bottom: 0; }
+
+/* Le chat, s'il était ouvert, descend avec la barre. */
+body.lg-barre-repliee .lg-chat { bottom: 62px; }
+
+[dir="rtl"] .lg-hostbar.lg-repliee { right: auto; left: 10px; }
+
+@media (max-width: 560px) {
+  .lg-hostbar.lg-repliee { right: 8px; bottom: 8px; padding: 5px 7px 5px 10px; }
+  [dir="rtl"] .lg-hostbar.lg-repliee { right: auto; left: 8px; }
+}

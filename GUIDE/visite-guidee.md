@@ -60,8 +60,31 @@ démarrer plutôt que de s'ouvrir sans contrôle.
 ## 2. Utilisation
 
 ### Conseiller (hôte)
-1. Ouvrir n'importe quelle page du site en ajoutant `?lghost=1` à l'URL,
-   par exemple : `https://…/index.html?lghost=1`
+1. **Se connecter** — à l'espace commercial (`espace-agent.html`, lien en pied
+   de page) ou à l'admin. Une entrée **« 👤 votre nom »** apparaît alors dans le
+   menu principal, sur **toutes** les pages du site. Elle contient :
+
+   ```
+   👤 admin ▾
+      🟢 Connecté · Gestionnaire
+      🟢 2 en ligne              ← collègues connectés en ce moment
+      Espace agent
+      🎥 Faire visiter           ← ouvre la visite, sans URL à taper
+      Déconnexion
+   ```
+
+   > **Sur `tour-360.html`, pas d'entrée de menu mais un bouton flottant** en bas
+   > à gauche : cette page est autonome, elle n'appelle jamais `initPage()` et
+   > n'a donc aucun menu où loger le profil.
+
+   > Rien de tout cela n'apparaît pour un visiteur, et ne lui coûte rien : sans
+   > cookie — le cas de tout visiteur, le site n'en pose aucun — le navigateur
+   > ne pose même pas la question au serveur.
+
+   L'ancienne méthode reste valable : ajouter `?lghost=1` à n'importe quelle
+   URL. Si vous n'êtes pas connecté, un panneau demande alors vos identifiants
+   au lieu d'échouer en silence.
+
 2. Une **barre verte** apparaît en bas. Elle affiche un **code à 6 chiffres** et
    un bouton **« Copier le lien visiteur »**.
 3. Envoyer le lien au client (WhatsApp, SMS, mail) puis lui **dire le code de
@@ -138,7 +161,31 @@ démarrer plutôt que de s'ouvrir sans contrôle.
 
 ## 4. Contrôle d'accès
 
-Une session est créée **par le serveur** et porte deux secrets distincts :
+### Qui peut OUVRIR une visite
+
+**Tout agent actif, ou l'admin connecté.** `action=start` exige une session ;
+sans elle, il répond 401 et le navigateur propose de se connecter.
+
+Ça n'a pas toujours été le cas, et le raisonnement d'origine mérite d'être
+rappelé : ouvrir une session à soi ne donne accès à rien, elle reste vide tant
+que le conseiller n'a pas transmis lui-même le lien et le code. C'est juste pour
+la confidentialité, et insuffisant pour deux motifs qui n'en relèvent pas — le
+**quota Pusher**, qu'un script épuisait en ouvrant des sessions en boucle, et
+l'**usurpation** : n'importe qui pouvait se présenter en conseiller Narjiss
+auprès de visiteurs recrutés par lui-même, promener leur navigateur sur le vrai
+site et leur parler par-dessus.
+
+> **Deux sessions, pas une.** L'espace commercial (`NJAGENT`) et l'admin (la
+> session par défaut de php.ini) sont indépendants, et **PHP n'en ouvre qu'une
+> par requête**. `nj_admin_connecte()` referme donc la première avant de lire la
+> seconde — en repositionnant l'identifiant de session au passage, sans quoi PHP
+> rouvre celle qu'on vient de fermer et conclut que l'admin est absent. C'est
+> exactement le défaut qui empêchait l'admin d'écouter les messages vocaux des
+> visiteurs.
+
+### Qui peut REJOINDRE une visite
+
+Inchangé : le lien **et** le code. Une session porte deux secrets distincts :
 
 | Secret | Détenteur | Rôle |
 |---|---|---|

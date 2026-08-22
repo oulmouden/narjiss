@@ -60,6 +60,9 @@
     show($('authSection'), !authed);
     show($('appSection'), authed);
     show($('whoBox'), authed);
+    // Retour au site public. Caché tant qu'on n'est pas connecté : hors session,
+    // il ne mènerait qu'au site ordinaire, sans rien de plus que le menu.
+    show($('gotoSiteBtn'), authed);
     show($('logoutBtn'), authed);
     stopLoops();
 
@@ -78,7 +81,11 @@
     show($('reqCard'), canReceive);
     show($('teamCard'), canManage);
 
-    if (canReceive) { setPresence('en_ligne', true); startLoops(); }
+    // Le battement de présence part pour TOUS les rôles : c'est lui qui rend
+    // « connecté » visible, à soi comme aux autres. Les demandes d'accès des
+    // visiteurs, elles, ne concernent que ceux qui peuvent les recevoir.
+    setPresence('en_ligne', true);
+    startLoops(canReceive);
     if (canManage) { loadTeam(); teamTimer = setInterval(loadTeam, 8000); }
 
     // Messagerie : chacun sur son périmètre (son bureau, ou tous les bureaux
@@ -95,9 +102,12 @@
     hangup();
   }
 
-  function startLoops() {
+  function startLoops(withRequests) {
     heartbeat();
     hbTimer = setInterval(heartbeat, 6000);
+    // Le TTL de présence est de 20 s côté serveur : battre toutes les 6 s laisse
+    // le droit de rater deux appels avant de passer pour hors ligne.
+    if (!withRequests) return;
     pollRequests();
     pollTimer = setInterval(pollRequests, 4000);
   }
@@ -397,7 +407,11 @@
   }
 
   function heartbeat() {
-    if (!me || (me.role !== 'commercial' && me.role !== 'superviseur')) return;
+    // Tous les rôles battent, gestionnaires compris. Sans ça un gestionnaire
+    // n'apparaissait jamais connecté — ni pour les autres, ni dans sa propre
+    // carte « Ma présence », dont le point restait gris et le texte figé
+    // sur « … ». Le battement est ce qui rend la présence visible.
+    if (!me) return;
     post('agent-presence.php', { presence: curPresence }).then(function (r) {
       var dot = $('onlineDot'), txt = $('onlineText');
       if (r && r.ok) {
@@ -514,7 +528,10 @@
       (r.agents || []).forEach(function (a) {
         if (a.id === me.id) return; // ne pas s'auto-gérer
         var tr = document.createElement('tr');
-        var roleTxt = a.role === 'gestionnaire' ? 'Gestionnaire' : 'Commercial';
+        tr.setAttribute('data-agent-id', a.id); // clé d'appariement de la présence
+        // Trois rôles, pas deux : un superviseur s'affichait « Commercial ».
+        var roleTxt = a.role === 'superviseur' ? 'Superviseur'
+                    : (a.role === 'gestionnaire' ? 'Gestionnaire' : 'Commercial');
         tr.innerHTML =
           '<td></td>' +
           '<td>' + roleTxt + '</td>' +
@@ -536,19 +553,34 @@
     });
   }
 
+  /**
+   * Remplit la colonne « Présence » de la table d'équipe.
+   *
+   * Passe par ?equipe=1 et non par le roster ?projet= : ce dernier est le roster
+   * PUBLIC d'un bureau, qui ne contient que les commerciaux et les superviseurs.
+   * Il laissait donc trois angles morts, qui se cumulaient jusqu'à vider la
+   * colonne entièrement pour un gestionnaire sans bureau :
+   *   - il exigeait un projet, et sortait sans rien faire quand me.projet était
+   *     vide — le cas de l'admin ;
+   *   - il ne renvoyait aucun gestionnaire, donc aucun n'apparaissait connecté ;
+   *   - l'appariement se faisait sur le NOM affiché, que deux homonymes
+   *     suffisaient à confondre.
+   * L'identifiant règle le troisième point, ?equipe=1 les deux premiers.
+   */
   function refreshTeamPresence() {
-    if (!me || !me.projet) return;
-    get('agent-presence.php?projet=' + encodeURIComponent(me.projet)).then(function (r) {
+    if (!me) return;
+    get('agent-presence.php?equipe=1').then(function (r) {
       if (!r || !r.ok) return;
       var byId = {};
       (r.agents || []).forEach(function (a) { byId[a.id] = a; });
       var rows = $('teamBody').querySelectorAll('tr');
-      // Réassocie via le nom affiché (roster ne renvoie que les commerciaux actifs).
       rows.forEach(function (tr) {
-        var name = tr.children[0].textContent;
-        var match = (r.agents || []).filter(function (a) { return a.name === name; })[0];
+        var match = byId[tr.getAttribute('data-agent-id')];
         var cell = tr.querySelector('.pcell');
-        if (match) cell.textContent = match.online ? '🟢 ' + presenceLabel(match.presence) : '⚪ Hors ligne';
+        if (!cell) return;
+        cell.textContent = match && match.online
+          ? '🟢 ' + presenceLabel(match.presence)
+          : '⚪ Hors ligne';
       });
     });
   }
