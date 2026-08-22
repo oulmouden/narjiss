@@ -116,6 +116,52 @@ foreach ($plan !== '' ? nj_zones_lire($projet, $plan) : [] as $z) {
     $parLot[$z['numero_lot']] = $z['points'];
 }
 
+/* ── Cible du tracé : des lots, ou des immeubles ─────────────────────────────
+   Un plan d'étage porte des lots. Un plan de MASSE porte des immeubles : c'est
+   ce qui permet de montrer où sont A, B et C les uns par rapport aux autres,
+   avant d'entrer dans l'un d'eux. Le geste ne change pas — choisir la cible
+   dans la liste, tracer son contour — seule la nature de la cible change.
+
+   Le mode est deviné d'après le nom du fichier, et reste modifiable dans la
+   barre : deviner évite de le régler à chaque ouverture, pouvoir le changer
+   évite d'être prisonnier d'un nom de fichier mal choisi. */
+$estPlanMasse = (bool) preg_match('/masse|ensemble|situation|site/i',
+                                  (string) ($plans[$plan]['nom'] ?? ''));
+$cible = (string) ($_GET['cible'] ?? '');
+if ($cible !== 'lots' && $cible !== 'immeubles') {
+    $cible = $estPlanMasse ? 'immeubles' : 'lots';
+}
+
+if ($cible === 'immeubles') {
+    // Les immeubles ne sont pas déclarés quelque part : ils se déduisent des
+    // lots, seule source qui les nomme. Le compte de lots sert de repère au
+    // tracé — « A, 48 lots » dit tout de suite si l'on vise le bon bâtiment.
+    $compte = [];
+    foreach ($tousLots as $l) {
+        $imm = trim((string) $l['immeuble']);
+        if ($imm !== '') $compte[$imm] = ($compte[$imm] ?? 0) + 1;
+    }
+    ksort($compte, SORT_NATURAL | SORT_FLAG_CASE);
+
+    $lots = [];
+    foreach ($compte as $imm => $n) {
+        $lots[] = [
+            'numero'    => (string) $imm,
+            'niveau'    => '',
+            'typologie' => '',
+            'surface'   => 0.0,
+            'statut'    => 'disponible',   // neutre : la pastille reste lisible
+            'libelle'   => $n . ' lot' . ($n > 1 ? 's' : ''),
+        ];
+    }
+
+    $parLot = [];
+    foreach ($plan !== '' ? nj_zones_lire($projet, $plan) : [] as $z) {
+        if ($z['immeuble'] === '') continue;
+        $parLot[$z['immeuble']] = $z['points'];
+    }
+}
+
 $avancement = nj_zones_avancement($projet);
 $infoPlan = $plans[$plan] ?? ['largeur' => 0, 'hauteur' => 0, 'nom' => ''];
 
@@ -124,7 +170,9 @@ admin_header('Zones des plans');
 <div class="actions">
     <div>
         <h1>Zones cliquables</h1>
-        <p>Choisir un lot dans la liste, puis tracer son contour sur le plan.</p>
+        <p><?= $cible === 'immeubles'
+            ? 'Choisir un immeuble dans la liste, puis tracer son emprise sur le plan de masse.'
+            : 'Choisir un lot dans la liste, puis tracer son contour sur le plan.' ?></p>
     </div>
     <a class="button" href="lots.php?projet=<?= urlencode($projet) ?>">Grille des lots</a>
 </div>
@@ -150,6 +198,12 @@ admin_header('Zones des plans');
                         <?= htmlspecialchars($p['nom'] . $suffixe) ?>
                     </option>
                 <?php endforeach; ?>
+            </select>
+        </label>
+        <label>Tracer des
+            <select name="cible" onchange="this.form.submit()">
+                <option value="lots" <?= $cible === 'lots' ? 'selected' : '' ?>>lots</option>
+                <option value="immeubles" <?= $cible === 'immeubles' ? 'selected' : '' ?>>immeubles (plan de masse)</option>
             </select>
         </label>
     </div>
@@ -182,7 +236,7 @@ admin_header('Zones des plans');
             </label>
             <button class="button secondary" type="button" id="btnFermer" disabled>Fermer le contour</button>
             <button class="button secondary" type="button" id="btnAnnulerPoint" disabled>Annuler le point</button>
-            <button class="button secondary" type="button" id="btnEffacer" disabled>Effacer ce lot</button>
+            <button class="button secondary" type="button" id="btnEffacer" disabled>Effacer ce tracé</button>
             <span class="zone-sep"></span>
             <label class="zone-champ">Reporter depuis
                 <select id="reportSource"></select>
@@ -202,7 +256,7 @@ admin_header('Zones des plans');
                  viewBox="0 0 <?= (int) $infoPlan['largeur'] ?> <?= (int) $infoPlan['hauteur'] ?>"></svg>
         </div>
 
-        <p class="zone-etat" id="etat">Choisissez un lot pour commencer.</p>
+        <p class="zone-etat" id="etat">Choisissez une cible pour commencer.</p>
         <p class="file-hint">
             <strong>Tracer</strong> — clic ou tap : poser un sommet · double-clic, double-tap ou
             <kbd>Entrée</kbd> : fermer · <kbd>Ctrl</kbd>+<kbd>Z</kbd> : annuler le dernier point ·
@@ -302,6 +356,10 @@ admin_header('Zones des plans');
   var niveauEl = document.getElementById('niveau');
 
   var LOTS  = <?= json_encode($lots, JSON_UNESCAPED_UNICODE) ?>;
+  // 'lots' ou 'immeubles' : décide seulement du champ écrit à l'enregistrement.
+  // Tout le reste de l'éditeur raisonne sur un identifiant de cible, sans avoir
+  // à savoir ce qu'il désigne.
+  var CIBLE = <?= json_encode($cible) ?>;
   var PLAN  = <?= json_encode('../' . $plan) ?>;
   var LARG  = <?= (int) $infoPlan['largeur'] ?>;
   var HAUT  = <?= (int) $infoPlan['hauteur'] ?>;
@@ -641,7 +699,7 @@ admin_header('Zones des plans');
     brouillon = [];
     var l = parNumero[numero];
     etat.textContent = contours[numero]
-      ? numero + ' — contour tracé. Glissez un sommet pour l’ajuster, ou « Effacer ce lot » pour recommencer.'
+      ? numero + ' — contour tracé. Glissez un sommet pour l’ajuster, ou « Effacer ce tracé » pour recommencer.'
       : numero + (l ? ' (' + l.typologie + ', ' + l.surface + ' m²)' : '') + ' — posez le 1er sommet.';
     rendre();
   }
@@ -675,7 +733,7 @@ admin_header('Zones des plans');
   function poserSommet(p) {
     if (!lotActif) { etat.textContent = 'Choisissez d’abord un lot (barre d’outils ou liste de droite).'; return; }
     if (contours[lotActif] && !brouillon.length) {
-      etat.textContent = lotActif + ' — ce lot a déjà un contour. « Effacer ce lot » pour le refaire.';
+      etat.textContent = lotActif + ' — cette cible a déjà un contour. « Effacer ce tracé » pour le refaire.';
       return;
     }
     p = aimanter(p);
@@ -883,7 +941,7 @@ admin_header('Zones des plans');
     brouillon = [];
     if (lotActif && !visible(lotActif)) {
       lotActif = null;
-      etat.textContent = 'Choisissez un lot pour commencer.';
+      etat.textContent = 'Choisissez une cible pour commencer.';
     }
     rendre();
   });
@@ -891,7 +949,13 @@ admin_header('Zones des plans');
   document.getElementById('btnEnregistrer').addEventListener('click', function () {
     var charge = Object.keys(contours)
       .filter(estTracé)
-      .map(function (n) { return { numero_lot: n, points: contours[n], origine: 'manuel' }; });
+      .map(function (n) {
+        var z = { points: contours[n], origine: 'manuel' };
+        // Un polygone désigne un lot OU un immeuble, jamais les deux : la
+        // cible serait ambiguë au moment du clic côté visiteur.
+        if (CIBLE === 'immeubles') z.immeuble = n; else z.numero_lot = n;
+        return z;
+      });
 
     var corps = new FormData();
     corps.append('action', 'enregistrer');

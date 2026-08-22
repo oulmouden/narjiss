@@ -478,7 +478,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   // quand l'une des pages de la scène change (localisation.html,
   // disponibilites.html, ma-selection.html), sinon le cadre resservira
   // l'ancienne copie.
-  var VERSION = '13';
+  var VERSION = '14';
 
   var carte = null, pastilles = [], langue = 'fr';
   var minuteries = [], termine = false, premierRendu = true;
@@ -845,8 +845,17 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
     etapeScene = etape;
     majBarreScene();
     var pages = { projet: 'localisation.html', dispos: 'disponibilites.html', choix: 'ma-selection.html' };
+    /* L'étape « logements » s'ouvre sur le PLAN DE MASSE, et non sur la
+       maquette d'un immeuble. La démonstration suit ainsi le raisonnement d'un
+       conseiller : le quartier, puis l'implantation des immeubles, puis un
+       immeuble, puis un lot. Ouvrir d'emblée sur un plateau d'étage sautait
+       l'étape qui situe le bâtiment.
+
+       Un projet sans emprise tracée retombe tout seul sur la maquette — voir
+       majBoutonSituation() dans disponibilites.js. */
+    var vue = etape === 'dispos' ? '&vue=situation' : '';
     $('njSceneCadre').src = pages[etape] + '?projet=' + encodeURIComponent(projetOuvert) +
-      '&embed=1&v=' + VERSION + '#' + langue;
+      '&embed=1' + vue + '&v=' + VERSION + '#' + langue;
   }
 
   /* La barre de visite guidée arrive tard — liveguide charge son SDK,

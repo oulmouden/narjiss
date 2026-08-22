@@ -24,12 +24,42 @@ function nj_zones_racine(): string
 /** La table existe-t-elle ? Sert à afficher un message utile plutôt qu'un 500. */
 function nj_zones_schema_present(): bool
 {
+    static $vu = null;
+    if ($vu !== null) return $vu;
+
     try {
         nj_db()->query('SELECT 1 FROM `plan_zones` LIMIT 1');
-        return true;
     } catch (Throwable $e) {
-        return false;
+        return $vu = false;
     }
+
+    nj_zones_migrer();
+    return $vu = true;
+}
+
+/**
+ * Évolutions du schéma, appliquées à la volée.
+ *
+ * La table est créée par sql/004_plan_zones.sql, posé à la main : une base déjà
+ * en service ne le rejoue pas. Les ajouts de colonnes se font donc ici, en
+ * ignorant l'erreur quand la colonne existe déjà — même procédé que pour les
+ * agents. Sans ça, il faudrait se souvenir d'aller modifier chaque base.
+ */
+function nj_zones_migrer(): void
+{
+    /* Une zone désignait forcément un LOT. Le plan de masse a besoin de
+       polygones qui désignent un IMMEUBLE : c'est ce qui permet de montrer
+       l'implantation de A, B et C, puis d'entrer dans l'un d'eux. Même table,
+       même éditeur, même repère en pixels — seule la cible change. */
+    try {
+        nj_db()->exec(
+            "ALTER TABLE `plan_zones` ADD COLUMN `immeuble` VARCHAR(32) NOT NULL DEFAULT '' AFTER `numero_lot`"
+        );
+    } catch (Throwable $e) { /* colonne déjà présente */ }
+
+    try {
+        nj_db()->exec('ALTER TABLE `plan_zones` ADD KEY `idx_imm` (`projet`,`immeuble`)');
+    } catch (Throwable $e) { /* index déjà présent */ }
 }
 
 /**
@@ -82,7 +112,7 @@ function nj_zones_lire(string $projet, string $plan): array
     if (!nj_zones_schema_present()) return [];
 
     $st = nj_db()->prepare(
-        'SELECT id, numero_lot, points, largeur, hauteur, origine
+        'SELECT id, numero_lot, immeuble, points, largeur, hauteur, origine
            FROM plan_zones WHERE projet = ? AND plan = ? ORDER BY id'
     );
     $st->execute([$projet, $plan]);
@@ -94,6 +124,7 @@ function nj_zones_lire(string $projet, string $plan): array
         $zones[] = [
             'id'         => (int) $r['id'],
             'numero_lot' => (string) $r['numero_lot'],
+            'immeuble'   => (string) $r['immeuble'],
             'points'     => $points,
             'largeur'    => (int) $r['largeur'],
             'hauteur'    => (int) $r['hauteur'],
@@ -130,22 +161,28 @@ function nj_zones_enregistrer(string $projet, string $plan, array $zones,
         $del->execute([$projet, $plan]);
 
         $ins = $db->prepare(
-            'INSERT INTO plan_zones (projet, plan, numero_lot, points, largeur, hauteur, origine)
-             VALUES (?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO plan_zones (projet, plan, numero_lot, immeuble, points, largeur, hauteur, origine)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $n = 0;
         foreach ($zones as $z) {
             $points = nj_zones_nettoyer_points($z['points'] ?? []);
             $numero = mb_substr(trim((string) ($z['numero_lot'] ?? '')), 0, 32);
-            // Un polygone sans lot n'a personne à qui appartenir : il ne
-            // servirait qu'à encombrer le plan. L'éditeur part du lot, il ne
-            // peut pas en produire ; on refuse quand même, par sécurité.
-            if ($numero === '' || count($points) < 3) continue;
+            $imm    = mb_substr(trim((string) ($z['immeuble'] ?? '')), 0, 32);
+            // Un polygone doit désigner quelque chose : un lot sur un plan
+            // d'étage, un immeuble sur un plan de masse. Sans cible il
+            // n'appartient à personne et ne sert qu'à encombrer le plan.
+            // L'éditeur part toujours d'une cible et ne peut pas en produire ;
+            // on refuse quand même, par sécurité.
+            if (($numero === '' && $imm === '') || count($points) < 3) continue;
+            // Jamais les deux : la cible serait ambiguë au moment du clic.
+            if ($imm !== '') $numero = '';
             $ins->execute([
                 $projet,
                 $plan,
                 $numero,
+                $imm,
                 json_encode($points),
                 $largeur,
                 $hauteur,

@@ -1081,6 +1081,56 @@ body.nj-fige-plein { overflow: hidden; }
     padding-bottom: .8rem; border-bottom: 1px solid var(--border-subtle); }
   .nj-filtres .nj-reinit { width: 100%; }
 }
+
+/* ── Vue « Situation » : le plan de masse ─────────────────────────────────
+   Le plan est servi par Leaflet en CRS.Simple. La hauteur est fixée ici :
+   Leaflet mesure son conteneur au montage et n'affiche rien dans une boite
+   sans hauteur — panne classique, et muette. */
+.nj-situation { display: flex; flex-direction: column; gap: .5rem; }
+.nj-situation-carte {
+  height: min(72vh, 720px);
+  min-height: 320px;
+  border-radius: 14px;
+  border: 1px solid var(--border-medium);
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+.nj-situation-aide { margin: 0; font-size: .86rem; color: var(--muted); }
+
+/* Etiquette posee au centre de chaque emprise. Fond sombre translucide :
+   le plan de masse est clair et charge, un texte nu y serait illisible. */
+/* `.leaflet-tooltip` en plus de notre classe : la feuille de Leaflet est
+   injectee dynamiquement, donc APRES ce bloc, et l'emportait a specificite
+   egale — le fond mauve restait blanc sans que rien ne le signale. */
+.leaflet-tooltip.nj-masse-etiq {
+  background: rgba(124, 77, 160, .58);   /* mauve transparent : le plan reste lisible dessous */
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 7px;
+  color: #fff;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: .7rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  padding: .2rem .45rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.28);
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);  /* lisible meme sur un trait fonce du plan */
+  white-space: nowrap;
+}
+.leaflet-tooltip.nj-masse-etiq::before { display: none; }   /* fleche du tooltip Leaflet */
+
+/* En arabe, la page passe en dir="rtl". Un element positionne en absolu SANS
+   `left` explicite est alors pose a partir du bord DROIT de son conteneur :
+   la translation que Leaflet applique ensuite ne part plus du meme point, et
+   toutes les etiquettes se retrouvent decalees a cote de leur emprise. Fixer
+   l'origine rend le placement independant du sens de lecture ; le TEXTE, lui,
+   reste en arabe et se lit normalement. */
+[dir="rtl"] .leaflet-container .leaflet-tooltip.nj-masse-etiq { left: 0; right: auto; }
+
+@media (max-width: 560px) {
+  .nj-situation-carte { height: min(60vh, 460px); }
+  .leaflet-tooltip.nj-masse-etiq { font-size: .64rem; padding: .15rem .35rem; }
+}
 </style>
 <script>
   /* Posé avant le rendu pour éviter tout clignotement du menu en mode scène. */
@@ -1168,6 +1218,9 @@ body.nj-fige-plein { overflow: hidden; }
       <p class="nj-compteur" id="njCompteur">…</p>
       <div class="nj-vue" role="group" aria-labelledby="njVueLabel">
         <span class="nj-vue-label" id="njVueLabel">Affichage</span>
+        <!-- Masqué tant qu'aucune emprise d'immeuble n'est tracée : c'est
+             majBoutonSituation() qui le révèle, projet par projet. -->
+        <button type="button" class="nj-vue-btn" data-vue="situation" id="njVueSituation" aria-pressed="false" hidden>Situation</button>
         <button type="button" class="nj-vue-btn" data-vue="maquette" id="njVueMaquette" aria-pressed="true">Maquette</button>
         <button type="button" class="nj-vue-btn" data-vue="liste" id="njVueListe" aria-pressed="false">Liste</button>
         <button type="button" class="nj-vue-btn" data-vue="plan" id="njVuePlan" aria-pressed="false">Plan</button>
@@ -1219,6 +1272,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=6f4dd843"></script>
-<script src="disponibilites.js?v=54455d16"></script>
+<script src="disponibilites.js?v=1b812c1f"></script>
 </body>
 </html>

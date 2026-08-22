@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS `plan_zones` (
   `projet`     varchar(64)  NOT NULL COMMENT 'slug, ex: andalusia',
   `plan`       varchar(255) NOT NULL COMMENT 'chemin relatif a la racine du site',
   `numero_lot` varchar(32)  NOT NULL DEFAULT '' COMMENT 'vide = zone non affectee',
+  `immeuble`   varchar(32)  NOT NULL DEFAULT ''
+                 COMMENT 'zone designant un IMMEUBLE (plan de masse), au lieu d un lot',
   `points`     mediumtext   NOT NULL COMMENT 'JSON [[x,y],...] en pixels image',
   `largeur`    smallint(5) unsigned NOT NULL DEFAULT 0 COMMENT 'resolution de reference',
   `hauteur`    smallint(5) unsigned NOT NULL DEFAULT 0,
@@ -52,5 +54,6 @@ CREATE TABLE IF NOT EXISTS `plan_zones` (
   -- (duplex, logement traversant coupe par une cage d'escalier), et plusieurs
   -- zones non affectees coexistent avec un numero vide.
   KEY `idx_plan` (`projet`,`plan`),
-  KEY `idx_lot`  (`projet`,`numero_lot`)
+  KEY `idx_lot`  (`projet`,`numero_lot`),
+  KEY `idx_imm`  (`projet`,`immeuble`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

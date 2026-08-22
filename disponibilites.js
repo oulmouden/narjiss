@@ -41,12 +41,14 @@
     etage: {},          // étage affiché dans la maquette, par immeuble
     zones: null,        // numero_lot -> {plan, points}, null tant qu'inconnu
     plansZones: null,   // chemin de plan -> {largeur, hauteur}
-    zonesProjet: null   // projet pour lequel zones/plansZones sont chargés
+    zonesProjet: null,  // projet pour lequel zones/plansZones sont chargés
+    immeubles: null     // nom -> {plan, points, largeur, hauteur, total, dispo}
   };
 
   // Immeuble à ramener sous les yeux au premier rendu de la maquette (retour
   // depuis une autre page). Consommé une fois, puis oublié.
   var immARevoir = null;
+  var vueImposee = false;   // vue venue de l'URL (démonstration) : voir init()
 
   var T = {
     fr: {
@@ -73,6 +75,11 @@
       comparer: 'Glissez pour comparer les deux plans',
       sansTour: 'Aucune visite 360° disponible pour ce projet.',
       vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste', vueMaquette: 'Maquette',
+      vueSituation: 'Situation',
+      dispoSur: 'disponibles sur', completSur: 'complet — 0 sur',
+      aidePlanMasse: "Touchez un immeuble pour voir ses logements. Pincez pour zoomer, glissez pour déplacer.",
+      sansPlanMasse: "Aucun plan de masse tracé pour ce projet.",
+      planMasseIndispo: "Plan de masse momentanément indisponible.",
       maquetteAide: "Choisissez un étage, puis un logement sur le plateau. La position de chaque lot reflète son orientation.",
       pleinEcran: "Plein écran", quitterPleinEcran: "Quitter le plein écran",
       planZoomAide: "Pincez pour zoomer, glissez pour déplacer. Touchez un logement pour voir ses informations.",
@@ -121,6 +128,11 @@
       comparer: 'Drag to compare both plans',
       sansTour: 'No 360° tour available for this project.',
       vue: 'View', vuePlan: 'Plan', vueListe: 'List', vueMaquette: 'Floor mockup',
+      vueSituation: 'Site plan',
+      dispoSur: 'available out of', completSur: 'sold out — 0 of',
+      aidePlanMasse: 'Tap a building to see its homes. Pinch to zoom, drag to pan.',
+      sansPlanMasse: 'No site plan has been mapped for this project.',
+      planMasseIndispo: 'Site plan temporarily unavailable.',
       maquetteAide: 'Pick a floor, then a home on the plate. Each unit sits according to its aspect.',
       pleinEcran: 'Full screen', quitterPleinEcran: 'Exit full screen',
       planZoomAide: 'Pinch to zoom, drag to pan. Tap a home to see its details.',
@@ -169,6 +181,11 @@
       comparer: 'اسحب للمقارنة بين المخططين',
       sansTour: 'لا توجد جولة 360° متاحة لهذا المشروع.',
       vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة', vueMaquette: 'مجسم الطابق',
+      vueSituation: 'المخطط العام',
+      dispoSur: 'متاح من أصل', completSur: 'مكتمل — 0 من',
+      aidePlanMasse: 'اضغط على عمارة لعرض شققها. اقرص للتكبير، اسحب للتحريك.',
+      sansPlanMasse: 'لا يوجد مخطط عام لهذا المشروع.',
+      planMasseIndispo: 'المخطط العام غير متاح حاليا.',
       maquetteAide: 'اختر طابقا ثم سكنا على المسطح. موقع كل وحدة يعكس اتجاهها.',
       pleinEcran: 'ملء الشاشة', quitterPleinEcran: 'إنهاء ملء الشاشة',
       planZoomAide: 'اقرص للتكبير، اسحب للتحريك. المس سكنا لعرض معلوماته.',
@@ -217,6 +234,11 @@
       comparer: 'Deslice para comparar los dos planos',
       sansTour: 'No hay visita 360° disponible para este proyecto.',
       vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista', vueMaquette: 'Maqueta',
+      vueSituation: 'Situación',
+      dispoSur: 'disponibles de', completSur: 'completo — 0 de',
+      aidePlanMasse: 'Toque un edificio para ver sus viviendas. Pellizque para ampliar, arrastre para mover.',
+      sansPlanMasse: 'No hay plano de situación para este proyecto.',
+      planMasseIndispo: 'Plano de situación no disponible por ahora.',
       maquetteAide: 'Elija una planta y luego una vivienda. La posición de cada lote refleja su orientación.',
       pleinEcran: 'Pantalla completa', quitterPleinEcran: 'Salir de pantalla completa',
       planZoomAide: 'Pellizque para acercar, arrastre para mover. Toque una vivienda para ver sus datos.',
@@ -413,8 +435,10 @@
         if (!d.ok || etat.projet !== projet) return;   // projet changé entre-temps
         etat.zones = d.zones || {};
         etat.plansZones = d.plans || {};
+        etat.immeubles = d.immeubles || {};
+        majBoutonSituation();
       })
-      .catch(function () { etat.zones = {}; etat.plansZones = {}; });
+      .catch(function () { etat.zones = {}; etat.plansZones = {}; etat.immeubles = {}; });
   }
 
   function charger() {
@@ -1414,6 +1438,153 @@
     }
   }
 
+  /* ══════════════════════════════════════════════════════════════════════
+     VUE « SITUATION » — le plan de masse
+     ══════════════════════════════════════════════════════════════════════
+     La page entrait directement dans un immeuble, sans jamais montrer où il
+     se trouve. Les agents, eux, raisonnent depuis le plan de masse : « le B,
+     c'est celui du fond à droite ». Cette vue rétablit ce repère, en amont de
+     la chaîne immeuble → étage → lot.
+
+     Leaflet en CRS.Simple : aucune projection géographique, une unité vaut un
+     pixel de l'image. Les emprises tracées dans le back-office sont stockées
+     dans ce même repère et se rejouent donc telles quelles, sans conversion.
+
+     Deux bénéfices qu'un zoom maison n'aurait pas donnés : le pincement et
+     l'inertie viennent avec Leaflet, et surtout menu.js capture toutes les
+     instances Leaflet pour la visite guidée — le plan de masse suit donc le
+     client à distance sans une ligne de plus.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  var LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  var LEAFLET_JS  = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  var carteMasse = null;
+
+  /** Charge Leaflet une seule fois, et seulement si cette vue est ouverte. */
+  function chargerLeaflet() {
+    if (window.L && window.L.map) return Promise.resolve(true);
+    return new Promise(function (resolve) {
+      if (!document.querySelector('link[data-leaflet]')) {
+        var css = document.createElement('link');
+        css.rel = 'stylesheet'; css.href = LEAFLET_CSS;
+        css.setAttribute('data-leaflet', '1');
+        document.head.appendChild(css);
+      }
+      var js = document.createElement('script');
+      js.src = LEAFLET_JS;
+      js.onload = function () { resolve(!!(window.L && window.L.map)); };
+      js.onerror = function () { resolve(false); };
+      document.head.appendChild(js);
+    });
+  }
+
+  /** Le bouton n'a de sens que si le projet a des emprises tracées. */
+  function majBoutonSituation() {
+    var b = document.getElementById('njVueSituation');
+    if (!b) return;
+    var utile = etat.immeubles && Object.keys(etat.immeubles).length > 0;
+    b.hidden = !utile;
+    // Vue mémorisée devenue impossible (changement de projet) : on retombe
+    // sur la maquette plutôt que d'afficher une zone vide.
+    if (!utile && etat.vue === 'situation') changerVue('maquette');
+  }
+
+  function rendreSituation() {
+    var grille = document.getElementById('njGrille');
+    var imms = etat.immeubles || {};
+    var noms = Object.keys(imms);
+
+    if (!noms.length) {
+      grille.innerHTML = '<p class="nj-media-vide">' + t('sansPlanMasse') + '</p>';
+      return;
+    }
+
+    grille.innerHTML = '<div class="nj-situation"><div class="nj-situation-carte" id="njMasse"></div>' +
+      '<p class="nj-situation-aide">' + t('aidePlanMasse') + '</p></div>';
+
+    carteMasse = null;   // le conteneur vient d'être remplacé
+    chargerLeaflet().then(function (ok) {
+      if (!ok) {
+        grille.innerHTML = '<p class="nj-media-vide">' + t('planMasseIndispo') + '</p>';
+        return;
+      }
+      dessinerSituation(imms, noms);
+    });
+  }
+
+  function dessinerSituation(imms, noms) {
+    var hote = document.getElementById('njMasse');
+    if (!hote || !window.L) return;
+
+    var ref = imms[noms[0]];
+    var LARG = ref.largeur || 0, HAUT = ref.hauteur || 0;
+    if (!LARG || !HAUT) return;
+
+    /* Image d'affichage allégée, produite à côté de l'originale. Le plan brut
+       fait plusieurs méga-octets : le servir d'emblée ferait attendre le client
+       sur un téléphone. Si la version allégée manque, on retombe sur l'original
+       plutôt que sur un cadre vide. */
+    var original = ref.plan;
+    var allege = original.replace(/\.(jpe?g|png|webp)$/i, '-1600.jpg');
+
+    var carte = L.map(hote, {
+      crs: L.CRS.Simple,
+      minZoom: -4, maxZoom: 2, zoomSnap: 0.25,
+      attributionControl: false,
+      scrollWheelZoom: true
+    });
+    carteMasse = carte;
+
+    var bornes = [[0, 0], [HAUT, LARG]];   // Leaflet attend [y, x]
+    var fond = L.imageOverlay(allege, bornes).addTo(carte);
+    fond.on('error', function () { fond.setUrl(original); });
+    carte.fitBounds(bornes);
+    carte.setMaxBounds(bornes);
+
+    noms.forEach(function (nom) {
+      var im = imms[nom];
+      /* [x, y] pixels image → [lat, lng] Leaflet.
+         L'inversion de y n'est pas un détail : en CRS.Simple la latitude croît
+         vers le HAUT, alors que les pixels d'une image se comptent vers le BAS
+         depuis le coin supérieur gauche. Transposer sans inverser retourne
+         toutes les emprises — l'immeuble du bas se dessine en haut, sur le
+         terrain du voisin, et rien ne le signale puisque les formes restent
+         valides. L'image de fond, elle, est déjà posée à l'endroit par Leaflet,
+         qui aligne son sommet sur la latitude la plus haute. */
+      var sommets = im.points.map(function (p) { return [HAUT - p[1], p[0]]; });
+      var libre = (im.dispo || 0) > 0;
+
+      var forme = L.polygon(sommets, {
+        color: libre ? '#2e7d5b' : '#8a8f98',
+        weight: 3,
+        fillColor: libre ? '#2e7d5b' : '#8a8f98',
+        fillOpacity: 0.22
+      }).addTo(carte);
+
+      forme.bindTooltip(
+        '<b>' + t('immeuble') + ' ' + nom + '</b><br>' +
+        (libre ? im.dispo + ' ' + t('dispoSur') + ' ' + im.total
+               : t('completSur') + ' ' + im.total),
+        { permanent: true, direction: 'center', className: 'nj-masse-etiq' }
+      );
+
+      forme.on('mouseover', function () { forme.setStyle({ fillOpacity: 0.38 }); });
+      forme.on('mouseout',  function () { forme.setStyle({ fillOpacity: 0.22 }); });
+
+      // Entrer dans l'immeuble : on réutilise le rappel « revenir sur cet
+      // immeuble » déjà employé au retour depuis le bureau de vente.
+      forme.on('click', function () { ouvrirImmeuble(nom); });
+    });
+
+    // Le conteneur vient d'apparaître : Leaflet a mesuré une taille périmée.
+    setTimeout(function () { carte.invalidateSize(); carte.fitBounds(bornes); }, 60);
+  }
+
+  function ouvrirImmeuble(nom) {
+    immARevoir = nom;
+    changerVue('maquette');
+  }
+
   function arr(v) { return Math.round(v * 10) / 10; }
 
   /**
@@ -2003,9 +2174,11 @@
 
   /** Bascule entre la façade, la maquette et les cartes détaillées. */
   function changerVue(vue) {
-    if (['plan', 'maquette', 'liste'].indexOf(vue) === -1) return;
+    if (['situation', 'plan', 'maquette', 'liste'].indexOf(vue) === -1) return;
     etat.vue = vue;
-    try { localStorage.setItem('nj-vue-lots', vue); } catch (e) {}
+    // Voir vueImposee : une vue venue de l'URL ne remplace pas le choix du
+    // visiteur. Dès qu'il touche lui-même au sélecteur, elle redevient sienne.
+    if (!vueImposee) { try { localStorage.setItem('nj-vue-lots', vue); } catch (e) {} }
     document.querySelectorAll('[data-vue]').forEach(function (b) {
       var actif = b.dataset.vue === vue;
       b.classList.toggle('is-active', actif);
@@ -2023,7 +2196,8 @@
     var compteur = document.getElementById('njCompteur');
     compteur.textContent = etat.lots.length + ' ' +
       (etat.lots.length > 1 ? t('resultats') : t('resultat'));
-    if (etat.vue === 'plan') rendrePlan();
+    if (etat.vue === 'situation') rendreSituation();
+    else if (etat.vue === 'plan') rendrePlan();
     else if (etat.vue === 'maquette') rendreMaquette();
     else rendreLots();
     majBoutonPleinMaquette();   // la vue vient peut-être de changer
@@ -2224,12 +2398,26 @@
     var immUrl = params.get('imm'), etageUrl = params.get('etage');
     if (immUrl && etageUrl) { etat.etage[immUrl] = etageUrl; immARevoir = immUrl; }
     chargerSelection();
-    try {
-      var vueGardee = localStorage.getItem('nj-vue-lots');
-      if (['plan', 'maquette', 'liste'].indexOf(vueGardee) !== -1) etat.vue = vueGardee;
-    } catch (e) {}
+    /* Vue imposée par l'URL — la démonstration ouvre l'étape « logements » sur
+       le plan de masse, pour dérouler environnement → implantation → immeuble
+       → lot. Elle l'emporte sur la vue mémorisée, mais n'est PAS enregistrée :
+       un visiteur qui reviendrait ensuite sur le site par la porte normale
+       retrouve la vue qu'il avait choisie, pas celle que la démo lui a imposée. */
+    var vueUrl = (params.get('vue') || '').toLowerCase();
+    if (['situation', 'plan', 'maquette', 'liste'].indexOf(vueUrl) !== -1) {
+      etat.vue = vueUrl;
+      vueImposee = true;
+    } else {
+      try {
+        var vueGardee = localStorage.getItem('nj-vue-lots');
+        if (['situation', 'plan', 'maquette', 'liste'].indexOf(vueGardee) !== -1) etat.vue = vueGardee;
+      } catch (e) {}
+    }
     document.querySelectorAll('[data-vue]').forEach(function (b) {
-      b.addEventListener('click', function () { changerVue(this.dataset.vue); });
+      b.addEventListener('click', function () {
+        vueImposee = false;   // choix explicite du visiteur : il redevient mémorisable
+        changerVue(this.dataset.vue);
+      });
     });
     changerVue(etat.vue);
 
@@ -2538,6 +2726,7 @@
     majBasculeFiltres();
     texte('lblProjet', t('projet'));
     texte('njVueLabel', t('vue'));
+    texte('njVueSituation', t('vueSituation'));
     texte('njVuePlan', t('vuePlan'));
     texte('njVueMaquette', t('vueMaquette'));
     texte('njVueListe', t('vueListe'));

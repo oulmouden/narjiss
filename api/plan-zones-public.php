@@ -53,6 +53,60 @@ try {
     exit;
 }
 
+/* ── Emprises des immeubles sur le plan de masse ────────────────────────────
+   Ces zones-là ne passent PAS par la jointure ci-dessus : elles ne désignent
+   aucun lot, donc `numero_lot` est vide et le JOIN les écarterait toutes.
+
+   Le compte de lots vient de v_lots_publics et non de `lots` : un logement
+   bloqué (témoin, litige) ne doit pas plus être compté ici qu'ailleurs, sinon
+   l'étiquette « 12 disponibles sur 70 » trahirait son existence par un total
+   qui ne tombe pas juste. */
+$immeubles = [];
+try {
+    $st = nj_db()->prepare(
+        'SELECT immeuble, plan, points, largeur, hauteur
+           FROM plan_zones
+          WHERE projet = ? AND immeuble <> \'\'
+          ORDER BY immeuble'
+    );
+    $st->execute([$projet]);
+    $empr = $st->fetchAll();
+
+    $st = nj_db()->prepare(
+        'SELECT immeuble,
+                COUNT(*)                                        AS total,
+                SUM(statut = \'disponible\')                     AS dispo
+           FROM v_lots_publics
+          WHERE projet = ?
+          GROUP BY immeuble'
+    );
+    $st->execute([$projet]);
+    $compte = [];
+    foreach ($st->fetchAll() as $c) {
+        $compte[(string) $c['immeuble']] = [
+            'total' => (int) $c['total'],
+            'dispo' => (int) $c['dispo'],
+        ];
+    }
+
+    foreach ($empr as $r) {
+        $points = json_decode((string) $r['points'], true);
+        if (!is_array($points) || count($points) < 3) continue;
+        $nom = (string) $r['immeuble'];
+        $immeubles[$nom] = [
+            'plan'    => (string) $r['plan'],
+            'points'  => $points,
+            'largeur' => (int) $r['largeur'],
+            'hauteur' => (int) $r['hauteur'],
+            'total'   => $compte[$nom]['total'] ?? 0,
+            'dispo'   => $compte[$nom]['dispo'] ?? 0,
+        ];
+    }
+} catch (Throwable $e) {
+    // Colonne absente (base non migrée) : pas de plan de masse, pas d'erreur.
+    error_log('plan-zones-public (immeubles): ' . $e->getMessage());
+}
+
 $plans = [];
 $zones = [];
 foreach ($lignes as $r) {
@@ -70,7 +124,8 @@ foreach ($lignes as $r) {
 }
 
 echo json_encode([
-    'ok'    => true,
-    'plans' => $plans ?: new stdClass(),
-    'zones' => $zones ?: new stdClass(),
+    'ok'        => true,
+    'plans'     => $plans ?: new stdClass(),
+    'zones'     => $zones ?: new stdClass(),
+    'immeubles' => $immeubles ?: new stdClass(),
 ], JSON_UNESCAPED_UNICODE);
