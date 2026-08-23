@@ -771,7 +771,10 @@ body.nj-fige { overflow: hidden; }
   transform: translate(-50%, -100%);
   /* Élargie depuis l'arrivée d'« Album » : les trois documents tiennent ainsi
      sur une seule ligne sous le bouton « Choisir ». */
-  min-width: 15rem; max-width: 19.5rem;
+  /* Retrecie : sur un telephone de 360 px, 19,5rem occupaient presque toute la
+     largeur et masquaient le plan autour du lot — or c'est ce plan qui donne
+     le contexte du logement qu'on interroge. */
+  min-width: 14.6rem; max-width: 16.5rem;
   padding: .7rem .8rem .6rem;
   background: var(--surface); color: var(--text);
   border: 1px solid var(--border-medium); border-left: 4px solid var(--lot-dispo);
@@ -788,6 +791,9 @@ body.nj-fige { overflow: hidden; }
   bottom: -6px; transform: translateX(-50%) rotate(45deg);
   border-top: 0; border-left: 0;
 }
+/* Bulle recalee pour tenir dans la fenetre : sa pointe ne vise plus le lot,
+   on la retire. Une fleche qui pointe a cote trompe plus qu'elle n'aide. */
+.nj-bulle-recalee::after { display: none; }
 .nj-bulle-dessous::after { bottom: auto; top: -6px; border: 1px solid var(--border-medium); border-bottom: 0; border-right: 0; }
 .nj-bulle-x {
   position: absolute; top: .25rem; inset-inline-end: .3rem;
@@ -798,8 +804,14 @@ body.nj-fige { overflow: hidden; }
 .nj-bulle-x:hover { color: var(--text); }
 .nj-bulle-titre { margin: 0 1.4rem .1rem 0; font-weight: 800; font-size: .95rem; }
 .nj-bulle-meta { margin: 0; color: var(--muted); font-size: .8rem; }
-.nj-bulle-prix { margin: .2rem 0 .3rem; font-weight: 800; color: var(--accent-solid); }
-.nj-bulle-statut { margin: 0 0 .5rem; }
+/* Prix et statut cote a cote. `wrap` plutot qu'une ligne rigide : un prix long
+   (« 1 250 000 DH ») repasse alors sous la pastille au lieu de la pousser hors
+   de la bulle. */
+.nj-bulle-ligne {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .4rem;
+  margin: .25rem 0 .5rem;
+}
+.nj-bulle-prix { font-weight: 800; color: var(--accent-solid); }
 .nj-bulle-actions { display: flex; flex-wrap: wrap; gap: .3rem; }
 /* Les trois actions partagent une ligne étroite : on resserre les boutons
    repris de la fiche, taillés eux pour une fenêtre pleine largeur. */
@@ -1001,8 +1013,22 @@ body.nj-fige-plein { overflow: hidden; }
    devenait un item flex rétréci à son contenu, centré entre deux grands
    vides. On l'étale explicitement sur toute la largeur. */
 .nj-embed .nj-shell {
-  display: block; width: 100%; max-width: none; margin: 0; padding: 0;
+  display: block; width: 100%; max-width: none; margin: 0;
+  /* Une marge laterale, meme mince : sans elle le titre du projet et le
+     compteur se collaient au bord du cadre, et le plan de masse touchait les
+     deux cotes de l'ecran. Le contenu a besoin de respirer contre le bord,
+     surtout projete devant un client. Rien en bas : la barre de la demo y a
+     deja sa place. */
+  padding: 0 1.1rem;
 }
+/* Chaque immeuble porte deja son propre padding : on evite de l'additionner. */
+.nj-embed .nj-shell .nj-mq-imm { padding-inline: 0; }
+
+/* Le fil d'etapes est retire de la scene : sur une page embarquee dans la
+   demonstration, les cinq etapes du parcours sont portees par la barre du bas
+   (« Retour au projet », « Voir mes choix ») — les rappeler en haut ajoutait
+   une ligne sans rien apprendre. Il reste sur le site public. */
+.nj-embed .nj-fil { display: none !important; }
 /* Un immeuble = un écran (reprise des règles :fullscreen ci-dessus). */
 .nj-embed .nj-mq-imm {
   display: flex; flex-direction: column; box-sizing: border-box;
@@ -1073,6 +1099,13 @@ body.nj-fige-plein { overflow: hidden; }
   .nj-filtres h2 { display: none; }        /* remplacé par le bouton de repli */
   .nj-filtres-bascule { display: flex; }
   .nj-filtres-bascule[aria-expanded="false"] + .nj-filtres-corps { display: none; }
+  /* Le selecteur de PROJET se replie desormais avec les filtres. Reste dehors,
+     il coutait a lui seul un panneau entier — 198 px avant le premier logement,
+     sur un ecran de 812. Or on arrive ici par un lien qui nomme deja le projet :
+     en changer est l'exception. Il reste a un doigt, sous « Affiner ».
+     CSS ne sait pas designer un frere PRECEDENT : d'ou la classe posee sur le
+     panneau plutot qu'un selecteur depuis le bouton. */
+  .nj-filtres.nj-replie .nj-champ-projet { display: none; }
   /* Replie, le panneau retrouve son empilement : une ligne de champs
      minuscules serait illisible sur un ecran etroit. */
   .nj-filtres-corps { flex-direction: column; align-items: stretch; gap: .8rem; }
@@ -1131,6 +1164,125 @@ body.nj-fige-plein { overflow: hidden; }
   .nj-situation-carte { height: min(60vh, 460px); }
   .leaflet-tooltip.nj-masse-etiq { font-size: .64rem; padding: .15rem .35rem; }
 }
+#njSousTitre:empty { display: none; }   /* pas de marge pour un texte absent */
+
+
+/* ── Critères de sélection : lisibles, et moins austères ──────────────────
+   Sept menus deroulants gris alignes se lisaient comme un formulaire
+   administratif. Un fond pastel par critere les distingue d'un coup d'oeil et
+   donne au bloc l'air d'un choix, pas d'une saisie. Les teintes restent tres
+   pales — le texte doit primer, la couleur ne fait que ranger.
+   Chaque valeur est en gras : c'est ce que le visiteur a choisi, ca doit
+   ressortir davantage que l'etiquette au-dessus. */
+.nj-filtres select,
+.nj-filtres input[type="range"] { font-weight: 700; }
+
+.nj-filtres select {
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: .5rem .6rem;
+  color: var(--text);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.nj-filtres select:focus {
+  outline: none;
+  border-color: var(--ocean, #006aff);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ocean, #006aff) 18%, transparent);
+}
+
+/* Une teinte par critere : elles se retrouvent d'une visite a l'autre. */
+#fProjet      { background: color-mix(in oklab, #7c4da0 12%, var(--surface)); }
+#fTypologie   { background: color-mix(in oklab, #2e7d5b 12%, var(--surface)); }
+#fImmeuble    { background: color-mix(in oklab, #0e6ba8 12%, var(--surface)); }
+#fNiveau      { background: color-mix(in oklab, #c2761b 12%, var(--surface)); }
+#fOrientation { background: color-mix(in oklab, #b0416b 12%, var(--surface)); }
+
+/* Le libelle reste discret : il nomme, il ne se dispute pas la vedette. */
+.nj-filtres .nj-champ > label { font-weight: 600; }
+
+/* Le titre et les actions secondaires partagent une ligne : ainsi les criteres
+   de selection viennent DIRECTEMENT sous « Choisissez votre logement », sans
+   rangee intercalaire. */
+.nj-hero { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
+.nj-hero h1 { flex: 1 1 auto; margin: 0; }
+.nj-hero #njSousTitre { flex: 1 1 100%; }
+.nj-hero-actions { flex: 0 0 auto; }
+
+/* ── Actions secondaires de l'entete ──────────────────────────────────────
+   Sur grand ecran : la rangee d'origine, tous les boutons visibles, et pas de
+   bascule. Sur telephone : seul « ⋯ » reste, les autres se deplient au clic.
+   Pas de <details> : `display: contents`, indispensable pour le rendre
+   transparent sur grand ecran, casse la mise en page des boutons dans Chrome. */
+/* `.nj-hero-actions button` (plus haut) impose display:inline-flex a tous les
+   boutons de la rangee : une regle a un seul selecteur ne pouvait pas la
+   contredire. On egale sa specificite, et on passe apres. */
+.nj-hero-actions > .nj-act-bascule { display: none; }
+
+@media (max-width: 640px) {
+  .nj-hero-actions > a,
+  .nj-hero-actions > button:not(.nj-act-bascule) { display: none; }
+  .nj-hero-actions.nj-actions-ouvertes > a,
+  .nj-hero-actions.nj-actions-ouvertes > button { display: inline-flex; }
+  .nj-hero-actions > .nj-act-bascule {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 44px; min-height: 38px; padding: 0 .7rem;
+    border: 1px solid var(--border-medium); border-radius: 999px;
+    background: var(--surface); color: var(--text);
+    font-size: 1.1rem; line-height: 1; cursor: pointer;
+  }
+}
+
+/* ── Actions de l'entete : la meme famille pastel que les criteres ────────
+   Un seul bouton colore — le vert WhatsApp — au milieu de quatre boutons
+   blancs : il tirait l'oeil vers l'action la moins engageante du lot. Chaque
+   action recoit donc sa teinte, dans la gamme des criteres juste en dessous.
+
+   La teinte est posee en `background-image`, TRANSLUCIDE, par-dessus le fond
+   que le theme donne au bouton — et non melangee a `var(--surface)`. Melangee,
+   elle restait claire en mode nocturne : le fond ne se recalculait pas au
+   changement de theme, alors meme que la variable, elle, avait bien change.
+   Translucide, la question ne se pose plus : c'est le fond du dessous qui
+   fournit le clair ou le sombre, et la couleur ne fait que le teinter. */
+.nj-hero-actions a,
+.nj-hero-actions button {
+  color: var(--ocean-deep);
+  background-color: var(--surface);
+}
+
+#njHeroActions a[href^="bureaudevente"] { background-image: linear-gradient(rgba(14,107,168,.14), rgba(14,107,168,.14)); border-color: rgba(14,107,168,.34); }
+#njHeroActions a[href^="localisation"]  { background-image: linear-gradient(rgba(46,125,91,.14),  rgba(46,125,91,.14));  border-color: rgba(46,125,91,.34); }
+#njItineraire                            { background-image: linear-gradient(rgba(194,118,27,.14), rgba(194,118,27,.14)); border-color: rgba(194,118,27,.34); }
+#njPleinEcran                            { background-image: linear-gradient(rgba(124,77,160,.14), rgba(124,77,160,.14)); border-color: rgba(124,77,160,.34); }
+/* Le vert de WhatsApp est conserve — c'est son identite — mais ramene a la
+   meme intensite que ses voisins : il redevient un pair, non un accent. */
+.nj-hero-actions .nj-act-wa {
+  background-color: var(--surface);
+  background-image: linear-gradient(rgba(37,211,102,.16), rgba(37,211,102,.16));
+  color: var(--ocean-deep);
+  border-color: rgba(37,211,102,.38);
+}
+/* Au survol la teinte se renforce : le bouton reste le meme, il se rapproche. */
+.nj-hero-actions a:hover,
+.nj-hero-actions button:hover { filter: saturate(1.3) brightness(.98); }
+
+/* Le choix de l'immeuble, sur la ligne de l'affichage. Meme teinte bleue que
+   lorsqu'il vivait dans les criteres : c'est le meme controle. */
+.nj-champ-immeuble { display: flex; align-items: center; gap: .45rem; margin: 0; }
+.nj-champ-immeuble > label {
+  margin: 0; font-size: .78rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .05em; white-space: nowrap;
+}
+.nj-champ-immeuble select {
+  font-weight: 700; min-height: 38px; padding: .4rem .6rem;
+  border: 1.5px solid rgba(14,107,168,.34); border-radius: 10px;
+  background-color: var(--surface);
+  background-image: linear-gradient(rgba(14,107,168,.14), rgba(14,107,168,.14));
+  color: var(--text); font-family: inherit; max-width: 14rem;
+}
+@media (max-width: 640px) {
+  .nj-champ-immeuble { flex: 1 1 100%; }
+  .nj-champ-immeuble select { flex: 1; max-width: none; }
+}
 </style>
 <script>
   /* Posé avant le rendu pour éviter tout clignotement du menu en mode scène. */
@@ -1146,15 +1298,11 @@ body.nj-fige-plein { overflow: hidden; }
 
 <section class="nj-hero">
   <h1 id="njTitre">Choisissez votre logement</h1>
-  <p id="njSousTitre">Résidence Al Jawhara — Dcheira El Jihadia, Agadir</p>
+  <!-- Rempli puis vide par appliquerLangue() : l'identite du projet est portee
+       par le bandeau au-dessus des resultats, la ou elle sert. Conserve pour ne
+       pas casser les references, et masque tant qu'il est vide. -->
+  <p id="njSousTitre"></p>
   <div class="nj-hero-actions" id="njHeroActions"></div>
-  <ol class="nj-fil" id="njFil">
-    <li>Vos critères</li>
-    <li>Le projet</li>
-    <li class="nj-fil-actif">Les logements</li>
-    <li>Ma sélection</li>
-    <li>Un conseiller</li>
-  </ol>
 </section>
 
 <div class="nj-shell">
@@ -1183,10 +1331,6 @@ body.nj-fige-plein { overflow: hidden; }
       <select id="fTypologie"></select>
     </div>
     <div class="nj-champ">
-      <label for="fImmeuble" id="lblImmeuble">Immeuble</label>
-      <select id="fImmeuble"></select>
-    </div>
-    <div class="nj-champ">
       <label for="fNiveau" id="lblNiveau">À partir de l'étage</label>
       <select id="fNiveau"></select>
     </div>
@@ -1213,9 +1357,28 @@ body.nj-fige-plein { overflow: hidden; }
   </aside>
 
   <main>
+    <!-- Le fil d'etapes a quitte l'entete : place entre le titre et les
+         criteres, il les separait. Ici il annonce les resultats, ce qui est
+         aussi le moment ou savoir « ou j'en suis » a le plus de sens. -->
+    <ol class="nj-fil" id="njFil">
+      <li>Vos critères</li>
+      <li>Le projet</li>
+      <li class="nj-fil-actif">Les logements</li>
+      <li>Ma sélection</li>
+      <li>Un conseiller</li>
+    </ol>
     <h2 class="nj-projet-bandeau" id="njProjetBandeau"></h2>
     <div class="nj-resultats-tete">
       <p class="nj-compteur" id="njCompteur">…</p>
+      <!-- Le choix de l'immeuble a quitte le panneau « Affiner » pour cette
+           ligne. Replie sur telephone, ce panneau le rendait introuvable — et
+           la page s'ouvrait donc sur TOUS les immeubles empiles : 7 758 px a
+           faire defiler sur un projet de neuf batiments. Le controle n'a pas
+           change, seulement sa place. -->
+      <div class="nj-champ nj-champ-immeuble">
+        <label for="fImmeuble" id="lblImmeuble">Immeuble</label>
+        <select id="fImmeuble"></select>
+      </div>
       <div class="nj-vue" role="group" aria-labelledby="njVueLabel">
         <span class="nj-vue-label" id="njVueLabel">Affichage</span>
         <!-- Masqué tant qu'aucune emprise d'immeuble n'est tracée : c'est
@@ -1240,6 +1403,11 @@ body.nj-fige-plein { overflow: hidden; }
   <p class="nj-barre-titre"><span id="njBarreLabel">Ma sélection</span> <span id="njBarreCompte">0/3</span></p>
   <div class="nj-barre-liste" id="njBarreListe"></div>
   <button type="button" class="nj-vider" id="njVider" hidden>✕ Vider</button>
+  <!-- Joindre un conseiller vit desormais ICI, aupres de la selection : c'est
+       apres avoir choisi qu'on veut parler a quelqu'un, pas avant d'avoir vu
+       le premier logement. La barre du bas est deja la ou se prennent les
+       decisions — vider, envoyer. -->
+  <a class="nj-barre-conseiller" id="njBarreConseiller" href="contact.html">Contacter un conseiller</a>
   <button type="button" class="nj-suivant" id="njSuivant" disabled>Envoyer mes choix →</button>
 </div>
 
@@ -1272,6 +1440,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=6f4dd843"></script>
-<script src="disponibilites.js?v=1b812c1f"></script>
+<script src="disponibilites.js?v=be18bb36"></script>
 </body>
 </html>

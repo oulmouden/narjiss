@@ -1178,8 +1178,32 @@ html[dir=rtl] .major-card { text-align: right; }
 .commercial-top { display:flex; flex-wrap:wrap; align-items:center; gap:1rem; justify-content:space-between; }
 .commercial-price { font-family:var(--font-serif,'Playfair Display',serif); font-size:clamp(1.5rem,3vw,2.1rem); font-weight:800; color:var(--ink,#1f2430); }
 .commercial-badges { display:flex; flex-wrap:wrap; gap:.5rem; }
-.cbadge { display:inline-flex; align-items:center; gap:.35rem; background:var(--surface-2); color:var(--ink); border:1px solid var(--line); border-radius: 6px; padding:.35rem .8rem; font-size:.82rem; font-weight:700; }
-.cbadge-status { background:var(--ocean,#00AEEF); color:#fff; border-color:transparent; }
+/* ── Etiquettes commerciales : des INFORMATIONS, pas des boutons ──────────
+   « En vente », « Moyen standing », « Livraison 2026-Q4 », « Titre foncier »
+   ne sont pas cliquables. Avec un fond plein, une bordure et un cadre, elles
+   avaient pourtant l'apparence exacte des boutons d'action juste au-dessus —
+   et « En vente », rempli de bleu, ressemblait meme au bouton principal. Le
+   visiteur clique, rien ne se passe : la promesse etait dans le style.
+
+   Voir tools/inventaire-pilules.js, qui recense ce motif dans tout le site :
+   rien ne distingue mecaniquement un bouton d'un libelle, c'est au style de
+   le dire. On retire donc la boite — plus de bordure, plus de fond plein —
+   et on ne garde qu'une teinte legere qui groupe l'information sans annoncer
+   une action. Le texte porte l'info, la couleur la classe. */
+.cbadge {
+  display:inline-flex; align-items:center; gap:.35rem;
+  background:transparent; color:var(--muted); border:0; border-radius:0;
+  padding:.2rem 0; font-size:.82rem; font-weight:600;
+  cursor:default;
+}
+/* Les etiquettes se separent par un point median plutot que par des cadres :
+   on lit une suite d'informations, pas une rangee de commandes. */
+.cbadge + .cbadge::before {
+  content:'·'; margin-inline-end:.55rem; color:var(--line); font-weight:700;
+}
+/* Le statut commercial reste le plus lisible du lot — c'est l'information la
+   plus utile — mais par sa COULEUR DE TEXTE, non par un fond plein. */
+.cbadge-status { background:transparent; color:var(--ocean,#00AEEF); font-weight:800; }
 .cbadge-hot { background:#ffe7d6; color:#b4460b; border-color:transparent; font-size:.72rem; }
 .quick-facts { display:flex; flex-wrap:wrap; gap:.75rem; }
 .quick-facts .fact { background:var(--smoke); border:1px solid var(--line); border-radius:10px; padding:.7rem .95rem; min-width:130px; }
@@ -1359,6 +1383,63 @@ html[dir=rtl] .media-generique::after { left: auto; right: .5rem; }
   .pj-embed #projectMap { height: 60vh !important; }
   .pj-embed .map-aside { height: auto; }
 }
+
+/* ── Filtres de POI : meme gamme pastel que partout ailleurs ──────────────
+   Identique a localisation.html et aux criteres de disponibilites.html : une
+   teinte par filtre, en gras. La teinte est TRANSLUCIDE, posee par-dessus le
+   fond du theme — melangee a une variable, elle restait claire en nocturne. */
+.poi-filter { font-weight: 700; }
+
+#poiCatFilter {
+  background-image: linear-gradient(rgba(46,125,91,.14), rgba(46,125,91,.14));
+  border-color: rgba(46,125,91,.34);
+}
+#poiDistanceFilter {
+  background-image: linear-gradient(rgba(194,118,27,.14), rgba(194,118,27,.14));
+  border-color: rgba(194,118,27,.34);
+}
+#poiPointFilter {
+  background-image: linear-gradient(rgba(14,107,168,.14), rgba(14,107,168,.14));
+  border-color: rgba(14,107,168,.34);
+}
+
+/* ── Actions de la fiche projet : meme gamme pastel qu'ailleurs ───────────
+   Cinq boutons gris et un vert : le vert WhatsApp tirait l'oeil vers l'action
+   la moins engageante du lot, comme sur disponibilites.html avant correction.
+   Chaque action recoit sa teinte, dans la meme gamme que les criteres et les
+   filtres de POI.
+
+   Teinte TRANSLUCIDE posee par-dessus le fond du theme, jamais melangee a une
+   variable : melangee, elle restait claire en mode nocturne. */
+.property-summary .hero-actions .btn-luxe { font-weight: 700; }
+
+/* Retour aux projets : neutre, c'est une sortie, pas une action du projet. */
+.property-summary .hero-actions a[href^="explorer"] {
+  background-image: linear-gradient(rgba(124,77,160,.12), rgba(124,77,160,.12));
+  border-color: rgba(124,77,160,.30);
+}
+.property-summary .hero-actions a[href^="bureaudevente"] {
+  background-image: linear-gradient(rgba(14,107,168,.14), rgba(14,107,168,.14));
+  border-color: rgba(14,107,168,.34);
+}
+.property-summary .hero-actions .projectCurrentRoute {
+  background-image: linear-gradient(rgba(194,118,27,.14), rgba(194,118,27,.14));
+  border-color: rgba(194,118,27,.34);
+}
+.property-summary .hero-actions .projectMapFullscreen {
+  background-image: linear-gradient(rgba(46,125,91,.14), rgba(46,125,91,.14));
+  border-color: rgba(46,125,91,.34);
+}
+/* Le vert de WhatsApp est conserve — c'est son identite — mais ramene a la
+   meme intensite que ses voisins : il redevient un pair, non un accent. */
+.property-summary .hero-actions .btn-whatsapp {
+  background-color: var(--smoke);
+  background-image: linear-gradient(rgba(37,211,102,.16), rgba(37,211,102,.16));
+  color: var(--ocean-deep);
+  border-color: rgba(37,211,102,.38);
+}
+/* « Contacter un conseiller » garde son or : c'est l'action principale de la
+   page, et elle doit rester la seule a se distinguer. */
 </style>
 <script>
   /* Posé avant le rendu pour éviter tout clignotement du reste de la page. */

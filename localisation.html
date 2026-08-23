@@ -455,6 +455,33 @@ html[dir=rtl] .poi-item { text-align: right; }
   .nj-embed .loc-shell { height: 100vh; }
   .nj-embed #projectMap { height: 100%; }
 }
+
+/* ── Filtres de POI : la meme gamme pastel que les criteres des logements ──
+   Trois menus deroulants gris cote a cote se lisaient comme un formulaire.
+   Meme recette que sur disponibilites.html : une teinte par filtre, en gras,
+   pour qu'on distingue d'un coup d'oeil « la categorie » du « temps de
+   marche » et du « point a rejoindre ».
+
+   La teinte est posee TRANSLUCIDE par-dessus le fond du theme, et non melangee
+   a une variable : melangee, elle restait claire en mode nocturne. Ici le fond
+   du dessous fournit le clair ou le sombre, la couleur ne fait que teinter. */
+.poi-filter { font-weight: 700; }
+
+#poiCatFilter {
+  background-image: linear-gradient(rgba(46,125,91,.14), rgba(46,125,91,.14));
+  border-color: rgba(46,125,91,.34);
+}
+#poiDistanceFilter {
+  background-image: linear-gradient(rgba(194,118,27,.14), rgba(194,118,27,.14));
+  border-color: rgba(194,118,27,.34);
+}
+#poiPointFilter {
+  background-image: linear-gradient(rgba(14,107,168,.14), rgba(14,107,168,.14));
+  border-color: rgba(14,107,168,.34);
+}
+/* Le mode « Reperes » reutilise l'identifiant poiPointFilter pour son unique
+   menu : il herite donc du bleu ci-dessus, ce qui est coherent — c'est le meme
+   geste, « aller a un endroit ». Pas de regle propre : elle serait morte. */
 </style>
 <script>
   /* Posé avant le rendu pour éviter tout clignotement du menu en mode iframe. */

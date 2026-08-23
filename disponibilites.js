@@ -48,7 +48,9 @@
   // Immeuble à ramener sous les yeux au premier rendu de la maquette (retour
   // depuis une autre page). Consommé une fois, puis oublié.
   var immARevoir = null;
-  var vueImposee = false;   // vue venue de l'URL (démonstration) : voir init()
+  var vueImposee = false;      // vue non choisie par le visiteur : ne pas l'enregistrer
+  var preferenceVue = null;    // vue explicitement retenue lors d'une visite passée
+  var vueImposeeParUrl = false; // ?vue= (démonstration) : ne pas la contredire
 
   var T = {
     fr: {
@@ -75,7 +77,7 @@
       comparer: 'Glissez pour comparer les deux plans',
       sansTour: 'Aucune visite 360° disponible pour ce projet.',
       vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste', vueMaquette: 'Maquette',
-      vueSituation: 'Situation',
+      vueSituation: 'Situation', plusActions: 'Autres actions',
       dispoSur: 'disponibles sur', completSur: 'complet — 0 sur',
       aidePlanMasse: "Touchez un immeuble pour voir ses logements. Pincez pour zoomer, glissez pour déplacer.",
       sansPlanMasse: "Aucun plan de masse tracé pour ce projet.",
@@ -128,7 +130,7 @@
       comparer: 'Drag to compare both plans',
       sansTour: 'No 360° tour available for this project.',
       vue: 'View', vuePlan: 'Plan', vueListe: 'List', vueMaquette: 'Floor mockup',
-      vueSituation: 'Site plan',
+      vueSituation: 'Site plan', plusActions: 'More actions',
       dispoSur: 'available out of', completSur: 'sold out — 0 of',
       aidePlanMasse: 'Tap a building to see its homes. Pinch to zoom, drag to pan.',
       sansPlanMasse: 'No site plan has been mapped for this project.',
@@ -181,7 +183,7 @@
       comparer: 'اسحب للمقارنة بين المخططين',
       sansTour: 'لا توجد جولة 360° متاحة لهذا المشروع.',
       vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة', vueMaquette: 'مجسم الطابق',
-      vueSituation: 'المخطط العام',
+      vueSituation: 'المخطط العام', plusActions: 'إجراءات أخرى',
       dispoSur: 'متاح من أصل', completSur: 'مكتمل — 0 من',
       aidePlanMasse: 'اضغط على عمارة لعرض شققها. اقرص للتكبير، اسحب للتحريك.',
       sansPlanMasse: 'لا يوجد مخطط عام لهذا المشروع.',
@@ -234,7 +236,7 @@
       comparer: 'Deslice para comparar los dos planos',
       sansTour: 'No hay visita 360° disponible para este proyecto.',
       vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista', vueMaquette: 'Maqueta',
-      vueSituation: 'Situación',
+      vueSituation: 'Situación', plusActions: 'Más acciones',
       dispoSur: 'disponibles de', completSur: 'completo — 0 de',
       aidePlanMasse: 'Toque un edificio para ver sus viviendas. Pellizque para ampliar, arrastre para mover.',
       sansPlanMasse: 'No hay plano de situación para este proyecto.',
@@ -445,7 +447,12 @@
     var grille = document.getElementById('njGrille');
     grille.setAttribute('aria-busy', 'true');
     chargerZones().then(function () {
-      if (etat.vue === 'maquette') afficherLots();   // repeint avec le vrai plan
+      /* Les emprises arrivent APRÈS le premier rendu. La maquette se repeignait
+         déjà avec le vrai plan ; la vue « Situation », elle, restait sur son
+         message « aucun plan de masse tracé » — alors que le plan venait
+         d'arriver. Visible surtout à froid, et donc dans la démonstration, qui
+         ouvre justement sur cette vue. */
+      if (etat.vue === 'maquette' || etat.vue === 'situation') afficherLots();
     });
     return fetch(construireUrl(), { cache: 'no-store' })
       .then(function (r) { return r.json(); })
@@ -467,6 +474,7 @@
   /* ── Rendu des filtres ─────────────────────────────────────────────── */
 
   var filtresRendus = false;
+  var immeubleImpose = false;   // immeuble de depart pose d'office : voir rendreFiltres()
 
   function rendreFiltres() {
     if (filtresRendus || !etat.facettes) return;
@@ -495,6 +503,21 @@
 
     document.getElementById('fTypologie').innerHTML = options(f.typologies, t('tous'));
     document.getElementById('fImmeuble').innerHTML = options(f.immeubles, t('tous'));
+
+    /* OUVRIR SUR UN SEUL IMMEUBLE.
+       La page demarrait sur « Tous », c'est-a-dire sur tous les batiments
+       empiles : 7 758 px a faire defiler sur un projet de neuf immeubles, ou
+       le visiteur devait deviner qu'un menu enfoui pouvait les reduire. On
+       part donc du premier, et « Tous » reste a un clic pour comparer.
+
+       Seulement au PREMIER rendu, et seulement au-dela d'un immeuble : sans ce
+       garde-fou, chaque changement de langue — qui reconstruit les options —
+       reimposerait ce choix par-dessus celui du visiteur. */
+    var nomsImm = Object.keys(f.immeubles || {});
+    if (premierRendu && !choix.fImmeuble && nomsImm.length > 1) {
+      choix.fImmeuble = nomsImm[0];
+      immeubleImpose = true;
+    }
     document.getElementById('fOrientation').innerHTML =
       options(f.orientations, t('toutes'), libelleOrientation);
 
@@ -533,6 +556,17 @@
     });
     majEtiquetteBudget();
     majEtiquetteSurface();
+
+    /* Poser la valeur du menu ne filtre rien : c'est `etat.filtres` qui decide
+       de ce qui s'affiche, et il est relu depuis les champs. Quand on impose
+       l'immeuble de depart, il faut donc emprunter le meme chemin qu'un choix
+       du visiteur — relire les filtres et recharger. Le drapeau evite la
+       boucle : charger() rappelle rendreFiltres(). */
+    if (immeubleImpose) {
+      immeubleImpose = false;
+      lireFiltres();
+      charger();
+    }
   }
 
   function majEtiquetteBudget() {
@@ -575,6 +609,15 @@
   function majBasculeFiltres() {
     var lbl = document.getElementById('njFiltresBasculeLbl');
     if (!lbl) return;
+
+    /* Le panneau porte l'etat replie : le selecteur de projet le precede dans
+       le DOM, et CSS ne sait pas remonter a un frere precedent. */
+    var bascule = document.getElementById('njFiltresBascule');
+    var panneau = document.querySelector('.nj-filtres');
+    if (bascule && panneau) {
+      panneau.classList.toggle('nj-replie', bascule.getAttribute('aria-expanded') !== 'true');
+    }
+
     var actifs = Object.keys(etat.filtres).filter(function (k) {
       return etat.filtres[k] !== '' && etat.filtres[k] != null;
     }).length;
@@ -836,8 +879,14 @@
       '<p class="nj-bulle-meta">' + surface +
         (lot.chambres > 0 ? ' · ' + lot.chambres + ' ' + t('chambresLot').toLowerCase() : '') +
         '</p>' +
-      '<p class="nj-bulle-prix">' + prixHtml(lot.prix) + '</p>' +
-      '<p class="nj-bulle-statut"><span class="nj-pastille">' + t(lot.statut) + '</span></p>' +
+      /* Prix et statut sur une SEULE ligne : deux informations courtes qui se
+         lisent ensemble — « Nous consulter · Disponible ». Empilées, elles
+         coûtaient une ligne de hauteur à une bulle qui doit tenir dans un
+         écran de téléphone sans le remplir. */
+      '<p class="nj-bulle-ligne">' +
+        '<span class="nj-bulle-prix">' + prixHtml(lot.prix) + '</span>' +
+        '<span class="nj-pastille">' + t(lot.statut) + '</span>' +
+      '</p>' +
       '<div class="nj-bulle-actions">' + actionsBulleHTML(lot) + '</div>' +
       /* La fiche complète — album, orientation, notes — n'a plus d'autre porte
          d'entrée depuis le plan maintenant que la pastille « i » a disparu.
@@ -848,19 +897,47 @@
     plateau.appendChild(bulle);
 
     /* Ancrée sur le lot touché, en coordonnées du plateau — le plan se déplace
-       et se zoome, ses coordonnées internes ne servent à rien ici. Bornée aux
-       bords pour ne pas sortir du cadre, et basculée sous le lot quand il n'y
-       a pas la place au-dessus. */
+       et se zoome, ses coordonnées internes ne servent à rien ici.
+
+       LE CÔTÉ SE DÉCIDE SUR L'ÉCRAN, PAS SUR LE PLATEAU.
+       La bascule regardait la place restante au-dessus du lot DANS LE PLATEAU.
+       Or le plateau est plus haut que la fenêtre : un lot placé haut dans le
+       plan mais affiché en bas de l'écran ouvrait sa bulle vers le bas, hors
+       de vue, et il fallait faire défiler la page pour en lire la fin. C'est
+       la place restante dans la FENÊTRE qui compte — c'est là qu'est le
+       lecteur. */
+    var MARGE = 12;
     var rl = cible.getBoundingClientRect();
     var rp = plateau.getBoundingClientRect();
     var largeur = bulle.offsetWidth, hauteur = bulle.offsetHeight;
+    var vue = window.innerHeight || document.documentElement.clientHeight;
+
+    var placeDessus  = rl.top - MARGE;
+    var placeDessous = vue - rl.bottom - MARGE;
+    // Au-dessus par défaut — la bulle ne masque pas le plan sous le doigt.
+    // On ne bascule que si ça ne tient pas, et que l'autre côté offre mieux.
+    var dessous = placeDessus < hauteur && placeDessous > placeDessus;
+
     var x = rl.left + rl.width / 2 - rp.left;
-    var y = rl.top - rp.top;
-    var dessous = y - hauteur - 14 < 0;
     x = Math.max(largeur / 2 + 6, Math.min(rp.width - largeur / 2 - 6, x));
+
+    var yLot = rl.top - rp.top;
+    var top = dessous ? yLot + rl.height + MARGE : yLot - MARGE;
+
+    /* Ni au-dessus ni en dessous il n'y a la place — petit écran, bulle haute.
+       On la recale dans la fenêtre plutôt que de la laisser déborder. La pointe
+       ne désignerait plus le lot : on la retire, une flèche qui pointe à côté
+       trompe davantage qu'elle n'aide. */
+    var hautBulle = rp.top + (dessous ? top : top - hauteur);
+    var decalage = 0;
+    if (hautBulle < MARGE) decalage = MARGE - hautBulle;
+    else if (hautBulle + hauteur > vue - MARGE) decalage = (vue - MARGE) - (hautBulle + hauteur);
+    top += decalage;
+
     bulle.classList.toggle('nj-bulle-dessous', dessous);
+    bulle.classList.toggle('nj-bulle-recalee', Math.abs(decalage) > 1);
     bulle.style.left = x + 'px';
-    bulle.style.top = (dessous ? y + rl.height + 12 : y - 12) + 'px';
+    bulle.style.top = top + 'px';
   }
 
   /**
@@ -1365,7 +1442,11 @@
         { ordre: lot.niveau_ordre, lots: [] }).lots.push(lot);
     });
 
-    var html = '<p class="nj-mq-aide">' + t('maquetteAide') + '</p>';
+    /* Le mode d'emploi (« Choisissez un etage, puis un logement… ») est retire :
+       il occupait deux lignes en haut de page pour decrire un geste que le
+       plan rend evident. La chaine des libelles reste traduite au cas ou on
+       le remettrait. */
+    var html = '';
 
     Object.keys(groupes).sort().forEach(function (imm) {
       var niveaux = groupes[imm];
@@ -1484,6 +1565,17 @@
     if (!b) return;
     var utile = etat.immeubles && Object.keys(etat.immeubles).length > 0;
     b.hidden = !utile;
+
+    /* Ouverture sur le plan de masse, comme dans la démonstration : quand le
+       projet a des emprises tracées et que le visiteur n'a jamais choisi de
+       vue, on part de l'implantation. C'est le raisonnement d'un conseiller —
+       situer, puis entrer. Une préférence déjà exprimée l'emporte, et le
+       basculement n'est pas enregistré : il reste un défaut, pas un choix. */
+    if (utile && !preferenceVue && !vueImposeeParUrl && etat.vue !== 'situation') {
+      vueImposee = true;
+      changerVue('situation');
+      return;
+    }
     // Vue mémorisée devenue impossible (changement de projet) : on retombe
     // sur la maquette plutôt que d'afficher une zone vide.
     if (!utile && etat.vue === 'situation') changerVue('maquette');
@@ -1499,8 +1591,8 @@
       return;
     }
 
-    grille.innerHTML = '<div class="nj-situation"><div class="nj-situation-carte" id="njMasse"></div>' +
-      '<p class="nj-situation-aide">' + t('aidePlanMasse') + '</p></div>';
+    // Meme raison que pour la maquette : le geste se devine, la ligne coutait.
+    grille.innerHTML = '<div class="nj-situation"><div class="nj-situation-carte" id="njMasse"></div></div>';
 
     carteMasse = null;   // le conteneur vient d'être remplacé
     chargerLeaflet().then(function (ok) {
@@ -1541,6 +1633,7 @@
     carte.fitBounds(bornes);
     carte.setMaxBounds(bornes);
 
+    var formes = [];
     noms.forEach(function (nom) {
       var im = imms[nom];
       /* [x, y] pixels image → [lat, lng] Leaflet.
@@ -1574,13 +1667,52 @@
       // Entrer dans l'immeuble : on réutilise le rappel « revenir sur cet
       // immeuble » déjà employé au retour depuis le bureau de vente.
       forme.on('click', function () { ouvrirImmeuble(nom); });
+      formes.push(forme);
     });
 
+    /* Leaflet replace ses infobulles au zoom, mais PAS quand la carte change
+       seulement de taille : redimensionner la fenêtre laissait les étiquettes
+       à leur ancienne place, à côté de leur emprise. On les remet nous-mêmes. */
+    function replacerEtiquettes() {
+      formes.forEach(function (f) {
+        var tt = f.getTooltip();
+        if (tt) tt.update();
+      });
+    }
+    carte.on('resize zoomend moveend', replacerEtiquettes);
+
     // Le conteneur vient d'apparaître : Leaflet a mesuré une taille périmée.
-    setTimeout(function () { carte.invalidateSize(); carte.fitBounds(bornes); }, 60);
+    setTimeout(function () {
+      carte.invalidateSize();
+      carte.fitBounds(bornes);
+      replacerEtiquettes();
+    }, 60);
   }
 
   function ouvrirImmeuble(nom) {
+    /* Le menu « Immeuble » ne filtre plus seulement : il dit QUEL immeuble on
+       regarde. Cliquer une emprise sur le plan de masse doit donc le regler,
+       sans quoi le visiteur cliquait sur B et voyait A — le filtre, pose au
+       depart sur le premier batiment, l'emportait sur son clic.
+
+       On cherche l'option par sa valeur, insensiblement a la casse : le plan
+       porte « B », la grille peut porter « b » ou « Lerida ». */
+    var sel = document.getElementById('fImmeuble');
+    if (sel) {
+      var cible = null;
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value &&
+            sel.options[i].value.toLowerCase() === String(nom).toLowerCase()) {
+          cible = sel.options[i].value;
+          break;
+        }
+      }
+      if (cible !== null && sel.value !== cible) {
+        sel.value = cible;
+        lireFiltres();
+        charger();
+      }
+    }
     immARevoir = nom;
     changerVue('maquette');
   }
@@ -2407,11 +2539,20 @@
     if (['situation', 'plan', 'maquette', 'liste'].indexOf(vueUrl) !== -1) {
       etat.vue = vueUrl;
       vueImposee = true;
+      vueImposeeParUrl = true;
     } else {
       try {
         var vueGardee = localStorage.getItem('nj-vue-lots');
-        if (['situation', 'plan', 'maquette', 'liste'].indexOf(vueGardee) !== -1) etat.vue = vueGardee;
+        if (['situation', 'plan', 'maquette', 'liste'].indexOf(vueGardee) !== -1) {
+          etat.vue = vueGardee;
+          preferenceVue = vueGardee;
+        }
       } catch (e) {}
+      /* Aucune préférence : la vue de départ est un DÉFAUT, pas un choix. On ne
+         l'enregistre donc pas — sinon le premier affichage se figeait en
+         « maquette » sans que le visiteur ait rien décidé, et la vue Situation
+         ne pouvait plus jamais devenir celle d'ouverture. */
+      if (!preferenceVue) vueImposee = true;
     }
     document.querySelectorAll('[data-vue]').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -2448,6 +2589,7 @@
       bascule.addEventListener('click', function () {
         var ouvert = this.getAttribute('aria-expanded') === 'true';
         this.setAttribute('aria-expanded', ouvert ? 'false' : 'true');
+        majBasculeFiltres();   // le selecteur de projet suit le repli
       });
     }
 
@@ -2661,13 +2803,22 @@
     if (!zone) return;
     var lang = langue();
     var p = projetCourant();
-    var html = '<a class="nj-act-or" href="contact.html#' + lang + '">' +
-      t('contacter') + '</a>';
+    /* SIX actions avant d'avoir vu un seul logement, c'etait trop pour un
+       telephone : elles repoussaient la grille d'autant. On garde la principale
+       — joindre un conseiller — et on replie les autres derriere « ⋯ ».
+       Sur grand ecran rien ne change : la CSS rouvre le repli et efface le
+       bouton, les actions retrouvent leur rangee (voir @media). */
+    /* « Contacter un conseiller » a quitte cette rangee : il est descendu dans
+       la barre du bas, aupres de « Vider » et « Envoyer mes choix ». On appelle
+       apres avoir choisi, pas avant d'avoir rien vu. Ne restent ici que les
+       actions secondaires, repliees. */
+    var html = '';
+    var suite = '';
     if (p) {
-      html += '<a' + cibleBureau() + ' href="bureaudevente.html?id=' + encodeURIComponent(p.id) +
+      suite += '<a' + cibleBureau() + ' href="bureaudevente.html?id=' + encodeURIComponent(p.id) +
         '#' + lang + '">🏢 ' + t('visiterBureau') + '</a>';
       if (p.lat && p.lng) {
-        html += '<a href="localisation.html?projet=' + encodeURIComponent(p.id) +
+        suite += '<a href="localisation.html?projet=' + encodeURIComponent(p.id) +
           '#' + lang + '">' + t('quartier') + '</a>' +
           '<button type="button" id="njItineraire">' + t('yAller') + '</button>' +
           '<a class="nj-act-wa" id="njItineraireWa" href="#" target="_blank" rel="noopener">' +
@@ -2677,10 +2828,30 @@
     /* Le plein écran était enfoui dans l'en-tête de chaque immeuble, sous la
        ligne de flottaison. Remonté ici, il est visible dès l'arrivée — et un
        seul suffit, puisqu'il vise l'immeuble que le visiteur regarde. */
-    html += '<button type="button" id="njPleinEcran" data-agrandir="" hidden>⛶ ' +
+    suite += '<button type="button" id="njPleinEcran" data-agrandir="" hidden>⛶ ' +
       t('pleinEcran') + '</button>';
+    /* Pas de <details> ici, et c'est delibere : `display: contents` — le seul
+       moyen de lui rendre sa transparence sur grand ecran — casse la mise en
+       page dans Chrome (rangee de hauteur nulle, boutons qui debordent). Les
+       boutons restent donc des enfants directs de la rangee, comme avant, et
+       c'est la CSS qui les masque sur petit ecran derriere un bouton bascule.
+       Au-dessus de 640 px, rien ne change. */
+    if (suite) {
+      html += suite +
+        '<button type="button" class="nj-act-bascule" id="njActBascule" ' +
+        'aria-expanded="false" aria-label="' + echapper(t('plusActions')) + '" ' +
+        'title="' + echapper(t('plusActions')) + '">⋯</button>';
+    }
     zone.innerHTML = html;
     majBoutonPleinMaquette();
+
+    var bascActions = document.getElementById('njActBascule');
+    if (bascActions) {
+      bascActions.addEventListener('click', function () {
+        var ouvert = zone.classList.toggle('nj-actions-ouvertes');
+        this.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+      });
+    }
 
     var btn = document.getElementById('njItineraire');
     if (btn) btn.addEventListener('click', function () { ouvrirItineraire(false); });
@@ -2751,10 +2922,19 @@
     if (projet) {
       var nom = menuText(projet.name, lang);
       var lieu = menuText(projet.location, lang);
-      texte('njSousTitre', lieu ? nom + ' — ' + lieu : nom);
-      texte('njProjetBandeau', nom);   // rappel du nom au-dessus des résultats
+      /* UNE SEULE identite du projet, et non deux.
+         « Residence Al Jawhara — Dcheira El Jihadia » s'affichait en entete,
+         puis « Residence Al Jawhara » revenait 400 px plus bas, au-dessus des
+         resultats. La meme information deux fois, dans un haut de page deja
+         trop long. On garde celle qui est AU CONTACT des logements, en lui
+         donnant la localite que portait l'autre. */
+      texte('njSousTitre', '');
+      texte('njProjetBandeau', lieu ? nom + ' — ' + lieu : nom);
     }
     rendreActionsHero();
+    texte('njBarreConseiller', t('contacter'));
+    var lienConseiller = document.getElementById('njBarreConseiller');
+    if (lienConseiller) lienConseiller.href = 'contact.html#' + lang;
 
     var fil = document.getElementById('njFil');
     if (fil) {
