@@ -1427,14 +1427,37 @@ function njParlonsInstaller(basePath) {
     if (!dedans) fermer();
   });
 
-  // ── L'amorce, une fois par session et jamais d'emblée ───────────────────
+  /* ── Deux façons d'ouvrir l'amorce, et elles ne se ressemblent pas ────────
+     · AU SURVOL : le visiteur interroge le bouton, il attend une réponse
+       immédiate. La bulle apparaît sans délai et se referme quand la souris
+       part — un comportement d'infobulle, qui rejoue autant de fois qu'on veut.
+     · TOUTE SEULE, au bout de douze secondes : là c'est NOUS qui allons
+       chercher le visiteur. Une seule fois par session, et refusable.
+
+     Le mode est mémorisé sur l'élément : sans lui, quitter le bouton après
+     avoir survolé une bulle ouverte d'elle-même la refermerait, alors qu'elle
+     n'appartient pas au survol. */
+  function amorceMontrer(mode) {
+    if (!panneau.hidden) return;          // le panneau est ouvert : la bulle n'a plus lieu d'être
+    amorce.dataset.mode = mode;
+    amorce.hidden = false;
+  }
+
+  racine.addEventListener('mouseenter', function () {
+    if (amorce.hidden) amorceMontrer('survol');
+  });
+  racine.addEventListener('mouseleave', function () {
+    // On ne referme QUE ce que le survol a ouvert.
+    if (!amorce.hidden && amorce.dataset.mode === 'survol') amorce.hidden = true;
+  });
+
   var dejaVue = false;
   try { dejaVue = window.sessionStorage.getItem(NJ_PARLONS_TEASER_KEY) === '1'; } catch (e) {}
   if (!dejaVue) {
     /* Douze secondes : le temps de commencer à lire. Une bulle qui s'ouvre à
        l'arrivée se referme sans être lue. */
     window.setTimeout(function () {
-      if (panneau.hidden && document.querySelector('.nj-parlons')) amorce.hidden = false;
+      if (document.querySelector('.nj-parlons')) amorceMontrer('auto');
     }, 12000);
   }
 
