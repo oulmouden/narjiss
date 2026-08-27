@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "cout-reel-achat",
+    "icone": "🧾",
+    "statut": "brouillon",
+    "date_publication": "2026-08-25",
+    "date_maj": "2026-08-25",
+    "image": "images/logo-narjiss.jpg"
+  },
+  {
+    "slug": "acheter-sur-plan-vefa",
+    "icone": "🏗️",
+    "statut": "brouillon",
+    "date_publication": "2026-08-25",
+    "date_maj": "2026-08-25",
+    "image": "images/logo-narjiss.jpg"
+  },
+  {
+    "slug": "acheter-depuis-etranger",
+    "icone": "🌍",
+    "statut": "brouillon",
+    "date_publication": "2026-08-25",
+    "date_maj": "2026-08-25",
+    "image": "images/logo-narjiss.jpg"
+  },
+  {
+    "slug": "credit-immobilier",
+    "icone": "🏦",
+    "statut": "brouillon",
+    "date_publication": "2026-08-25",
+    "date_maj": "2026-08-25",
+    "image": "images/logo-narjiss.jpg"
+  },
+  {
+    "slug": "quartiers-agadir",
+    "icone": "🧭",
+    "statut": "brouillon",
+    "date_publication": "2026-08-25",
+    "date_maj": "2026-08-25",
+    "image": "images/logo-narjiss.jpg"
+  }
+]

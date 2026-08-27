@@ -1,0 +1,332 @@
+/* ============================================================
+   GUIDES — habillage des pages generees par tools/generer-guides.py
+   ------------------------------------------------------------
+   Aucune couleur en dur : tout passe par les variables de menu.css,
+   donc le mode nocturne et le RTL arabe fonctionnent sans regle
+   supplementaire. Seule exception, le bandeau « en cours de
+   complement », volontairement identique dans les deux themes : c'est
+   une mention adressee au lecteur, elle doit se voir sans agresser.
+   ============================================================ */
+
+.guide-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+
+/* ── Page d'accueil des guides ─────────────────────────────────────────── */
+
+.guide-hub-entete {
+  text-align: center;
+  padding: 1.5rem 0 2rem;
+}
+.guide-hub-entete h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 4vw, 2.7rem);
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: .6rem;
+  line-height: 1.15;
+}
+.guide-hub-entete p {
+  color: var(--muted);
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+.guide-hub-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.1rem;
+}
+
+.guide-carte {
+  position: relative;
+  display: block;
+  padding: 1.4rem 1.4rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+.guide-carte:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+.guide-carte:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+.guide-carte-icone { font-size: 1.9rem; display: block; margin-bottom: .55rem; }
+.guide-carte h2 {
+  font-family: var(--font-serif);
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1.25;
+  margin-bottom: .5rem;
+}
+.guide-carte p {
+  color: var(--muted);
+  font-size: .93rem;
+  line-height: 1.55;
+  margin-bottom: .9rem;
+}
+.guide-carte-lire {
+  color: var(--ocean);
+  font-weight: 650;
+  font-size: .87rem;
+}
+.guide-carte-lire::after { content: " →"; }
+html[dir=rtl] .guide-carte-lire::after { content: " ←"; }
+
+.guide-carte-brouillon,
+.guide-brouillon {
+  background: #FFF8E1;
+  color: #5C4300;
+  border: 1px solid #E9C766;
+  border-radius: 8px;
+}
+/* Pastille de la vignette : courte, centree, discrete. */
+.guide-carte-brouillon {
+  display: block;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  padding: .28rem .5rem;
+  margin-bottom: .7rem;
+  text-align: center;
+}
+/* Bandeau de l'article : une phrase entiere, donc alignee sur le texte et
+   dimensionnee pour etre lue, pas seulement apercue. */
+.guide-brouillon {
+  display: block;
+  font-size: .87rem;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: .7rem .95rem;
+  margin-bottom: 1.2rem;
+  text-align: start;
+}
+
+/* ── Article ───────────────────────────────────────────────────────────── */
+
+.guide-fil { margin-bottom: 1.2rem; }
+.guide-fil a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .88rem;
+  font-weight: 600;
+}
+.guide-fil a::before { content: "← "; }
+html[dir=rtl] .guide-fil a::before { content: "→ "; }
+.guide-fil a:hover { color: var(--ocean); }
+
+.guide-entete {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 1.4rem;
+  margin-bottom: 1.6rem;
+}
+.guide-icone { font-size: 2.4rem; margin-bottom: .4rem; }
+.guide-entete h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 3.8vw, 2.5rem);
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1.15;
+  margin-bottom: .7rem;
+}
+.guide-chapeau {
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-bottom: .8rem;
+}
+.guide-date { font-size: .82rem; color: var(--muted); }
+
+/* Sommaire : le lecteur doit savoir en trois secondes si le guide
+   repond a sa question. */
+.guide-sommaire {
+  background: var(--sand);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 2rem;
+}
+.guide-sommaire h2 {
+  font-family: var(--font-sans);
+  font-size: .74rem;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--ocean);
+  font-weight: 700;
+  margin-bottom: .55rem;
+}
+.guide-sommaire ol { margin: 0; padding-inline-start: 1.2rem; }
+.guide-sommaire li { margin-bottom: .3rem; }
+.guide-sommaire a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: .95rem;
+}
+.guide-sommaire a:hover { color: var(--ocean); text-decoration: underline; }
+
+.guide-corps { font-size: 1.03rem; line-height: 1.75; color: var(--text); }
+.guide-corps h2 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1.25;
+  margin: 2.4rem 0 .85rem;
+  scroll-margin-top: 90px;   /* le menu est fixe : sans ca l'ancre passe dessous */
+}
+.guide-corps h3 {
+  font-size: 1.13rem;
+  font-weight: 650;
+  color: var(--charcoal);
+  margin: 1.7rem 0 .55rem;
+}
+.guide-corps p { margin-bottom: 1.05rem; }
+.guide-corps ul,
+.guide-corps ol { margin: 0 0 1.15rem; padding-inline-start: 1.4rem; }
+.guide-corps li { margin-bottom: .45rem; }
+.guide-corps a { color: var(--ocean); }
+.guide-corps strong { font-weight: 650; color: var(--charcoal); }
+
+.guide-tableau { overflow-x: auto; margin: 0 0 1.4rem; }
+.guide-corps table {
+  width: 100%;
+  min-width: 380px;
+  border-collapse: collapse;
+  font-size: .95rem;
+}
+.guide-corps th,
+.guide-corps td {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: .6rem .7rem;
+  text-align: start;
+  vertical-align: top;
+}
+.guide-corps th {
+  background: var(--sand);
+  font-weight: 650;
+  color: var(--charcoal);
+  font-size: .88rem;
+}
+
+.guide-note {
+  border-inline-start: 3px solid var(--ocean);
+  background: var(--surface-raised);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: .95rem 1.2rem;
+  margin: 0 0 1.4rem;
+}
+html[dir=rtl] .guide-note { border-radius: var(--radius) 0 0 var(--radius); }
+.guide-note p { margin: 0; font-size: .97rem; }
+
+
+.guide-avertissement {
+  margin-top: 2.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border-subtle);
+  font-size: .84rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ── Blocs de fin de page ──────────────────────────────────────────────── */
+
+.guide-aide {
+  margin-top: 2.5rem;
+  background: var(--sand);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  text-align: center;
+}
+.guide-aide h2 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: .4rem;
+}
+.guide-aide p { color: var(--muted); font-size: .95rem; margin-bottom: 1.1rem; }
+.guide-aide-actions {
+  display: flex;
+  gap: .7rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.guide-btn {
+  display: inline-block;
+  padding: .6rem 1.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-medium);
+  color: var(--text);
+  background: var(--surface);
+  text-decoration: none;
+  font-size: .9rem;
+  font-weight: 600;
+  transition: background var(--duration-fast);
+}
+.guide-btn:hover { background: var(--surface-raised); }
+.guide-btn-plein {
+  background: var(--ocean);
+  border-color: var(--ocean);
+  color: var(--on-accent);
+}
+.guide-btn-plein:hover { background: var(--ocean-deep); }
+
+.guide-suite { margin-top: 2.5rem; }
+.guide-suite > h2 {
+  font-family: var(--font-sans);
+  font-size: .74rem;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: .8rem;
+}
+.guide-suite-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .7rem;
+}
+.guide-suite-carte {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  font-size: .92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  transition: background var(--duration-fast);
+}
+.guide-suite-carte:hover { background: var(--surface-raised); }
+.guide-suite-icone { font-size: 1.3rem; flex: none; }
+
+/* ── Arabe ─────────────────────────────────────────────────────────────── */
+
+html[lang=ar] .guide-page,
+html[dir=rtl] .guide-page { font-family: var(--font-arabic); }
+html[lang=ar] .guide-entete h1,
+html[lang=ar] .guide-hub-entete h1,
+html[lang=ar] .guide-carte h2,
+html[lang=ar] .guide-corps h2,
+html[lang=ar] .guide-aide h2 { font-family: var(--font-arabic); }
+html[lang=ar] .guide-corps { line-height: 1.95; }
+
+@media (max-width: 560px) {
+  .guide-page { padding: 1rem .95rem 3rem; }
+  .guide-corps { font-size: 1rem; }
+}
