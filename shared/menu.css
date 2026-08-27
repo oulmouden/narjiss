@@ -988,7 +988,15 @@ html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
   pointer-events: none;
 }
 .nj-parlons > * { pointer-events: auto; }
-html[dir=rtl] .nj-parlons { right: auto; left: 1.15rem; align-items: flex-start; }
+/* En RTL le lanceur passe en bas à GAUCHE. On ne redéfinit PAS align-items :
+   la valeur de base, flex-end, désigne le bord de fin de ligne, donc la gauche
+   quand la direction est inversée — exactement le bord auquel le conteneur est
+   ancré. Le flex-start qui figurait ici collait au contraire le bouton au bord
+   DROIT, celui qui bouge : à l'ouverture de la bulle, plus large que le bouton,
+   le conteneur s'élargissait et emportait le bouton de 109 px. Le curseur ne le
+   survolait donc plus, la bulle se refermait, le bouton revenait sous le
+   curseur — et le tout clignotait sans fin. */
+html[dir=rtl] .nj-parlons { right: auto; left: 1.15rem; }
 html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
 
 /* ── La pastille ───────────────────────────────────────────────────────────── */
@@ -1216,7 +1224,10 @@ html[dir=rtl] .nj-parlons-opt { text-align: right; }
 /* ── Téléphone ─────────────────────────────────────────────────────────────── */
 @media (max-width: 540px) {
   .nj-parlons { right: .75rem; bottom: .75rem; left: .75rem; align-items: flex-end; }
-  html[dir=rtl] .nj-parlons { left: .75rem; right: .75rem; align-items: flex-start; }
+  /* Même raison qu'au-dessus, et même correction : sur téléphone le conteneur
+     occupe toute la largeur, si bien que flex-start posait en plus le bouton à
+     DROITE en arabe, alors qu'il est à gauche sur grand écran. */
+  html[dir=rtl] .nj-parlons { left: .75rem; right: .75rem; }
   .nj-parlons-panel { width: 100%; }
   .nj-parlons-btn { font-size: .9rem; padding: .65rem 1rem; }
 }
