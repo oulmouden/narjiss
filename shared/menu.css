@@ -580,6 +580,15 @@ main { flex: 1; }
   margin-top: auto;
   border-top: none;
 }
+
+/* Place réservée au lanceur « On en parle ? ».
+   Il est en position fixed : arrivé en bas de page, il se posait sur la
+   dernière ligne du pied — « Espace professionnel · Affichettes QR » passait
+   dessous. La classe est posée par njParlonsInstaller(), donc uniquement sur
+   les pages qui portent réellement la pastille : bureaudevente.html, qui en
+   est dispensée, n'hérite pas d'un blanc pour rien.
+   Marge suffisante pour la pastille (~44 px) et son décalage (~18 px). */
+html.nj-parlons-actif .main-footer { padding-bottom: 5rem; }
 .footer-inner {
   max-width: 1220px;
   margin: 0 auto;

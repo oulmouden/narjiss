@@ -1317,7 +1317,14 @@ function njParlonsInstaller(basePath) {
   basePath = basePath || '';
   var ancien = document.querySelector('.nj-parlons');
   if (ancien) ancien.remove();
-  if (!njParlonsAutorise()) return;
+  /* Cette classe commande la place réservée sous le pied de page (menu.css).
+     Retirée quand le lanceur ne s'installe pas, pour ne pas laisser un blanc
+     inexpliqué en bas de bureaudevente.html. */
+  if (!njParlonsAutorise()) {
+    document.documentElement.classList.remove('nj-parlons-actif');
+    return;
+  }
+  document.documentElement.classList.add('nj-parlons-actif');
 
   var t = njParlonsT();
   var racine = njParlonsEl('div', 'nj-parlons');
