@@ -46,7 +46,33 @@ SMTP_PORT=465
 SMTP_SECURE=ssl
 SMTP_USER=
 SMTP_PASS=
+
+# Web Push - reveille le telephone des commerciaux (voir juste en dessous)
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:contact@narjiss.company
 ```
+
+**Les trois cles VAPID se generent une seule fois**, depuis votre poste
+(`tools/` n'est pas deploye sur le VPS, et n'a pas besoin de l'etre) :
+
+```
+php tools/generer-cles-push.php
+```
+
+Le script affiche les trois lignes a coller dans le `api/.env` **du serveur**.
+La cle privee ne passe donc que par votre session SSH : ni par git, ni par
+`deploy.sh`, qui exclut `.env`. Chaque commercial
+clique ensuite « Activer les alertes » dans son espace pour inscrire son
+appareil — rien d'autre a faire.
+
+⚠️ **Ne relancez pas ce script une fois en service.** De nouvelles cles
+invalident TOUS les abonnements existants : les telephones deja inscrits
+cesseraient d'etre reveilles, sans le moindre message d'erreur. Leurs
+proprietaires croiraient simplement que plus personne ne les demande.
+
+Tant que ces cles sont vides, le push est inerte et l'espace agent retombe sur
+l'alerte sonore — qui suffit tant que le commercial a sa page ouverte.
 
 ### b) `C:\xampp\narjiss-prive\` — coffre des fiches clients
 Créé automatiquement au premier envoi. Contient les fiches et **les copies de

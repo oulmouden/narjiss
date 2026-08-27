@@ -83,6 +83,22 @@ CREATE TABLE IF NOT EXISTS access_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL);
 
+  $pdo->exec(<<<'SQL'
+CREATE TABLE IF NOT EXISTS agent_push (
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  agent_id      INT UNSIGNED NOT NULL,
+  endpoint_hash CHAR(64)     NOT NULL,
+  endpoint      TEXT         NOT NULL,
+  p256dh        VARCHAR(255) NOT NULL DEFAULT '',
+  auth_key      VARCHAR(64)  NOT NULL DEFAULT '',
+  created_at    DATETIME     NOT NULL,
+  UNIQUE KEY uniq_endpoint (endpoint_hash),
+  INDEX idx_agent (agent_id),
+  CONSTRAINT fk_push_agent FOREIGN KEY (agent_id)
+    REFERENCES agents(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL);
+
   // Évolution du schéma : rôle « superviseur » (accès à tous les bureaux).
   // MODIFY est idempotent — sûr même si la colonne a déjà la bonne définition.
   try {

@@ -109,6 +109,11 @@
        qu'il n'aura pas touché la page — voir le déblocage au premier geste. */
     try { alertesActives = localStorage.getItem(ALERTES_CLE) === '1'; } catch (e) { alertesActives = false; }
     alertesMajBouton();
+    /* Réabonnement silencieux : l'abonnement est propre au navigateur, pas au
+       compte. Un commercial qui se connecte depuis un appareil neuf, ou dont le
+       navigateur a renouvelé son abonnement, doit être réinscrit sans avoir à y
+       penser. Sans clés côté serveur, l'appel ne fait rien. */
+    if (alertesActives) pushAbonner();
 
     // Le battement de présence part pour TOUS les rôles : c'est lui qui rend
     // « connecté » visible, à soi comme aux autres. Les demandes d'accès des
@@ -567,12 +572,74 @@
     } catch (e) {}
   }
 
+  /* ── Web Push : réveiller le téléphone, application fermée ───────────────
+     Le son et la notification d'onglet supposent la page ouverte. Le push, lui,
+     passe par le service de notification du système. Tout ici est facultatif :
+     serveur sans clés VAPID, navigateur sans service worker, permission
+     refusée — on retombe silencieusement sur l'alerte sonore, qui suffit tant
+     que le commercial a sa page devant lui. */
+  function pushSupporte() {
+    return 'serviceWorker' in navigator && 'PushManager' in window && window.Notification;
+  }
+
+  function b64UrlVersOctets(b64) {
+    var s = (b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+    var brut = atob(s);
+    var out = new Uint8Array(brut.length);
+    for (var i = 0; i < brut.length; i++) out[i] = brut.charCodeAt(i);
+    return out;
+  }
+
+  function pushAbonner() {
+    if (!pushSupporte() || Notification.permission !== 'granted') return Promise.resolve(false);
+    return get('agent-push.php?cle').then(function (d) {
+      if (!d || !d.actif || !d.cle) return false;     // serveur sans clés : rien à faire
+      /* Le service worker est à la RACINE : il ne pourrait pas couvrir
+         espace-agent.html depuis un sous-dossier. */
+      return navigator.serviceWorker.register('sw.js')
+        .then(function (reg) { return navigator.serviceWorker.ready.then(function () { return reg; }); })
+        .then(function (reg) {
+          return reg.pushManager.getSubscription().then(function (deja) {
+            return deja || reg.pushManager.subscribe({
+              // Exigé par les navigateurs : tout push doit produire une
+              // notification visible. C'est ce que fait sw.js, sans exception.
+              userVisibleOnly: true,
+              applicationServerKey: b64UrlVersOctets(d.cle)
+            });
+          });
+        })
+        .then(function (sub) {
+          var j = sub.toJSON();
+          return post('agent-push.php', {
+            action: 'abonner', endpoint: sub.endpoint,
+            p256dh: (j.keys && j.keys.p256dh) || '', auth: (j.keys && j.keys.auth) || ''
+          }).then(function (r) { return !!(r && r.ok); });
+        });
+    }).catch(function () { return false; });
+  }
+
+  function pushDesabonner() {
+    if (!pushSupporte()) return Promise.resolve();
+    return navigator.serviceWorker.getRegistration()
+      .then(function (reg) { return reg ? reg.pushManager.getSubscription() : null; })
+      .then(function (sub) {
+        if (!sub) return;
+        /* Prévenir le serveur AVANT de résilier côté navigateur : l'inverse
+           laisserait une ligne morte en base, sur laquelle on continuerait
+           d'expédier des push jusqu'à ce que le service réponde 410. */
+        return post('agent-push.php', { action: 'desabonner', endpoint: sub.endpoint })
+          .then(function () { return sub.unsubscribe(); });
+      })
+      .catch(function () {});
+  }
+
   function alertesBasculer() {
     if (alertesActives) {
       alertesActives = false;
       try { localStorage.removeItem(ALERTES_CLE); } catch (e) {}
       alertesMajBouton();
       titreArrete();
+      pushDesabonner();
       return;
     }
     alertesDebloquerAudio();
@@ -581,7 +648,14 @@
     alertesMajBouton();
     bip();                           // démonstration : l'agent entend ce qui l'attend
     if (window.Notification && Notification.permission === 'default') {
-      try { Notification.requestPermission().then(alertesMajBouton); } catch (e) {}
+      try {
+        Notification.requestPermission().then(function () {
+          alertesMajBouton();
+          pushAbonner();             // seulement une fois la permission accordée
+        });
+      } catch (e) {}
+    } else {
+      pushAbonner();
     }
   }
 

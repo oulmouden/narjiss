@@ -19,6 +19,7 @@
 
 require __DIR__ . '/agents-lib.php';
 require __DIR__ . '/livekit.php'; // lk_token(), nj_projects()
+require __DIR__ . '/push-lib.php'; // nj_push_envoyer()
 header('Content-Type: application/json; charset=utf-8');
 
 function nj_a_json($data, int $code = 200): void {
@@ -52,6 +53,13 @@ try {
         nj_a_json(['ok' => true, 'found' => true, 'online' => false, 'agent_name' => $agent['name']]);
       }
       $reqId = nj_access_create($visitor ?: 'Visiteur', (int)$agent['id'], $projet);
+
+      /* Réveiller le téléphone du commercial (Web Push). Best-effort et jamais
+         bloquant : on est sur le chemin du VISITEUR, qui attend sa réponse.
+         Sans clés VAPID ou sans appareil inscrit, l'appel ne fait rien et le
+         commercial est prévenu par le son de sa page, comme avant. */
+      try { nj_push_envoyer((int)$agent['id']); } catch (Throwable $e) { /* tant pis */ }
+
       nj_a_json([
         'ok' => true, 'found' => true, 'online' => true,
         'agent_name' => $agent['name'], 'request_id' => $reqId,
