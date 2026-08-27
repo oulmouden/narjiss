@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ar" dir="rtl" translate="no">
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>narjiss.company — من موقع للعرض إلى أداة بيع حقيقية</title>
+<style>
+  :root { --encre:#16211C; --ocre:#BD6B16; --gris:#9AA29B; --creme:#FAF7F2;
+          /* jaune pastel : les boutons se detachaient mal du fond sombre */
+          --pastel:#F4E5B8; --pastel-bord:#DFCB90; --lien:#E9A64F; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--encre); color:var(--creme);
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+         -webkit-text-size-adjust:100%; }
+  header { padding:14px 16px 10px; }
+  h1 { margin:0; font-size:15px; font-weight:600; line-height:1.35; }
+  .sous { margin-top:3px; font-size:12px; color:var(--gris); }
+  .scene { position:relative; background:#000; }
+  .scene img { display:block; width:100%; height:auto; }
+  .zone { position:absolute; top:0; bottom:0; width:32%; cursor:pointer; }
+  .zone.g { inset-inline-start:0; } .zone.d { inset-inline-end:0; }
+  .barre { height:3px; background:#2B3730; }
+  .barre i { display:block; height:100%; width:0; background:var(--ocre);
+             transition:width .25s linear; }
+  /* Plein ecran fait main plutot qu'API Fullscreen : Safari iOS refuse de
+     passer autre chose qu'une video en plein ecran, et c'est justement sur
+     iPhone qu'on en a le plus besoin. Un simple position:fixed marche partout. */
+  .scene.zoom { position:fixed; inset:0; z-index:50; background:#000;
+                display:flex; align-items:center; justify-content:center;
+                height:100vh; height:100dvh; }
+  /* Chaque mesure est donnee deux fois : les navigateurs anterieurs a Safari
+     15.4 / Chrome 108 ignorent `dvh` et gardent la ligne `vh` qui precede.
+     Sans ce repli, l'image pivotee n'a plus aucune limite de taille. */
+  .scene.zoom img { width:auto; height:auto;
+                    max-width:100vw; max-height:100vh; max-height:100dvh; }
+  /* Aucune page web ne peut coucher un telephone : c'est la diapositive qui
+     pivote. L'appareil reste debout, l'image occupe toute la hauteur d'ecran
+     dans le sens de la lecture. Apres rotation, largeur et hauteur s'echangent,
+     d'ou les contraintes croisees.
+     C'est une media query et non du JavaScript : le style se reevalue seul a
+     la rotation, alors que resize/orientationchange ne se declenchent pas de
+     facon fiable sur tous les telephones. */
+  @media (orientation:portrait) and (max-width:760px) {
+    .scene.zoom.pivot-auto img { transform:rotate(90deg);
+                                 max-width:100vh; max-width:100dvh;
+                                 max-height:100vw; }
+  }
+  /* choix explicite du lecteur (bouton ⟳) : passe apres, donc l'emporte */
+  .scene.zoom.pivot-oui img { transform:rotate(90deg);
+                              max-width:100vh; max-width:100dvh;
+                              max-height:100vw; }
+  .scene.zoom.pivot-non img { transform:none; max-width:100vw;
+                              max-height:100vh; max-height:100dvh; }
+  body.fige { overflow:hidden; }
+  /* La barre d'outils du navigateur flotte par-dessus la page en paysage :
+     sans cette marge, les boutons se retrouvent dessous, invisibles. */
+  .flottant { display:none; position:fixed; z-index:51; inset-inline:0;
+              bottom:calc(14px + env(safe-area-inset-bottom));
+              justify-content:center; gap:10px; padding:10px;
+              pointer-events:none; }
+  .flottant button { pointer-events:auto; box-shadow:0 2px 14px rgba(0,0,0,.6); }
+  body.fige .flottant { display:flex; }
+  .flottant button { background:rgba(244,229,184,.95); }
+  /* Telephone couche : la diapositive prend tout, le reste s'efface. */
+  /* max-width:899px : reservee aux telephones couches. Sans cette borne, une
+     fenetre d'ordinateur peu haute perdait aussi son titre et son pied de page. */
+  @media (orientation:landscape) and (max-height:560px) and (max-width:899px) {
+    header { display:none; }
+    .scene { display:flex; justify-content:center; }
+    .scene img { width:auto; max-width:100vw; max-height:calc(100vh - 72px); }
+    .cmd { padding:7px 12px; gap:8px; }
+    button { padding:6px 11px; font-size:13px; }
+    footer { display:none; }
+  }
+  .cmd { display:flex; align-items:center; gap:10px; padding:12px 16px; flex-wrap:wrap; }
+  button { font:inherit; font-size:14px; font-weight:600; color:var(--encre);
+           background:var(--pastel); border:1px solid var(--pastel-bord);
+           border-radius:9px; padding:9px 14px; cursor:pointer; }
+  button.primaire { padding:14px 26px; }
+  .compte { margin-inline-start:auto; font-size:13px; color:var(--gris);
+            font-variant-numeric:tabular-nums; }
+  .texte { display:none; padding:0 16px 18px; font-size:14px; line-height:1.6;
+           color:#D7DCD6; }
+  .texte.ouvert { display:block; }
+  footer { padding:4px 16px 30px; font-size:13px; }
+  footer a { color:var(--lien); text-decoration:none; }
+  footer .ver { color:#5C665F; font-size:12px; margin-inline-start:18px; }
+  footer a + a { margin-inline-start:18px; }
+  .voile { position:absolute; inset:0; display:flex; align-items:center;
+           justify-content:center; background:rgba(10,16,13,.62); }
+  .voile button { font-size:16px; }
+  /* Sur grand ecran, c'est la fenetre qui commande : la page tient dans la
+     hauteur disponible et l'image prend ce qui reste, plutot qu'une largeur
+     fixe qui repoussait les commandes sous la ligne de flottaison. */
+  @media (min-width:900px) {
+    h1 { font-size:18px; }
+    header, .cmd, .texte, footer { max-width:1400px; margin-inline:auto; }
+    body { height:100vh; height:100dvh; display:flex; flex-direction:column;
+           overflow:hidden; }
+    header, .barre, .cmd, footer { flex:0 0 auto; }
+    footer { padding-bottom:14px; }
+    .scene { flex:1 1 auto; min-height:0; display:flex;
+             align-items:center; justify-content:center; }
+    .scene img { width:auto; max-width:min(100%, 1400px); max-height:100%; }
+    .texte { flex:0 1 auto; overflow-y:auto; }
+  }
+</style>
+<header>
+  <h1>narjiss.company — من موقع للعرض إلى أداة بيع حقيقية</h1>
+  <div class="sous">ملف تقديمي إلى إدارة نرجس للعقار · غشت 2026</div>
+</header>
+<div class="scene">
+  <img id="vue" src="d01.jpg" alt="">
+  <div class="zone g" id="zg"></div><div class="zone d" id="zd"></div>
+  <div class="voile" id="voile"><button class="primaire" id="demarrer">ابدأ العرض</button></div>
+  <div class="flottant">
+    <button id="fprec">‹</button><button id="flecture">إيقاف مؤقت</button>
+    <button id="fsuiv">›</button><button id="pivot">⟳</button>
+    <button id="fermer">✕</button>
+  </div>
+</div>
+<div class="barre"><i id="jauge"></i></div>
+<div class="cmd">
+  <button id="prec">‹</button>
+  <button id="lecture">إيقاف مؤقت</button>
+  <button id="suiv">›</button>
+  <button id="btexte">النص</button>
+  <button id="plein">ملء الشاشة</button>
+  <span class="compte"><b id="num">1</b> من 28</span>
+</div>
+<div class="texte" id="transcription"></div>
+<footer>
+  <a href="Narjiss-argumentaire-direction-AR.pptx" download>تحميل ملف PowerPoint</a>
+  <a href="../fr/fr.html?v5">Version française</a>
+  <span class="ver">v5</span>
+</footer>
+<audio id="son" preload="none"></audio>
+<script>
+const D = [{"n": 1, "duree": 21.2, "texte": "من موقع للعرض إلى أداة بيع حقيقية. ملف تقديمي إلى إدارة نرجس للعقار. جميع صور الشاشة في هذا الملف مأخوذة من الموقع كما يشتغل اليوم. هكذا يصير مكتب البيع في نرجس: الزبون والمستشار ينظران إلى الشاشة نفسها، معًا."}, {"n": 2, "duree": 54.3, "texte": "الخلاصة في صفحة واحدة. نرجس دوت كومباني ليس موقعًا جديدًا للعرض، بل هو الأداة التي تبيع بها نرجس: يرى فيه الزبون الشقق المتاحة فعلًا، ويتحقّق بنفسه من محيط المشروع، ويقوم بجولة 360 درجة، ويتحدّث مع مستشار مباشرة — وإذا لم يكن أحد متاحًا، تردّ عليه مضيفة افتراضية بصوتها، بلغته. أمّا الفريق، فيحدّث كل شيء من لوحة إدارة، دون مبرمج، وباللغات الأربع للموقع. الموقع متاح على الإنترنت ويشتغل اليوم. يشرح هذا الملف ما الذي يغيّره في البيع، وما الذي يقدّمه للزبون، وما الذي يتطلّبه من الشركة، ولماذا تُعدّ الشاشة اللمسية في كل وكالة امتدادًا طبيعيًا له."}, {"n": 3, "duree": 77.4, "texte": "ستّة أمور لا يستطيعها الموقع الحالي ولا منشورات فيسبوك. إظهار الشقق المتاحة والمحجوزة مؤقّتًا والمحجوزة والمباعة، لحظة بلحظة — 454 وحدة اليوم في الجدول. إثبات ما يوجد حول المشروع: في إقامة الجوهرة، 77 مرفقًا أُحصيت واحدًا واحدًا، منها 21 مدرسة و15 صيدلية، مع المسافة إلى كل واحد منها. تمكين الزبون من زيارة المشروع وشقة نموذجية ومكتب البيع بتقنية 360 درجة، من هاتفه، ومن أي بلد. تمكين العائلة كلّها من المقارنة والقرار معًا، كلٌّ بلغته، دون تنقّل. مرافقة الزبون عن بُعد ومباشرة: المستشار يقود شاشة الزبون ويشرح بصوته. الاحتفاظ بأثر قابل للاستثمار لكل اتصال: بطاقة الزبون، الشقق المختارة، الرسائل، والإجراءات المتّخذة."}, {"n": 4, "duree": 43.5, "texte": "الموقع الحالي: نرجس إيموبيلير دوت كوم. هو واجهة أنيقة: يعرّف بالشركة وقيمها ومشاريعها، ويؤدّي جيّدًا ما صُمّم من أجله، ويظلّ مفيدًا لصورة العلامة. لكنه يتوقّف حيث يبدأ البيع. لا يقول ما تبقّى متاحًا، ولا يعرض شقة بعينها، ولا يُثبت المحيط، ولا يسمح بالزيارة، ولا يحتفظ بأي أثر عن الزائر. وكل تحديث يمرّ عبر مزوّد خدمة. نرجس إيموبيلير دوت كوم — واجهة: نتعرّف فيها على الشركة، لكن لا نختار فيها شقة."}, {"n": 5, "duree": 45.4, "texte": "منشورات فيسبوك. تجلب الجمهور، ويجب الإبقاء عليها. لكن حدودها معروفة لدى كل من يبيع: الفيديو ينزل في الحائط ويختفي، وعبارة كل شيء قريب لا يمكن التحقّق منها، والتعليق ليس ملفًّا للزبون، والمنشور الواحد لا يخاطب سوى لغة واحدة. والأهم أن منشورًا على فيسبوك لا يمكنه أن يخبر زبونًا بما تبقّى متاحًا هذا الصباح. ليست المسألة اختيارًا بين الاثنين: فيسبوك يجلب الزائر، ونرجس دوت كومباني يحوّل الزيارة إلى قرار، ويحتفظ بالأثر."}, {"n": 6, "duree": 21.5, "texte": "ما يعيشه الزبون، في خمس مراحل: 1. يكتشف, 2. يتحقّق من الحيّ — وهذه هي النقطة الحاسمة, 3. يزور, 4. يختار شقّته, 5. يقرّر مع عائلته، ولو عن بُعد."}, {"n": 7, "duree": 26.1, "texte": "1. يكتشف. صفحة استقبال، اثنا عشر مشروعًا، وخريطة للمغرب. يختار الزائر لغته من أعلى الصفحة — الفرنسية أو الإنجليزية أو العربية أو الإسبانية — فيتبعه الموقع كلّه، بما في ذلك العربية من اليمين إلى اليسار. صفحة الاستقبال: المشاريع، الخريطة العامة، العرض التوضيحي، واللغات الأربع."}, {"n": 8, "duree": 59.3, "texte": "2. يتحقّق من الحيّ — وهذه هي النقطة الحاسمة. سؤال المشتري الأول ليس الثمن، بل: ما الذي يوجد حول المشروع؟. الفيديو الذي يقول كل شيء قريب يطلب منك أن تثق. أمّا خريطة تذكر 21 مدرسة و15 صيدلية و7 خطوط نقل و7 مساجد، مع مسافة كل واحد منها عن المشروع، فلا تطلب منك شيئًا. يصفّي الزبون حسب الفئة، ويرتّب حسب المسافة، ويفتح المسار، ويرسله إلى واتساب. ليس مضطرًّا لأن يصدّقنا: هو يتحقّق بنفسه. إقامة الجوهرة: 77 نقطة اهتمام أُحصيت واحدة واحدة، قابلة للتصفية وقياس المسافة. وأكثر من 900 مرفق مرسوم على خرائط مجموع المشاريع."}, {"n": 9, "duree": 29.4, "texte": "3. يزور. جولة 360 درجة في المشروع، شقة نموذجية، مخطّط المهندس والمخطّط التجاري قابلان للتراكب، فيديوهات، وألبوم صور. يدير الزبون رأسه بإصبعه على هاتفه، أو على الشاشة الكبيرة في الوكالة. بطاقة المشروع: الجولة 360 درجة تملأ الشاشة، وبقيّة الوسائط على بُعد نقرة واحدة."}, {"n": 10, "duree": 53.0, "texte": "4. يختار شقّته. هذا هو قلب الأداة، وهو ما لا يفعله أي موقع عرض. جدول التسويق — الذي يعيش اليوم في ملف Excel — يصير مخطّطًا يتصرّف فيه الزبون بنفسه: عمارة عمارة، وطابقًا طابقًا، مع حالة كل شقة ومساحتها واتجاهها وثمنها. يصفّي حسب معاييره، ويحتفظ بثلاث شقق على الأكثر، ويقارن بينها، ثم يرسل اختياره. فيعاود المستشار الاتصال به وهذه الشقق أمام عينيه. مخطّط الموقع، عمارة عمارة، مع عدد الشقق التي ما تزال متاحة. أربع حالات، بالألوان نفسها المعتمدة في مكتب البيع."}, {"n": 11, "duree": 30.3, "texte": "5. يقرّر مع عائلته، ولو عن بُعد. رابط واحد يكفي لمشاركة اختيار. الابن في الدار البيضاء، والأب في أكادير، والعمّ في بروكسل، يرون المخطّط نفسه والجولة نفسها والخريطة نفسها — كلٌّ بلغته. وهذه بالضبط حالة مغربي مقيم بالخارج يشتري لعائلته: كان إلى اليوم يشتري بالكلام والصور."}, {"n": 12, "duree": 39.6, "texte": "الجولة المصحوبة المباشرة. يفتح المستشار جولة، ويعطي رمزًا من ستّة أرقام، فيُدخله الزبون من بيته. ومنذ تلك اللحظة تتبع شاشةُ الزبون شاشةَ المستشار: تغيير الصفحة، التنقّل على الخريطة، الدوران داخل جولة 360 درجة، والرسم بالإصبع على المخطّط. والصوت يمرّ في القناة نفسها. عمليًّا: يحيط المستشار بوحدة على الخريطة، ويقيس المسافة إلى المدرسة، فيرى الزبون الخطّ يُرسم على شاشته هو، مباشرة."}, {"n": 13, "duree": 58.1, "texte": "المضيفة الافتراضية، حين لا يكون أحد. في المساء، وفي عطلة نهاية الأسبوع، وحين يتّصل زبون من مونتريال على الساعة الثالثة صباحًا، تتكفّل مضيفة افتراضية بالردّ. تتحدّث بصوتها — بالدارجة، وبالعربية الفصحى، وبالفرنسية، والإنجليزية، والإسبانية — وتجيب عن الأسئلة المعتادة، وتوجّه إلى المشروع المناسب، وتأخذ الرسالة وبيانات الاتصال. وفي صباح اليوم الموالي يجد الوكيل التجاري الرسالة في مساحته، مع تفريغها ورقم الهاتف: فيعاود الاتصال وهو يعرف الطلب مسبقًا. ولا تضيع أي مكالمة. مكتب البيع في جولة افتراضية، مع زرّ التحدّث إلى المضيفة. يدفع الزبون الباب قبل أن يتنقّل."}, {"n": 14, "duree": 39.1, "texte": "مساحة الوكيل التجاري. لكل مستشار مساحته: يعلن فيها حضوره، ويستقبل طلبات الزوّار الذين وجّهتهم المضيفة، ويجد فيها الرسائل الصوتية والمكتوبة التي تُركت في غيابه، ويمكنه أن يركّب بنفسه جولة 360 درجة انطلاقًا من صوره، دون تثبيت أي برنامج. مساحة الوكيل بالعربية: منذ غشت 2026، صارت واجهة العمل مترجمة إلى اللغات الأربع، بما في ذلك اتجاه الكتابة."}, {"n": 15, "duree": 51.8, "texte": "لوحة الإدارة. كل ما يراه الزبون يُدار من لوحة إدارة، دون المساس بالبرمجة: المشاريع وأوصافها باللغات الأربع، والصور، والفيديوهات، وجولات 360 درجة، ونقاط الاهتمام، والمناطق القابلة للنقر في المخطّطات، وبطاقات الزبناء، وحسابات المستشارين. ويُستورد جدول الوحدات من ملف Excel الخاص بالمنعش؛ ويتمّ تغيير الحالة بنقرة واحدة تظهر فورًا على الموقع. تحديث التوفّر يستغرق ثوانٍ، لا مكالمة مع مزوّد خدمة. جدول التسويق داخل لوحة الإدارة، بالعربية: 130 وحدة، والحالات والأثمنة قابلة للتعديل بنقرة."}, {"n": 16, "duree": 33.6, "texte": "بطاقة الزبون. المطبوع الورقي يصير شاشة. يصوّر المستشار ظهر البطاقة الوطنية، فتُملأ الاسم والنسب والرقم وتاريخ الصلاحية تلقائيًّا. وتصل البطاقة مرتبطة بالشقق التي اختارها الزبون، أمّا وثائق الهوية فتُحفَظ خارج الموقع، في خزنة خاصة على الخادم. بطاقة المعلومات، بالفرنسية والعربية، مع القراءة التلقائية للبطاقة الوطنية."}, {"n": 17, "duree": 18.3, "texte": "الشاشات اللمسية في الوكالات. كل ما سبق يشتغل اليوم على الهاتف وعلى الحاسوب. أمّا الشاشة اللمسية فتضيف ما لا تمنحه شاشة شخصية: شخصان واقفان أمام المخطّط نفسه، بحجمه الحقيقي، داخل الوكالة."}, {"n": 18, "duree": 44.8, "texte": "ما الذي تضيفه الشاشة. الزبون يتصرّف في المخطّط بنفسه، والمستشار يشرح إلى جانبه، عوض أن يدير له شاشة حاسوب. خريطة الحيّ تُستعرض بالإصبع، والمدرسة يُشار إليها، والمسافة تظهر. الجولة 360 درجة تملأ الشاشة كلّها: ننظر إلى الشقة، لا إلى كتيّب. تُختار الشقة في المكان، بحالتها الحقيقية، وتُملأ بطاقة الزبون في الأثر بقراءة البطاقة الوطنية. الانتظار في الاستقبال يصير وقتًا مفيدًا: يستكشف الزائر بنفسه ريثما ينهي المستشار موعدًا آخر."}, {"n": 19, "duree": 30.0, "texte": "ما الذي تعوّضه. الكتيّبات المطبوعة التي تتقادم، والمخطّطات الورقية المعلَّمة بالقلم، ولوحة التوفّر التي تُصحَّح باليد، والعبارة التي سمعها كل مشترٍ: سأعاود الاتصال بك بلائحة المتوفّر. شاشة في استقبال كل وكالة، وطاولة لمسية في مكتب البيع الرئيسي: الموقع نفسه، بحجم أكبر."}, {"n": 20, "duree": 45.5, "texte": "ما ينبغي توفيره. شاشة لمسية من 43 إلى 55 بوصة بحاسوب مدمج، أو طاولة لمسية لمكتب البيع الرئيسي. متصفّح مفتوح في وضع الكشك على نرجس دوت كومباني: دون أي تثبيت، ودون برنامج خاص، ودون صيانة برمجية. اتصال بالإنترنت ونقطة كهربائية. والموقع مصمَّم أصلًا للّمس: أهداف واسعة، ولا إجراء يعتمد على مرور المؤشّر، وتباين مقروء من مسافة مترين. أمّا ثمن العتاد فيُطلب في عروض أثمنة من موردين محلّيين؛ ولن نذكر هنا أي رقم لم نتحقّق منه."}, {"n": 21, "duree": 92.8, "texte": "مقارنة صادقة. ثلاث قنوات، وثلاثة أدوار. لا يقول الجدول إنّه ينبغي التخلّي عن الأوّلَين، بل يبيّن أين تتوقّف كلّ واحدة منها. التعريف بالشركة: نعم، نعم، نعم. جلب الجمهور: قليلًا، نعم، وهذه قوّته، نعم، عبر محرّكات البحث. التوفّر لحظة بلحظة: لا، لا، نعم — 454 وحدة متابَعة. الأثمنة والمساحات لكل وحدة: لا، لا، نعم، أو الثمن عند الطلب حسب الاختيار. إثبات محيط المشروع: لا، يُقال دون إثبات، نعم — 900 مرفق على الخريطة. جولة 360 درجة: لا، فيديو في اتجاه واحد، نعم، والزائر يوجّه نظره. اختيار شقة بعينها: لا، لا، نعم، على مخطّط الموقع. أربع لغات: جزئيًّا، لغة واحدة لكل منشور، نعم، الموقع كلّه ولوحة الإدارة. مستشار عن بُعد: لا، رسائل مؤجّلة، نعم، جولة مصحوبة بالصوت. خارج أوقات العمل: لا، لا، نعم، مضيفة صوتية بخمس لغات. أثر الاتصال: نموذج بسيط، تعليقات متفرّقة، بطاقة زبون، اختيار، رسائل، ومتابعة. التحديث: عبر مزوّد خدمة، منشور جديد، من طرف الفريق، في دقائق."}, {"n": 22, "duree": 40.7, "texte": "المكاسب المنتظرة. يصل الزبون وهو مطّلع: فيتركّز اللقاء على قراره، لا على وصف المشروع. تنقّلات أقلّ بلا جدوى، في الاتجاهين: الزبون يعرف ما تبقّى، والمستشار يعرف ما نظر إليه الزبون. العائلات البعيدة والمغاربة المقيمون بالخارج يشاركون فعلًا في الاختيار. كل اتصال يترك أثرًا قابلًا للاستثمار، حتى خارج أوقات العمل. صورة مؤسّسة في مستوى مشاريعها، وخطاب واحد باللغات الأربع، أيًّا كان المحاور."}, {"n": 23, "duree": 49.2, "texte": "شروط النجاح — نقولها بوضوح. يجب أن يبقى جدول الوحدات محيَّنًا. هذا هو الشرط الأول: موقع يعلن أنّ شقة مباعة ما تزال متاحة يضرّ بالثقة أكثر من كتيّب متقادم. كل مشروع جديد يتطلّب صوره 360 درجة: نصف يوم تصوير لكل مكتب بيع ولكل شقة نموذجية. ينبغي تعيين شخص للمصادقة على حسابات المستشارين ومتابعة الرسائل المتروكة خارج الأوقات. تتطلّب الشاشات ميزانية عتاد وتركيبًا في كل وكالة. التمكّن من الأداة يستغرق ساعة إلى ساعتين لكل فريق: فالشاشات هي نفسها التي يعرفها المستشارون من جهة الزبون."}, {"n": 24, "duree": 61.1, "texte": "يشتغل اليوم على الإنترنت. الموقع العمومي باللغات الأربع: 12 مشروعًا، بطاقات مفصّلة، خريطة عامة، خرائط الأحياء، ألبومات صور وفيديوهات. جولات 360 درجة: المشروع، وشقة نموذجية، ومكتب البيع في إقامة الجوهرة. جدول التسويق: 454 وحدة، مع التصفية ومخطّطات الموقع والحالات والأثمنة. بطاقة معلومات الزبون مع قراءة البطاقة الوطنية، محفوظة في قاعدة البيانات، ووثائق الهوية في خزنة خارج الموقع. الجولة المصحوبة المباشرة بالصوت، والمضيفة الافتراضية الصوتية. مساحة الوكيل التجاري ولوحة الإدارة الكاملة. الاستضافة على خادم خاص، مع النشر بأمر واحد ونسخة احتياطية قبل كل تعديل للمحتوى."}, {"n": 25, "duree": 23.6, "texte": "أُنجز في الأيام الأخيرة، وجاهز للنشر. مزامنة الرسوم والقياسات أثناء الجولة المصحوبة: ما يرسمه المستشار على الخريطة يظهر عند الزبون. مساحة الوكيل ولوحة الإدارة كاملةً مترجمة إلى اللغات الأربع، بما فيها العربية باتجاه الكتابة من اليمين إلى اليسار."}, {"n": 26, "duree": 19.3, "texte": "ما تبقّى للقرار أو للإنجاز. الشاشات اللمسية: اختيار العتاد والوكالات النموذجية. جولات 360 درجة للمشاريع الأحد عشر الأخرى، والفيديوهات الناقصة. إيقاع تحديث جدول الوحدات، والشخص المسؤول عنه."}, {"n": 27, "duree": 35.3, "texte": "ثلاث خطوات مقبلة. عرض توضيحي لمدّة ساعة في الوكالة، على حالة حقيقية: زبون يبحث عن شقة من ثلاث غرف بالدشيرة، من النقرة الأولى إلى البطاقة المملوءة. وكالة نموذجية مجهّزة بشاشة، ومشروع ثانٍ يُستكمل بجولة 360 درجة لقياس الكلفة الحقيقية لكل مشروع. قاعدة لتحديث جدول الوحدات — كل أسبوع، من طرف شخص مُعيَّن — ونشر ترجمات لوحة الإدارة."}, {"n": 28, "duree": 25.5, "texte": "الموقع متاح للاطّلاع الآن: نرجس دوت كومباني. وقائمة عرض توضيحي تعرض التقديم التجاري في أربعة فصول، كما يمكن لمستشار أن يقوده أمام زبون. ويوجد ملف مصوَّر مكمّل بعنوان ما الذي يعرف الموقع أن يفعله، يفصّل الوظائف شاشةً شاشة."}];
+const flecture = document.getElementById('flecture');
+const vue = document.getElementById('vue'), son = document.getElementById('son'),
+      jauge = document.getElementById('jauge'), num = document.getElementById('num'),
+      lecture = document.getElementById('lecture'), voile = document.getElementById('voile'),
+      transcription = document.getElementById('transcription');
+let i = 0, demarre = false;
+
+function precharger(k) {
+  if (D[k]) { const im = new Image(); im.src = 'd' + String(k + 1).padStart(2, '0') + '.jpg'; }
+}
+function afficher(k, jouer) {
+  i = Math.max(0, Math.min(D.length - 1, k));
+  vue.src = 'd' + String(i + 1).padStart(2, '0') + '.jpg';
+  num.textContent = i + 1;
+  transcription.textContent = D[i].texte;
+  jauge.style.width = '0%';
+  son.src = 's' + String(i + 1).padStart(2, '0') + '.mp3';
+  precharger(i + 1);
+  if (jouer) son.play().catch(() => {});
+}
+son.addEventListener('timeupdate', () => {
+  if (son.duration) jauge.style.width = (100 * son.currentTime / son.duration) + '%';
+});
+son.addEventListener('ended', () => {
+  if (i < D.length - 1) afficher(i + 1, true);
+  else lecture.textContent = 'استئناف';
+});
+son.addEventListener('play', () => lecture.textContent = 'إيقاف مؤقت');
+son.addEventListener('pause', () => lecture.textContent = 'استئناف');
+
+document.getElementById('demarrer').onclick = () => {
+  demarre = true; voile.remove(); afficher(0, true);
+  // sur un petit ecran, la diapositive n'est lisible qu'en grand : on y va
+  // directement plutot que d'imposer deux gestes de plus.
+  if (innerWidth < 760) zoom(true);
+};
+lecture.onclick = () => { if (!demarre) return; son.paused ? son.play() : son.pause(); };
+document.getElementById('prec').onclick = () => afficher(i - 1, demarre && !son.paused);
+document.getElementById('suiv').onclick = () => afficher(i + 1, demarre && !son.paused);
+document.getElementById('zg').onclick = () => afficher(i - 1, demarre && !son.paused);
+document.getElementById('zd').onclick = () => afficher(i + 1, demarre && !son.paused);
+document.getElementById('btexte').onclick = () => transcription.classList.toggle('ouvert');
+const scene = document.querySelector('.scene');
+function zoom(actif) {
+  scene.classList.toggle('zoom', actif);
+  document.body.classList.toggle('fige', actif);
+  scene.classList.remove('pivot-oui', 'pivot-non');
+  scene.classList.toggle('pivot-auto', actif);
+  // en plus, le vrai plein ecran quand le navigateur le propose : il escamote
+  // la barre d'adresse et autorise le verrouillage en paysage.
+  if (actif && scene.requestFullscreen) {
+    scene.requestFullscreen().then(() => {
+      if (screen.orientation && screen.orientation.lock)
+        screen.orientation.lock('landscape').catch(() => {});
+    }).catch(() => {});
+  } else if (!actif && document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+document.getElementById('plein').onclick = () => zoom(!scene.classList.contains('zoom'));
+document.getElementById('pivot').onclick = () => {
+  // on lit l'etat reellement affiche plutot qu'un drapeau : c'est le CSS qui
+  // decide tant que le lecteur n'a rien impose.
+  const couche = getComputedStyle(vue).transform !== 'none';
+  scene.classList.remove('pivot-auto', 'pivot-oui', 'pivot-non');
+  scene.classList.add(couche ? 'pivot-non' : 'pivot-oui');
+};
+document.getElementById('fermer').onclick = () => zoom(false);
+document.getElementById('fprec').onclick = () => afficher(i - 1, demarre && !son.paused);
+document.getElementById('fsuiv').onclick = () => afficher(i + 1, demarre && !son.paused);
+document.getElementById('flecture').onclick = () => lecture.onclick();
+son.addEventListener('play', () => flecture.textContent = 'إيقاف مؤقت');
+son.addEventListener('pause', () => flecture.textContent = 'استئناف');
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && scene.classList.contains('zoom')) zoom(false);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') afficher(i + 1, demarre && !son.paused);
+  if (e.key === 'ArrowLeft') afficher(i - 1, demarre && !son.paused);
+  if (e.key === ' ') { e.preventDefault(); lecture.onclick(); }
+  if (e.key === 'Escape') zoom(false);
+});
+precharger(1);
+</script>
+</html>
