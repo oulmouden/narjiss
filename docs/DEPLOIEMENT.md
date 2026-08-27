@@ -60,6 +60,13 @@ VAPID_SUBJECT=mailto:contact@narjiss.company
 php tools/generer-cles-push.php
 ```
 
+Sous Windows, `php` n'est pas dans le PATH : il faut le chemin complet du PHP
+de XAMPP. Depuis n'importe quel dossier, en `cmd` :
+
+```
+C:\xampp\php\php.exe C:\xampp\htdocs\narjiss\tools\generer-cles-push.php
+```
+
 Le script affiche les trois lignes a coller dans le `api/.env` **du serveur**.
 La cle privee ne passe donc que par votre session SSH : ni par git, ni par
 `deploy.sh`, qui exclut `.env`. Chaque commercial
