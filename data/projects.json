@@ -200,10 +200,10 @@
             "es": "Tazroute"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Tazroute, Agadir",
+            "en": "Tazroute, Agadir",
+            "ar": "تازروت، أكادير",
+            "es": "Tazroute, Agadir"
         },
         "description": {
             "fr": "Projet foncier Narjiss presente avec localisation precise et carte interactive.",
@@ -236,10 +236,10 @@
             "es": "Dar Ben Cheikh"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Dar Ben Cheikh, Agadir",
+            "en": "Dar Ben Cheikh, Agadir",
+            "ar": "دار بن الشيخ، أكادير",
+            "es": "Dar Ben Cheikh, Agadir"
         },
         "description": {
             "fr": "Projet foncier Narjiss avec une lecture claire de l'environnement proche.",
@@ -272,10 +272,10 @@
             "es": "Tazroute Al Yassamine"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Tazroute, Agadir",
+            "en": "Tazroute, Agadir",
+            "ar": "تازروت، أكادير",
+            "es": "Tazroute, Agadir"
         },
         "description": {
             "fr": "Projet foncier Narjiss avec contexte cartographique.",
@@ -308,10 +308,10 @@
             "es": "Farah"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Hay Farah, Agadir",
+            "en": "Hay Farah, Agadir",
+            "ar": "حي الفرح، أكادير",
+            "es": "Hay Farah, Agadir"
         },
         "description": {
             "fr": "Projet foncier avec une forte densite de points utiles cartographies.",
@@ -344,10 +344,10 @@
             "es": "Lot Amical I"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Les Amicales, Agadir",
+            "en": "Les Amicales, Agadir",
+            "ar": "الأميكال، أكادير",
+            "es": "Les Amicales, Agadir"
         },
         "description": {
             "fr": "Projet presente avec sa position, ses points utiles et son contexte local.",
@@ -380,10 +380,10 @@
             "es": "Lot Azrou"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Azrou, Agadir",
+            "en": "Azrou, Agadir",
+            "ar": "أزرو، أكادير",
+            "es": "Azrou, Agadir"
         },
         "description": {
             "fr": "Projet foncier Narjiss proche des autres developpements Tazroute.",
@@ -416,10 +416,10 @@
             "es": "Bayt Al Mawada"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Drarga, Agadir",
+            "en": "Drarga, Agadir",
+            "ar": "الدراركة، أكادير",
+            "es": "Drarga, Agadir"
         },
         "description": {
             "fr": "Projet residentiel Narjiss avec affichage cartographique multilingue.",
@@ -488,10 +488,10 @@
             "es": "Lot Nahda 2"
         },
         "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
+            "fr": "Nahda, Agadir",
+            "en": "Nahda, Agadir",
+            "ar": "النهضة، أكادير",
+            "es": "Nahda, Agadir"
         },
         "description": {
             "fr": "Projet Narjiss presente avec localisation et environnement.",
