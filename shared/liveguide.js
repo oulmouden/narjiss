@@ -1477,7 +1477,21 @@
       if (monMicro) couperMonMicro();
       closePc();
       endSession();
-      window.location.href = cleanUrl(window.location.href); // reste sur la page, sans suivre
+
+      /* Quitter = rester sur la page, mais cesser de suivre le conseiller.
+         D'où un rechargement : la session vient d'être effacée, la page revient
+         donc sans barre ni abonnement.
+
+         Le rechargement doit être FORCÉ quand l'URL nettoyée est identique à
+         l'actuelle. C'était le cas dès que la visite avait changé de page : la
+         synchronisation d'URL emmène le visiteur sur guides.html#fr, SANS ?lg=,
+         et cleanUrl() n'a alors plus rien à retirer. Assigner à location.href
+         une URL identique — a fortiori avec une ancre — ne déclenche aucune
+         navigation. Le bouton semblait mort : la session était bien vidée, mais
+         l'écran continuait de suivre, faute de rechargement. */
+      var propre = cleanUrl(window.location.href);
+      if (propre === window.location.href) window.location.reload();
+      else window.location.href = propre;
     });
   }
 
