@@ -49,12 +49,12 @@ if (isset($_GET['equipe'])) {
   // Agent OU admin : l'admin du back-office consulte la même vue, et
   // nj_agent_require_json() l'aurait refusé — il n'a pas de session agent.
   if (nj_agent_ou_admin($njSessionDefaut) === null) {
-    nj_p_json(['ok' => false, 'error' => 'Non connecté.'], 401);
+    nj_p_json(['ok' => false, 'error' => 'Non connecté.', 'code' => 'nonConnecte'], 401);
   }
   nj_p_json(['ok' => true, 'agents' => nj_presence_equipe()]);
 }
 
 $projet = preg_replace('/[^a-z0-9_]/', '', strtolower($_GET['projet'] ?? ''));
-if ($projet === '') nj_p_json(['ok' => false, 'error' => 'Projet requis.'], 400);
+if ($projet === '') nj_p_json(['ok' => false, 'error' => 'Projet requis.', 'code' => 'projetRequis'], 400);
 
 nj_p_json(['ok' => true, 'projet' => $projet, 'agents' => nj_presence_roster($projet)]);

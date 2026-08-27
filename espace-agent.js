@@ -16,6 +16,32 @@
   function $(id) { return document.getElementById(id); }
   function show(el, on) { if (el) el.classList.toggle('hide', !on); }
 
+  /* ── Langue ─────────────────────────────────────────────────────────────
+     Les libellés vivent dans espace-agent-i18n.js ; shared/backoffice-i18n.js
+     fournit la langue courante, les boutons et le parcours du balisage. Le
+     repli sur le français couvre le cas où l'un des deux fichiers manque :
+     la page reste utilisable, simplement pas traduite. */
+  function T(cle, vars) {
+    if (window.NJ_LANG && window.EA_TEXTES) return window.NJ_LANG.t(window.EA_TEXTES, cle, vars);
+    var fr = (window.EA_TEXTES && window.EA_TEXTES.fr) || {};
+    return fr[cle] !== undefined ? fr[cle] : cle;
+  }
+
+  /* Message d'erreur du serveur.
+     api/agent-auth.php renvoie un CODE en plus de sa phrase française : sans
+     lui, un agent arabophone lisait « Compte suspendu… » en français au moment
+     le plus ingrat, celui où il n'entre pas. Les points d'entrée qui n'en
+     envoient pas (encore) laissent passer leur phrase telle quelle — mieux
+     qu'un message générique qui perdrait la raison du refus. */
+  function messageErreur(r, cleDefaut) {
+    if (r && r.code) {
+      var cle = 'err' + String(r.code).charAt(0).toUpperCase() + String(r.code).slice(1);
+      var fr = (window.EA_TEXTES && window.EA_TEXTES.fr) || {};
+      if (fr[cle] !== undefined) return T(cle);
+    }
+    return (r && r.error) || T(cleDefaut);
+  }
+
   function post(url, body) {
     var data = new URLSearchParams(body || {});
     return fetch(API + url, {
@@ -34,7 +60,7 @@
     fetch('data/projects.json').then(function (r) { return r.json(); }).then(function (list) {
       var sel = $('rgProjet');
       if (!sel || !Array.isArray(list)) return;
-      sel.innerHTML = '<option value="">— Choisir —</option>';
+      sel.innerHTML = '<option value="">' + esc(T('choisir')) + '</option>';
       list.forEach(function (p) {
         if (!p.id) return;
         var name = (p.name && (p.name.fr || p.name.en)) || p.id;
@@ -68,11 +94,7 @@
 
     if (!authed) { setTab('login'); return; }
 
-    $('whoName').textContent = agent.name;
-    var roleLabel = agent.role === 'superviseur' ? 'Superviseur'
-                  : (agent.role === 'gestionnaire' ? 'Gestionnaire' : 'Commercial');
-    $('whoMeta').textContent = roleLabel + (agent.projet ? ' · ' + agent.projet
-                  : (agent.role === 'superviseur' ? ' · tous les bureaux' : ''));
+    majQui();
 
     // Commercial + superviseur : présence + demandes de visiteurs.
     // Gestionnaire + superviseur : gestion d'équipe. Le superviseur cumule les deux.
@@ -93,6 +115,56 @@
     renderMsgTabs();
     loadMessages();
     msgTimer = setInterval(function () { if (!msgOpenId) loadMessages(); }, 15000);
+  }
+
+  /* En-tête : nom, rôle, bureau. Extrait de renderAuth pour être rejoué seul
+     au changement de langue — renderAuth, lui, relance les boucles et
+     remettrait la présence à « en ligne », effaçant un « occupé » choisi. */
+  function majQui() {
+    if (!me) return;
+    $('whoName').textContent = me.name;
+    $('whoMeta').textContent = roleLabel(me.role) +
+      (me.projet ? ' · ' + me.projet
+                 : (me.role === 'superviseur' ? ' · ' + T('tousBureaux') : ''));
+  }
+
+  /* Le site public tient sa langue dans le hash : sans lui, un commercial qui
+     travaille en arabe retombait sur un site en français en cliquant « Aller au
+     site ». On la lui emporte. */
+  function majLienSite() {
+    var a = $('gotoSiteBtn');
+    if (a && window.NJ_LANG) a.href = 'index.html#' + window.NJ_LANG.courante();
+  }
+
+  function roleLabel(role) {
+    return role === 'superviseur' ? T('roleSuperviseurL')
+         : role === 'gestionnaire' ? T('roleGestionnaireL')
+         : T('roleCommercialL');
+  }
+
+  /* Rejoue tous les libellés dans la nouvelle langue, sans rien réinitialiser :
+     ni la présence choisie, ni le message ouvert, ni un code déjà donné. */
+  function retraduire() {
+    if (window.NJ_LANG && window.EA_TEXTES) window.NJ_LANG.traduire(window.EA_TEXTES);
+    majLienSite();
+    if (!me) return;                    // écran de connexion : tout est statique
+    majQui();
+    renderMsgTabs();
+    if (msgOpenId) openMessage(msgOpenId); else loadMessages();
+
+    // Demandes de visiteurs : celles qui portent un code sont redessinées sur
+    // place (le code est déjà entre les mains du visiteur, on ne le rejoue
+    // pas) ; les autres repartiront au prochain sondage, dans 4 s.
+    var host = $('reqList');
+    if (host) Array.prototype.slice.call(host.children).forEach(function (el) {
+      var appr = seenApproved[el.getAttribute('data-id')];
+      if (appr) remplirCarteApprouvee(el, el.getAttribute('data-id'), appr.visitor, appr.code);
+      else el.remove();
+    });
+
+    if (callRoom) $('callText').textContent = T('enRelationVocale');
+    heartbeat();                        // « En ligne / Hors ligne »
+    if (me.role === 'gestionnaire' || me.role === 'superviseur') loadTeam();
   }
 
   function stopLoops() {
@@ -118,11 +190,14 @@
      l'écoute, on le lit, puis on rappelle : chaque suite donnée est journalisée
      pour que l'équipe voie ce qui a déjà été tenté.
      ========================================================================= */
+  // Filtres et statuts portent des CLÉS et non des libellés : le texte est
+  // relu à chaque rendu, donc juste après une bascule de langue.
   var MSG_TABS = [
-    ['actifs', 'À traiter'], ['nouveau', 'Nouveaux'], ['ecoute', 'Écoutés'],
-    ['traite', 'Traités'], ['archive', 'Archivés'], ['', 'Tous']
+    ['actifs', 'ongletActifs'], ['nouveau', 'ongletNouveaux'], ['ecoute', 'ongletEcoutes'],
+    ['traite', 'ongletTraites'], ['archive', 'ongletArchives'], ['', 'ongletTous']
   ];
-  var MSG_STATUTS = { nouveau: 'Nouveau', ecoute: 'Écouté', traite: 'Traité', archive: 'Archivé' };
+  var MSG_STATUTS = { nouveau: 'statNouveau', ecoute: 'statEcoute', traite: 'statTraite', archive: 'statArchive' };
+  function statutMsg(s) { return MSG_STATUTS[s] ? T(MSG_STATUTS[s]) : s; }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -135,7 +210,10 @@
   }
   function quand(iso) {
     var d = new Date(String(iso).replace(' ', 'T'));
-    return isNaN(d) ? '' : d.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+    // La date suit la langue de l'agent : un arabophone lit ses dates en
+    // arabe, comme le reste de son écran.
+    var loc = window.NJ_LANG ? window.NJ_LANG.locale() : 'fr-FR';
+    return isNaN(d) ? '' : d.toLocaleString(loc, { dateStyle: 'short', timeStyle: 'short' });
   }
 
   function renderMsgTabs() {
@@ -145,7 +223,7 @@
     MSG_TABS.forEach(function (t) {
       var b = document.createElement('button');
       b.type = 'button';
-      b.textContent = t[1];
+      b.textContent = T(t[1]);
       b.className = t[0] === msgFilter ? 'active' : '';
       b.onclick = function () { msgFilter = t[0]; msgOpenId = null; renderMsgTabs(); loadMessages(); };
       host.appendChild(b);
@@ -157,7 +235,7 @@
       if (!r || !r.ok) return;
       var badge = $('msgBadge');
       if (badge) {
-        badge.textContent = r.nouveaux ? r.nouveaux + ' nouveau' + (r.nouveaux > 1 ? 'x' : '') : '';
+        badge.textContent = r.nouveaux ? T('badgeNouveaux', { n: r.nouveaux }) : '';
         show(badge, !!r.nouveaux);
       }
       renderMessages(r.messages || []);
@@ -176,8 +254,8 @@
       var apercu = m.message || m.transcription || '';
       row.innerHTML =
         '<div class="mi">' +
-          '<div class="mn">' + esc(m.nom || 'Visiteur anonyme') +
-            ' <span class="mtag ' + esc(m.statut) + '">' + esc(MSG_STATUTS[m.statut] || m.statut) + '</span>' +
+          '<div class="mn">' + esc(m.nom || T('visiteurAnonyme')) +
+            ' <span class="mtag ' + esc(m.statut) + '">' + esc(statutMsg(m.statut)) + '</span>' +
             (m.pris_nom ? ' <span class="mtag">🙋 ' + esc(m.pris_nom) + '</span>' : '') + '</div>' +
           '<div class="mc">' + esc(m.tel_affiche || m.email || '') +
             (m.duree_s ? ' · 🎧 ' + mmss(m.duree_s) : '') +
@@ -220,68 +298,69 @@
 
     var peutSupprimer = me && (me.role === 'gestionnaire' || me.role === 'superviseur');
     var h = '<div class="mdet">';
-    h += '<h3>' + esc(m.nom || 'Visiteur anonyme') +
-         ' <span class="mtag ' + esc(m.statut) + '">' + esc(MSG_STATUTS[m.statut] || m.statut) + '</span></h3>';
+    h += '<h3>' + esc(m.nom || T('visiteurAnonyme')) +
+         ' <span class="mtag ' + esc(m.statut) + '">' + esc(statutMsg(m.statut)) + '</span></h3>';
     h += '<div style="font-size:.9rem;line-height:1.7">';
     if (m.tel_affiche) h += '<b>' + esc(m.tel_affiche) + '</b>' +
-      (m.tel_brut ? ' <span style="color:#8a95a6">(dicté : ' + esc(m.tel_brut) + ')</span>' : '') + '<br>';
+      (m.tel_brut ? ' <span style="color:#8a95a6">(' + esc(T('dicte', { x: m.tel_brut })) + ')</span>' : '') + '<br>';
     if (m.email) h += '<b>' + esc(m.email) + '</b><br>';
     h += esc(quand(m.date)) + ' · ' + esc(m.projet_nom) + ' · ' + esc(m.langue.toUpperCase()) +
-         (m.canal === 'hotesse' ? ' · pris par l\'hôtesse IA' : '') + '</div>';
+         (m.canal === 'hotesse' ? ' · ' + esc(T('prisParHotesse')) : '') + '</div>';
 
     if (m.audio) h += '<audio controls preload="metadata" src="' + esc(m.audio) + '"></audio>';
-    if (m.message) h += '<div class="corps"><span class="etiq">Message écrit</span>' + esc(m.message) + '</div>';
-    if (m.transcription) h += '<div class="corps auto"><span class="etiq">Transcription automatique — à vérifier à l\'écoute</span>' +
+    if (m.message) h += '<div class="corps"><span class="etiq">' + esc(T('messageEcrit')) + '</span>' + esc(m.message) + '</div>';
+    if (m.transcription) h += '<div class="corps auto"><span class="etiq">' + esc(T('transcriptionAuto')) + '</span>' +
       esc(m.transcription) + '</div>';
 
     // Prise en charge : le premier qui la déclare évite le double rappel.
     h += '<div class="acts">';
-    if (!m.pris_nom) h += '<button class="btn sm ok" data-act="prise">🙋 Je m\'en occupe</button>';
-    else h += '<span class="mtag">🙋 ' + esc(m.pris_nom) + ' s\'en occupe</span>';
+    if (!m.pris_nom) h += '<button class="btn sm ok" data-act="prise">' + esc(T('jeMenOccupe')) + '</button>';
+    else h += '<span class="mtag">🙋 ' + esc(T('senOccupe', { nom: m.pris_nom })) + '</span>';
     h += '</div>';
 
     h += '<div class="acts">';
     if (m.lien_tel) {
-      h += '<a class="btn sm tel" href="' + esc(m.lien_tel) + '" data-j="rappel">📞 Rappeler</a>' +
-           '<a class="btn sm wa" href="' + esc(m.lien_wa) + '" target="_blank" rel="noopener" data-j="whatsapp" id="mWa">💬 WhatsApp</a>' +
-           '<a class="btn sm ghost" href="' + esc(m.lien_sms) + '" data-j="sms" id="mSms">✉️ SMS</a>';
+      h += '<a class="btn sm tel" href="' + esc(m.lien_tel) + '" data-j="rappel">' + esc(T('btnRappeler')) + '</a>' +
+           '<a class="btn sm wa" href="' + esc(m.lien_wa) + '" target="_blank" rel="noopener" data-j="whatsapp" id="mWa">' + esc(T('btnWhatsapp')) + '</a>' +
+           '<a class="btn sm ghost" href="' + esc(m.lien_sms) + '" data-j="sms" id="mSms">' + esc(T('btnSms')) + '</a>';
     }
-    if (m.lien_mail) h += '<a class="btn sm ghost" href="' + esc(m.lien_mail) + '" data-j="email">📧 E-mail</a>';
-    if (!m.lien_tel && !m.lien_mail) h += '<span style="color:#8a95a6;font-size:.9rem">Aucune coordonnée laissée.</span>';
+    if (m.lien_mail) h += '<a class="btn sm ghost" href="' + esc(m.lien_mail) + '" data-j="email">' + esc(T('btnEmail')) + '</a>';
+    if (!m.lien_tel && !m.lien_mail) h += '<span style="color:#8a95a6;font-size:.9rem">' + esc(T('aucuneCoordonnee')) + '</span>';
     h += '</div>';
 
     if (m.lien_tel) {
-      h += '<div class="bloc"><h3>Message écrit (WhatsApp / SMS)</h3>' +
+      h += '<div class="bloc"><h3>' + esc(T('messageEcritWaSms')) + '</h3>' +
            '<textarea id="mPrefill">' + esc(m.prefill) + '</textarea>' +
-           '<div style="font-size:.8rem;color:#8a95a6;margin-top:.3rem">Modifiez le texte : les boutons WhatsApp et SMS l\'emportent avec eux.</div></div>';
+           '<div style="font-size:.8rem;color:#8a95a6;margin-top:.3rem">' + esc(T('modifiezTexte')) + '</div></div>';
     }
 
-    h += '<div class="bloc"><h3>Réponse vocale</h3>' +
-         '<div style="font-size:.85rem;color:#54627a;margin-bottom:.5rem">Enregistrez votre réponse : vous obtiendrez un lien d\'écoute à coller dans WhatsApp.</div>' +
-         '<div class="acts"><button class="btn sm ghost" data-act="rec">⏺ Enregistrer</button>' +
+    h += '<div class="bloc"><h3>' + esc(T('reponseVocale')) + '</h3>' +
+         '<div style="font-size:.85rem;color:#54627a;margin-bottom:.5rem">' + esc(T('reponseVocaleAide')) + '</div>' +
+         '<div class="acts"><button class="btn sm ghost" data-act="rec">' + esc(T('enregistrer')) + '</button>' +
          '<span id="mChrono" style="font-variant-numeric:tabular-nums;font-weight:700">0:00</span>' +
-         '<button class="btn sm" data-act="send-vocal" disabled>Envoyer la réponse</button></div>' +
+         '<button class="btn sm" data-act="send-vocal" disabled>' + esc(T('envoyerReponse')) + '</button></div>' +
          '<audio id="mRepPlay" controls style="display:none"></audio>' +
          '<div id="mRepOut" style="font-size:.85rem"></div></div>';
 
-    h += '<div class="bloc"><h3>Note interne</h3>' +
-         '<textarea id="mNote" placeholder="Ce qu\'il faut retenir…">' + esc(m.notes || '') + '</textarea>' +
-         '<div class="acts"><button class="btn sm ghost" data-act="note">Enregistrer la note</button></div></div>';
+    h += '<div class="bloc"><h3>' + esc(T('noteInterne')) + '</h3>' +
+         '<textarea id="mNote" placeholder="' + esc(T('notePlaceholder')) + '">' + esc(m.notes || '') + '</textarea>' +
+         '<div class="acts"><button class="btn sm ghost" data-act="note">' + esc(T('enregistrerNote')) + '</button></div></div>';
 
-    h += '<div class="bloc"><h3>Classer</h3><div class="acts">';
+    h += '<div class="bloc"><h3>' + esc(T('classer')) + '</h3><div class="acts">';
     ['traite', 'archive', 'nouveau'].forEach(function (s) {
       if (m.statut === s) return;
       h += '<button class="btn sm ghost" data-statut="' + s + '">' +
-           (s === 'traite' ? 'Marquer traité' : s === 'archive' ? 'Archiver' : 'Remettre en nouveau') + '</button>';
+           esc(T(s === 'traite' ? 'marquerTraite' : s === 'archive' ? 'archiver' : 'remettreNouveau')) + '</button>';
     });
-    if (peutSupprimer) h += '<button class="btn sm danger" data-act="suppr">Supprimer</button>';
-    h += '<button class="btn sm ghost" data-act="close">↩︎ Retour à la liste</button></div></div>';
+    if (peutSupprimer) h += '<button class="btn sm danger" data-act="suppr">' + esc(T('supprimer')) + '</button>';
+    h += '<button class="btn sm ghost" data-act="close">' + esc(T('retourListe')) + '</button></div></div>';
 
     if (journal.length) {
-      h += '<div class="bloc"><h3>Suites données</h3>';
+      h += '<div class="bloc"><h3>' + esc(T('suitesDonnees')) + '</h3>';
       journal.forEach(function (j) {
-        var lbl = { rappel: '📞 Rappel', whatsapp: '💬 WhatsApp', sms: '✉️ SMS', email: '📧 E-mail',
-                    vocal: '🎙️ Réponse vocale', note: '📝 Note', statut: '🗂️ Statut', prise: '🙋 Prise en charge' }[j.type] || j.type;
+        var cleJ = { rappel: 'jRappel', whatsapp: 'jWhatsapp', sms: 'jSms', email: 'jEmail',
+                     vocal: 'jVocal', note: 'jNote', statut: 'jStatut', prise: 'jPrise' }[j.type];
+        var lbl = cleJ ? T(cleJ) : j.type;
         h += '<div class="jr"><b>' + esc(lbl) + '</b> <span class="q">' + esc(quand(j.date)) +
              (j.agent ? ' · ' + esc(j.agent) : '') + '</span>' +
              (j.detail ? '<div style="color:#54627a">' + esc(j.detail) + '</div>' : '');
@@ -320,7 +399,7 @@
     var act = function (name) { return host.querySelector('[data-act="' + name + '"]'); };
     if (act('prise')) act('prise').onclick = function () {
       post('messages-agent.php', { action: 'prise', id: m.id }).then(function (r) {
-        if (r && !r.ok && r.error) alert(r.error);
+        if (r && !r.ok && (r.error || r.code)) alert(messageErreur(r, 'errServeur'));
         openMessage(m.id);
       });
     };
@@ -328,7 +407,7 @@
       post('messages-agent.php', { action: 'note', id: m.id, note: $('mNote').value }).then(function () { openMessage(m.id); });
     };
     if (act('suppr')) act('suppr').onclick = function () {
-      if (!confirm('Supprimer définitivement ce message et son enregistrement ?')) return;
+      if (!confirm(T('confirmSuppression'))) return;
       post('messages-agent.php', { action: 'supprimer', id: m.id }).then(function () { closeMessage(); });
     };
     if (act('close')) act('close').onclick = closeMessage;
@@ -354,9 +433,9 @@
 
     btnRec.onclick = async function () {
       if (repRec && repRec.state === 'recording') { repRec.stop(); return; }
-      if (!(navigator.mediaDevices && window.MediaRecorder)) { out.textContent = 'Ce navigateur ne sait pas enregistrer.'; return; }
+      if (!(navigator.mediaDevices && window.MediaRecorder)) { out.textContent = T('pasEnregistrement'); return; }
       try { repFlux = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-      catch (e) { out.textContent = 'Micro refusé — autorisez-le dans le navigateur.'; return; }
+      catch (e) { out.textContent = T('microRefuse'); return; }
       var mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg']
         .find(function (x) { return MediaRecorder.isTypeSupported(x); }) || '';
       repRec = mime ? new MediaRecorder(repFlux, { mimeType: mime }) : new MediaRecorder(repFlux);
@@ -368,11 +447,11 @@
         repBlob = new Blob(repChunks, { type: repRec.mimeType || 'audio/webm' });
         player.src = URL.createObjectURL(repBlob);
         player.style.display = 'block';
-        btnRec.textContent = '↺ Recommencer';
+        btnRec.textContent = T('recommencer');
         btnSend.disabled = false;
       };
       repSec = 0; tick(); repRec.start();
-      btnRec.textContent = '⏹ Arrêter';
+      btnRec.textContent = T('arreter');
       out.textContent = '';
       repTic = setInterval(function () { repSec++; tick(); if (repSec >= 180) repRec.stop(); }, 1000);
     };
@@ -388,11 +467,11 @@
       fetch(API + 'messages-agent.php', { method: 'POST', credentials: 'same-origin', body: fd })
         .then(function (r) { return r.json(); })
         .then(function (r) {
-          if (!r || !r.ok) { out.textContent = (r && r.error) || 'Échec de l\'envoi.'; btnSend.disabled = false; return; }
+          if (!r || !r.ok) { out.textContent = messageErreur(r, 'echecEnvoi'); btnSend.disabled = false; return; }
           stopRepRec();
           openMessage(messageId);
         })
-        .catch(function () { out.textContent = 'Échec de l\'envoi.'; btnSend.disabled = false; });
+        .catch(function () { out.textContent = T('echecEnvoi'); btnSend.disabled = false; });
     };
   }
 
@@ -416,10 +495,10 @@
       var dot = $('onlineDot'), txt = $('onlineText');
       if (r && r.ok) {
         dot.classList.add('on');
-        txt.textContent = 'En ligne';
+        txt.textContent = T('enLigne');
       } else {
         dot.classList.remove('on');
-        txt.textContent = 'Hors ligne';
+        txt.textContent = T('horsLigne');
       }
     });
   }
@@ -457,10 +536,10 @@
     card.className = 'req';
     card.setAttribute('data-id', req.id);
     card.innerHTML =
-      '<div>🔔 <span class="vis"></span> souhaite être reçu(e).</div>' +
+      '<div>🔔 <span class="vis"></span> ' + esc(T('souhaiteRecu')) + '</div>' +
       '<div class="acts">' +
-        '<button class="btn ok sm" data-act="ok">Autoriser</button>' +
-        '<button class="btn danger sm" data-act="no">Refuser</button>' +
+        '<button class="btn ok sm" data-act="ok">' + esc(T('autoriser')) + '</button>' +
+        '<button class="btn danger sm" data-act="no">' + esc(T('refuser')) + '</button>' +
       '</div>';
     card.querySelector('.vis').textContent = req.visitor;
     card.querySelector('[data-act="ok"]').onclick = function () { approve(req, card); };
@@ -471,18 +550,22 @@
   function approve(req, card) {
     post('agent-access.php', { action: 'approve', request_id: req.id }).then(function (r) {
       if (!r || !r.ok) { card.remove(); return; }
-      seenApproved[req.id] = r.code;
-      card.style.borderLeftColor = 'var(--ok)';
-      card.innerHTML =
-        '<div>✅ Accès autorisé pour <b></b>.</div>' +
-        '<div class="code"></div>' +
-        '<div class="hint">Communiquez ce code au visiteur (l\'hôtesse le lui donne aussi). ' +
-        'Dès qu\'il le saisit, vous pouvez vous parler en direct.</div>' +
-        '<div class="acts"><button class="btn sm" data-act="join">🎙️ Rejoindre le visiteur</button></div>';
-      card.querySelector('b').textContent = req.visitor;
-      card.querySelector('.code').textContent = r.code;
-      card.querySelector('[data-act="join"]').onclick = function () { joinCall(req.id); };
+      // Le nom est gardé à côté du code : c'est ce qui permet de redessiner
+      // la carte dans une autre langue sans rien redemander au serveur.
+      seenApproved[req.id] = { code: r.code, visitor: req.visitor };
+      remplirCarteApprouvee(card, req.id, req.visitor, r.code);
     });
+  }
+
+  function remplirCarteApprouvee(card, reqId, visitor, code) {
+    card.style.borderLeftColor = 'var(--ok)';
+    card.innerHTML =
+      '<div>✅ ' + T('accesAutorise', { nom: '<b>' + esc(visitor) + '</b>' }) + '</div>' +
+      '<div class="code"></div>' +
+      '<div class="hint">' + esc(T('communiquezCode')) + '</div>' +
+      '<div class="acts"><button class="btn sm" data-act="join">' + esc(T('rejoindreVisiteur')) + '</button></div>';
+    card.querySelector('.code').textContent = code;
+    card.querySelector('[data-act="join"]').onclick = function () { joinCall(reqId); };
   }
 
   function deny(req, card) {
@@ -508,7 +591,7 @@
       callRoom.connect(r.url, r.token).then(function () {
         return callRoom.localParticipant.setMicrophoneEnabled(true);
       }).then(function () {
-        $('callText').textContent = 'En relation vocale avec le visiteur…';
+        $('callText').textContent = T('enRelationVocale');
         show($('callBox'), true);
       }).catch(function () { hangup(); });
     });
@@ -530,22 +613,20 @@
         var tr = document.createElement('tr');
         tr.setAttribute('data-agent-id', a.id); // clé d'appariement de la présence
         // Trois rôles, pas deux : un superviseur s'affichait « Commercial ».
-        var roleTxt = a.role === 'superviseur' ? 'Superviseur'
-                    : (a.role === 'gestionnaire' ? 'Gestionnaire' : 'Commercial');
         tr.innerHTML =
           '<td></td>' +
-          '<td>' + roleTxt + '</td>' +
+          '<td>' + esc(roleLabel(a.role)) + '</td>' +
           '<td><span class="pill ' + a.statut + '">' + statutLabel(a.statut) + '</span></td>' +
           '<td class="pcell">—</td>' +
           '<td class="actcell"></td>';
         tr.children[0].textContent = a.name;
         var act = tr.querySelector('.actcell');
         if (a.statut === 'pending') {
-          act.appendChild(mkBtn('Valider', 'ok', function () { setStatus(a.id, 'active'); }));
+          act.appendChild(mkBtn(T('valider'), 'ok', function () { setStatus(a.id, 'active'); }));
         } else if (a.statut === 'active') {
-          act.appendChild(mkBtn('Suspendre', 'danger', function () { setStatus(a.id, 'suspended'); }));
+          act.appendChild(mkBtn(T('suspendre'), 'danger', function () { setStatus(a.id, 'suspended'); }));
         } else {
-          act.appendChild(mkBtn('Réactiver', 'ok', function () { setStatus(a.id, 'active'); }));
+          act.appendChild(mkBtn(T('reactiver'), 'ok', function () { setStatus(a.id, 'active'); }));
         }
         body.appendChild(tr);
       });
@@ -580,7 +661,7 @@
         if (!cell) return;
         cell.textContent = match && match.online
           ? '🟢 ' + presenceLabel(match.presence)
-          : '⚪ Hors ligne';
+          : '⚪ ' + T('horsLigne');
       });
     });
   }
@@ -594,9 +675,12 @@
     b.className = 'btn sm ' + cls; b.textContent = label; b.onclick = onclick;
     return b;
   }
-  function statutLabel(s) { return s === 'active' ? 'Actif' : s === 'pending' ? 'En attente' : 'Suspendu'; }
+  function statutLabel(s) {
+    return T(s === 'active' ? 'statActif' : s === 'pending' ? 'statEnAttente' : 'statSuspendu');
+  }
   function presenceLabel(p) {
-    return { bureau: 'Au bureau', en_ligne: 'En ligne', occupe: 'Occupé', absent: 'Absent' }[p] || 'En ligne';
+    var cle = { bureau: 'presAuBureauL', en_ligne: 'presEnLigneL', occupe: 'presOccupeL', absent: 'presAbsentL' }[p];
+    return T(cle || 'presEnLigneL');
   }
 
   /* ── Thème clair / nocturne (page autonome, sans menu.js) ──────────────── */
@@ -620,6 +704,15 @@
 
   /* ── Câblage ───────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
+    // Sélecteur de langue : les quatre boutons du site, puis une première
+    // passe de traduction du balisage avant tout affichage.
+    if (window.NJ_LANG && window.EA_TEXTES) {
+      window.NJ_LANG.boutons($('langBar'));
+      window.NJ_LANG.traduire(window.EA_TEXTES);
+      window.NJ_LANG.sur(retraduire);
+      majLienSite();
+    }
+
     var themeBtn = $('themeBtn');
     if (themeBtn) { themeUpdateBtn(); themeBtn.addEventListener('click', themeToggle); }
     loadProjects();
@@ -632,17 +725,17 @@
 
     $('formLogin').onsubmit = function (e) {
       e.preventDefault();
-      var msg = $('loginMsg'); msg.className = 'msg'; msg.textContent = 'Connexion…';
+      var msg = $('loginMsg'); msg.className = 'msg'; msg.textContent = T('connexionEnCours');
       post('agent-auth.php', { action: 'login', email: $('liEmail').value.trim(), password: $('liPass').value })
         .then(function (r) {
           if (r && r.ok) { msg.textContent = ''; renderAuth(r.agent); }
-          else { msg.className = 'msg err'; msg.textContent = (r && r.error) || 'Échec de la connexion.'; }
+          else { msg.className = 'msg err'; msg.textContent = messageErreur(r, 'echecConnexion'); }
         });
     };
 
     $('formReg').onsubmit = function (e) {
       e.preventDefault();
-      var msg = $('regMsg'); msg.className = 'msg'; msg.textContent = 'Création…';
+      var msg = $('regMsg'); msg.className = 'msg'; msg.textContent = T('creationEnCours');
       post('agent-auth.php', {
         action: 'register',
         name: $('rgName').value.trim(),
@@ -655,11 +748,11 @@
       }).then(function (r) {
         if (r && r.ok) {
           msg.className = 'msg good';
-          msg.textContent = r.message || 'Compte créé, en attente de validation.';
+          msg.textContent = T('compteCree');
           $('formReg').reset();
         } else {
           msg.className = 'msg err';
-          msg.textContent = (r && r.error) || 'Échec de l\'inscription.';
+          msg.textContent = messageErreur(r, 'echecInscription');
         }
       });
     };

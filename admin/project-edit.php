@@ -22,10 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $projectSliders[$project['id']] = posted_slider_images($project['id'], $projectSliders[$project['id']] ?? []);
         write_projects($projects);
         write_project_sliders($projectSliders);
-        set_flash('Projet enregistre : ' . count($project['gallery'] ?? []) . ' photo(s) dans l\'album, '
-            . count($project['panoramas'] ?? []) . ' vue(s) 360, '
-            . count($project['videos'] ?? []) . ' video(s), '
-            . count($projectSliders[$project['id']] ?? []) . ' image(s) de slider.');
+        set_flash(t_brut('pe_enregistre', [
+            'g' => count($project['gallery'] ?? []),
+            'p' => count($project['panoramas'] ?? []),
+            'v' => count($project['videos'] ?? []),
+            's' => count($projectSliders[$project['id']] ?? []),
+        ]));
         /* On revient sur la fiche, pas sur la liste : un ajout ou une
            suppression de media ne se verifie que sur les vignettes, et la liste
            n'en montre aucune. Rediriger (plutot que reafficher) garde le
@@ -66,9 +68,9 @@ $panoramaLines = array_map('panorama_to_line', $panoramas);
 $videos = array_values(array_filter((array) ($project['videos'] ?? [])));
 $videoLines = array_map('video_to_line', $videos);
 
-admin_header($id ? 'Modifier projet' : 'Nouveau projet');
+admin_header(t_brut($id ? 'pe_titre_modifier' : 'projets_nouveau'));
 ?>
-<h1><?= $id ? 'Modifier le projet' : 'Nouveau projet' ?></h1>
+<h1><?= t($id ? 'pe_h1_modifier' : 'projets_nouveau') ?></h1>
 
 <?php if ($error): ?>
     <div class="notice error"><?= htmlspecialchars($error) ?></div>
@@ -83,11 +85,11 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
             <input name="id" value="<?= htmlspecialchars($project['id']) ?>" required pattern="[a-z0-9_-]+">
         </label>
         <label>
-            Dossier
+            <?= t('audit_th_dossier') ?>
             <input name="folder" value="<?= htmlspecialchars($project['folder'] ?? '') ?>">
         </label>
         <label>
-            Statut
+            <?= t('th_statut') ?>
             <select name="status">
                 <?php foreach (['live', 'draft', 'sold', 'coming_soon'] as $status): ?>
                     <option value="<?= $status ?>" <?= ($project['status'] ?? '') === $status ? 'selected' : '' ?>><?= $status ?></option>
@@ -95,7 +97,7 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
             </select>
         </label>
         <label>
-            Type
+            <?= t('th_type') ?>
             <select name="type">
                 <?php foreach (['appartements', 'terrains', 'maisons', 'bureaux', 'commerces'] as $type): ?>
                     <option value="<?= $type ?>" <?= ($project['type'] ?? '') === $type ? 'selected' : '' ?>><?= $type ?></option>
@@ -103,47 +105,43 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
             </select>
         </label>
         <label>
-            Latitude
+            <?= t('pe_latitude') ?>
             <input name="lat" type="number" step="any" value="<?= htmlspecialchars((string) ($project['lat'] ?? 0)) ?>">
         </label>
         <label>
-            Longitude
+            <?= t('pe_longitude') ?>
             <input name="lng" type="number" step="any" value="<?= htmlspecialchars((string) ($project['lng'] ?? 0)) ?>">
         </label>
         <label>
-            Nombre POI
+            <?= t('pe_nb_poi') ?>
             <input name="poi_count" type="number" min="0" value="<?= htmlspecialchars((string) ($project['poi_count'] ?? 0)) ?>">
         </label>
         <label>
-            Visite 360
-            <span><input name="has_tour" type="checkbox" value="1" <?= ! empty($project['has_tour']) ? 'checked' : '' ?>> Disponible</span>
+            <?= t('pe_visite360') ?>
+            <span><input name="has_tour" type="checkbox" value="1" <?= ! empty($project['has_tour']) ? 'checked' : '' ?>> <?= t('pe_disponible') ?></span>
         </label>
         <label>
-            Prix publics
+            <?= t('pe_prix_publics') ?>
             <select name="price_mode">
-                <option value="public" <?= (($project['price_mode'] ?? 'public') !== 'on-request') ? 'selected' : '' ?>>Afficher les montants</option>
-                <option value="on-request" <?= (($project['price_mode'] ?? '') === 'on-request') ? 'selected' : '' ?>>Masquer — « Nous consulter »</option>
+                <option value="public" <?= (($project['price_mode'] ?? 'public') !== 'on-request') ? 'selected' : '' ?>><?= t('pe_prix_afficher') ?></option>
+                <option value="on-request" <?= (($project['price_mode'] ?? '') === 'on-request') ? 'selected' : '' ?>><?= t('pe_prix_masquer') ?></option>
             </select>
-            <small style="color:#64748b">Masqué : aucun montant ne sort de l'API (lots, prix au m², filtre budget).</small>
+            <small style="color:#64748b"><?= t('pe_prix_aide') ?></small>
         </label>
         <label class="full">
-            URL detail
+            <?= t('pe_url_detail') ?>
             <input name="detail_url" value="<?= htmlspecialchars($project['detail_url'] ?? '') ?>">
         </label>
         <label class="full">
-            Visionneuse 360
+            <?= t('pe_visionneuse') ?>
             <span><input name="tour_maison" type="checkbox" value="1"
-                         <?= ! empty($project['tour_maison']) ? 'checked' : '' ?>> Utiliser la visionneuse maison (Pannellum)</span>
+                         <?= ! empty($project['tour_maison']) ? 'checked' : '' ?>> <?= t('pe_visionneuse_maison') ?></span>
             <small style="color:#64748b">
-                Cochée, l'URL ci-dessous est composée automatiquement à partir du
-                dossier de visite et le champ devient un simple chemin de dossier
-                (ex. <code>jawhara/Tour</code>). Décochée, l'URL est libre — pour
-                pointer le lecteur 3DVista (<code>jawhara/Tour/index.htm</code>)
-                ou un service externe.
+                <?= t_brut('pe_visionneuse_aide') ?>
             </small>
         </label>
         <label class="full">
-            URL visite 360 <em style="font-weight:400">— ou dossier du tour si la visionneuse maison est cochée</em>
+            <?= t('pe_url_visite') ?> <em style="font-weight:400"><?= t('pe_url_visite_em') ?></em>
             <?php // En régime « maison », on réaffiche le dossier saisi, pas l'URL composée. ?>
             <input name="tour_url" value="<?= htmlspecialchars(
                 ! empty($project['tour_maison'])
@@ -152,72 +150,63 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
             ) ?>">
         </label>
         <label class="full">
-            URL visite d'un appartement
+            <?= t('pe_url_appartement') ?>
             <input name="apartment_tour_url" value="<?= htmlspecialchars($project['apartment_tour_url'] ?? '') ?>">
             <small style="color:#64748b">
-                Visite d'un logement témoin, distincte de la visite du projet.
-                C'est elle qu'ouvre le bouton ◎ d'un lot dans la démo et le
-                parcours client, qui la préfèrent à la visite du projet.
-                Champ libre : un chemin de lecteur 3DVista, ou la visionneuse
-                maison sous la forme
-                <code>tour-360.html?tour=&lt;dossier&gt;</code>.
-                <strong>Vide</strong>, aucun onglet « appartement » ne
-                s'affiche et le bouton ◎ d'un lot retombe sur la visite du
-                projet ci-dessus — ce qui convient tant que vous n'avez pas
-                photographié un logement témoin à part.
+                <?= t_brut('pe_url_appartement_aide') ?>
             </small>
         </label>
         <label class="full">
-            PDF brochure / plan
+            <?= t('pe_pdf_brochure') ?>
             <input name="brochure_pdf" value="<?= htmlspecialchars($project['brochure_pdf'] ?? '') ?>">
         </label>
         <label class="full">
-            Image logo
+            <?= t('pe_image_logo') ?>
             <input name="image_logo" value="<?= htmlspecialchars($project['images']['logo'] ?? '') ?>">
             <?php if (! empty($project['images']['logo'])): ?>
-                <span class="file-hint"><a href="../<?= htmlspecialchars($project['images']['logo']) ?>" target="_blank">Voir le fichier actuel</a></span>
+                <span class="file-hint"><a href="../<?= htmlspecialchars($project['images']['logo']) ?>" target="_blank"><?= t('pe_voir_fichier') ?></a></span>
                 <img class="image-preview" src="../<?= htmlspecialchars($project['images']['logo']) ?>" alt="">
             <?php endif; ?>
         </label>
         <label class="full">
-            Importer un nouveau logo
+            <?= t('pe_importer_logo') ?>
             <input name="upload_logo" type="file" accept=".jpg,.jpeg,.png,.webp,.svg,image/*">
         </label>
         <label class="full">
-            Image hero
+            <?= t('pe_image_hero') ?>
             <input name="image_hero" value="<?= htmlspecialchars($project['images']['hero'] ?? '') ?>">
             <?php if (! empty($project['images']['hero'])): ?>
-                <span class="file-hint"><a href="../<?= htmlspecialchars($project['images']['hero']) ?>" target="_blank">Voir le fichier actuel</a></span>
+                <span class="file-hint"><a href="../<?= htmlspecialchars($project['images']['hero']) ?>" target="_blank"><?= t('pe_voir_fichier') ?></a></span>
                 <img class="image-preview image-preview-wide" src="../<?= htmlspecialchars($project['images']['hero']) ?>" alt="">
             <?php endif; ?>
         </label>
         <label class="full">
-            Importer une nouvelle image hero
+            <?= t('pe_importer_hero') ?>
             <input name="upload_hero" type="file" accept=".jpg,.jpeg,.png,.webp,image/*">
         </label>
         <label class="full">
-            Image plan
+            <?= t('pe_image_plan') ?>
             <input name="image_floorplan" value="<?= htmlspecialchars($project['images']['floorplan'] ?? '') ?>">
             <?php if (! empty($project['images']['floorplan'])): ?>
-                <span class="file-hint"><a href="../<?= htmlspecialchars($project['images']['floorplan']) ?>" target="_blank">Voir le fichier actuel</a></span>
+                <span class="file-hint"><a href="../<?= htmlspecialchars($project['images']['floorplan']) ?>" target="_blank"><?= t('pe_voir_fichier') ?></a></span>
                 <img class="image-preview image-preview-wide" src="../<?= htmlspecialchars($project['images']['floorplan']) ?>" alt="">
             <?php endif; ?>
         </label>
         <label class="full">
-            Importer un nouveau plan
+            <?= t('pe_importer_plan') ?>
             <input name="upload_floorplan" type="file" accept=".jpg,.jpeg,.png,.webp,.svg,image/*">
         </label>
         <label class="full">
-            Importer un nouveau PDF
+            <?= t('pe_importer_pdf') ?>
             <input name="upload_brochure" type="file" accept=".pdf,application/pdf">
             <?php if (! empty($project['brochure_pdf'])): ?>
-                <span class="file-hint"><a href="../<?= htmlspecialchars($project['brochure_pdf']) ?>" target="_blank">Voir le PDF actuel</a></span>
+                <span class="file-hint"><a href="../<?= htmlspecialchars($project['brochure_pdf']) ?>" target="_blank"><?= t('pe_voir_pdf') ?></a></span>
             <?php endif; ?>
         </label>
         <label class="full">
-            Images du slider accueil (<?= count($sliderImages) ?>)
-            <textarea name="slider_images" rows="7" placeholder="Un chemin par ligne"><?= htmlspecialchars(implode(PHP_EOL, $sliderImages)) ?></textarea>
-            <span class="file-hint">Ces images alimentent les cartes de la page d'accueil. Laisse vide pour utiliser l'image principale du projet.</span>
+            <?= t('pe_slider', ['n' => count($sliderImages)]) ?>
+            <textarea name="slider_images" rows="7" placeholder="<?= t('pe_un_chemin') ?>"><?= htmlspecialchars(implode(PHP_EOL, $sliderImages)) ?></textarea>
+            <span class="file-hint"><?= t('pe_slider_aide') ?></span>
         </label>
         <?php if ($sliderImages): ?>
             <div class="full media-grid">
@@ -229,41 +218,31 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
                         <figcaption title="<?= htmlspecialchars($sliderImage) ?>"><?= htmlspecialchars(basename($sliderImage)) ?></figcaption>
                         <label class="media-remove">
                             <input type="checkbox" name="supprimer_slider[]" value="<?= htmlspecialchars($sliderImage) ?>">
-                            Supprimer
+                            <?= t('bt_supprimer') ?>
                         </label>
                     </figure>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
         <label class="full">
-            Importer des images de slider
+            <?= t('pe_importer_slider') ?>
             <input name="upload_slider_images[]" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" multiple>
         </label>
     </div>
 
     <hr>
 
-    <h2>Photos et videos</h2>
+    <h2><?= t('pe_photos_videos') ?></h2>
     <p class="file-hint">
-        Ces medias alimentent la page « Photos et videos » (medias.html), ouverte
-        par le bouton « Album » de la fiche d'un logement. L'onglet Photos montre
-        l'album puis les vues 360 ; l'onglet Videos montre la liste des videos.
-        Ce qui est ici est exactement ce que verra le visiteur : les images du
-        slider et l'image hero ne prennent le relais que si l'album ET les vues
-        360 sont vides.
+        <?= t('pe_photos_videos_aide') ?>
     </p>
 
     <div class="grid">
         <label class="full">
-            Album photos du projet (<?= count($galleryImages) ?>)
+            <?= t('pe_album', ['n' => count($galleryImages)]) ?>
             <textarea name="gallery_images" rows="7" placeholder="Un chemin par ligne, ex. images/projects/<?= htmlspecialchars($project['id'] ?: 'projet') ?>/album/facade.jpg"><?= htmlspecialchars(implode(PHP_EOL, $galleryImages)) ?></textarea>
             <span class="file-hint">
-                Un chemin par ligne, dans l'ordre d'affichage du diaporama. Vide :
-                la page retombe sur les images du slider, puis sur l'image hero.
-                Une photo a 360 degres s'ouvre automatiquement dans la visionneuse 3D :
-                elle est reconnue si elle vient des panoramas du projet, si son nom
-                contient 360 / pano / theta, ou si elle est deux fois plus large
-                que haute (projection equirectangulaire).
+                <?= t('pe_album_aide') ?>
             </span>
         </label>
         <?php if ($galleryImages): ?>
@@ -276,31 +255,26 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
                         <figcaption title="<?= htmlspecialchars($galleryImage) ?>"><?= htmlspecialchars(basename($galleryImage)) ?></figcaption>
                         <label class="media-remove">
                             <input type="checkbox" name="supprimer_gallery[]" value="<?= htmlspecialchars($galleryImage) ?>">
-                            Supprimer
+                            <?= t('bt_supprimer') ?>
                         </label>
                     </figure>
                 <?php endforeach; ?>
             </div>
             <p class="full file-hint">
-                Coche « Supprimer » puis Enregistrer : la photo quitte l'album. Le
-                fichier reste sur le serveur, au cas ou il servirait ailleurs
-                (image hero, slider) ou qu'il faille revenir en arriere.
+                <?= t('pe_album_suppr_aide') ?>
             </p>
         <?php endif; ?>
         <label class="full">
-            Importer des photos dans l'album
+            <?= t('pe_importer_album') ?>
             <input name="upload_gallery_images[]" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" multiple>
-            <span class="file-hint">Enregistrees dans images/projects/&lt;id&gt;/album/. Maximum 12 Mo par photo.</span>
+            <span class="file-hint"><?= t_brut('pe_importer_album_aide') ?></span>
         </label>
 
         <label class="full">
-            Vues a 360 degres (<?= count($panoramaLines) ?>)
+            <?= t('pe_vues360', ['n' => count($panoramaLines)]) ?>
             <textarea name="panoramas" rows="6" placeholder="images/projects/<?= htmlspecialchars($project['id'] ?: 'projet') ?>/360/salon.jpg | Salon"><?= htmlspecialchars(implode(PHP_EOL, $panoramaLines)) ?></textarea>
             <span class="file-hint">
-                Une ligne par vue : <code>chemin | piece</code>. Elles s'affichent dans
-                l'album, apres les photos, et s'ouvrent toujours dans la visionneuse 3D.
-                Un nom de piece laisse tel quel garde ses traductions ; le reecrire le
-                remet en une seule langue.
+                <?= t_brut('pe_vues360_aide') ?>
             </span>
         </label>
         <?php if ($panoramas): ?>
@@ -314,26 +288,23 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
                         <figcaption title="<?= htmlspecialchars($panoSrc) ?>">360° · <?= htmlspecialchars(basename($panoSrc)) ?></figcaption>
                         <label class="media-remove">
                             <input type="checkbox" name="supprimer_panoramas[]" value="<?= htmlspecialchars($panoSrc) ?>">
-                            Supprimer
+                            <?= t('bt_supprimer') ?>
                         </label>
                     </figure>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
         <label class="full">
-            Importer des vues 360
+            <?= t('pe_importer_vues360') ?>
             <input name="upload_panoramas[]" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" multiple>
-            <span class="file-hint">Enregistrees dans images/projects/&lt;id&gt;/360/. Il faut de vraies photos spheriques (projection equirectangulaire, deux fois plus larges que hautes).</span>
+            <span class="file-hint"><?= t_brut('pe_importer_vues360_aide') ?></span>
         </label>
 
         <label class="full">
-            Videos du projet (<?= count($videos) ?>)
+            <?= t('pe_videos', ['n' => count($videos)]) ?>
             <textarea name="videos" rows="7" placeholder="data/videos/projet/visite.mp4 | data/videos/projet/visite.jpg | Presentation du projet"><?= htmlspecialchars(implode(PHP_EOL, $videoLines)) ?></textarea>
             <span class="file-hint">
-                Une ligne par video : <code>chemin video | chemin poster | titre</code>.
-                Le poster et le titre sont facultatifs. Un titre laisse tel quel garde
-                ses traductions ; le reecrire le remet en une seule langue.
-                Vide : la page montre la video institutionnelle.
+                <?= t_brut('pe_videos_aide') ?>
             </span>
         </label>
         <?php if ($videos): ?>
@@ -352,41 +323,44 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
                         <figcaption title="<?= htmlspecialchars($videoSrc) ?>"><?= htmlspecialchars(basename($videoSrc)) ?></figcaption>
                         <label class="media-remove">
                             <input type="checkbox" name="supprimer_videos[]" value="<?= htmlspecialchars($videoSrc) ?>">
-                            Supprimer
+                            <?= t('bt_supprimer') ?>
                         </label>
                     </figure>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
         <label class="full">
-            Importer des videos
+            <?= t('pe_importer_videos') ?>
             <input name="upload_videos[]" type="file" accept=".mp4,.webm,.mov,video/*" multiple>
-            <span class="file-hint">Enregistrees dans data/videos/&lt;id&gt;/. Maximum 200 Mo par fichier, dans la limite de upload_max_filesize du serveur.</span>
+            <span class="file-hint"><?= t_brut('pe_importer_videos_aide') ?></span>
         </label>
         <label class="full">
-            Importer des posters de videos
+            <?= t('pe_importer_posters') ?>
             <input name="upload_video_posters[]" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" multiple>
-            <span class="file-hint">Un poster prend le nom de sa video (visite.mp4 → visite.jpg) pour lui etre associe automatiquement.</span>
+            <span class="file-hint"><?= t('pe_importer_posters_aide') ?></span>
         </label>
     </div>
 
     <hr>
 
+    <?php /* Chaque bloc est étiqueté DANS sa langue (Français, English, العربية,
+             Español) : ce sont les langues du contenu publié, pas celle de
+             l'interface. Les traduire n'aurait pas de sens. */ ?>
     <div class="lang-tabs">
-        <?php foreach (['fr' => 'Francais', 'en' => 'English', 'ar' => 'العربية', 'es' => 'Espanol'] as $lang => $label): ?>
+        <?php foreach (['fr' => 'Français', 'en' => 'English', 'ar' => 'العربية', 'es' => 'Español'] as $lang => $label): ?>
             <section class="lang-box" dir="<?= $lang === 'ar' ? 'rtl' : 'ltr' ?>">
                 <h3><?= htmlspecialchars($label) ?></h3>
                 <div class="grid">
                     <label>
-                        Nom
+                        <?= t('ag_nom') ?>
                         <input name="name_<?= $lang ?>" value="<?= htmlspecialchars(text_value($project, 'name', $lang)) ?>">
                     </label>
                     <label>
-                        Localisation
+                        <?= t('pe_localisation') ?>
                         <input name="location_<?= $lang ?>" value="<?= htmlspecialchars(text_value($project, 'location', $lang)) ?>">
                     </label>
                     <label class="full">
-                        Description
+                        <?= t('pe_description') ?>
                         <textarea name="description_<?= $lang ?>"><?= htmlspecialchars(text_value($project, 'description', $lang)) ?></textarea>
                     </label>
                 </div>
@@ -395,8 +369,8 @@ admin_header($id ? 'Modifier projet' : 'Nouveau projet');
     </div>
 
     <div class="actions">
-        <a class="button secondary" href="projects.php">Annuler</a>
-        <button type="submit">Enregistrer</button>
+        <a class="button secondary" href="projects.php"><?= t('bt_annuler') ?></a>
+        <button type="submit"><?= t('bt_enregistrer') ?></button>
     </div>
 </form>
 <?php admin_footer(); ?>

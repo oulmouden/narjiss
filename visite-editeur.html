@@ -5,11 +5,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Éditeur de visite 360 — Narjiss Immobilière</title>
+<title data-i18n="titrePage">Éditeur de visite 360 — Narjiss Immobilière</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=22">
-<link rel="stylesheet" href="assets/vendor/pannellum/pannellum.css">
+<link rel="stylesheet" href="shared/menu.css?v=62801e2b">
+<link rel="stylesheet" href="assets/vendor/pannellum/pannellum.css?v=93ef5b0b">
 
 <!--
   ÉDITEUR DE VISITE 360 — monter une visite sans 3DVista.
@@ -217,53 +217,61 @@
     main { grid-template-columns: 1fr; }
     #apercu { height: 52vh; }
   }
+
+  /* ── Arabe : sens d'écriture ──
+     Les trois seules règles de la page qui figent un côté. Le reste est en
+     flex ou en grille, que le navigateur retourne de lui-même. */
+  [dir="rtl"] .item > .nu, [dir="rtl"] .nu.nom { text-align: right; }
+  [dir="rtl"] #consigne { left: auto; right: 12px; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Éditeur de visite 360</h1>
+  <h1 data-i18n="titre">Éditeur de visite 360</h1>
   <span id="qui" class="marque" style="opacity:.7;font-size:13px"></span>
   <span class="creux"></span>
-  <button id="bEnregistrer" class="btn" type="button" disabled>Enregistrer</button>
-  <button id="bPublier" class="btn btn-vert" type="button" disabled>Publier</button>
-  <a class="btn" href="espace-agent.html">Espace agent</a>
+  <!-- Les quatre langues du site, remplies par shared/backoffice-i18n.js. -->
+  <div id="langBar"></div>
+  <button id="bEnregistrer" class="btn" type="button" data-i18n="enregistrer" disabled>Enregistrer</button>
+  <button id="bPublier" class="btn btn-vert" type="button" data-i18n="publier" disabled>Publier</button>
+  <a class="btn" href="espace-agent.html" data-i18n="espaceAgent">Espace agent</a>
 </header>
 
 <main>
   <div>
     <div class="carte" style="margin-bottom:16px">
-      <h2>Mes visites</h2>
+      <h2 data-i18n="mesVisites">Mes visites</h2>
       <div id="visites" class="liste"></div>
       <div class="rang" style="margin-top:10px">
-        <input id="nouveauTitre" type="text" placeholder="Titre de la visite" maxlength="80">
-        <button id="bCreer" class="btn btn-or" type="button">Créer</button>
+        <input id="nouveauTitre" type="text" placeholder="Titre de la visite" data-i18n-ph="titreVisite" maxlength="80">
+        <button id="bCreer" class="btn btn-or" type="button" data-i18n="creer">Créer</button>
       </div>
     </div>
 
     <!-- Habillage commun des passages. Réglé une fois pour toute la visite,
          chaque passage pouvant ensuite s'en écarter. -->
     <div class="carte" id="carteStyle" hidden style="margin-bottom:16px">
-      <h2>Style des passages</h2>
+      <h2 data-i18n="stylePassages">Style des passages</h2>
       <div class="rang" style="margin-bottom:8px">
-        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Couleur</label>
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto" data-i18n="couleur">Couleur</label>
         <input id="styleCouleur" type="color" value="#e8a838" style="width:52px;padding:2px;flex:0 0 auto">
-        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Taille</label>
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto" data-i18n="taille">Taille</label>
         <input id="styleTaille" type="number" min="20" max="120" step="2" placeholder="44" style="width:74px;flex:0 0 auto">
       </div>
       <div class="rang" style="margin-bottom:8px">
-        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Symbole</label>
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto" data-i18n="symbole">Symbole</label>
         <select id="styleIcone"></select>
       </div>
       <div class="rang">
-        <label style="font-size:13px;opacity:.7;flex:0 0 auto">Image</label>
+        <label style="font-size:13px;opacity:.7;flex:0 0 auto" data-i18n="image">Image</label>
         <select id="styleImage" style="flex:1"></select>
         <label class="btn" style="flex:0 0 auto">
-          Déposer
+          <span data-i18n="deposer">Déposer</span>
           <input id="fichierIcone" type="file" accept="image/png,image/webp" hidden>
         </label>
       </div>
-      <p style="font-size:12px;opacity:.6;margin:8px 0 0">
+      <p style="font-size:12px;opacity:.6;margin:8px 0 0" data-i18n="aideIcone">
         Une image remplace la pastille et son symbole — flèche au sol, pictogramme.
         PNG ou WebP, 256 Ko au plus.
       </p>
@@ -271,14 +279,14 @@
     </div>
 
     <div class="carte" id="carteScenes" hidden>
-      <h2>Pièces</h2>
+      <h2 data-i18n="pieces">Pièces</h2>
       <div id="scenes" class="liste"></div>
       <div id="messagePhoto"></div>
       <label class="btn" style="display:block;text-align:center;margin-top:10px">
-        ➕ Ajouter une photo 360°
+        <span data-i18n="ajouterPhoto">➕ Ajouter une photo 360°</span>
         <input id="fichier" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
       </label>
-      <p style="font-size:12px;opacity:.6;margin:8px 0 0">
+      <p style="font-size:12px;opacity:.6;margin:8px 0 0" data-i18n="aidePhotos">
         Photos équirectangulaires — deux fois plus larges que hautes, telles que
         les sort un appareil 360°.
       </p>
@@ -287,15 +295,16 @@
 
   <div class="carte">
     <div class="rang" style="margin-bottom:10px">
-      <input id="titrePiece" type="text" placeholder="Nom de la pièce" maxlength="60" disabled>
-      <button id="bDepart" class="btn" type="button" disabled title="La visite s'ouvrira sur cette pièce">Pièce de départ</button>
-      <button id="bPassage" class="btn" type="button" disabled>➕ Passage</button>
-      <button id="bSupprimer" class="btn" type="button" disabled>Retirer</button>
+      <input id="titrePiece" type="text" placeholder="Nom de la pièce" data-i18n-ph="nomPiece" maxlength="60" disabled>
+      <button id="bDepart" class="btn" type="button" disabled data-i18n="pieceDepart" data-i18n-title="pieceDepartAide" title="La visite s'ouvrira sur cette pièce">Pièce de départ</button>
+      <button id="bPassage" class="btn" type="button" disabled data-i18n="passage">➕ Passage</button>
+      <button id="bSupprimer" class="btn" type="button" disabled data-i18n="retirer">Retirer</button>
     </div>
 
     <div class="rang" style="margin-bottom:10px">
       <input id="tipPiece" type="text" maxlength="160" disabled
              placeholder="Description courte — ex. 24 m², double exposition sud"
+             data-i18n-ph="descCourte" data-i18n-title="descAide"
              title="Affichée au visiteur sous le nom de la pièce. Vide, rien ne s'affiche.">
     </div>
 
@@ -303,7 +312,7 @@
          s'affiche quand une langue n'a pas de traduction, et lui que voit le
          commercial dans son propre outil. -->
     <details id="blocLangues">
-      <summary>Traductions <span id="etatLangues" class="marque"></span></summary>
+      <summary><span data-i18n="traductions">Traductions</span> <span id="etatLangues" class="marque"></span></summary>
       <div class="rang" style="margin-top:8px">
         <input id="titreEn" type="text" placeholder="English" maxlength="80" disabled>
         <input id="titreAr" type="text" placeholder="العربية" maxlength="80" dir="rtl" disabled>
@@ -316,6 +325,7 @@
       </div>
       <div class="rang" style="margin-top:8px">
         <button id="bTraduire" class="btn" type="button" disabled
+                data-i18n="traduireToutes" data-i18n-title="traduireAide"
                 title="Traduit les noms de toutes les pièces d'un coup. Les champs déjà remplis ne sont pas touchés.">🌐 Traduire toutes les pièces</button>
         <span id="msgTraduire" class="marque"></span>
       </div>
@@ -324,12 +334,13 @@
     <!-- Plan de sol. Facultatif : une visite sans plan fonctionne, le
          bouton « Plan » ne s'affiche simplement pas chez le visiteur. -->
     <details id="blocPlan">
-      <summary>Plan de sol <span id="etatPlan" class="marque"></span></summary>
+      <summary><span data-i18n="planSol">Plan de sol</span> <span id="etatPlan" class="marque"></span></summary>
       <div class="rang" style="margin-top:8px">
         <input id="fichierPlan" type="file" accept="image/png,image/jpeg,image/webp" disabled>
         <button id="bPoserPlan" class="btn" type="button" disabled
+                data-i18n="placerPiece" data-i18n-title="placerPieceAide"
                 title="Puis cliquez sur le plan à l'emplacement de la pièce sélectionnée">📍 Placer la pièce</button>
-        <button id="bRetirerPlan" class="btn" type="button" disabled>Retirer le plan</button>
+        <button id="bRetirerPlan" class="btn" type="button" disabled data-i18n="retirerPlan">Retirer le plan</button>
       </div>
       <div id="messagePlan" class="marque" style="margin-top:6px"></div>
       <div id="planCadre" style="margin-top:8px"><img id="planImg" alt="" hidden></div>
@@ -342,15 +353,15 @@
       <div id="pano"></div>
       <div id="consigne" hidden></div>
       <div id="cible">
-        <strong style="font-size:13px">Ce passage mène à…</strong>
+        <strong style="font-size:13px" data-i18n="cePassageMene">Ce passage mène à…</strong>
         <select id="cibleScene"></select>
         <div class="rang">
-          <button id="cibleOk" class="btn btn-or" type="button" style="flex:1">Poser</button>
-          <button id="cibleNon" class="btn" type="button">Annuler</button>
+          <button id="cibleOk" class="btn btn-or" type="button" style="flex:1" data-i18n="poser">Poser</button>
+          <button id="cibleNon" class="btn" type="button" data-i18n="annuler">Annuler</button>
         </div>
       </div>
       <div id="vide" class="vide" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff">
-        Choisissez une visite, puis ajoutez une photo.
+        <span data-i18n="videChoisir">Choisissez une visite, puis ajoutez une photo.</span>
       </div>
     </div>
 
@@ -358,7 +369,9 @@
   </div>
 </main>
 
-<script src="assets/vendor/pannellum/pannellum.js"></script>
+<script src="shared/backoffice-i18n.js?v=5091ae71"></script>
+<script src="visite-editeur-i18n.js?v=bcc89963"></script>
+<script src="assets/vendor/pannellum/pannellum.js?v=2c42edb1"></script>
 <script>
 (function () {
   'use strict';
@@ -369,8 +382,27 @@
   var apercuScene = null; // pièce actuellement montrée par l'aperçu
   var posePrete = null;   // {yaw, pitch} du point cliqué, en attente de destination
   var deplace = null;     // passage en cours de déplacement à la souris
+  var moi = null;         // agent connecté — retenu pour réécrire son rôle à la bascule de langue
 
   var $ = function (id) { return document.getElementById(id); };
+
+  /* --- Langue ------------------------------------------------------------
+     Les libellés vivent dans visite-editeur-i18n.js ; shared/backoffice-i18n.js
+     fournit la langue courante, les boutons et le parcours du balisage. */
+  function T(cle, vars) {
+    if (window.NJ_LANG && window.VE_TEXTES) return window.NJ_LANG.t(window.VE_TEXTES, cle, vars);
+    var fr = (window.VE_TEXTES && window.VE_TEXTES.fr) || {};
+    return fr[cle] !== undefined ? fr[cle] : cle;
+  }
+
+  function roleLabel(role) {
+    return T(role === 'superviseur' ? 'roleSuperviseurL'
+           : role === 'gestionnaire' ? 'roleGestionnaireL' : 'roleCommercialL');
+  }
+
+  function majQui() {
+    if (moi) $('qui').textContent = moi.name + ' · ' + roleLabel(moi.role);
+  }
 
   /* --- Réseau ---------------------------------------------------------- */
 
@@ -395,14 +427,31 @@
     .then(function (r) {
       if (!r || !r.ok || !r.agent) {
         document.querySelector('main').innerHTML =
-          '<div class="carte"><h2>Connexion requise</h2>' +
-          '<p>Cet éditeur est réservé aux commerciaux. Connectez-vous depuis ' +
-          '<a href="espace-agent.html">l\'espace agent</a>, puis revenez ici.</p></div>';
+          '<div class="carte"><h2>' + T('connexionRequise') + '</h2><p>' +
+          T('connexionTexte', { lien: '<a href="espace-agent.html">' + T('lienEspaceAgent') + '</a>' }) +
+          '</p></div>';
         return;
       }
-      $('qui').textContent = r.agent.name + ' · ' + r.agent.role;
+      moi = r.agent;
+      majQui();
       chargerVisites();
     });
+
+  /* Rejoue tous les libellés dans la nouvelle langue. rendre() reconstruit
+     l'ensemble des panneaux ; l'aperçu 360° se recharge mais garde son angle
+     (voir apercu(), qui reprend la vue quand on reste sur la même pièce). */
+  function retraduire() {
+    if (window.NJ_LANG && window.VE_TEXTES) window.NJ_LANG.traduire(window.VE_TEXTES);
+    majQui();
+    chargerVisites();
+    if (etat.brouillon) rendre();
+  }
+
+  if (window.NJ_LANG && window.VE_TEXTES) {
+    window.NJ_LANG.boutons($('langBar'));
+    window.NJ_LANG.traduire(window.VE_TEXTES);
+    window.NJ_LANG.sur(retraduire);
+  }
 
   /* --- Visites --------------------------------------------------------- */
 
@@ -411,7 +460,8 @@
       var boite = $('visites');
       boite.innerHTML = '';
       if (!r.ok || !r.visites.length) {
-        boite.innerHTML = '<div class="vide">Aucune visite pour l\'instant.</div>';
+        boite.innerHTML = '<div class="vide"></div>';
+        boite.firstChild.textContent = T('aucuneVisite');
         return;
       }
       r.visites.forEach(function (v) {
@@ -425,25 +475,25 @@
         ouvre.type = 'button';
         ouvre.className = 'nu nom';
         ouvre.textContent = v.titre;
-        ouvre.title = 'Ouvrir cette visite';
+        ouvre.title = T('ouvrirVisite');
         ouvre.addEventListener('click', function () { ouvrir(v.slug); });
 
         var etiquette = document.createElement('span');
         etiquette.className = 'marque';
-        etiquette.textContent = v.publiee_at ? 'publiée' : 'brouillon';
+        etiquette.textContent = T(v.publiee_at ? 'publiee' : 'brouillon');
 
         var renomme = document.createElement('button');
         renomme.type = 'button';
         renomme.className = 'nu';
         renomme.textContent = '✎';
-        renomme.title = 'Renommer';
+        renomme.title = T('renommer');
         renomme.addEventListener('click', function () {
-          var titre = prompt('Nouveau titre de la visite :', v.titre);
+          var titre = prompt(T('nouveauTitre'), v.titre);
           if (titre === null) return;
           titre = titre.trim();
           if (!titre) return;
           envoyer('rename', { slug: v.slug, titre: titre }).then(function (res) {
-            if (!res.ok) { alert(res.error || 'Renommage impossible.'); return; }
+            if (!res.ok) { alert(res.error || T('renommageImpossible')); return; }
             if (etat.slug === v.slug) etat.titre = titre;
             chargerVisites();
           });
@@ -453,13 +503,11 @@
         jette.type = 'button';
         jette.className = 'nu danger';
         jette.textContent = '🗑';
-        jette.title = 'Supprimer définitivement';
+        jette.title = T('supprimerDefinitivement');
         jette.addEventListener('click', function () {
-          if (!confirm('Supprimer « ' + v.titre + ' » ?\n\n' +
-                       'Les photos de cette visite seront effacées. ' +
-                       'Cette action est irréversible.')) return;
+          if (!confirm(T('confirmSupprimer', { t: v.titre }))) return;
           envoyer('delete', { slug: v.slug }).then(function (res) {
-            if (!res.ok) { alert(res.error || 'Suppression impossible.'); return; }
+            if (!res.ok) { alert(res.error || T('suppressionImpossible')); return; }
             if (etat.slug === v.slug) fermer();
             chargerVisites();
           });
@@ -481,13 +529,11 @@
     b.type = 'button';
     b.className = 'nu';
     b.textContent = '⇩';
-    b.title = 'Retirer de la ligne — les photos et le montage sont conservés';
+    b.title = T('retirerLigne');
     b.addEventListener('click', function () {
-      if (!confirm('Retirer « ' + v.titre + ' » de la ligne ?\n\n' +
-                   'Elle ne sera plus visible du public, mais rien n\'est perdu : ' +
-                   'vous pourrez la republier.')) return;
+      if (!confirm(T('confirmRetirerLigne', { t: v.titre }))) return;
       envoyer('unpublish', { slug: v.slug }).then(function (res) {
-        if (!res.ok) { alert(res.error || 'Retrait impossible.'); return; }
+        if (!res.ok) { alert(res.error || T('retraitImpossible')); return; }
         chargerVisites();
       });
     });
@@ -506,7 +552,7 @@
     var titre = $('nouveauTitre').value.trim();
     if (!titre) { $('nouveauTitre').focus(); return; }
     envoyer('create', { titre: titre, projet: '' }).then(function (r) {
-      if (!r.ok) { alert(r.error || 'Création impossible.'); return; }
+      if (!r.ok) { alert(r.error || T('creationImpossible')); return; }
       $('nouveauTitre').value = '';
       chargerVisites();
       ouvrir(r.slug);
@@ -515,7 +561,7 @@
 
   function ouvrir(slug) {
     lire('get', { slug: slug }).then(function (r) {
-      if (!r.ok) { alert(r.error || 'Ouverture impossible.'); return; }
+      if (!r.ok) { alert(r.error || T('ouvertureImpossible')); return; }
       var b = r.brouillon || {};
       etat.slug = r.slug;
       etat.titre = r.titre;
@@ -549,8 +595,7 @@
     (function suivant(i) {
       if (i >= fichiers.length) {
         var n = apparierAuto();
-        if (n) avertir(n + ' pièce(s) appariée(s) automatiquement en vide / meublé. ' +
-                       'Vérifiez ci-dessous, vous pouvez défaire.');
+        if (n) avertir(T('appariees', { n: n }));
         marquerModifie(); rendre(); return;
       }
       var corps = new FormData();
@@ -559,14 +604,14 @@
       fetch(API + '?action=upload', { method: 'POST', body: corps, credentials: 'same-origin' })
         .then(function (r) { return r.json(); })
         .then(function (r) {
-          if (!r.ok) { avertir(fichiers[i].name + ' : ' + (r.error || 'refusée')); }
+          if (!r.ok) { avertir(fichiers[i].name + ' : ' + (r.error || T('refusee'))); }
           else {
             ajouterScene(fichiers[i].name, r);
             if (r.avertissement) avertir(fichiers[i].name + ' : ' + r.avertissement);
           }
           suivant(i + 1);
         })
-        .catch(function () { avertir(fichiers[i].name + ' : envoi impossible.'); suivant(i + 1); });
+        .catch(function () { avertir(fichiers[i].name + ' : ' + T('envoiImpossible')); suivant(i + 1); });
     })(0);
   });
 
@@ -578,6 +623,9 @@
   }
 
   function ajouterScene(nomFichier, photo) {
+    // 'Pièce' n'est pas traduit à dessein : ce mot devient le NOM enregistré
+    // de la pièce, que le client verra dans la visite publiée. Il suivrait
+    // sinon la langue du commercial au moment du montage.
     var titre = nomFichier.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').trim() || 'Pièce';
     var id = identifiant(titre);
     etat.brouillon.scenes[id] = {
@@ -691,18 +739,20 @@
   // Une visite ne se signale pas d'un seul symbole : on va tout droit dans un
   // couloir, on tourne, on descend. Les libellés disent l'USAGE, pas le
   // caractère — c'est ce que cherche le commercial.
+  // Deuxième colonne : une CLÉ de traduction, pas un libellé. Le texte est relu
+  // à chaque rendu, donc juste après une bascule de langue.
   var SYMBOLES = [
-    ['', 'Chevron ›  (défaut)'],
-    ['↑', '↑  Tout droit'],
-    ['→', '→  À droite'],
-    ['←', '←  À gauche'],
-    ['↓', '↓  Revenir en arrière'],
-    ['⌃', '⌃  Monter'],
-    ['⌄', '⌄  Descendre'],
-    ['🚪', '🚪  Porte'],
-    ['🪜', '🪜  Escalier'],
-    ['🌳', '🌳  Extérieur'],
-    ['👁', '👁  Regarder']
+    ['', 'symChevron'],
+    ['↑', 'symDroit'],
+    ['→', 'symDroite'],
+    ['←', 'symGauche'],
+    ['↓', 'symArriere'],
+    ['⌃', 'symMonter'],
+    ['⌄', 'symDescendre'],
+    ['🚪', 'symPorte'],
+    ['🪜', 'symEscalier'],
+    ['🌳', 'symExterieur'],
+    ['👁', 'symRegarder']
   ];
 
   function styleVisite() {
@@ -721,7 +771,7 @@
     if (!sel.options.length) {
       SYMBOLES.forEach(function (s) {
         var o = document.createElement('option');
-        o.value = s[0]; o.textContent = s[1];
+        o.value = s[0]; o.textContent = T(s[1]);
         sel.appendChild(o);
       });
     }
@@ -730,7 +780,7 @@
     var img = $('styleImage');
     img.innerHTML = '';
     var rien = document.createElement('option');
-    rien.value = ''; rien.textContent = '— aucune (pastille) —';
+    rien.value = ''; rien.textContent = T('aucunePastille');
     img.appendChild(rien);
     (etat.icones || []).forEach(function (f) {
       var o = document.createElement('option');
@@ -767,7 +817,7 @@
       .then(function (r) {
         if (!r.ok) {
           var d = document.createElement('div');
-          d.className = 'avert'; d.textContent = r.error || 'Icône refusée.';
+          d.className = 'avert'; d.textContent = r.error || T('iconeRefusee');
           $('messageIcone').appendChild(d);
           return;
         }
@@ -845,7 +895,7 @@
       ouvre.type = 'button';
       ouvre.className = 'nu nom';
       ouvre.textContent = s.title;
-      ouvre.title = 'Modifier cette pièce';
+      ouvre.title = T('modifierPiece');
       ouvre.addEventListener('click', function () { etat.scene = id; rendre(); });
       ligne.appendChild(ouvre);
 
@@ -854,12 +904,12 @@
       // ★ pièce de départ · 🛋 appariée vide/meublé · ↳ c'est la vue meublée
       marque.textContent =
         (id === etat.brouillon.firstScene ? '★ ' : '') +
-        (s.secondaire ? '↳ meublé ' : (s.variante ? '🛋 ' : '')) +
+        (s.secondaire ? T('marqueMeuble') : (s.variante ? '🛋 ' : '')) +
         (s.hotSpots || []).length + ' ↗';
       ligne.appendChild(marque);
 
       // Ordre de visite : c'est celui du bandeau que verra le visiteur.
-      [['▲', -1, 'Monter dans l\'ordre'], ['▼', 1, 'Descendre dans l\'ordre']].forEach(function (f) {
+      [['▲', -1, T('monterOrdre')], ['▼', 1, T('descendreOrdre')]].forEach(function (f) {
         var b = document.createElement('button');
         b.type = 'button'; b.className = 'nu'; b.textContent = f[0]; b.title = f[2];
         b.disabled = (f[1] < 0 && rang === 0) || (f[1] > 0 && rang === ordonnees.length - 1);
@@ -912,10 +962,9 @@
 
     // Sur la vue meublée elle-même : on rappelle de quoi elle dépend.
     if (s.secondaire && s.variante) {
-      etiquette.textContent = 'Version meublée de « ' +
-        ((etat.brouillon.scenes[s.variante] || {}).title || '?') + ' »';
+      etiquette.textContent = T('versionMeubleeDe', { t: (etat.brouillon.scenes[s.variante] || {}).title || '?' });
       var defaire = document.createElement('button');
-      defaire.type = 'button'; defaire.className = 'btn'; defaire.textContent = 'Défaire';
+      defaire.type = 'button'; defaire.className = 'btn'; defaire.textContent = T('defaire');
       defaire.addEventListener('click', function () {
         delier(etat.scene); marquerModifie(); rendre();
       });
@@ -924,11 +973,11 @@
       return;
     }
 
-    etiquette.textContent = 'Version meublée :';
+    etiquette.textContent = T('versionMeublee');
     var sel = document.createElement('select');
 
     var vide = document.createElement('option');
-    vide.value = ''; vide.textContent = '— aucune —';
+    vide.value = ''; vide.textContent = T('aucuneTiret');
     sel.appendChild(vide);
 
     Object.keys(etat.brouillon.scenes).forEach(function (id) {
@@ -956,7 +1005,7 @@
     if (s.variante) {
       var note = document.createElement('span');
       note.style.cssText = 'font-size:12px;opacity:.6';
-      note.textContent = 'Le visiteur basculera sans perdre son angle de vue.';
+      note.textContent = T('noteBascule');
       boite.appendChild(note);
     }
   }
@@ -984,7 +1033,7 @@
         n.type = 'number';
         n.step = '1';
         n.value = Math.round(h[axe]);
-        n.title = axe === 'yaw' ? 'Orientation, en degrés' : 'Hauteur, en degrés';
+        n.title = T(axe === 'yaw' ? 'orientationDeg' : 'hauteurDeg');
         n.style.cssText = 'width:74px;flex:0 0 auto;padding:6px 8px';
         n.addEventListener('change', function () {
           var v = parseFloat(this.value);
@@ -997,7 +1046,7 @@
       });
 
       var x = document.createElement('button');
-      x.type = 'button'; x.className = 'btn'; x.textContent = 'Retirer';
+      x.type = 'button'; x.className = 'btn'; x.textContent = T('retirer');
       x.addEventListener('click', function () {
         s.hotSpots.splice(i, 1);
         marquerModifie(); rendre();
@@ -1026,12 +1075,12 @@
     var commun = etat.brouillon.passageStyle || {};
 
     var sym = document.createElement('select');
-    sym.title = 'Symbole de ce passage';
+    sym.title = T('symboleCePassage');
     sym.style.cssText = 'flex:0 0 auto;width:132px';
-    [['', '— style commun —']].concat(SYMBOLES.filter(function (s) { return s[0]; }))
+    [['', T('styleCommun')]].concat(SYMBOLES.filter(function (s) { return s[0]; }))
       .forEach(function (s) {
         var o = document.createElement('option');
-        o.value = s[0]; o.textContent = s[1];
+        o.value = s[0]; o.textContent = T(s[1]);
         sym.appendChild(o);
       });
     sym.value = h.icone || '';
@@ -1042,10 +1091,10 @@
     });
 
     var img = document.createElement('select');
-    img.title = 'Image de ce passage';
+    img.title = T('imageCePassage');
     img.style.cssText = 'flex:1;min-width:0';
     var rien = document.createElement('option');
-    rien.value = ''; rien.textContent = '— style commun —';
+    rien.value = ''; rien.textContent = T('styleCommun');
     img.appendChild(rien);
     (etat.icones || []).forEach(function (f) {
       var o = document.createElement('option');
@@ -1062,7 +1111,7 @@
     var coul = document.createElement('input');
     coul.type = 'color';
     coul.value = h.couleur || commun.couleur || '#e8a838';
-    coul.title = 'Couleur de ce passage';
+    coul.title = T('couleurCePassage');
     coul.style.cssText = 'width:40px;padding:2px;flex:0 0 auto';
     coul.addEventListener('change', function () {
       h.couleur = this.value;
@@ -1072,7 +1121,7 @@
 
     var reset = document.createElement('button');
     reset.type = 'button'; reset.className = 'nu'; reset.textContent = '↺';
-    reset.title = 'Revenir au style commun de la visite';
+    reset.title = T('revenirStyleCommun');
     reset.addEventListener('click', function () {
       delete h.couleur; delete h.icone; delete h.image; delete h.taille;
       marquerModifie(); rendre();
@@ -1150,8 +1199,7 @@
             if (taille) {
               el.style.width = el.style.height = taille + 'px';
             }
-            el.title = 'Vers ' + ((etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId) +
-                       ' — glissez pour déplacer';
+            el.title = T('versPiece', { p: (etat.brouillon.scenes[h.sceneId] || {}).title || h.sceneId });
             el.style.cursor = 'grab';
             el.addEventListener('mousedown', function (ev) {
               // Sans cela, Pannellum prendrait le glissement pour une rotation
@@ -1174,14 +1222,14 @@
 
   $('bPassage').addEventListener('click', function () {
     var autres = Object.keys(etat.brouillon.scenes).filter(function (id) { return id !== etat.scene; });
-    if (!autres.length) { alert('Ajoutez une seconde pièce : un passage doit mener quelque part.'); return; }
+    if (!autres.length) { alert(T('ajoutezSeconde')); return; }
     armerPose(true);
   });
 
   function armerPose(actif) {
     $('apercu').classList.toggle('pose', actif);
     $('consigne').hidden = !actif;
-    $('consigne').textContent = 'Cliquez dans le panorama, à l\'endroit du passage';
+    $('consigne').textContent = T('consignePoser');
     if (!actif) { $('cible').classList.remove('ouvert'); posePrete = null; }
   }
 
@@ -1280,7 +1328,7 @@
 
     if (!m || !m.image) {
       img.hidden = true; img.removeAttribute('src');
-      $('etatPlan').textContent = '— aucun';
+      $('etatPlan').textContent = T('aucunTiret');
       $('bPoserPlan').disabled = true;
       $('bRetirerPlan').disabled = true;
       return;
@@ -1296,7 +1344,7 @@
       b.style.left = (pt.x / m.width * 100) + '%';
       b.style.top = (pt.y / m.height * 100) + '%';
       var s = etat.brouillon.scenes[pt.sceneId];
-      b.title = (s ? s.title : pt.sceneId) + ' — cliquer pour retirer';
+      b.title = T('planPastille', { p: s ? s.title : pt.sceneId });
       b.addEventListener('click', function (ev) {
         ev.stopPropagation();
         m.points.splice(rang, 1);
@@ -1307,7 +1355,7 @@
     });
 
     var total = Object.keys(etat.brouillon.scenes || {}).length;
-    $('etatPlan').textContent = '— ' + (m.points || []).length + '/' + total + ' pièce(s) placée(s)';
+    $('etatPlan').textContent = T('planCompte', { n: (m.points || []).length, t: total });
     $('bPoserPlan').disabled = !etat.scene;
     $('bRetirerPlan').disabled = false;
   }
@@ -1316,32 +1364,32 @@
     var f = (ev.target.files || [])[0];
     ev.target.value = '';
     if (!f || !etat.slug) return;
-    $('messagePlan').textContent = 'Envoi du plan…';
+    $('messagePlan').textContent = T('envoiPlan');
     var corps = new FormData();
     corps.append('slug', etat.slug);
     corps.append('plan', f);
     fetch(API + '?action=plan', { method: 'POST', body: corps, credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (r) {
-        if (!r.ok) { $('messagePlan').textContent = r.error || 'Plan refusé.'; return; }
+        if (!r.ok) { $('messagePlan').textContent = r.error || T('planRefuse'); return; }
         // Les pastilles déjà posées sont conservées : changer une image de
         // plan pour une version corrigée ne doit pas effacer le travail de
         // placement. Si le cadrage a changé, elles se déplacent en
         // proportion — visible aussitôt, donc corrigeable.
         var anciens = (planActuel() || {}).points || [];
         etat.brouillon.map = { image: r.fichier, width: r.largeur, height: r.hauteur, points: anciens };
-        $('messagePlan').textContent = 'Plan enregistré (' + r.largeur + '×' + r.hauteur + ').';
+        $('messagePlan').textContent = T('planEnregistre', { l: r.largeur, h: r.hauteur });
         marquerModifie();
         dessinerPlan();
       })
-      .catch(function () { $('messagePlan').textContent = 'Envoi impossible.'; });
+      .catch(function () { $('messagePlan').textContent = T('envoiImpossiblePlan'); });
   });
 
   $('bPoserPlan').addEventListener('click', function () {
     if (!planActuel() || !etat.scene) return;
     posePlan = true;
     $('planCadre').classList.add('pose');
-    $('messagePlan').textContent = 'Cliquez sur le plan à l\'emplacement de la pièce.';
+    $('messagePlan').textContent = T('cliquezPlan');
   });
 
   $('planCadre').addEventListener('click', function (ev) {
@@ -1368,14 +1416,14 @@
 
     posePlan = false;
     $('planCadre').classList.remove('pose');
-    $('messagePlan').textContent = ((s && s.title) || 'Pièce') + ' placée.';
+    $('messagePlan').textContent = T('piecePlacee', { p: (s && s.title) || T('pieceDefaut') });
     marquerModifie();
     dessinerPlan();
   });
 
   $('bRetirerPlan').addEventListener('click', function () {
     if (!planActuel()) return;
-    if (!confirm('Retirer le plan et toutes ses pastilles ?')) return;
+    if (!confirm(T('confirmRetirerPlan'))) return;
     delete etat.brouillon.map;
     marquerModifie();
     dessinerPlan();
@@ -1406,9 +1454,9 @@
     var faites = LANGUES.filter(function (l) {
       return s.titles && (s.titles[l.code] || '').trim();
     }).length;
-    e.textContent = faites === LANGUES.length ? '— complet'
+    e.textContent = faites === LANGUES.length ? T('langComplet')
                   : faites ? '— ' + faites + '/' + LANGUES.length
-                  : '— aucun';
+                  : T('aucunTiret');
   }
 
   $('tipPiece').addEventListener('input', function () {
@@ -1453,15 +1501,15 @@
         if (t && noms.indexOf(t) === -1) noms.push(t);
       });
     });
-    if (!noms.length) { $('msgTraduire').textContent = 'Aucune pièce nommée.'; return; }
+    if (!noms.length) { $('msgTraduire').textContent = T('aucunePieceNommee'); return; }
 
     var b = this;
     b.disabled = true;
-    $('msgTraduire').textContent = 'Traduction en cours…';
+    $('msgTraduire').textContent = T('traductionEnCours');
     envoyer('traduire', { slug: etat.slug, noms: JSON.stringify(noms) }).then(function (res) {
       b.disabled = false;
       if (!res || !res.ok) {
-        $('msgTraduire').textContent = (res && res.error) || 'Traduction impossible.';
+        $('msgTraduire').textContent = (res && res.error) || T('traductionImpossible');
         return;
       }
       var posees = 0;
@@ -1481,9 +1529,7 @@
         poser(scenes[id], 'title', 'titles');
         poser(scenes[id], 'tip', 'tips');
       });
-      $('msgTraduire').textContent = posees
-        ? posees + ' traduction(s) ajoutée(s) — à relire.'
-        : 'Rien à ajouter : tout est déjà renseigné.';
+      $('msgTraduire').textContent = posees ? T('traductionsAjoutees', { n: posees }) : T('rienAAjouter');
       if (posees) marquerModifie();
       rendre();
     });
@@ -1504,7 +1550,7 @@
   $('bSupprimer').addEventListener('click', function () {
     if (!etat.scene) return;
     var s = etat.brouillon.scenes[etat.scene];
-    if (!confirm('Retirer « ' + s.title +' » de la visite ?')) return;
+    if (!confirm(T('confirmRetirerPiece', { t: s.title }))) return;
     delete etat.brouillon.scenes[etat.scene];
 
     // Les passages qui y menaient deviendraient des impasses.
@@ -1543,7 +1589,7 @@
     }
     return envoyer('save', { slug: etat.slug, brouillon: JSON.stringify(etat.brouillon) })
       .then(function (r) {
-        if (!r.ok) { alert(r.error || 'Enregistrement impossible.'); return false; }
+        if (!r.ok) { alert(r.error || T('enregistrementImpossible')); return false; }
         etat.modifie = false;
         $('bEnregistrer').disabled = true;
         return true;
@@ -1558,9 +1604,9 @@
     enregistrer().then(function (ok) {
       if (!ok) return;
       envoyer('publish', { slug: etat.slug }).then(function (r) {
-        if (!r.ok) { alert(r.error || 'Publication impossible.'); return; }
+        if (!r.ok) { alert(r.error || T('publicationImpossible')); return; }
         chargerVisites();
-        if (confirm('Visite publiée.\n\nL\'ouvrir dans un nouvel onglet ?')) {
+        if (confirm(T('visitePubliee'))) {
           window.open(r.url, '_blank', 'noopener');
         }
       });

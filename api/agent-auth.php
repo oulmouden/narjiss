@@ -26,6 +26,12 @@ $njSessionDefaut = session_name();
 nj_agent_session_start();
 header('Content-Type: application/json; charset=utf-8');
 
+/* Chaque erreur porte un CODE en plus de sa phrase.
+   L'espace commercial parle quatre langues (espace-agent-i18n.js) : sans code,
+   un agent arabophone lisait « Compte suspendu… » en français au moment le plus
+   ingrat, celui où il n'entre pas. Le texte français reste dans la réponse :
+   il sert de repli à tout client qui ne connaîtrait pas le code. */
+
 /** Réponse JSON + fin. */
 function nj_json($data, int $code = 200): void {
   http_response_code($code);
@@ -53,7 +59,7 @@ try {
       nj_json(['ok' => true, 'agent' => null, 'admin' => false]);
 
     case 'register':
-      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.', 'code' => 'post'], 405);
       $name   = trim($_POST['name'] ?? '');
       $email  = trim($_POST['email'] ?? '');
       $pass   = (string)($_POST['password'] ?? '');
@@ -65,13 +71,13 @@ try {
       $wa     = trim($_POST['whatsapp'] ?? '');
 
       if ($name === '' || strpos($email, '@') === false || strlen($pass) < 6) {
-        nj_json(['ok' => false, 'error' => 'Nom, e-mail valide et mot de passe (6 caractères min.) requis.'], 400);
+        nj_json(['ok' => false, 'error' => 'Nom, e-mail valide et mot de passe (6 caractères min.) requis.', 'code' => 'champsInscription'], 400);
       }
       $projets = nj_projects();
       $projetKey = preg_replace('/[^a-z0-9_]/', '', strtolower($projet));
       // Un commercial doit être rattaché à un bureau ; un gestionnaire peut l'être.
       if ($role === 'commercial' && ($projetKey === '' || !isset($projets[$projetKey]))) {
-        nj_json(['ok' => false, 'error' => 'Bureau de vente (projet) inconnu.'], 400);
+        nj_json(['ok' => false, 'error' => 'Bureau de vente (projet) inconnu.', 'code' => 'projetInconnu'], 400);
       }
       if ($projetKey !== '' && !isset($projets[$projetKey])) $projetKey = '';
 
@@ -84,7 +90,7 @@ try {
       ]);
 
     case 'login':
-      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.', 'code' => 'post'], 405);
       $email = trim($_POST['email'] ?? '');
       $pass  = (string)($_POST['password'] ?? '');
       $a = nj_agent_login($email, $pass);
@@ -92,12 +98,12 @@ try {
         // Message distinct si le compte existe mais n'est pas encore validé.
         $exists = nj_agent_by_email($email);
         if ($exists && $exists['statut'] === 'pending' && password_verify($pass, $exists['password_hash'])) {
-          nj_json(['ok' => false, 'error' => 'Compte en attente de validation par un gestionnaire.'], 403);
+          nj_json(['ok' => false, 'error' => 'Compte en attente de validation par un gestionnaire.', 'code' => 'attenteValidation'], 403);
         }
         if ($exists && $exists['statut'] === 'suspended' && password_verify($pass, $exists['password_hash'])) {
-          nj_json(['ok' => false, 'error' => 'Compte suspendu. Contactez votre gestionnaire.'], 403);
+          nj_json(['ok' => false, 'error' => 'Compte suspendu. Contactez votre gestionnaire.', 'code' => 'suspendu'], 403);
         }
-        nj_json(['ok' => false, 'error' => 'E-mail ou mot de passe incorrect.'], 401);
+        nj_json(['ok' => false, 'error' => 'E-mail ou mot de passe incorrect.', 'code' => 'identifiants'], 401);
       }
       session_regenerate_id(true);
       $_SESSION['nj_agent_id'] = (int)$a['id'];
@@ -117,7 +123,7 @@ try {
     case 'team':
       $me = nj_agent_require_json();
       if (!in_array($me['role'], ['gestionnaire', 'superviseur'], true)) {
-        nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires et superviseurs.'], 403);
+        nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires et superviseurs.', 'code' => 'reserveGestionnaires'], 403);
       }
       // Superviseur : tous les bureaux. Gestionnaire : son bureau (ou tout si non rattaché).
       $scopeProjet = $me['role'] === 'superviseur' ? '' : ($me['projet'] ?? '');
@@ -125,37 +131,37 @@ try {
       nj_json(['ok' => true, 'agents' => nj_agents_list($scopeProjet, $statut)]);
 
     case 'validate':
-      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.'], 405);
+      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.', 'code' => 'post'], 405);
       $me = nj_agent_require_json();
       if (!in_array($me['role'], ['gestionnaire', 'superviseur'], true)) {
-        nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires et superviseurs.'], 403);
+        nj_json(['ok' => false, 'error' => 'Réservé aux gestionnaires et superviseurs.', 'code' => 'reserveGestionnaires'], 403);
       }
       $targetId = (int)($_POST['agent_id'] ?? 0);
       $statut   = $_POST['statut'] ?? 'active';
       $target = nj_agent_by_id($targetId);
-      if (!$target) nj_json(['ok' => false, 'error' => 'Agent introuvable.'], 404);
+      if (!$target) nj_json(['ok' => false, 'error' => 'Agent introuvable.', 'code' => 'agentIntrouvable'], 404);
       $isSuper = $me['role'] === 'superviseur';
       // Un gestionnaire de projet ne valide que les agents de son propre bureau ;
       // un superviseur valide dans tous les bureaux.
       if (!$isSuper && ($me['projet'] ?? '') !== '' && $target['projet'] !== $me['projet']) {
-        nj_json(['ok' => false, 'error' => 'Cet agent dépend d\'un autre bureau.'], 403);
+        nj_json(['ok' => false, 'error' => 'Cet agent dépend d\'un autre bureau.', 'code' => 'autreBureau'], 403);
       }
       // Un gestionnaire ne valide pas un gestionnaire ; personne (hors admin) ne
       // valide un superviseur — l'élévation en superviseur reste réservée à l'admin.
       if ($target['role'] === 'superviseur' && $targetId !== (int)$me['id']) {
-        nj_json(['ok' => false, 'error' => 'La gestion d\'un superviseur relève de l\'administrateur.'], 403);
+        nj_json(['ok' => false, 'error' => 'La gestion d\'un superviseur relève de l\'administrateur.', 'code' => 'gestionSuperviseur'], 403);
       }
       if (!$isSuper && $target['role'] === 'gestionnaire' && $targetId !== (int)$me['id']) {
-        nj_json(['ok' => false, 'error' => 'La validation d\'un gestionnaire relève d\'un superviseur ou de l\'administrateur.'], 403);
+        nj_json(['ok' => false, 'error' => 'La validation d\'un gestionnaire relève d\'un superviseur ou de l\'administrateur.', 'code' => 'validationGestionnaire'], 403);
       }
       nj_agent_set_status($targetId, $statut);
       nj_json(['ok' => true, 'agent_id' => $targetId, 'statut' => $statut]);
 
     default:
-      nj_json(['ok' => false, 'error' => 'Action inconnue.'], 400);
+      nj_json(['ok' => false, 'error' => 'Action inconnue.', 'code' => 'action'], 400);
   }
 } catch (RuntimeException $e) {
   nj_json(['ok' => false, 'error' => $e->getMessage()], 409);
 } catch (Throwable $e) {
-  nj_json(['ok' => false, 'error' => 'Erreur serveur.'], 500);
+  nj_json(['ok' => false, 'error' => 'Erreur serveur.', 'code' => 'serveur'], 500);
 }

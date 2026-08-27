@@ -13,10 +13,10 @@ $projects = read_projects();
 $projectSliders = read_project_sliders();
 $requiredLanguages = ['fr', 'en', 'ar', 'es'];
 $fileFields = [
-    'Logo' => ['images', 'logo'],
-    'Image principale' => ['images', 'hero'],
-    'Plan' => ['images', 'floorplan'],
-    'Brochure PDF' => ['brochure_pdf'],
+    'audit_f_logo'     => ['images', 'logo'],
+    'audit_f_hero'     => ['images', 'hero'],
+    'audit_f_plan'     => ['images', 'floorplan'],
+    'audit_f_brochure' => ['brochure_pdf'],
 ];
 
 function audit_value(array $project, array $path): mixed
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clean
     }
 
     write_project_sliders($cleanedSliders);
-    set_flash($removedCount . ' chemin(s) de slider manquant(s) supprime(s).');
+    set_flash(t_brut('audit_nettoye', ['n' => $removedCount]));
     header('Location: audit.php');
     exit;
 }
@@ -86,7 +86,7 @@ foreach ($projects as $project) {
     foreach (['id', 'folder', 'status', 'type', 'lat', 'lng'] as $field) {
         $value = $project[$field] ?? null;
         if ($value === null || $value === '') {
-            $issues[] = 'Champ vide : ' . $field;
+            $issues[] = t_brut('audit_champ_vide', ['c' => $field]);
             $emptyFields++;
         }
     }
@@ -95,7 +95,7 @@ foreach ($projects as $project) {
         foreach ($requiredLanguages as $lang) {
             $value = $project[$group][$lang] ?? '';
             if (trim((string) $value) === '') {
-                $issues[] = 'Texte vide : ' . $group . '.' . $lang;
+                $issues[] = t_brut('audit_texte_vide', ['c' => $group . '.' . $lang]);
                 $emptyFields++;
             }
         }
@@ -103,21 +103,21 @@ foreach ($projects as $project) {
 
     $fileResults = [];
 
-    foreach ($fileFields as $label => $path) {
+    foreach ($fileFields as $cleLabel => $path) {
         $value = audit_value($project, $path);
         $publicPath = trim((string) $value);
         $exists = $publicPath !== '' && audit_public_path_exists($siteRoot, $publicPath);
 
         if ($publicPath === '') {
-            $issues[] = 'Fichier non renseigne : ' . $label;
+            $issues[] = t_brut('audit_fichier_vide', ['c' => t_brut($cleLabel)]);
             $emptyFields++;
         } elseif (! $exists) {
-            $issues[] = 'Fichier introuvable : ' . $publicPath;
+            $issues[] = t_brut('audit_fichier_absent', ['c' => $publicPath]);
             $missingFiles++;
         }
 
         $fileResults[] = [
-            'label' => $label,
+            'label' => t_brut($cleLabel),
             'path' => $publicPath,
             'exists' => $exists,
         ];
@@ -128,22 +128,22 @@ foreach ($projects as $project) {
         $exists = $publicPath !== '' && audit_public_path_exists($siteRoot, $publicPath);
 
         if ($publicPath === '') {
-            $issues[] = 'Slider vide : image ' . ($index + 1);
+            $issues[] = t_brut('audit_slider_vide', ['n' => $index + 1]);
             $emptyFields++;
         } elseif (! $exists) {
-            $issues[] = 'Image slider introuvable : ' . $publicPath;
+            $issues[] = t_brut('audit_slider_absent', ['c' => $publicPath]);
             $missingFiles++;
         }
 
         $fileResults[] = [
-            'label' => 'Slider ' . ($index + 1),
+            'label' => t_brut('audit_slider', ['n' => $index + 1]),
             'path' => $publicPath,
             'exists' => $exists,
         ];
     }
 
     if (! empty($project['has_tour']) && trim((string) ($project['tour_url'] ?? '')) === '') {
-        $issues[] = 'Tour indique actif, mais tour_url vide';
+        $issues[] = t_brut('audit_tour_sans_url');
         $emptyFields++;
     }
 
@@ -157,19 +157,19 @@ foreach ($projects as $project) {
     ];
 }
 
-admin_header('Audit');
+admin_header(t_brut('nav_audit'));
 ?>
 <div class="actions">
     <div>
-        <h1>Audit fichiers</h1>
-        <p><?= count($projects) ?> projets verifies depuis <code>data/projects.json</code>.</p>
+        <h1><?= t('audit_titre') ?></h1>
+        <p><?= t('audit_compte', ['n' => count($projects)]) ?> <code>data/projects.json</code>.</p>
     </div>
     <div class="actions-inline">
         <form method="post">
             <input type="hidden" name="action" value="clean_missing_sliders">
-            <button type="submit" class="secondary">Nettoyer les sliders manquants</button>
+            <button type="submit" class="secondary"><?= t('audit_nettoyer') ?></button>
         </form>
-        <a class="button secondary" href="projects.php">Retour aux projets</a>
+        <a class="button secondary" href="projects.php"><?= t('audit_retour') ?></a>
     </div>
 </div>
 
@@ -180,25 +180,25 @@ admin_header('Audit');
 <section class="audit-summary">
     <div>
         <strong><?= $totalIssues ?></strong>
-        <span>alertes</span>
+        <span><?= t('audit_alertes') ?></span>
     </div>
     <div>
         <strong><?= $missingFiles ?></strong>
-        <span>fichiers manquants</span>
+        <span><?= t('audit_fichiers_manquants') ?></span>
     </div>
     <div>
         <strong><?= $emptyFields ?></strong>
-        <span>champs vides</span>
+        <span><?= t('audit_champs_vides') ?></span>
     </div>
 </section>
 
 <table>
     <thead>
         <tr>
-            <th>Projet</th>
-            <th>Dossier</th>
-            <th>Fichiers</th>
-            <th>Alertes</th>
+            <th><?= t('th_projet') ?></th>
+            <th><?= t('audit_th_dossier') ?></th>
+            <th><?= t('audit_th_fichiers') ?></th>
+            <th><?= t('audit_alertes') ?></th>
             <th></th>
         </tr>
     </thead>
@@ -214,16 +214,16 @@ admin_header('Audit');
                 <ul class="audit-list">
                     <?php foreach ($row['files'] as $file): ?>
                         <li>
-                            <span class="badge <?= $file['exists'] ? 'ok' : 'warn' ?>"><?= $file['exists'] ? 'OK' : 'A verifier' ?></span>
+                            <span class="badge <?= $file['exists'] ? 'ok' : 'warn' ?>"><?= $file['exists'] ? t('audit_ok') : t('audit_a_verifier') ?></span>
                             <span><?= htmlspecialchars($file['label']) ?></span>
-                            <small><?= htmlspecialchars($file['path'] ?: 'non renseigne') ?></small>
+                            <small><?= htmlspecialchars($file['path'] ?: t_brut('audit_non_renseigne')) ?></small>
                         </li>
                     <?php endforeach; ?>
                 </ul>
             </td>
             <td>
                 <?php if (count($row['issues']) === 0): ?>
-                    <span class="badge ok">OK</span>
+                    <span class="badge ok"><?= t('audit_ok') ?></span>
                 <?php else: ?>
                     <ul class="audit-list">
                         <?php foreach ($row['issues'] as $issue): ?>
@@ -232,7 +232,7 @@ admin_header('Audit');
                     </ul>
                 <?php endif; ?>
             </td>
-            <td><a class="button secondary" href="project-edit.php?id=<?= urlencode($row['id']) ?>">Modifier</a></td>
+            <td><a class="button secondary" href="project-edit.php?id=<?= urlencode($row['id']) ?>"><?= t('bt_modifier') ?></a></td>
         </tr>
     <?php endforeach; ?>
     </tbody>

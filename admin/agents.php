@@ -43,14 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'create') 
     if ($role === 'superviseur') $projet = '';
 
     if ($name === '' || strpos($email, '@') === false || strlen($pass) < 6) {
-        set_flash('Nom, e-mail valide et mot de passe (6 caractères minimum) requis.');
+        set_flash(t_brut('ag_err_champs'));
     } elseif ($role === 'commercial' && $projet === '' && !$tousBureaux) {
-        set_flash('Choisissez au moins un bureau de vente, ou « Tous les bureaux ».');
+        set_flash(t_brut('ag_err_bureau'));
     } else {
         try {
             $newId = nj_agent_create($name, $email, $pass, $role, $projet, $tel, $wa);
             nj_agent_set_status($newId, 'active');
-            set_flash('Compte de ' . $name . ' créé et activé.');
+            set_flash(t_brut('ag_cree', ['nom' => $name]));
         } catch (RuntimeException $e) {
             set_flash($e->getMessage());
         }
@@ -67,23 +67,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($target) {
         if ($do === 'activate') {
             nj_agent_set_status($id, 'active');
-            set_flash('Compte de ' . $target['name'] . ' activé.');
+            set_flash(t_brut('ag_active', ['nom' => $target['name']]));
         } elseif ($do === 'suspend') {
             nj_agent_set_status($id, 'suspended');
-            set_flash('Compte de ' . $target['name'] . ' suspendu.');
+            set_flash(t_brut('ag_suspendu', ['nom' => $target['name']]));
         } elseif ($do === 'setrole') {
             $role = $_POST['role'] ?? '';
             if (nj_agent_set_role($id, $role)) {
-                set_flash('Rôle de ' . $target['name'] . ' défini sur ' . $role . '.');
+                set_flash(t_brut('ag_role_defini', ['nom' => $target['name'], 'role' => t_brut('ag_role_' . $role)]));
             }
         } elseif ($do === 'delete') {
             // Sans retour : on exige que le compte soit d'abord suspendu (ou
             // encore en attente). Supprimer un actif en un clic depuis une
             // liste de comptes qui se ressemblent finit toujours mal.
             if ($target['statut'] === 'active') {
-                set_flash('Suspendez d\'abord le compte de ' . $target['name'] . ' avant de le supprimer.');
+                set_flash(t_brut('ag_suspendre_avant', ['nom' => $target['name']]));
             } elseif (nj_agent_delete($id)) {
-                set_flash('Compte de ' . $target['name'] . ' supprimé définitivement.');
+                set_flash(t_brut('ag_supprime', ['nom' => $target['name']]));
             }
         }
     }
@@ -98,8 +98,10 @@ $others  = array_filter($agents, fn($a) => $a['statut'] !== 'pending');
 /** Rendu d'une ligne de tableau agent. */
 function nj_agent_row(array $a): void
 {
-    $roleLbl = ['commercial' => 'Commercial', 'gestionnaire' => 'Gestionnaire', 'superviseur' => 'Superviseur'][$a['role']] ?? $a['role'];
-    $pill = ['pending' => 'En attente', 'active' => 'Actif', 'suspended' => 'Suspendu'][$a['statut']] ?? $a['statut'];
+    // Les clés (commercial, pending…) sont celles de la base ; seuls les
+    // libellés changent de langue.
+    $roleLbl = t('ag_role_' . $a['role']);
+    $pill    = t('ag_statut_' . $a['statut']);
     ?>
     <tr>
         <td><?= htmlspecialchars($a['name']) ?><br><small style="color:#7a879a"><?= htmlspecialchars($a['email']) ?></small></td>
@@ -107,9 +109,10 @@ function nj_agent_row(array $a): void
         <td><?php
             $ids = nj_agent_projets($a['projet']);
             if (!$ids) {
-                echo '<em>Tous les bureaux</em>';
+                echo '<em>' . t('ag_tous_bureaux') . '</em>';
             } else {
-                echo htmlspecialchars(implode(', ', array_map('nj_project_name', $ids)));
+                echo htmlspecialchars(implode(', ', array_map(
+                    fn(string $pid): string => nj_project_name($pid, admin_lang()), $ids)));
             }
         ?></td>
         <td><span class="tag tag-<?= $a['statut'] ?>"><?= $pill ?></span></td>
@@ -118,32 +121,32 @@ function nj_agent_row(array $a): void
                 <form method="post" style="display:inline">
                     <input type="hidden" name="agent_id" value="<?= (int)$a['id'] ?>">
                     <input type="hidden" name="do" value="activate">
-                    <button class="button" type="submit">Activer</button>
+                    <button class="button" type="submit"><?= t('ag_activer') ?></button>
                 </form>
             <?php endif; ?>
             <?php if ($a['statut'] === 'active'): ?>
-                <form method="post" style="display:inline" onsubmit="return confirm('Suspendre ce compte ?');">
+                <form method="post" style="display:inline" onsubmit="return confirm('<?= t('ag_confirm_suspend') ?>');">
                     <input type="hidden" name="agent_id" value="<?= (int)$a['id'] ?>">
                     <input type="hidden" name="do" value="suspend">
-                    <button class="button secondary" type="submit">Suspendre</button>
+                    <button class="button secondary" type="submit"><?= t('ag_suspendre') ?></button>
                 </form>
             <?php endif; ?>
             <form method="post" style="display:inline-flex;gap:.3rem;align-items:center;margin-left:.4rem">
                 <input type="hidden" name="agent_id" value="<?= (int)$a['id'] ?>">
                 <input type="hidden" name="do" value="setrole">
                 <select name="role">
-                    <?php foreach (['commercial' => 'Commercial', 'gestionnaire' => 'Gestionnaire', 'superviseur' => 'Superviseur'] as $rv => $rl): ?>
-                        <option value="<?= $rv ?>"<?= $a['role'] === $rv ? ' selected' : '' ?>><?= $rl ?></option>
+                    <?php foreach (['commercial', 'gestionnaire', 'superviseur'] as $rv): ?>
+                        <option value="<?= $rv ?>"<?= $a['role'] === $rv ? ' selected' : '' ?>><?= t('ag_role_' . $rv) ?></option>
                     <?php endforeach; ?>
                 </select>
-                <button class="button secondary" type="submit" title="Appliquer le rôle choisi">Changer le rôle</button>
+                <button class="button secondary" type="submit" title="<?= t('ag_changer_role_aide') ?>"><?= t('ag_changer_role') ?></button>
             </form>
             <?php if ($a['statut'] !== 'active'): ?>
                 <form method="post" style="display:inline"
-                      onsubmit="return confirm('Supprimer définitivement le compte de <?= htmlspecialchars(addslashes($a['name'])) ?> ?\n\nCette action est sans retour. L\'historique des messages est conservé.');">
+                      onsubmit="return confirm('<?= t('ag_confirm_suppr', ['nom' => addslashes($a['name'])]) ?>');">
                     <input type="hidden" name="agent_id" value="<?= (int)$a['id'] ?>">
                     <input type="hidden" name="do" value="delete">
-                    <button class="button secondary" type="submit" style="color:#b42318">Supprimer</button>
+                    <button class="button secondary" type="submit" style="color:#b42318"><?= t('bt_supprimer') ?></button>
                 </form>
             <?php endif; ?>
         </td>
@@ -151,11 +154,11 @@ function nj_agent_row(array $a): void
     <?php
 }
 
-admin_header('Agents');
+admin_header(t_brut('nav_agents'));
 $flash = flash_message();
 ?>
 <section class="panel">
-    <h1>Agents commerciaux</h1>
+    <h1><?= t('ag_titre') ?></h1>
     <?php if ($flash): ?><p class="flash"><?= htmlspecialchars($flash) ?></p><?php endif; ?>
 
     <style>
@@ -168,55 +171,54 @@ $flash = flash_message();
         .tag-suspended { background: #f6dede; color: #7a1f1f; }
     </style>
 
-    <h2>Ajouter un agent</h2>
+    <h2><?= t('ag_ajouter') ?></h2>
     <p style="color:#7a879a;font-size:.88rem;margin:.2rem 0 1rem">
-        Le compte est actif immédiatement. Communiquez le mot de passe provisoire à l'agent :
-        il se connecte ensuite sur <code>espace-agent.html</code>.
+        <?= t_brut('ag_ajouter_aide') ?>
     </p>
     <form method="post" class="grid">
         <input type="hidden" name="do" value="create">
-        <label>Nom
+        <label><?= t('ag_nom') ?>
             <input type="text" name="name" maxlength="120" required>
         </label>
-        <label>E-mail
+        <label><?= t('ag_email') ?>
             <input type="email" name="email" required>
         </label>
-        <label>Mot de passe provisoire
+        <label><?= t('ag_mdp_provisoire') ?>
             <input type="text" name="password" minlength="6" required>
         </label>
-        <label>Rôle
+        <label><?= t('ag_role') ?>
             <select name="role" id="njNewRole">
-                <option value="commercial">Commercial</option>
-                <option value="gestionnaire">Gestionnaire</option>
-                <option value="superviseur">Superviseur</option>
+                <option value="commercial"><?= t('ag_role_commercial') ?></option>
+                <option value="gestionnaire"><?= t('ag_role_gestionnaire') ?></option>
+                <option value="superviseur"><?= t('ag_role_superviseur') ?></option>
             </select>
         </label>
-        <label>Bureaux de vente
+        <label><?= t('ag_bureaux') ?>
             <select name="perimetre" id="njNewPerimetre">
-                <option value="selection">Bureaux sélectionnés</option>
-                <option value="tous">Tous les bureaux de vente</option>
+                <option value="selection"><?= t('ag_bureaux_selection') ?></option>
+                <option value="tous"><?= t('ag_bureaux_tous') ?></option>
             </select>
-            <small style="color:#64748b">« Tous » couvre aussi les bureaux ajoutés plus tard.</small>
+            <small style="color:#64748b"><?= t('ag_bureaux_aide') ?></small>
         </label>
         <div class="full" id="njNewProjets">
-            <b style="font-size:.85rem">Cocher les bureaux couverts</b>
+            <b style="font-size:.85rem"><?= t('ag_cocher_bureaux') ?></b>
             <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:.3rem .9rem; margin-top:.4rem">
                 <?php foreach (nj_projects() as $pid => $p): ?>
                     <label style="display:flex; align-items:center; gap:.4rem; font-weight:400">
                         <input type="checkbox" name="projets[]" value="<?= htmlspecialchars($pid) ?>">
-                        <?= htmlspecialchars($p['name']['fr'] ?? $pid) ?>
+                        <?= htmlspecialchars($p['name'][admin_lang()] ?? $p['name']['fr'] ?? $pid) ?>
                     </label>
                 <?php endforeach; ?>
             </div>
         </div>
-        <label>Téléphone
+        <label><?= t('ag_telephone') ?>
             <input type="text" name="telephone" maxlength="40">
         </label>
-        <label>WhatsApp
+        <label><?= t('ag_whatsapp') ?>
             <input type="text" name="whatsapp" maxlength="40">
         </label>
         <div class="full">
-            <button class="button" type="submit">Créer le compte</button>
+            <button class="button" type="submit"><?= t('ag_creer') ?></button>
         </div>
     </form>
     <script>
@@ -239,22 +241,22 @@ $flash = flash_message();
     })();
     </script>
 
-    <h2 style="margin-top:2rem">En attente de validation (<?= count($pending) ?>)</h2>
+    <h2 style="margin-top:2rem"><?= t('ag_en_attente', ['n' => count($pending)]) ?></h2>
     <?php if (!$pending): ?>
-        <p>Aucun compte en attente.</p>
+        <p><?= t('ag_aucun_attente') ?></p>
     <?php else: ?>
         <table class="agents">
-            <thead><tr><th>Nom</th><th>Rôle</th><th>Bureau</th><th>Statut</th><th></th></tr></thead>
+            <thead><tr><th><?= t('ag_nom') ?></th><th><?= t('ag_role') ?></th><th><?= t('msg_bureau') ?></th><th><?= t('th_statut') ?></th><th></th></tr></thead>
             <tbody><?php foreach ($pending as $a) nj_agent_row($a); ?></tbody>
         </table>
     <?php endif; ?>
 
-    <h2 style="margin-top:2rem">Comptes existants (<?= count($others) ?>)</h2>
+    <h2 style="margin-top:2rem"><?= t('ag_existants', ['n' => count($others)]) ?></h2>
     <?php if (!$others): ?>
-        <p>Aucun compte actif pour le moment.</p>
+        <p><?= t('ag_aucun_actif') ?></p>
     <?php else: ?>
         <table class="agents">
-            <thead><tr><th>Nom</th><th>Rôle</th><th>Bureau</th><th>Statut</th><th></th></tr></thead>
+            <thead><tr><th><?= t('ag_nom') ?></th><th><?= t('ag_role') ?></th><th><?= t('msg_bureau') ?></th><th><?= t('th_statut') ?></th><th></th></tr></thead>
             <tbody><?php foreach ($others as $a) nj_agent_row($a); ?></tbody>
         </table>
     <?php endif; ?>

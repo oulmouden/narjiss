@@ -13,29 +13,35 @@ require_once __DIR__ . '/../api/data.php';
 
 admin_require_login();
 
+/* Libellé traduit d'un statut de lot. nj_lot_statut_libelle() (api/lots-lib.php)
+   sert aussi le site public et l'API : on ne la traduit pas, on double sa table
+   côté admin. */
+function admin_lot_statut(string $statut): string
+{
+    return t_brut('lot_statut_' . $statut);
+}
+
 /* Plutôt qu'une erreur 500 que rien n'explique, on nomme la cause exacte :
    base injoignable et schéma non migré demandent des gestes différents. */
 $etatSchema = nj_lots_etat_schema();
 if ($etatSchema !== 'ok') {
-    admin_header('Lots');
+    admin_header(t_brut('nav_lots'));
     ?>
     <section class="panel">
-        <h1>Grille de commercialisation</h1>
+        <h1><?= t('lots_titre') ?></h1>
         <?php if ($etatSchema === 'sans-base'): ?>
-            <div class="error">PHP n'arrive pas à se connecter à la base de données.</div>
-            <p>Ce n'est pas la grille qui manque : c'est la connexion MySQL. Les
-               identifiants se trouvent dans <code>api/.env</code> sur le serveur
-               (jamais déployé depuis le poste de travail), et dans CloudPanel,
-               section <em>Databases</em>. Pour voir lesquels sont utilisés et d'où
-               ils viennent, en SSH depuis la racine du site :</p>
+            <div class="error"><?= t('lots_err_base') ?></div>
+            <?php /* t_brut et non t() : la phrase porte du balisage (<code>,
+                     <em>) qu'on veut voir rendu, pas affiché. Le texte est le
+                     nôtre, il ne vient d'aucune saisie. */ ?>
+            <p><?= t_brut('lots_err_base_aide') ?></p>
             <pre style="background:#f4f6f9;padding:1rem;border-radius:6px;overflow:auto">php sql/etat.php</pre>
         <?php else: ?>
-            <div class="error">La table <code>lots</code> n'existe pas encore sur cette base.</div>
-            <p>La connexion fonctionne, mais le schéma du parcours client n'a pas
-               été appliqué sur ce serveur. En SSH, depuis la racine du site :</p>
+            <div class="error"><?= t_brut('lots_err_table') ?></div>
+            <p><?= t('lots_err_table_aide') ?></p>
             <pre style="background:#f4f6f9;padding:1rem;border-radius:6px;overflow:auto">php sql/migrer.php sql/001_parcours_client.sql
 php sql/migrer.php sql/003_lots_medias.sql</pre>
-            <p>Les migrations sont rejouables sans risque.</p>
+            <p><?= t('lots_err_migrations') ?></p>
         <?php endif; ?>
     </section>
     <?php
@@ -54,9 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'statu
     $lotId  = (int) ($_POST['lot_id'] ?? 0);
     $statut = (string) ($_POST['statut'] ?? '');
     if ($lotId > 0 && nj_lot_set_statut($lotId, $statut, NARJISS_ADMIN_USER)) {
-        set_flash('Lot mis à jour : ' . nj_lot_statut_libelle($statut) . '.');
+        set_flash(t_brut('lot_flash_maj', ['s' => admin_lot_statut($statut)]));
     } else {
-        set_flash('Changement de statut refusé (lot ou statut inconnu).');
+        set_flash(t_brut('lot_flash_refus'));
     }
     header('Location: lots.php?' . http_build_query(['projet' => $projet] + array_filter([
         'immeuble' => $_POST['immeuble'] ?? '', 'statut_f' => $_POST['statut_f'] ?? '',
@@ -78,14 +84,14 @@ $immeubles = array_values(array_unique(array_column(nj_lots_liste($projet), 'imm
 sort($immeubles);
 $total = array_sum(array_column($synthese, 'n'));
 
-admin_header('Lots');
+admin_header(t_brut('nav_lots'));
 ?>
 <div class="actions">
     <div>
-        <h1>Grille de commercialisation</h1>
-        <p><?= $total ?> lots enregistrés pour ce projet.</p>
+        <h1><?= t('lots_titre') ?></h1>
+        <p><?= t('lots_compte', ['n' => $total]) ?></p>
     </div>
-    <a class="button" href="lots-import.php?projet=<?= urlencode($projet) ?>">Importer un CSV</a>
+    <a class="button" href="lots-import.php?projet=<?= urlencode($projet) ?>"><?= t('lots_importer') ?></a>
 </div>
 
 <?php if ($flash): ?>
@@ -94,18 +100,18 @@ admin_header('Lots');
 
 <form method="get" class="panel">
     <div class="grid">
-        <label>Projet
+        <label><?= t('th_projet') ?>
             <select name="projet" onchange="this.form.submit()">
                 <?php foreach ($projets as $id => $p): ?>
                     <option value="<?= htmlspecialchars($id) ?>" <?= $id === $projet ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($p['name']['fr'] ?? $id) ?>
+                        <?= htmlspecialchars($p['name'][admin_lang()] ?? $p['name']['fr'] ?? $id) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </label>
-        <label>Immeuble
+        <label><?= t('f_immeuble') ?>
             <select name="immeuble">
-                <option value="">Tous</option>
+                <option value=""><?= t('f_tous') ?></option>
                 <?php foreach ($immeubles as $im): ?>
                     <option value="<?= htmlspecialchars($im) ?>" <?= $im === $filtres['immeuble'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($im) ?>
@@ -113,9 +119,9 @@ admin_header('Lots');
                 <?php endforeach; ?>
             </select>
         </label>
-        <label>Typologie
+        <label><?= t('th_typologie') ?>
             <select name="typologie">
-                <option value="">Toutes</option>
+                <option value=""><?= t('f_toutes') ?></option>
                 <?php foreach (nj_lot_enums()['typologie'] as $t): ?>
                     <option value="<?= $t ?>" <?= $t === $filtres['typologie'] ? 'selected' : '' ?>>
                         <?= strtoupper($t) ?>
@@ -123,20 +129,20 @@ admin_header('Lots');
                 <?php endforeach; ?>
             </select>
         </label>
-        <label>Statut
+        <label><?= t('th_statut') ?>
             <select name="statut_f">
-                <option value="">Tous</option>
+                <option value=""><?= t('f_tous') ?></option>
                 <?php foreach (nj_lot_enums()['statut'] as $s): ?>
                     <option value="<?= $s ?>" <?= $s === $filtres['statut'] ? 'selected' : '' ?>>
-                        <?= nj_lot_statut_libelle($s) ?>
+                        <?= t('lot_statut_' . $s) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </label>
     </div>
     <div class="actions-inline">
-        <button class="button" type="submit">Filtrer</button>
-        <a class="button secondary" href="lots.php?projet=<?= urlencode($projet) ?>">Réinitialiser</a>
+        <button class="button" type="submit"><?= t('bt_filtrer') ?></button>
+        <a class="button secondary" href="lots.php?projet=<?= urlencode($projet) ?>"><?= t('bt_reinit') ?></a>
     </div>
 </form>
 
@@ -145,20 +151,20 @@ admin_header('Lots');
         $n  = $synthese[$s]['n'] ?? 0;
         $ca = $synthese[$s]['ca'] ?? 0.0; ?>
         <span class="badge lot-<?= $s ?>">
-            <?= nj_lot_statut_libelle($s) ?> : <strong><?= $n ?></strong>
+            <?= t('lot_statut_' . $s) ?> : <strong><?= $n ?></strong>
             <?php if ($n > 0): ?><small>(<?= number_format($ca, 0, ',', ' ') ?> DH)</small><?php endif; ?>
         </span>
     <?php endforeach; ?>
 </div>
 
 <?php if (!$lots): ?>
-    <div class="notice">Aucun lot ne correspond. Importez la grille du projet pour commencer.</div>
+    <div class="notice"><?= t('lots_aucun') ?></div>
 <?php else: ?>
 <table>
     <thead>
         <tr>
-            <th>Lot</th><th>Typologie</th><th>Surface</th><th>Orientation</th>
-            <th>Prix</th><th>DH/m²</th><th>Statut</th><th>Changer</th>
+            <th><?= t('th_lot') ?></th><th><?= t('th_typologie') ?></th><th><?= t('th_surface') ?></th><th><?= t('th_orientation') ?></th>
+            <th><?= t('th_prix') ?></th><th><?= t('th_prix_m2') ?></th><th><?= t('th_statut') ?></th><th><?= t('th_changer') ?></th>
         </tr>
     </thead>
     <tbody>
@@ -166,22 +172,22 @@ admin_header('Lots');
         <tr>
             <td>
                 <strong><?= htmlspecialchars($lot['numero_lot']) ?></strong><br>
-                <small>Imm. <?= htmlspecialchars($lot['immeuble']) ?> — niveau <?= htmlspecialchars($lot['niveau']) ?></small>
+                <small><?= t('lot_immeuble_niveau', ['i' => $lot['immeuble'], 'n' => $lot['niveau']]) ?></small>
             </td>
             <td><?= strtoupper(htmlspecialchars($lot['typologie'])) ?></td>
             <td>
                 <?= number_format((float) $lot['surface_habitable'], 1, ',', ' ') ?> m²
                 <?php if ((float) $lot['surface_balcon'] > 0): ?>
-                    <br><small>+ <?= number_format((float) $lot['surface_balcon'], 1, ',', ' ') ?> m² balcon</small>
+                    <br><small><?= t('lot_balcon', ['s' => number_format((float) $lot['surface_balcon'], 1, ',', ' ')]) ?></small>
                 <?php endif; ?>
             </td>
             <td><?= htmlspecialchars($lot['orientation']) ?></td>
             <td><?= number_format((float) $lot['prix_dh'], 0, ',', ' ') ?> DH</td>
             <td><?= number_format((float) $lot['prix_m2'], 0, ',', ' ') ?></td>
             <td><span class="badge lot-<?= htmlspecialchars($lot['statut']) ?>">
-                <?= nj_lot_statut_libelle($lot['statut']) ?></span>
+                <?= t('lot_statut_' . $lot['statut']) ?></span>
                 <?php if ($lot['date_fin_option']): ?>
-                    <br><small>jusqu'au <?= htmlspecialchars($lot['date_fin_option']) ?></small>
+                    <br><small><?= t('lot_jusquau', ['d' => $lot['date_fin_option']]) ?></small>
                 <?php endif; ?>
             </td>
             <td>
@@ -195,7 +201,7 @@ admin_header('Lots');
                     <select name="statut" onchange="this.form.submit()">
                         <?php foreach (nj_lot_enums()['statut'] as $s): ?>
                             <option value="<?= $s ?>" <?= $s === $lot['statut'] ? 'selected' : '' ?>>
-                                <?= nj_lot_statut_libelle($s) ?>
+                                <?= t('lot_statut_' . $s) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

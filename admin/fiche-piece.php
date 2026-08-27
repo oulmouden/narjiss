@@ -12,11 +12,12 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/lang.php';
 require_once __DIR__ . '/../api/fiche-config.php';
 
 if (!admin_is_logged_in()) {
     http_response_code(403);
-    exit('Accès refusé.');
+    exit(t_brut('fp_refuse'));
 }
 
 // Format imposé : NJ-AAAAMMJJ-XXXX. Aucun « .. » ne peut passer.
@@ -25,7 +26,7 @@ $piece = (string)($_GET['piece'] ?? '');
 
 if (!preg_match('/^NJ-\d{8}-[0-9A-F]{4}$/', $ref) || !isset(nj_piece_types()[$piece])) {
     http_response_code(400);
-    exit('Requête invalide.');
+    exit(t_brut('fp_requete'));
 }
 
 $dir = NJ_PIECES_DIR . DIRECTORY_SEPARATOR . $ref;
@@ -37,7 +38,7 @@ foreach (['jpg', 'png', 'webp'] as $ext) {
 
 if ($found === null) {
     http_response_code(404);
-    exit('Pièce introuvable.');
+    exit(t_brut('fp_introuvable'));
 }
 
 // Vérification finale : le chemin résolu doit rester sous le dossier privé.
@@ -45,7 +46,7 @@ $real = realpath($found);
 $base = realpath(NJ_PIECES_DIR);
 if ($real === false || $base === false || strpos($real, $base) !== 0) {
     http_response_code(400);
-    exit('Chemin invalide.');
+    exit(t_brut('fp_chemin'));
 }
 
 nj_log_access('consultation', $ref, $piece);

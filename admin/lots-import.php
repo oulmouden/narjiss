@@ -61,17 +61,17 @@ function nj_import_tmp(): string
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($csrf, (string) ($_POST['csrf'] ?? ''))) {
-        $erreurs[] = 'Session expirée. Rechargez la page et recommencez.';
+        $erreurs[] = t_brut('li_err_session');
     } elseif (($_POST['action'] ?? '') === 'analyser') {
         $f = $_FILES['fichier'] ?? null;
         if (!$f || ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            $erreurs[] = 'Aucun fichier reçu, ou téléversement interrompu.';
+            $erreurs[] = t_brut('li_err_fichier');
         } elseif ((int) $f['size'] > NJ_IMPORT_TAILLE_MAX) {
-            $erreurs[] = 'Fichier trop volumineux (maximum 4 Mo).';
+            $erreurs[] = t_brut('li_err_taille');
         } elseif (!in_array(strtolower((string) pathinfo((string) $f['name'], PATHINFO_EXTENSION)), $extensions, true)) {
             $erreurs[] = $xlsxOk
-                ? 'Format non accepté : déposez le classeur .xlsx, ou la feuille « Lots » exportée en CSV.'
-                : 'Format non accepté : exportez la feuille « Lots » en CSV depuis Excel.';
+                ? t_brut('li_err_format_xlsx')
+                : t_brut('li_err_format_csv');
         } else {
             $tmp = nj_import_tmp();
             $estXlsx = strtolower((string) pathinfo((string) $f['name'], PATHINFO_EXTENSION)) === 'xlsx';
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 : move_uploaded_file((string) $f['tmp_name'], $tmp);
 
             if (!$depose) {
-                $erreurs[] = 'Impossible de conserver le fichier le temps de l\'analyse.';
+                $erreurs[] = t_brut('li_err_conserver');
             } elseif ($estXlsx && ($msg = nj_xlsx_vers_csv($tmp . '.xlsx', $tmp, 'Lots')) !== null) {
                 @unlink($tmp . '.xlsx');
                 $erreurs[] = $msg;
@@ -97,8 +97,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // presque toujours une erreur de manipulation.
                 $autres = array_values(array_unique(array_column($lu['lignes'], 'projet')));
                 if ($autres && $autres !== [$projet]) {
-                    $erreurs[] = 'Le fichier concerne le projet « ' . implode(', ', $autres)
-                        . ' » alors que « ' . $projet . ' » est sélectionné.';
+                    $erreurs[] = t_brut('li_err_autre_projet', [
+                        'a' => implode(', ', $autres), 'b' => $projet,
+                    ]);
                 } elseif ($lu['lignes']) {
                     $apercu = nj_lots_apercu($lu['lignes'], $projet);
                     $_SESSION['nj_import_pret'] = true;
@@ -109,14 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tmp = nj_import_tmp();
         $nom = (string) ($_SESSION['nj_import_nom'] ?? 'import.csv');
         if (!is_file($tmp)) {
-            $erreurs[] = 'Le fichier analysé n\'est plus disponible. Recommencez le téléversement.';
+            $erreurs[] = t_brut('li_err_perdu');
         } else {
             $lu = nj_lots_lire_csv($tmp);
             if ($lu['lignes']) {
                 try {
                     $stats = nj_lots_importer($lu['lignes'], $projet, $nom, NARJISS_ADMIN_USER);
                     set_flash(sprintf(
-                        'Import terminé : %d lots créés, %d mis à jour.',
+                        t_brut('li_termine'),
                         $stats['creees'], $stats['majs']
                     ));
                     unset($_SESSION['nj_import_pret'], $_SESSION['nj_import_nom']);
@@ -125,23 +126,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 } catch (Throwable $e) {
                     // La transaction a été annulée : la grille est restée intacte.
-                    $erreurs[] = 'Import annulé, aucune donnée modifiée. Détail : ' . $e->getMessage();
+                    $erreurs[] = t_brut('li_err_annule', ['d' => $e->getMessage()]);
                 }
             } else {
-                $erreurs[] = 'Plus aucune ligne valide dans le fichier.';
+                $erreurs[] = t_brut('li_err_vide');
             }
         }
     }
 }
 
-admin_header('Importer des lots');
+admin_header(t_brut('li_titre_court'));
 ?>
 <div class="actions">
     <div>
-        <h1>Importer une grille de lots</h1>
-        <p>Projet : <strong><?= htmlspecialchars($projets[$projet]['name']['fr'] ?? $projet) ?></strong></p>
+        <h1><?= t('li_titre') ?></h1>
+        <p><?= t('th_projet') ?> : <strong><?= htmlspecialchars($projets[$projet]['name'][admin_lang()] ?? $projets[$projet]['name']['fr'] ?? $projet) ?></strong></p>
     </div>
-    <a class="button secondary" href="lots.php?projet=<?= urlencode($projet) ?>">Retour à la grille</a>
+    <a class="button secondary" href="lots.php?projet=<?= urlencode($projet) ?>"><?= t('li_retour') ?></a>
 </div>
 
 <?php foreach ($erreurs as $e): ?>
@@ -152,31 +153,26 @@ admin_header('Importer des lots');
     <input type="hidden" name="action" value="analyser">
     <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
     <div class="grid">
-        <label>Projet
+        <label><?= t('th_projet') ?>
             <select name="projet">
                 <?php foreach ($projets as $id => $p): ?>
                     <option value="<?= htmlspecialchars($id) ?>" <?= $id === $projet ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($p['name']['fr'] ?? $id) ?>
+                        <?= htmlspecialchars($p['name'][admin_lang()] ?? $p['name']['fr'] ?? $id) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </label>
-        <label><?= $xlsxOk ? 'Classeur Excel ou CSV' : 'Fichier CSV' ?>
+        <label><?= t($xlsxOk ? 'li_classeur' : 'li_fichier_csv') ?>
             <input type="file" name="fichier" required
                    accept="<?= $xlsxOk ? '.xlsx,.csv,text/csv' : '.csv,text/csv' ?>">
             <small class="file-hint">
-                <?php if ($xlsxOk): ?>
-                    Déposez le classeur <code>.xlsx</code> : sa feuille « Lots » est lue directement.
-                    Un CSV exporté de cette feuille est aussi accepté (séparateur point-virgule ou virgule).
-                <?php else: ?>
-                    Export de la feuille « Lots » du classeur Excel, séparateur point-virgule ou virgule.
-                <?php endif; ?>
-                Colonnes obligatoires : <?= implode(', ', NJ_LOT_COLONNES_REQUISES) ?>.
+                <?= t_brut($xlsxOk ? 'li_aide_xlsx' : 'li_aide_csv') ?>
+                <?= t('li_colonnes') ?> : <?= implode(', ', NJ_LOT_COLONNES_REQUISES) ?>.
             </small>
         </label>
     </div>
     <div class="actions-inline">
-        <button class="button" type="submit">Analyser le fichier</button>
+        <button class="button" type="submit"><?= t('li_analyser') ?></button>
     </div>
 </form>
 
@@ -187,12 +183,12 @@ admin_header('Importer des lots');
     $nbO = count($apercu['orphelins']); ?>
 
 <div class="panel">
-    <h2>Ce que l'import va faire</h2>
+    <h2><?= t('li_ce_que') ?></h2>
     <p>
-        <span class="badge lot-disponible"><?= $nbC ?> création<?= $nbC > 1 ? 's' : '' ?></span>
-        <span class="badge lot-optionne"><?= $nbM ?> modification<?= $nbM > 1 ? 's' : '' ?></span>
-        <span class="badge lot-vendu"><?= $nbI ?> inchangé<?= $nbI > 1 ? 's' : '' ?></span>
-        <?php if ($nbO): ?><span class="badge lot-bloque"><?= $nbO ?> absent<?= $nbO > 1 ? 's' : '' ?> du fichier</span><?php endif; ?>
+        <span class="badge lot-disponible"><?= t('li_creations', ['n' => $nbC]) ?></span>
+        <span class="badge lot-optionne"><?= t('li_modifications', ['n' => $nbM]) ?></span>
+        <span class="badge lot-vendu"><?= t('li_inchanges', ['n' => $nbI]) ?></span>
+        <?php if ($nbO): ?><span class="badge lot-bloque"><?= t('li_absents', ['n' => $nbO]) ?></span><?php endif; ?>
     </p>
 
     <?php foreach ($alertes as $a): ?>
@@ -201,17 +197,16 @@ admin_header('Importer des lots');
 
     <?php if ($nbO): ?>
         <div class="notice">
-            <?= $nbO ?> lot<?= $nbO > 1 ? 's' : '' ?> présent<?= $nbO > 1 ? 's' : '' ?> en base
-            n'apparaî<?= $nbO > 1 ? 'ssent' : 't' ?> pas dans le fichier :
+            <?= t('li_orphelins', ['n' => $nbO]) ?>
             <?= htmlspecialchars(implode(', ', array_slice(array_column($apercu['orphelins'], 'numero_lot'), 0, 20))) ?><?= $nbO > 20 ? '…' : '' ?>.
-            L'import ne les supprime pas : ils resteront tels quels.
+            <?= t('li_orphelins_suite') ?>
         </div>
     <?php endif; ?>
 
     <?php if ($nbM): ?>
-        <h3>Modifications</h3>
+        <h3><?= t('li_h_modifications') ?></h3>
         <table>
-            <thead><tr><th>Lot</th><th>Champ</th><th>Avant</th><th>Après</th></tr></thead>
+            <thead><tr><th><?= t('th_lot') ?></th><th><?= t('li_th_champ') ?></th><th><?= t('li_th_avant') ?></th><th><?= t('li_th_apres') ?></th></tr></thead>
             <tbody>
             <?php foreach (array_slice($apercu['modifications'], 0, 60) as $m): ?>
                 <?php foreach ($m['diff'] as $champ => [$avant, $apres]): ?>
@@ -226,12 +221,12 @@ admin_header('Importer des lots');
             </tbody>
         </table>
         <?php if ($nbM > 60): ?>
-            <p><small>Seules les 60 premières modifications sont affichées ; toutes seront appliquées.</small></p>
+            <p><small><?= t('li_60_premieres') ?></small></p>
         <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($nbC): ?>
-        <h3>Créations</h3>
+        <h3><?= t('li_h_creations') ?></h3>
         <p><?= htmlspecialchars(implode(', ', array_slice(array_column($apercu['creations'], 'numero_lot'), 0, 40))) ?><?= $nbC > 40 ? '…' : '' ?></p>
     <?php endif; ?>
 
@@ -240,8 +235,8 @@ admin_header('Importer des lots');
         <input type="hidden" name="projet" value="<?= htmlspecialchars($projet) ?>">
         <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
         <div class="actions-inline">
-            <button class="button" type="submit">Confirmer et importer</button>
-            <a class="button secondary" href="lots-import.php?projet=<?= urlencode($projet) ?>">Annuler</a>
+            <button class="button" type="submit"><?= t('li_confirmer') ?></button>
+            <a class="button secondary" href="lots-import.php?projet=<?= urlencode($projet) ?>"><?= t('bt_annuler') ?></a>
         </div>
     </form>
 </div>

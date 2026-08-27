@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'enreg
 
     if (!nj_zones_schema_present()) {
         http_response_code(409);
-        echo json_encode(['ok' => false, 'message' => 'Table plan_zones absente.']);
+        echo json_encode(['ok' => false, 'message' => t_brut('pz_table_absente')]);
         exit;
     }
 
@@ -63,12 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'enreg
 }
 
 if (!nj_zones_schema_present()) {
-    admin_header('Zones des plans');
+    admin_header(t_brut('nav_zones'));
     ?>
     <section class="panel">
-        <h1>Zones cliquables</h1>
-        <div class="error">La table <code>plan_zones</code> n'existe pas encore sur cette base.</div>
-        <p>La migration est rejouable sans risque. Depuis la racine du site :</p>
+        <h1><?= t('pz_titre') ?></h1>
+        <div class="error"><?= t_brut('pz_err_table') ?></div>
+        <p><?= t('pz_err_table_aide') ?></p>
         <pre style="background:#f4f6f9;padding:1rem;border-radius:6px;overflow:auto">php sql/migrer.php sql/004_plan_zones.sql</pre>
     </section>
     <?php
@@ -165,34 +165,32 @@ if ($cible === 'immeubles') {
 $avancement = nj_zones_avancement($projet);
 $infoPlan = $plans[$plan] ?? ['largeur' => 0, 'hauteur' => 0, 'nom' => ''];
 
-admin_header('Zones des plans');
+admin_header(t_brut('nav_zones'));
 ?>
 <div class="actions">
     <div>
-        <h1>Zones cliquables</h1>
-        <p><?= $cible === 'immeubles'
-            ? 'Choisir un immeuble dans la liste, puis tracer son emprise sur le plan de masse.'
-            : 'Choisir un lot dans la liste, puis tracer son contour sur le plan.' ?></p>
+        <h1><?= t('pz_titre') ?></h1>
+        <p><?= t($cible === 'immeubles' ? 'pz_intro_immeubles' : 'pz_intro_lots') ?></p>
     </div>
-    <a class="button" href="lots.php?projet=<?= urlencode($projet) ?>">Grille des lots</a>
+    <a class="button" href="lots.php?projet=<?= urlencode($projet) ?>"><?= t('pz_grille') ?></a>
 </div>
 
 <form method="get" class="panel">
     <div class="grid">
-        <label>Projet
+        <label><?= t('th_projet') ?>
             <select name="projet" onchange="this.form.submit()">
                 <?php foreach ($projets as $id => $p): ?>
                     <option value="<?= htmlspecialchars($id) ?>" <?= $id === $projet ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($p['name']['fr'] ?? $id) ?>
+                        <?= htmlspecialchars($p['name'][admin_lang()] ?? $p['name']['fr'] ?? $id) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </label>
-        <label>Plan
+        <label><?= t('pz_plan') ?>
             <select name="plan" onchange="this.form.submit()">
                 <?php foreach ($plans as $chemin => $p):
                     $av = $avancement[$chemin] ?? null;
-                    $suffixe = $av ? sprintf('  (%d tracées)', $av['affectees']) : '  (vierge)';
+                    $suffixe = $av ? '  ' . t_brut('pz_tracees', ['n' => $av['affectees']]) : '  ' . t_brut('pz_vierge');
                 ?>
                     <option value="<?= htmlspecialchars($chemin) ?>" <?= $chemin === $plan ? 'selected' : '' ?>>
                         <?= htmlspecialchars($p['nom'] . $suffixe) ?>
@@ -200,10 +198,10 @@ admin_header('Zones des plans');
                 <?php endforeach; ?>
             </select>
         </label>
-        <label>Tracer des
+        <label><?= t('pz_tracer_des') ?>
             <select name="cible" onchange="this.form.submit()">
-                <option value="lots" <?= $cible === 'lots' ? 'selected' : '' ?>>lots</option>
-                <option value="immeubles" <?= $cible === 'immeubles' ? 'selected' : '' ?>>immeubles (plan de masse)</option>
+                <option value="lots" <?= $cible === 'lots' ? 'selected' : '' ?>><?= t('pz_cible_lots') ?></option>
+                <option value="immeubles" <?= $cible === 'immeubles' ? 'selected' : '' ?>><?= t('pz_cible_immeubles') ?></option>
             </select>
         </label>
     </div>
@@ -211,44 +209,45 @@ admin_header('Zones des plans');
 
 <?php if ($plan === ''): ?>
     <section class="panel">
-        <div class="error">Aucun plan trouvé pour ce projet.</div>
-        <p>Les plans sont lus sur le disque, dans <code><?= htmlspecialchars($projet) ?>/plans/</code>
-           ou <code><?= htmlspecialchars($projet) ?>/floorplan/</code> (JPEG, PNG ou WebP).
-           Déposez-les là, ils apparaîtront ici sans autre déclaration.</p>
+        <div class="error"><?= t('pz_aucun_plan') ?></div>
+        <p><?= t_brut('pz_aucun_plan_aide', [
+               'a' => '<code>' . htmlspecialchars($projet) . '/plans/</code>',
+               'b' => '<code>' . htmlspecialchars($projet) . '/floorplan/</code>',
+           ]) ?></p>
     </section>
 <?php elseif (!$lots): ?>
     <section class="panel">
-        <div class="error">Aucun lot en base pour ce projet.</div>
-        <p>Il n'y a rien à raccrocher au plan tant que la grille n'est pas importée.
-           <a href="lots-import.php?projet=<?= urlencode($projet) ?>">Importer un CSV</a>.</p>
+        <div class="error"><?= t('pz_aucun_lot') ?></div>
+        <p><?= t('pz_aucun_lot_aide') ?>
+           <a href="lots-import.php?projet=<?= urlencode($projet) ?>"><?= t('lots_importer') ?></a>.</p>
     </section>
 <?php else: ?>
 
 <div class="zone-editeur">
     <section class="panel zone-scene">
         <div class="zone-barre">
-            <button class="button" type="button" id="btnEnregistrer">Enregistrer</button>
-            <label class="zone-champ">Niveau
+            <button class="button" type="button" id="btnEnregistrer"><?= t('bt_enregistrer') ?></button>
+            <label class="zone-champ"><?= t('pz_niveau') ?>
                 <select id="niveau"></select>
             </label>
-            <label class="zone-champ zone-champ-lot">Lot à tracer
+            <label class="zone-champ zone-champ-lot"><?= t('pz_lot_a_tracer') ?>
                 <select id="choixLot"></select>
             </label>
-            <button class="button secondary" type="button" id="btnFermer" disabled>Fermer le contour</button>
-            <button class="button secondary" type="button" id="btnAnnulerPoint" disabled>Annuler le point</button>
-            <button class="button secondary" type="button" id="btnEffacer" disabled>Effacer ce tracé</button>
+            <button class="button secondary" type="button" id="btnFermer" disabled><?= t('pz_fermer') ?></button>
+            <button class="button secondary" type="button" id="btnAnnulerPoint" disabled><?= t('pz_annuler_point') ?></button>
+            <button class="button secondary" type="button" id="btnEffacer" disabled><?= t('pz_effacer') ?></button>
             <span class="zone-sep"></span>
-            <label class="zone-champ">Reporter depuis
+            <label class="zone-champ"><?= t('pz_reporter_depuis') ?>
                 <select id="reportSource"></select>
             </label>
-            <button class="button secondary" type="button" id="btnReporterCe">→ ce niveau</button>
-            <button class="button secondary" type="button" id="btnReporterTous">→ niveaux identiques</button>
+            <button class="button secondary" type="button" id="btnReporterCe"><?= t('pz_vers_ce_niveau') ?></button>
+            <button class="button secondary" type="button" id="btnReporterTous"><?= t('pz_vers_identiques') ?></button>
             <span class="zone-sep"></span>
             <button class="button secondary" type="button" id="btnZoomMoins">−</button>
             <span id="zoomLabel">100 %</span>
             <button class="button secondary" type="button" id="btnZoomPlus">+</button>
-            <button class="button secondary" type="button" id="btnVue">Vue entière</button>
-            <button class="button secondary" type="button" id="btnPleinEcran">Plein écran</button>
+            <button class="button secondary" type="button" id="btnVue"><?= t('pz_vue_entiere') ?></button>
+            <button class="button secondary" type="button" id="btnPleinEcran"><?= t('pz_plein_ecran') ?></button>
         </div>
 
         <div class="zone-cadre" id="cadre">
@@ -256,24 +255,21 @@ admin_header('Zones des plans');
                  viewBox="0 0 <?= (int) $infoPlan['largeur'] ?> <?= (int) $infoPlan['hauteur'] ?>"></svg>
         </div>
 
-        <p class="zone-etat" id="etat">Choisissez une cible pour commencer.</p>
+        <p class="zone-etat" id="etat"><?= t('pz_choisir_cible') ?></p>
         <p class="file-hint">
-            <strong>Tracer</strong> — clic ou tap : poser un sommet · double-clic, double-tap ou
-            <kbd>Entrée</kbd> : fermer · <kbd>Ctrl</kbd>+<kbd>Z</kbd> : annuler le dernier point ·
-            <kbd>Échap</kbd> : abandonner. Revenir sur le premier sommet ferme aussi le contour.
-            <br><strong>Se déplacer</strong> — barres de défilement du cadre, molette, ou un doigt
-            glissé. <strong>Zoomer</strong> — boutons − / +, ou <kbd>Ctrl</kbd>+molette.
-            Lots proposés :
+            <?= t_brut('pz_aide_tracer') ?>
+            <br><?= t_brut('pz_aide_deplacer') ?>
+            <?= t('pz_lots_proposes') ?> :
             <?= $immeubleDuPlan !== ''
-                ? 'immeuble <strong>' . htmlspecialchars($immeubleDuPlan) . '</strong>'
-                : 'tout le projet (aucun immeuble ne correspond au nom du plan)' ?>
+                ? t_brut('pz_immeuble_x', ['i' => '<strong>' . htmlspecialchars($immeubleDuPlan) . '</strong>'])
+                : t_brut('pz_tout_le_projet') ?>
             — <span id="compteur"></span>
         </p>
     </section>
 
     <section class="panel zone-liste">
-        <h2>Lots</h2>
-        <input type="search" id="filtre" placeholder="Filtrer (numéro, typologie, statut…)" autocomplete="off">
+        <h2><?= t('nav_lots') ?></h2>
+        <input type="search" id="filtre" placeholder="<?= t('pz_filtrer') ?>" autocomplete="off">
         <div id="liste"></div>
     </section>
 </div>
@@ -343,6 +339,52 @@ admin_header('Zones des plans');
 </style>
 
 <script>
+/* Les messages du tracé, dans la langue de l'admin. Ils sont injectés depuis
+   PHP plutôt que dupliqués en JavaScript : une seule table de langue pour tout
+   le back-office, et rien à retraduire deux fois. */
+const TXT = <?= json_encode([
+    'choisir_cible'   => t_brut('pz_choisir_cible'),
+    'choisir_lot'     => t_brut('pz_js_choisir_lot'),
+    'deja_contour'    => t_brut('pz_js_deja_contour'),
+    'sommets'         => t_brut('pz_js_sommets'),
+    'fermer_conseil'  => t_brut('pz_js_fermer_conseil'),
+    'encore'          => t_brut('pz_js_encore'),
+    'contour_ferme'   => t_brut('pz_js_contour_ferme'),
+    'contour_trace'   => t_brut('pz_js_contour_trace'),
+    'poser_premier'   => t_brut('pz_js_poser_premier'),
+    'abandonne'       => t_brut('pz_js_abandonne'),
+    'efface'          => t_brut('pz_js_efface'),
+    'aucun_filtre'    => t_brut('pz_js_aucun_filtre'),
+    'trace'           => t_brut('pz_js_trace'),
+    'a_tracer'        => t_brut('pz_js_a_tracer'),
+    'niv'             => t_brut('pz_js_niv'),
+    'compteur_tous'   => t_brut('pz_js_compteur_tous'),
+    'compteur_niveau' => t_brut('pz_js_compteur_niveau'),
+    'choisir_option'  => t_brut('pz_js_choisir_option'),
+    'niveau_n'        => t_brut('pz_js_niveau_n'),
+    'tous'            => t_brut('pz_js_tous'),
+    'rep_niveau'      => t_brut('pz_js_rep_niveau'),
+    'rep_identiques'  => t_brut('pz_js_rep_identiques'),
+    'rep_rien'        => t_brut('pz_js_rep_rien'),
+    'rep_rien2'       => t_brut('pz_js_rep_rien2'),
+    'rep_faits'       => t_brut('pz_js_rep_faits'),
+    'rep_faits2'      => t_brut('pz_js_rep_faits2'),
+    'rep_aucun_autre' => t_brut('pz_js_rep_aucun_autre'),
+    'rep_confirm'     => t_brut('pz_js_rep_confirm'),
+    'enregistrement'  => t_brut('pz_js_enregistrement'),
+    'enregistres'     => t_brut('pz_js_enregistres'),
+    'echec'           => t_brut('pz_js_echec'),
+    'erreur_inconnue' => t_brut('pz_js_erreur_inconnue'),
+    'brouillon'       => t_brut('pz_js_brouillon'),
+    'brouillon_ok'    => t_brut('pz_js_brouillon_ok'),
+], JSON_UNESCAPED_UNICODE) ?>;
+
+/** Un libellé, jetons {x} remplacés. */
+function T(cle, vars) {
+  var s = TXT[cle] || cle;
+  for (var k in (vars || {})) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
 (function () {
   'use strict';
 
@@ -662,31 +704,31 @@ admin_header('Zones des plans');
         '<span class="lot-pastille" style="background:' + (COULEUR[l.statut] || '#8b93a3') + '"></span>' +
         '<span class="lot-corps"><span class="lot-num"></span><br>' +
         '<span class="lot-meta"></span></span>' +
-        '<span class="lot-badge ' + (fait ? 'fait' : 'reste') + '">' + (fait ? 'tracé' : 'à tracer') + '</span>';
+        '<span class="lot-badge ' + (fait ? 'fait' : 'reste') + '">' + (fait ? T('trace') : T('a_tracer')) + '</span>';
       b.querySelector('.lot-num').textContent = l.numero;
       b.querySelector('.lot-meta').textContent =
-        'Niv. ' + l.niveau + ' · ' + l.typologie + ' · ' + l.surface + ' m² · ' + l.libelle;
+        T('niv', { n: l.niveau }) + ' · ' + l.typologie + ' · ' + l.surface + ' m² · ' + l.libelle;
       b.addEventListener('click', function () { choisirLot(l.numero); });
       listeEl.appendChild(b);
     });
 
     if (!listeEl.children.length) {
-      listeEl.innerHTML = '<p class="file-hint">Aucun lot ne correspond au filtre.</p>';
+      listeEl.innerHTML = '<p class="file-hint">' + T('aucun_filtre') + '</p>';
     }
 
     function tracés(liste) { return liste.filter(function (l) { return estTracé(l.numero); }).length; }
     var duNiveau = lotsDuNiveau();
     compteur.textContent = niveauActif === ''
-      ? tracés(LOTS) + ' / ' + LOTS.length + ' lots tracés'
-      : tracés(duNiveau) + ' / ' + duNiveau.length + ' à ce niveau · ' +
-        tracés(LOTS) + ' / ' + LOTS.length + ' au total';
+      ? T('compteur_tous', { a: tracés(LOTS), b: LOTS.length })
+      : T('compteur_niveau', { a: tracés(duNiveau), b: duNiveau.length,
+                               c: tracés(LOTS), d: LOTS.length });
   }
 
   /* Le même choix que la liste, mais dans la barre d'outils : sur un écran
      étroit la colonne de droite passe sous le plan, et le sélecteur reste
      alors le seul point d'entrée visible. */
   function rendreChoix() {
-    choixLot.innerHTML = '<option value="">— choisir un lot —</option>' +
+    choixLot.innerHTML = '<option value="">' + T('choisir_option') + '</option>' +
       lotsDuNiveau().map(function (l) {
         return '<option value="' + l.numero + '"' + (l.numero === lotActif ? ' selected' : '') + '>' +
           l.numero + ' · ' + l.typologie + ' · ' + l.surface + ' m²' +
@@ -699,8 +741,8 @@ admin_header('Zones des plans');
     brouillon = [];
     var l = parNumero[numero];
     etat.textContent = contours[numero]
-      ? numero + ' — contour tracé. Glissez un sommet pour l’ajuster, ou « Effacer ce tracé » pour recommencer.'
-      : numero + (l ? ' (' + l.typologie + ', ' + l.surface + ' m²)' : '') + ' — posez le 1er sommet.';
+      ? numero + T('contour_trace')
+      : numero + (l ? ' (' + l.typologie + ', ' + l.surface + ' m²)' : '') + T('poser_premier');
     rendre();
   }
 
@@ -718,7 +760,7 @@ admin_header('Zones des plans');
     contours[lotActif] = brouillon.map(function (p) { return [p.x, p.y]; });
     brouillon = [];
     marquerModifie();
-    etat.textContent = lotActif + ' — contour fermé (' + contours[lotActif].length + ' sommets).';
+    etat.textContent = lotActif + T('contour_ferme', { n: contours[lotActif].length });
     rendre();
   }
 
@@ -731,9 +773,9 @@ admin_header('Zones des plans');
   }
 
   function poserSommet(p) {
-    if (!lotActif) { etat.textContent = 'Choisissez d’abord un lot (barre d’outils ou liste de droite).'; return; }
+    if (!lotActif) { etat.textContent = T('choisir_lot'); return; }
     if (contours[lotActif] && !brouillon.length) {
-      etat.textContent = lotActif + ' — cette cible a déjà un contour. « Effacer ce tracé » pour le refaire.';
+      etat.textContent = lotActif + T('deja_contour');
       return;
     }
     p = aimanter(p);
@@ -742,9 +784,9 @@ admin_header('Zones des plans');
       return;
     }
     brouillon.push(p);
-    etat.textContent = lotActif + ' — ' + brouillon.length + ' sommet(s)' +
-      (brouillon.length >= 3 ? ' · fermer par double-clic, Entrée, ou en revenant sur le 1er sommet.'
-                             : ' · encore ' + (3 - brouillon.length) + ' minimum.');
+    etat.textContent = lotActif + T('sommets', { n: brouillon.length }) +
+      (brouillon.length >= 3 ? T('fermer_conseil')
+                             : T('encore', { n: 3 - brouillon.length }));
     rendre();
   }
 
@@ -800,7 +842,7 @@ admin_header('Zones des plans');
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
     if (e.key === 'Enter') { fermerContour(); }
-    else if (e.key === 'Escape') { brouillon = []; etat.textContent = 'Tracé abandonné.'; rendre(); }
+    else if (e.key === 'Escape') { brouillon = []; etat.textContent = T('abandonne'); rendre(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
       if (brouillon.length) { brouillon.pop(); rendre(); e.preventDefault(); }
     }
@@ -866,19 +908,19 @@ admin_header('Zones des plans');
     var niveaux = [];
     LOTS.forEach(function (l) { if (niveaux.indexOf(l.niveau) === -1) niveaux.push(l.niveau); });
     src.innerHTML = niveaux.map(function (n) {
-      return '<option value="' + n + '">niveau ' + n + '</option>';
+      return '<option value="' + n + '">' + T('niveau_n', { n: n }) + '</option>';
     }).join('');
   }
 
   // « → ce niveau » : reporter la source sur le niveau actuellement affiché.
   document.getElementById('btnReporterCe').addEventListener('click', function () {
     var source = document.getElementById('reportSource').value;
-    if (niveauActif === '') { etat.textContent = 'Choisissez d’abord un niveau à afficher (pas « Tous »).'; return; }
-    if (source === niveauActif) { etat.textContent = 'Le niveau source et le niveau cible sont identiques.'; return; }
+    if (niveauActif === '') { etat.textContent = T('rep_niveau'); return; }
+    if (source === niveauActif) { etat.textContent = T('rep_identiques'); return; }
     var faits = reporterDepuis(source, [niveauActif]);
-    if (!faits) { etat.textContent = 'Rien à reporter : le niveau ' + source + ' n’a pas de contour tracé pour ces lots.'; return; }
+    if (!faits) { etat.textContent = T('rep_rien', { s: source }); return; }
     marquerModifie();
-    etat.textContent = faits + ' contour(s) copiés du niveau ' + source + ' vers le niveau ' + niveauActif + '. Pensez à enregistrer.';
+    etat.textContent = T('rep_faits', { n: faits, s: source, c: niveauActif });
     rendre();
   });
 
@@ -892,15 +934,14 @@ admin_header('Zones des plans');
       return niv !== source && signatureNiveau(niv, m) === sig;
     });
     if (!cibles.length) {
-      etat.textContent = 'Aucun autre niveau n’a la même liste de lots que le niveau ' + source + '. Utilisez « → ce niveau ».';
+      etat.textContent = T('rep_aucun_autre', { s: source });
       return;
     }
-    if (!confirm('Reporter les contours du niveau ' + source + ' sur ' + cibles.length +
-        ' niveau(x) identique(s) (' + cibles.join(', ') + ') ?\n\nLes contours existants de ces niveaux seront remplacés.')) return;
+    if (!confirm(T('rep_confirm', { s: source, n: cibles.length, l: cibles.join(', ') }))) return;
     var faits = reporterDepuis(source, cibles);
-    if (!faits) { etat.textContent = 'Rien à reporter : tracez d’abord les contours du niveau ' + source + '.'; return; }
+    if (!faits) { etat.textContent = T('rep_rien2', { s: source }); return; }
     marquerModifie();
-    etat.textContent = faits + ' contour(s) reportés depuis le niveau ' + source + '. Pensez à enregistrer.';
+    etat.textContent = T('rep_faits2', { n: faits, s: source });
     rendre();
   });
 
@@ -914,7 +955,7 @@ admin_header('Zones des plans');
     delete contours[lotActif];
     brouillon = [];
     marquerModifie();
-    etat.textContent = lotActif + ' — contour effacé, à retracer.';
+    etat.textContent = lotActif + T('efface');
     rendre();
   });
   document.getElementById('btnZoomPlus').addEventListener('click', function () { zoomer(1.25); });
@@ -934,14 +975,14 @@ admin_header('Zones des plans');
   LOTS.forEach(function (l) { if (niveaux.indexOf(l.niveau) === -1) niveaux.push(l.niveau); });
   niveauEl.innerHTML = niveaux.map(function (n) {
     return '<option value="' + n + '"' + (n === niveauActif ? ' selected' : '') + '>' + n + '</option>';
-  }).join('') + '<option value="">Tous</option>';
+  }).join('') + '<option value="">' + T('tous') + '</option>';
   remplirSourceReport();
   niveauEl.addEventListener('change', function () {
     niveauActif = this.value;
     brouillon = [];
     if (lotActif && !visible(lotActif)) {
       lotActif = null;
-      etat.textContent = 'Choisissez une cible pour commencer.';
+      etat.textContent = T('choisir_cible');
     }
     rendre();
   });
@@ -963,14 +1004,14 @@ admin_header('Zones des plans');
     corps.append('plan', <?= json_encode($plan) ?>);
     corps.append('zones', JSON.stringify(charge));
 
-    etat.textContent = 'Enregistrement…';
+    etat.textContent = T('enregistrement');
     fetch(window.location.href, { method: 'POST', body: corps })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (d.ok) { modifie = false; sauverBrouillonLocal(); etat.textContent = d.zones + ' contour(s) enregistré(s).'; }
-        else { etat.textContent = 'Échec : ' + (d.message || 'erreur inconnue'); }
+        if (d.ok) { modifie = false; sauverBrouillonLocal(); etat.textContent = T('enregistres', { n: d.zones }); }
+        else { etat.textContent = T('echec', { d: d.message || T('erreur_inconnue') }); }
       })
-      .catch(function (err) { etat.textContent = 'Échec : ' + err.message; });
+      .catch(function (err) { etat.textContent = T('echec', { d: err.message }); });
   });
 
   window.addEventListener('beforeunload', function (e) {
@@ -988,15 +1029,13 @@ admin_header('Zones des plans');
     });
     var nouveaux = tracesBrouillon.filter(function (n) { return !estTracé(n); });
     if (!nouveaux.length) return;   // le brouillon n'apporte rien de plus qu'en base
-    var quand = new Date(d.t || Date.now()).toLocaleString('fr-FR');
-    if (confirm('Un brouillon local NON enregistré a été trouvé (' + tracesBrouillon.length +
-        ' contour(s), ' + quand + '), dont ' + nouveaux.length + ' absent(s) de la base.\n\n' +
-        'Restaurer ces contours ?')) {
+    var quand = new Date(d.t || Date.now()).toLocaleString(<?= json_encode(str_replace('_', '-', admin_locale())) ?>);
+    if (confirm(T('brouillon', { n: tracesBrouillon.length, q: quand, m: nouveaux.length }))) {
       nouveaux.forEach(function (n) {
         contours[n] = d.contours[n].map(function (p) { return [p[0], p[1]]; });
       });
       modifie = true;
-      etat.textContent = nouveaux.length + ' contour(s) restaurés depuis le brouillon local. Vérifiez, puis Enregistrez.';
+      etat.textContent = T('brouillon_ok', { n: nouveaux.length });
     }
   })();
 

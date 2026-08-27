@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/* Les exceptions de ce fichier ne restent pas dans les journaux : project-edit.php
+   les affiche telles quelles au rédacteur. Elles passent donc par la table de
+   langue, comme le reste de l'écran. */
+require_once __DIR__ . '/lang.php';
+
 require_once __DIR__ . '/config.php';
 
 function read_projects(): array
@@ -41,7 +46,7 @@ function write_projects(array $projects): void
     $json = json_encode(array_values($projects), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     if ($json === false) {
-        throw new RuntimeException('Impossible de convertir les projets en JSON.');
+        throw new RuntimeException(t_brut('st_json_projets'));
     }
 
     file_put_contents(NARJISS_PROJECTS_FILE, $json . PHP_EOL, LOCK_EX);
@@ -71,7 +76,7 @@ function write_project_sliders(array $sliders): void
     $json = json_encode($sliders, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     if ($json === false) {
-        throw new RuntimeException('Impossible de convertir les sliders en JSON.');
+        throw new RuntimeException(t_brut('st_json_sliders'));
     }
 
     file_put_contents(NARJISS_PROJECT_SLIDERS_FILE, $json . PHP_EOL, LOCK_EX);
@@ -118,7 +123,7 @@ function posted_project(?array $existing = null): array
     $id = trim((string) ($_POST['id'] ?? $existing['id'] ?? ''));
 
     if ($id === '' || ! preg_match('/^[a-z0-9_-]+$/', $id)) {
-        throw new InvalidArgumentException('ID invalide. Utilise seulement lettres minuscules, chiffres, tirets et underscores.');
+        throw new InvalidArgumentException(t_brut('st_id_invalide'));
     }
 
     $project = $existing;
@@ -486,18 +491,20 @@ function handle_project_upload(string $field, string $targetDir, string $publicB
     }
 
     if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
-        throw new RuntimeException('Upload impossible pour ' . $field . '.');
+        throw new RuntimeException(t_brut('st_upload', ['c' => $field]));
     }
 
     $originalName = (string) ($file['name'] ?? '');
     $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
     if (! in_array($extension, $allowedExtensions, true)) {
-        throw new RuntimeException('Format non autorise pour ' . $originalName . '.');
+        throw new RuntimeException(t_brut('st_format', ['f' => $originalName]));
     }
 
     if (($file['size'] ?? 0) > $maxBytes) {
-        throw new RuntimeException('Fichier trop lourd : ' . $originalName . '. Maximum ' . (int) round($maxBytes / (1024 * 1024)) . ' Mo.');
+        throw new RuntimeException(t_brut('st_trop_lourd', [
+            'f' => $originalName, 'n' => (int) round($maxBytes / (1024 * 1024)),
+        ]));
     }
 
     if (! is_dir($targetDir)) {
@@ -522,7 +529,7 @@ function handle_project_upload(string $field, string $targetDir, string $publicB
     }
 
     if (! move_uploaded_file((string) $file['tmp_name'], $target)) {
-        throw new RuntimeException('Impossible de sauvegarder ' . $originalName . '.');
+        throw new RuntimeException(t_brut('st_sauvegarde', ['f' => $originalName]));
     }
 
     return $publicBase . '/' . $filename;

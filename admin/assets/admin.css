@@ -453,3 +453,38 @@ textarea {
     display: none;
   }
 }
+
+
+/* ==========================================================================
+   SÉLECTEUR DE LANGUE ET SENS D'ÉCRITURE
+   --------------------------------------------------------------------------
+   Le back-office ne charge pas menu.css : les boutons de langue sont redessinés
+   ici, dans les couleurs de l'admin, mais avec la même forme que sur le site
+   pour qu'on les reconnaisse.
+
+   Le reste de la mise en page est en flex ou en grille : le navigateur la
+   retourne seul en arabe. Ne restent que les rares règles qui figent un côté.
+   ========================================================================== */
+.lang-switch {
+  display: flex;
+  gap: 0.25rem;
+  margin-inline-start: 0.5rem;
+}
+
+.lang-btn {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.lang-btn:hover { border-color: var(--ochre); color: var(--ochre); }
+.lang-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+
+[dir="rtl"] th,
+[dir="rtl"] td { text-align: right; }
+
+[dir="rtl"] .badge small { margin-left: 0; margin-right: 0.35rem; }
