@@ -59,6 +59,13 @@ FORBIDDEN='CIN |cnie|/\.env$|liveguide-config\.php$|config\.local|narjiss-prive|
 build_code_list(){
   # fichiers racine
   ls -1 *.html *.js *.css *.json 2>/dev/null || true
+  # Fichiers de référencement : ni .html ni .js ni .css ni .json, ils passaient
+  # donc au travers du `ls` ci-dessus. Un sitemap resté sur le PC ne sert à rien.
+  for f in sitemap.xml robots.txt; do [ -f "$f" ] && echo "$f"; done
+  # Guides : pages générées par tools/generer-guides.py. Comme les CSV de POI
+  # et les visites 3DVista avant elles, ce dossier n'appartenait à AUCUN bucket
+  # — il serait resté indéfiniment absent du VPS, sans le moindre message.
+  find guides -type f -name '*.html' 2>/dev/null
   # dossiers de code (exclusions ciblées)
   find shared -type f 2>/dev/null
   find api   -type f 2>/dev/null \
@@ -71,6 +78,23 @@ build_code_list(){
   for f in projects.json project-sliders.json home-slider-images.json contacts.json; do
     [ -f "data/$f" ] && echo "data/$f"
   done
+  build_poi_list
+}
+
+# CSV de POI et de repères des projets : <dossier>/<slug>_<lang>.csv et
+# <dossier>/<slug>_major_<lang>.csv. Ils n'étaient dans AUCUN bucket — comme les
+# visites avant l'ajout de « tours ». Résultat : Jawhara est resté des semaines
+# en ligne avec 18 points d'intérêt et aucune école, pendant que le fichier local
+# en contenait 77. Aucun message d'erreur, la carte s'affichait simplement plus
+# pauvre qu'elle ne l'est.
+#
+# Rattachés au bucket « code » plutôt qu'à un bucket séparé : 516 Ko au total,
+# soit un tiers du reste du code. Les séparer n'économiserait rien et rouvrirait
+# la porte à l'oubli.
+build_poi_list(){
+  find . -mindepth 2 -maxdepth 2 -name '*_[a-z][a-z].csv' 2>/dev/null \
+    | sed 's#^\./##' \
+    | grep -v '^\.claude/\|^GUIDE/\|^data/'
 }
 
 # Bucket IMAGES : médias, sans les panoramas sources _orig-360 (52 Mo).

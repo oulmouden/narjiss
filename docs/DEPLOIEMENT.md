@@ -202,3 +202,69 @@ changement » en développement.
   délai : elle propose un rappel par un conseiller.
 - **Deux consentements séparés** : traitement du dossier (obligatoire) et
   prospection commerciale (facultatif).
+
+---
+
+## 8. Déployer et vérifier (procédure courante)
+
+### Avant
+
+Régénérer ce qui se génère, puis poser les empreintes de cache :
+
+```bash
+python tools/generer-guides.py && python tools/generer-sitemap.py && python tools/versionner.py
+```
+
+Contrôler ce qui partira, **sans rien envoyer** :
+
+```bash
+bash deploy.sh code --dry-run
+```
+
+### Envoyer
+
+```bash
+bash deploy.sh code
+```
+
+Le mot de passe root du VPS est demandé une seule fois (un flux `tar | ssh`,
+une seule connexion). L'extraction n'écrase que les fichiers présents dans
+l'archive : les secrets et les données serveur restent intacts.
+
+### Après — le contrôle qui manquait
+
+```bash
+python tools/verifier-deploiement.py
+```
+
+Test de recette joué **une fois**, depuis l'extérieur : les deux domaines
+aboutissent, les pages attendues répondent, le `menu.js` en ligne connaît bien
+les entrées récentes, `sitemap.xml` et `robots.txt` sont servis **et identiques
+au local**, et les ressources `?v=` référencées existent réellement.
+
+Pourquoi ce contrôle existe : `deploy.sh` ne se plaint **jamais** de ce qu'il
+n'a pas ramassé. Trois fois, des fichiers sont restés sur le poste local sans
+le moindre message — les CSV de points d'intérêt (Jawhara est resté des
+semaines en ligne avec 18 POI au lieu de 77), les visites 3DVista republiées,
+puis le dossier `guides/` entier. Seule une vérification depuis l'extérieur le
+voit.
+
+À ne pas confondre avec `tools/verifier-prod.js`, qui surveille en continu
+l'**identité** du serveur (bonne IP, bon certificat, notre PHP tourne) et évite
+délibérément de contrôler des versions.
+
+### Les deux noms de domaine
+
+Vérifié le 25/08/2026, rien à changer :
+
+| Entrée | Aboutit sur |
+|---|---|
+| `http://narjiss.company/` | `https://www.narjiss.company/` (301) |
+| `https://narjiss.company/` | `https://www.narjiss.company/` (301) |
+| `http://www.narjiss.company/` | `https://www.narjiss.company/` (301) |
+| `https://www.narjiss.company/` | 200 |
+
+Le certificat couvre les deux noms (`narjiss.company` et `www.narjiss.company`).
+La redirection conserve chemin **et** paramètres. La forme canonique est donc
+**avec `www`** : c'est ce que déclare `data/site.json`, source unique des URL
+absolues du site (voir `docs/REFERENCEMENT.md`).
