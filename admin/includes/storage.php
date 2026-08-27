@@ -33,6 +33,47 @@ function read_project_sliders(): array
     return is_array($sliders) ? $sliders : [];
 }
 
+/* ── Coordonnées publiques du site ──────────────────────────────────────────
+   data/contacts.json : téléphones, e-mail, adresse et réseaux sociaux, tels
+   que les affichent le pied de page, la page contact et le lanceur
+   « On en parle ? ». Jusqu'ici ce fichier ne s'éditait qu'à la main.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function read_contacts(): array
+{
+    if (! file_exists(NARJISS_CONTACTS_FILE)) {
+        return [];
+    }
+
+    $json = file_get_contents(NARJISS_CONTACTS_FILE);
+    $contacts = json_decode((string) $json, true);
+
+    return is_array($contacts) ? $contacts : [];
+}
+
+function write_contacts(array $contacts): void
+{
+    if (! is_dir(NARJISS_BACKUP_DIR)) {
+        mkdir(NARJISS_BACKUP_DIR, 0775, true);
+    }
+
+    /* Sauvegarde horodatée avant écriture, comme pour les projets. Ce fichier
+       porte les numéros par lesquels les clients appellent : une fausse
+       manœuvre qui les effacerait couperait le standard sans que rien ne le
+       signale, et personne ne saurait ce qu'il y avait avant. */
+    if (file_exists(NARJISS_CONTACTS_FILE)) {
+        copy(NARJISS_CONTACTS_FILE, NARJISS_BACKUP_DIR . '/contacts-' . date('Ymd-His') . '.json');
+    }
+
+    $json = json_encode($contacts, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    if ($json === false) {
+        throw new RuntimeException(t_brut('st_json_contacts'));
+    }
+
+    file_put_contents(NARJISS_CONTACTS_FILE, $json . PHP_EOL, LOCK_EX);
+}
+
 function write_projects(array $projects): void
 {
     if (! is_dir(NARJISS_BACKUP_DIR)) {

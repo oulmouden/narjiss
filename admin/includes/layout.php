@@ -31,6 +31,7 @@ function admin_header(string $title): void
             <a href="fiches.php"><?= t('nav_fiches') ?></a>
             <a href="agents.php"><?= t('nav_agents') ?></a>
             <a href="messages.php"><?= t('nav_messages') ?></a>
+            <a href="coordonnees.php"><?= t('nav_coord') ?></a>
             <a href="audit.php"><?= t('nav_audit') ?></a>
             <?php /* Pointeur, pas une seconde implémentation : l'éditeur de
                      visites 360° vit dans l'espace commercial, où le modèle de
