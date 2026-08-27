@@ -105,6 +105,23 @@ html[dir=rtl] .office-caption h2 { font-family: 'Noto Sans Arabic', serif; }
 .agent-chip.on .pdot { background: oklch(58% 0.15 152); box-shadow: 0 0 0 3px color-mix(in oklab, oklch(58% 0.15 152) 22%, transparent); }
 .agent-chip.busy .pdot { background: oklch(72% 0.16 75); }
 .agent-chip .pstate-lbl { font-weight: 500; color: var(--muted); font-size: .8rem; }
+
+/* Puce d'un conseiller joignable : un clic demande à lui parler.
+   C'est un <button>, qui n'hérite ni de la police ni de l'alignement du texte —
+   sans ces trois-là il s'afficherait dans la police système du navigateur, au
+   milieu de puces qui gardent celle du site. La bulle 💬 porte l'affordance sur
+   téléphone, où le survol n'existe pas. */
+.agent-chip.joignable {
+  font-family: inherit; line-height: inherit; text-align: inherit;
+  cursor: pointer;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.agent-chip.joignable:hover { border-color: var(--ocean); transform: translateY(-1px); }
+.agent-chip.joignable:focus-visible { outline: 2px solid var(--ocean); outline-offset: 2px; }
+.agent-chip .chip-call { font-size: .9rem; opacity: .75; }
+@media (prefers-reduced-motion: reduce) {
+  .agent-chip.joignable:hover { transform: none; }
+}
 html[dir=rtl] .office-agents { justify-content: flex-end; }
 
 .office-btn {
@@ -439,6 +456,6 @@ html[dir=rtl] .agent-menu button { text-align: right; }
 <div id="mainFooter"></div>
 <script src="assets/vendor/livekit/livekit-client.umd.js?v=83b83f21"></script>
 <script src="shared/menu.js?v=8597ab8c"></script>
-<script src="bureaudevente.js?v=018ebe6a"></script>
+<script src="bureaudevente.js?v=384547f9"></script>
 </body>
 </html>

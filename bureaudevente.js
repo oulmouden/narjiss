@@ -215,20 +215,39 @@
     var host = document.getElementById("officeAgents");
     if (!host) return;
     var L = PRESENCE_UI[lang] || PRESENCE_UI.fr;
+    var D = DIRECT_UI[lang] || DIRECT_UI.fr;
     if (!list || !list.length) { host.hidden = true; host.innerHTML = ""; return; }
     var html = "";
     for (var i = 0; i < list.length; i++) {
       var ag = list[i];
       var cls = ag.online ? (ag.presence === "occupe" ? "busy" : "on") : "";
       var stateLbl = ag.online ? (L[ag.presence] || L.en_ligne) : L.offline;
-      html += '<span class="agent-chip ' + cls + '">' +
+      /* « Occupé » reste cliquable : le commercial a posé ce statut lui-même et
+         garde la main pour accepter ou refuser. « Absent » et « hors ligne »
+         ne le sont pas — la demande n'atteindrait personne, et le visiteur
+         attendrait une réponse qui ne viendrait jamais. */
+      var joignable = ag.online && ag.presence !== "absent";
+      var dedans =
           '<span class="pdot"></span>' +
           '<span>' + escapeHtml(ag.name) + '</span>' +
-          '<span class="pstate-lbl">' + escapeHtml(stateLbl) + '</span>' +
-        '</span>';
+          '<span class="pstate-lbl">' + escapeHtml(stateLbl) + '</span>';
+      html += joignable
+        ? '<button type="button" class="agent-chip joignable ' + cls + '"' +
+            ' data-agent="' + escapeHtml(ag.name) + '"' +
+            ' title="' + escapeHtml(D.chipHint.replace("{name}", ag.name)) + '">' +
+            dedans + '<span class="chip-call" aria-hidden="true">💬</span></button>'
+        : '<span class="agent-chip ' + cls + '">' + dedans + '</span>';
     }
     host.innerHTML = html;
     host.hidden = false;
+    // innerHTML vient d'effacer les anciens boutons : on rebranche à chaque
+    // rendu, c'est-à-dire toutes les huit secondes.
+    var puces = host.querySelectorAll(".agent-chip.joignable");
+    for (var k = 0; k < puces.length; k++) {
+      puces[k].addEventListener("click", function() {
+        demanderConseiller(this.getAttribute("data-agent"));
+      });
+    }
   }
 
   function fetchPresence() {
@@ -399,6 +418,75 @@
   };
 
   /* Libellés de présence des conseillers (puces sous le nom du bureau). */
+  /* =========================================================================
+     PARLER DIRECTEMENT À UN CONSEILLER PRÉSENT
+     Le visiteur clique la puce de quelqu'un d'affiché en ligne. On réutilise
+     tel quel le flux d'accès existant (create → le commercial approuve →
+     code → verify → room LiveKit), jusqu'ici réservé à l'hôtesse IA. Le code
+     à quatre chiffres continue d'exister côté serveur mais n'est plus montré :
+     il servait à ce que l'hôtesse le dicte, personne n'a à le retaper quand
+     c'est le visiteur lui-même qui a cliqué.
+     ========================================================================= */
+  var DIRECT_UI = {
+    fr: {
+      chipHint: "Cliquez pour parler à {name}",
+      intro: "Vous voulez parler à {name}. Votre prénom, pour que je vous annonce ?",
+      yourName: "Votre prénom",
+      ask: "Demander à parler",
+      needName: "Dites-moi juste votre prénom.",
+      asking: "Je préviens {name}…",
+      waiting: "{name} est prévenu. Un instant, je vous mets en relation dès qu'il accepte.",
+      cancel: "Annuler",
+      notFound: "Je ne retrouve pas ce conseiller.",
+      gone: "{name} vient de quitter le bureau.",
+      denied: "{name} ne peut pas vous répondre tout de suite.",
+      timeout: "{name} n'a pas répondu. Il est sans doute avec quelqu'un."
+    },
+    en: {
+      chipHint: "Click to talk to {name}",
+      intro: "You'd like to talk to {name}. Your first name, so I can announce you?",
+      yourName: "Your first name",
+      ask: "Ask to talk",
+      needName: "Just your first name.",
+      asking: "Letting {name} know…",
+      waiting: "{name} has been notified. One moment, I'll connect you as soon as they accept.",
+      cancel: "Cancel",
+      notFound: "I can't find that advisor.",
+      gone: "{name} has just left the office.",
+      denied: "{name} can't take your call right now.",
+      timeout: "{name} didn't answer — probably with someone else."
+    },
+    ar: {
+      chipHint: "انقر للتحدث إلى {name}",
+      intro: "تريد التحدث إلى {name}. ما اسمك، حتى أعلن عنك؟",
+      yourName: "اسمك",
+      ask: "طلب التحدث",
+      needName: "أخبرني باسمك فقط.",
+      asking: "أُعلم {name}…",
+      waiting: "تم إعلام {name}. لحظة، سأصلك به بمجرد أن يقبل.",
+      cancel: "إلغاء",
+      notFound: "لا أجد هذا المستشار.",
+      gone: "{name} غادر المكتب للتو.",
+      denied: "{name} لا يستطيع الرد عليك الآن.",
+      timeout: "{name} لم يرد. ربما يكون مع شخص آخر."
+    },
+    es: {
+      chipHint: "Haga clic para hablar con {name}",
+      intro: "Quiere hablar con {name}. ¿Su nombre, para anunciarle?",
+      yourName: "Su nombre",
+      ask: "Pedir hablar",
+      needName: "Dígame solo su nombre.",
+      asking: "Aviso a {name}…",
+      waiting: "{name} ha sido avisado. Un momento, le conecto en cuanto acepte.",
+      cancel: "Cancelar",
+      notFound: "No encuentro a ese asesor.",
+      gone: "{name} acaba de salir de la oficina.",
+      denied: "{name} no puede atenderle ahora mismo.",
+      timeout: "{name} no ha respondido. Seguramente está con alguien."
+    }
+  };
+  function directT() { return DIRECT_UI[currentLang] || DIRECT_UI.fr; }
+
   var PRESENCE_UI = {
     fr: { bureau: "Au bureau", en_ligne: "En ligne", occupe: "Occupé", absent: "Absent", offline: "Hors ligne" },
     en: { bureau: "At the office", en_ligne: "Online", occupe: "Busy", absent: "Away", offline: "Offline" },
@@ -412,25 +500,29 @@
       haveCode: "🔑 J'ai un code d'accès", prompt: "Saisissez le code à 4 chiffres communiqué par le commercial :",
       check: "Valider", back: "Retour", invalid: "Code invalide ou expiré. Vérifiez auprès du commercial.",
       connecting: "Un instant, je vous mets en relation…", connected: "Vous êtes en relation avec {name}. Parlez, on vous entend.",
-      micDenied: "Je n'ai pas accès à votre micro. Autorisez-le puis réessayez.", offline: "Mise en relation indisponible pour le moment."
+      micDenied: "Je n'ai pas accès à votre micro. Autorisez-le puis réessayez.", offline: "Mise en relation indisponible pour le moment.",
+      connectedNoVoice: "{name} vous attend. La voix n'est pas disponible ici — joignez-le directement :"
     },
     en: {
       haveCode: "🔑 I have an access code", prompt: "Enter the 4-digit code the advisor gave you:",
       check: "Confirm", back: "Back", invalid: "Invalid or expired code. Please check with the advisor.",
       connecting: "One moment, connecting you…", connected: "You're connected with {name}. Go ahead, they can hear you.",
-      micDenied: "I can't access your microphone. Allow it, then try again.", offline: "Connection unavailable right now."
+      micDenied: "I can't access your microphone. Allow it, then try again.", offline: "Connection unavailable right now.",
+      connectedNoVoice: "{name} is expecting you. Voice isn't available here — reach them directly:"
     },
     ar: {
       haveCode: "🔑 لدي رمز دخول", prompt: "أدخل الرمز المكون من 4 أرقام الذي أعطاك إياه المستشار:",
       check: "تأكيد", back: "رجوع", invalid: "رمز غير صالح أو منتهٍ. تحقق مع المستشار.",
       connecting: "لحظة من فضلك، جاري الربط…", connected: "أنت الآن على اتصال مع {name}. تفضل بالحديث، يسمعونك.",
-      micDenied: "لا أستطيع الوصول إلى الميكروفون. اسمح به ثم أعد المحاولة.", offline: "الربط غير متاح حالياً."
+      micDenied: "لا أستطيع الوصول إلى الميكروفون. اسمح به ثم أعد المحاولة.", offline: "الربط غير متاح حالياً.",
+      connectedNoVoice: "{name} في انتظارك. الصوت غير متاح هنا — تواصل معه مباشرة:"
     },
     es: {
       haveCode: "🔑 Tengo un código de acceso", prompt: "Introduzca el código de 4 dígitos que le dio el comercial:",
       check: "Confirmar", back: "Volver", invalid: "Código no válido o caducado. Verifíquelo con el comercial.",
       connecting: "Un momento, le pongo en contacto…", connected: "Está en contacto con {name}. Hable, le escuchan.",
-      micDenied: "No tengo acceso a su micrófono. Autorícelo y reinténtelo.", offline: "Puesta en contacto no disponible ahora."
+      micDenied: "No tengo acceso a su micrófono. Autorícelo y reinténtelo.", offline: "Puesta en contacto no disponible ahora.",
+      connectedNoVoice: "{name} le espera. La voz no está disponible aquí — contáctele directamente:"
     }
   };
 
@@ -519,6 +611,10 @@
     var sab = document.getElementById("stageAgentBtn");
     if (sab) sab.classList.remove("hidden");
     if (window.speechSynthesis) window.speechSynthesis.cancel();
+    // Fermer le panneau abandonne l'attente d'un conseiller : sans ça le
+    // sondage continuerait en fond, et la mise en relation s'ouvrirait toute
+    // seule sur un visiteur qui est passé à autre chose.
+    directArreterAttente();
     // Fermer le panneau pendant un enregistrement doit rendre le micro.
     if (msgRec && msgRec.state === "recording") { try { msgRec.stop(); } catch (e) {} }
     msgReleaseMic();
@@ -765,12 +861,138 @@
 
     if (!data || !data.valid) { agentSay(c.invalid, false); mainMenu(); return; }
     if (!data.token) {
-      // Code valide mais pas de canal voix : on affiche au moins le contact direct.
-      agentSay(c.connected.replace("{name}", data.agent_name || ""), false);
+      /* Code valide mais pas de canal voix (LiveKit absent ou non configuré) :
+         on bascule sur le contact direct. Surtout, on ne dit PAS « parlez, on
+         vous entend » — personne n'écoute, et le visiteur parlerait dans le
+         vide avant de comprendre. */
+      agentSay(c.connectedNoVoice.replace("{name}", data.agent_name || ""), false);
       showAdvisorContact(data);
       return;
     }
     connectDirect(data.url, data.token, data.agent_name || "", data);
+  }
+
+  /* ── Demander à parler à un conseiller précis ──────────────────────────── */
+  var directTimer = null;
+
+  function directArreterAttente() {
+    if (directTimer) { clearInterval(directTimer); directTimer = null; }
+  }
+
+  /* Repli commun à tous les échecs : laisser un message plutôt que renvoyer le
+     visiteur au menu les mains vides. Il a manifesté une envie de parler, on
+     ne la laisse pas retomber. */
+  function directRepli() {
+    var m = MSG_UI[currentLang] || MSG_UI.fr;
+    agentMenu([[m.leave, showMessageForm, "primary"], [m.back, mainMenu]]);
+  }
+
+  function demanderConseiller(nom) {
+    var d = directT();
+    directArreterAttente();
+    openAgent(false);
+    agentSay(d.intro.replace("{name}", nom), false);
+
+    var host = agentEl("agentMenu");
+    if (!host) return;
+    host.innerHTML = "";
+
+    var champ = msgInput("text", d.yourName, 80);
+    host.appendChild(champ);
+
+    var err = document.createElement("div");
+    err.style.cssText = "color:#ffd2d2;font-size:.82rem;margin:-.2rem 0 .4rem;display:none;";
+    host.appendChild(err);
+
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "primary"; btn.textContent = d.ask;
+    btn.onclick = function() {
+      var visiteur = champ.value.trim();
+      if (!visiteur) { err.textContent = d.needName; err.style.display = "block"; champ.focus(); return; }
+      directLancer(nom, visiteur);
+    };
+    champ.addEventListener("keydown", function(e) { if (e.key === "Enter") btn.click(); });
+
+    var retour = document.createElement("button");
+    retour.type = "button"; retour.textContent = (CODE_UI[currentLang] || CODE_UI.fr).back;
+    retour.onclick = mainMenu;
+
+    host.appendChild(btn);
+    host.appendChild(retour);
+    champ.focus();
+  }
+
+  async function directLancer(nom, visiteur) {
+    var d = directT();
+    agentSay(d.asking.replace("{name}", nom), false);
+    agentMenu([]);
+
+    var data = null;
+    try {
+      var body = new URLSearchParams({
+        action: "create", projet: activeId || "", visitor: visiteur, conseiller: nom
+      });
+      var res = await fetch("api/agent-access.php", {
+        method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      });
+      data = await res.json();
+    } catch (e) {}
+
+    if (!data || !data.ok || !data.found) { agentSay(d.notFound, false); directRepli(); return; }
+    /* Le serveur revérifie la présence : entre l'affichage de la puce et le
+       clic, il s'écoule jusqu'à huit secondes — le temps de partir. */
+    if (!data.online) {
+      agentSay(d.gone.replace("{name}", data.agent_name || nom), false);
+      directRepli();
+      return;
+    }
+
+    var vrai = data.agent_name || nom;
+    agentSay(d.waiting.replace("{name}", vrai), false);
+    agentMenu([[d.cancel, function() { directArreterAttente(); mainMenu(); }]]);
+    directAttendre(visiteur, vrai);
+  }
+
+  /**
+   * Attend que le commercial accepte, en sondant la demande.
+   *
+   * Le code à quatre chiffres existe toujours côté serveur, mais le visiteur ne
+   * le voit jamais : il servait à ce que l'hôtesse le DICTE. Ici c'est le
+   * visiteur qui a cliqué, lui faire retaper un code qu'on vient de lui
+   * afficher n'aurait aucun sens — on le consomme pour lui.
+   */
+  function directAttendre(visiteur, nom) {
+    var d = directT();
+    var fin = Date.now() + 90000;      // au-delà, le commercial est occupé ailleurs
+    directArreterAttente();
+    directTimer = setInterval(function() {
+      if (Date.now() > fin) {
+        directArreterAttente();
+        agentSay(d.timeout.replace("{name}", nom), false);
+        directRepli();
+        return;
+      }
+      var url = "api/agent-access.php?action=code-for-visitor" +
+                "&projet=" + encodeURIComponent(activeId || "") +
+                "&visitor=" + encodeURIComponent(visiteur);
+      fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(r) {
+          if (!r || !r.found) return;          // pas encore enregistrée
+          if (r.statut === "denied") {
+            directArreterAttente();
+            agentSay(d.denied.replace("{name}", nom), false);
+            directRepli();
+            return;
+          }
+          if (r.statut === "approved" && r.code) {
+            directArreterAttente();
+            verifyAccessCode(r.code);
+          }
+        })
+        .catch(function() { /* coupure réseau : on retente au tour suivant */ });
+    }, 3000);
   }
 
   function showAdvisorContact(data) {

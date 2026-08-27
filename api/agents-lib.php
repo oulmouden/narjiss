@@ -498,16 +498,33 @@ function nj_resolve_commercial(string $projet, string $name = ''): ?array {
 /* ── Demandes d'accès + code ─────────────────────────────────────────────── */
 
 function nj_access_create(string $visitor, int $agentId, string $projet): int {
+  $visitorPropre = mb_substr(trim($visitor), 0, 120) ?: 'Visiteur';
+  $projetPropre  = preg_replace('/[^a-z0-9_]/', '', strtolower($projet));
+
+  /* Une demande identique et récente est REPRISE au lieu d'en créer une autre.
+     Depuis que les puces de présence sont cliquables, un visiteur impatient
+     peut cliquer cinq fois de suite sur le même conseiller : sans ce garde-fou
+     il ferait sonner cinq notifications pour une seule envie de parler, et le
+     commercial devrait en refuser quatre. Une minute suffit à couvrir
+     l'impatience sans empêcher de redemander après un refus. */
+  $st = nj_adb()->prepare(
+    'SELECT id FROM access_requests
+      WHERE visitor = ? AND agent_id = ? AND projet = ? AND statut = "pending"
+        AND created_at >= ?
+      ORDER BY id DESC LIMIT 1'
+  );
+  $st->execute([$visitorPropre, $agentId, $projetPropre, date('Y-m-d H:i:s', time() - 60)]);
+  $existante = $st->fetch();
+  if ($existante) return (int)$existante['id'];
+
   $st = nj_adb()->prepare(
     'INSERT INTO access_requests (visitor, agent_id, projet, statut, created_at)
      VALUES (?, ?, ?, "pending", ?)'
   );
-  $st->execute([
-    mb_substr(trim($visitor), 0, 120) ?: 'Visiteur',
-    $agentId,
-    preg_replace('/[^a-z0-9_]/', '', strtolower($projet)),
-    date('Y-m-d H:i:s'),
-  ]);
+  // Les MÊMES valeurs que la recherche ci-dessus : si les deux normalisaient
+  // chacune de leur côté, la moindre divergence rendrait la reprise inopérante
+  // sans que rien ne le signale.
+  $st->execute([$visitorPropre, $agentId, $projetPropre, date('Y-m-d H:i:s')]);
   return (int)nj_adb()->lastInsertId();
 }
 
