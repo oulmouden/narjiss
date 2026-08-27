@@ -1,0 +1,4 @@
+{
+  "_commentaire": "Adresse publique canonique du site. Source unique pour tout ce qui produit des URL absolues : sitemap.xml, robots.txt, balises canonical, hreflang et og:url des guides. VERIFIE le 25/08/2026 sur le serveur : narjiss.company renvoie un 301 vers www.narjiss.company, en conservant chemin et parametres. La forme canonique est donc AVEC www — un canonical qui pointe vers une URL redirigee est un defaut. Pour standardiser sur le domaine nu il faut d'abord inverser la redirection cote nginx, PUIS changer cette ligne et relancer tools/generer-guides.py et tools/generer-sitemap.py.",
+  "url": "https://www.narjiss.company"
+}

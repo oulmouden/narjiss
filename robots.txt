@@ -1,0 +1,17 @@
+# Genere par tools/generer-sitemap.py - ne pas editer a la main.
+
+User-agent: *
+Disallow: /admin/
+Disallow: /presentation/
+Disallow: /outputs/
+Disallow: /docs/
+Disallow: /tools/
+Disallow: /sql/
+Disallow: /kb/
+Disallow: /maintenance.html
+Disallow: /qr.php
+Disallow: /ecoute.php
+
+# Le plan de site liste les pages publiques, y compris celles qui vivent
+# derriere un parametre d'URL et qu'aucun lien ne revele.
+Sitemap: https://www.narjiss.company/sitemap.xml
