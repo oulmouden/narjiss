@@ -9,6 +9,7 @@ var MENU_UI = {
     projects: "Projets",
     units: "Disponibilités",
     map: "Carte",
+    guides: "Guides",
     about: "À propos",
     contact: "Contact",
     demo: "Démo",
@@ -35,6 +36,7 @@ var MENU_UI = {
     projects: "Projects",
     units: "Availability",
     map: "Map",
+    guides: "Guides",
     about: "About",
     contact: "Contact",
     demo: "Demo",
@@ -61,6 +63,7 @@ var MENU_UI = {
     projects: "المشاريع",
     units: "عروض",
     map: "الخريطة",
+    guides: "أدلة",
     about: "من نحن",
     contact: "اتصل بنا",
     demo: "عرض توضيحي",
@@ -87,6 +90,7 @@ var MENU_UI = {
     projects: "Proyectos",
     units: "Disponibilidad",
     map: "Mapa",
+    guides: "Guías",
     about: "Acerca de",
     contact: "Contacto",
     demo: "Demo",
@@ -826,7 +830,7 @@ function buildMenuHTML(activePage, basePath) {
           '<li><a href="' + basePath + 'index.html' + langHash + '"' + (activePage === 'home' ? ' class="active"' : '') + '>🏠 ' + t.home + '</a></li>' +
           '<li><a href="' + basePath + 'explorer.html' + langHash + '"' + (activePage === 'projects' ? ' class="active"' : '') + '><span class="nav-project-icon" aria-hidden="true"><span class="nav-project-explorer"></span><span class="nav-project-pin"></span></span>' + t.projects + '</a></li>' +
           '<li><a href="' + basePath + 'disponibilites.html' + langHash + '"' + (activePage === 'units' ? ' class="active"' : '') + '>🔑 ' + t.units + '</a></li>' +
-          '<li><a href="' + basePath + 'carte.html' + langHash + '"' + (activePage === 'map' ? ' class="active"' : '') + '>🗺️ ' + t.map + '</a></li>' +
+          '<li><a href="' + basePath + 'guides.html' + langHash + '"' + (activePage === 'guides' ? ' class="active"' : '') + '>📖 ' + t.guides + '</a></li>' +
           '<li><a href="' + basePath + 'demo.html' + langHash + '"' + (activePage === 'demo' ? ' class="active"' : '') + '>▶️ ' + t.demo + '</a></li>' +
           /* « À propos » et « Contact » réunis sous un seul point d'entrée :
              ajouter « Démo » à six entrées de premier niveau aurait fait
@@ -903,6 +907,7 @@ function buildFooterHTML(basePath) {
           '<ul>' +
             '<li><a href="' + basePath + 'index.html' + langHash + '">' + t.home + '</a></li>' +
             '<li><a href="' + basePath + 'explorer.html' + langHash + '">' + t.projects + '</a></li>' +
+            '<li><a href="' + basePath + 'guides.html' + langHash + '">' + t.guides + '</a></li>' +
             '<li><a href="' + basePath + 'carte.html' + langHash + '">' + t.map + '</a></li>' +
           '</ul>' +
           '</div>' +
@@ -1025,7 +1030,7 @@ function switchLang(lang, activePage, basePath) {
 // bumper LIVEGUIDE_VERSION ICI **et** le "?v=" de <script src="shared/menu.js?v=...">
 // dans TOUTES les pages HTML — sinon les navigateurs gardent l'ancien menu.js
 // indéfiniment et ne rechargeront jamais le nouveau code (même après F5/Ctrl+F5).
-var LIVEGUIDE_VERSION = 'ac60fe92'; // bump à chaque modif de liveguide.* pour casser le cache
+var LIVEGUIDE_VERSION = 'b11ffbcf'; // bump à chaque modif de liveguide.* pour casser le cache
 
 // ----- Capture des cartes Leaflet pour la visite guidée ----------------------
 // Ce bloc s'exécute AU CHARGEMENT de menu.js, et non depuis installLiveGuide()
