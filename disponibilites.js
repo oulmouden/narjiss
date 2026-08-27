@@ -101,6 +101,7 @@
       complet: 'Sélection complète (3 maximum)',
       suivant: 'Envoyer mes choix', indispo: "Ce logement n'est plus disponible",
       dh: 'DH', parM2: 'DH/m²', nousConsulter: 'Nous consulter',
+      prixLabel: 'Prix :',
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin',
       double: 'Traversant', angle: 'Angle',
       erreur: 'Disponibilités indisponibles pour le moment.',
@@ -154,6 +155,7 @@
       complet: 'Shortlist full (3 maximum)',
       suivant: 'Send my selection', indispo: 'This home is no longer available',
       dh: 'MAD', parM2: 'MAD/m²', nousConsulter: 'Price on request',
+      prixLabel: 'Price:',
       rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
       double: 'Dual aspect', angle: 'Corner',
       erreur: 'Availability cannot be loaded right now.',
@@ -207,6 +209,7 @@
       complet: 'اكتمل الاختيار (3 كحد أقصى)',
       suivant: 'إرسال اختياراتي', indispo: 'هذا السكن لم يعد متاحا',
       dh: 'درهم', parM2: 'درهم/م²', nousConsulter: 'السعر عند الطلب',
+      prixLabel: 'السعر:',
       rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
       double: 'واجهتان', angle: 'زاوية',
       erreur: 'تعذر عرض المتوفر حاليا.',
@@ -260,6 +263,7 @@
       complet: 'Selección completa (3 máximo)',
       suivant: 'Enviar mi selección', indispo: 'Esta vivienda ya no está disponible',
       dh: 'DH', parM2: 'DH/m²', nousConsulter: 'Consúltenos',
+      prixLabel: 'Precio:',
       rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
       double: 'Doble orientación', angle: 'Esquina',
       erreur: 'Las disponibilidades no se pueden cargar por ahora.',
@@ -884,7 +888,10 @@
          coûtaient une ligne de hauteur à une bulle qui doit tenir dans un
          écran de téléphone sans le remplir. */
       '<p class="nj-bulle-ligne">' +
-        '<span class="nj-bulle-prix">' + prixHtml(lot.prix) + '</span>' +
+        '<span class="nj-bulle-prix-bloc">' +
+          '<span class="nj-bulle-prix-label">' + echapper(t('prixLabel')) + '</span> ' +
+          '<span class="nj-bulle-prix">' + prixHtml(lot.prix) + '</span>' +
+        '</span>' +
         '<span class="nj-pastille">' + t(lot.statut) + '</span>' +
       '</p>' +
       '<div class="nj-bulle-actions">' + actionsBulleHTML(lot) + '</div>' +
@@ -960,7 +967,10 @@
     if (lot.chambres > 0) lignes.splice(2, 0, [t('chambresLot'), String(lot.chambres)]);
 
     var corps = '<div class="nj-fiche">' +
-      '<p class="nj-fiche-prix">' + prixHtml(lot.prix) + '</p>' +
+      '<p class="nj-fiche-prix">' +
+        '<span class="nj-fiche-prix-label">' + echapper(t('prixLabel')) + '</span> ' +
+        '<span class="nj-fiche-prix-valeur">' + prixHtml(lot.prix) + '</span>' +
+      '</p>' +
       '<dl>' + lignes.map(function (l) {
         return '<dt>' + l[0] + '</dt><dd>' + l[1] + '</dd>';
       }).join('') + '</dl>' +

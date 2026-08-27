@@ -13,7 +13,7 @@
 <title>Narjiss — Choisissez votre logement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=f449b0ab">
+<link rel="stylesheet" href="shared/menu.css?v=62801e2b">
 <style>
 /* Étape 3 du parcours client. Dimensionné pour le grand écran tactile du
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
@@ -242,8 +242,14 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 
 /* ── Fiche d'un lot dans la fenêtre ─────────────────────────────────── */
 .nj-fiche { width: 100%; padding: 1.2rem 1.4rem; text-align: start; }
+/* Le libelle est cale sur la LIGNE DE BASE du montant, pas centre : un « Prix : »
+   de .85rem centre sur un chiffre de 1.6rem flotterait au milieu de sa hauteur. */
 .nj-fiche-prix {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: .4rem;
   margin: 0 0 .9rem; font-size: 1.6rem; font-weight: 700; color: var(--accent-solid);
+}
+.nj-fiche-prix-label {
+  font-size: .85rem; font-weight: 600; color: var(--muted);
 }
 .nj-fiche-prix small { font-size: .8rem; font-weight: 600; color: var(--muted); }
 .nj-fiche dl {
@@ -811,6 +817,14 @@ body.nj-fige { overflow: hidden; }
   display: flex; flex-wrap: wrap; align-items: center; gap: .4rem;
   margin: .25rem 0 .5rem;
 }
+/* Label et montant forment UN SEUL element flex. En enfants separes, « Prix : »
+   pouvait rester seul en fin de ligne et la valeur passer a la suivante — la
+   bulle fait 220 px de large sur telephone. La pastille de statut, elle, garde
+   le droit de passer dessous. */
+.nj-bulle-prix-bloc {
+  display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: .3rem;
+}
+.nj-bulle-prix-label { color: var(--muted); font-size: .78rem; font-weight: 600; }
 .nj-bulle-prix { font-weight: 800; color: var(--accent-solid); }
 .nj-bulle-actions { display: flex; flex-wrap: wrap; gap: .3rem; }
 /* Les trois actions partagent une ligne étroite : on resserre les boutons
@@ -1439,7 +1453,7 @@ body.nj-fige-plein { overflow: hidden; }
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=6f4dd843"></script>
-<script src="disponibilites.js?v=be18bb36"></script>
+<script src="shared/menu.js?v=877a2805"></script>
+<script src="disponibilites.js?v=f8fa84ef"></script>
 </body>
 </html>
