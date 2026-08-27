@@ -618,6 +618,11 @@
           '<td>' + esc(roleLabel(a.role)) + '</td>' +
           '<td><span class="pill ' + a.statut + '">' + statutLabel(a.statut) + '</span></td>' +
           '<td class="pcell">—</td>' +
+          // Case de simulation : seulement pour un compte actif. Faire passer
+          // pour joignable un compte suspendu ou en attente enverrait le
+          // visiteur vers quelqu'un qui ne peut même pas se connecter.
+          '<td class="democell">' + (a.statut === 'active'
+            ? '<input type="checkbox" data-demo="' + a.id + '">' : '') + '</td>' +
           '<td class="actcell"></td>';
         tr.children[0].textContent = a.name;
         var act = tr.querySelector('.actcell');
@@ -628,6 +633,8 @@
         } else {
           act.appendChild(mkBtn(T('reactiver'), 'ok', function () { setStatus(a.id, 'active'); }));
         }
+        var box = tr.querySelector('input[data-demo]');
+        if (box) box.addEventListener('change', enregistrerDemo);
         body.appendChild(tr);
       });
       refreshTeamPresence();
@@ -654,16 +661,83 @@
       if (!r || !r.ok) return;
       var byId = {};
       (r.agents || []).forEach(function (a) { byId[a.id] = a; });
+      var demo = r.demo || { agents: [], restant_min: 0 };
+      var simules = {};
+      (demo.agents || []).forEach(function (id) { simules[id] = true; });
+      /* Une case tout juste cochée ne doit pas être décochée par la réponse
+         d'une sonde partie AVANT l'enregistrement : le gestionnaire verrait sa
+         case se rabattre toute seule et la recocherait en boucle. */
+      var ecritureFraiche = (Date.now() - demoDerniereEcriture) < 3000;
+
       var rows = $('teamBody').querySelectorAll('tr');
       rows.forEach(function (tr) {
-        var match = byId[tr.getAttribute('data-agent-id')];
+        var id = tr.getAttribute('data-agent-id');
+        var match = byId[id];
         var cell = tr.querySelector('.pcell');
-        if (!cell) return;
-        cell.textContent = match && match.online
-          ? '🟢 ' + presenceLabel(match.presence)
-          : '⚪ ' + T('horsLigne');
+        if (cell) {
+          cell.textContent = match && match.online
+            ? '🟢 ' + presenceLabel(match.presence)
+            : '⚪ ' + T('horsLigne');
+          // Le gestionnaire doit voir d'un coup d'œil ce qui est vrai et ce
+          // qui est sa propre mise en scène.
+          if (match && match.simule) {
+            cell.appendChild(document.createTextNode(' '));
+            var tag = document.createElement('span');
+            tag.className = 'simule';
+            tag.textContent = T('presSimule');
+            cell.appendChild(tag);
+          }
+        }
+        var box = tr.querySelector('input[data-demo]');
+        if (box && !ecritureFraiche) box.checked = !!simules[id];
       });
+      majDemoEtat(demo);
     });
+  }
+
+  /* ── Présence simulée (démonstrations) ───────────────────────────────────
+     Le gestionnaire coche qui doit apparaître joignable pendant qu'il montre
+     le site. Chaque changement part aussitôt : une démo se règle à la volée,
+     pas en pensant à valider un formulaire.
+
+     La durée est envoyée à chaque fois, ce qui repousse l'échéance à chaque
+     clic — comportement voulu : on règle sa mise en scène juste avant de
+     présenter, l'échéance doit courir à partir de là. */
+  var demoDerniereEcriture = 0;
+
+  function enregistrerDemo() {
+    demoDerniereEcriture = Date.now();
+    var ids = [];
+    $('teamBody').querySelectorAll('input[data-demo]').forEach(function (b) {
+      if (b.checked) ids.push(b.getAttribute('data-demo'));
+    });
+    var duree = $('demoDuree') ? parseInt($('demoDuree').value, 10) : 120;
+    post('agent-presence.php', { demo: 1, agents: ids.join(','), minutes: ids.length ? duree : 0 })
+      .then(function (r) { if (r && r.ok) majDemoEtat(r); });
+  }
+
+  function arreterDemo() {
+    demoDerniereEcriture = Date.now();
+    $('teamBody').querySelectorAll('input[data-demo]').forEach(function (b) { b.checked = false; });
+    post('agent-presence.php', { demo: 1, agents: '', minutes: 0 })
+      .then(function (r) { if (r && r.ok) majDemoEtat(r); });
+  }
+
+  function majDemoEtat(demo) {
+    var el = $('demoEtat');
+    if (!el) return;
+    var n = (demo && demo.agents) ? demo.agents.length : 0;
+    if (!n) {
+      el.className = 'demo-etat demo-libre';
+      el.textContent = T('demoAucune');
+    } else {
+      el.className = 'demo-etat';
+      el.textContent = T('demoActive')
+        .replace('{n}', String(n))
+        .replace('{min}', String(demo.restant_min || 0));
+    }
+    var stop = $('demoStop');
+    if (stop) stop.disabled = !n;
   }
 
   function setStatus(agentId, statut) {
@@ -760,6 +834,11 @@
     $('logoutBtn').onclick = function () {
       post('agent-auth.php', { action: 'logout' }).then(function () { renderAuth(null); });
     };
+
+    // Présence simulée : le bouton d'arrêt et la durée vivent hors du tableau,
+    // ils ne sont donc pas rebranchés par loadTeam() toutes les huit secondes.
+    if ($('demoStop')) $('demoStop').onclick = arreterDemo;
+    if ($('demoDuree')) $('demoDuree').onchange = function () { enregistrerDemo(); };
 
     // Bascule automatique du statut « absent » à la fermeture n'est pas garantie
     // (le heartbeat cesse → hors ligne au bout de 20 s côté serveur).

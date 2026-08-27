@@ -11,6 +11,12 @@
  *   GET ?dispo            : { online: bool, count: n } — agrégat ANONYME, tous
  *                           bureaux confondus, pour le lanceur « On en parle ? »
  *                           des pages publiques. Aucun nom, aucun horaire.
+ *   POST demo=1           : présence SIMULÉE pour une démonstration (réservé
+ *                           aux gestionnaires et superviseurs).
+ *                           corps : agents=3,7  minutes=120
+ *                           Liste vide ou minutes=0 : arrête la simulation.
+ *   GET ?equipe=1         : la vue interne renvoie aussi l'état de cette
+ *                           simulation, sous la clé « demo ».
  */
 
 require __DIR__ . '/agents-lib.php';
@@ -27,6 +33,20 @@ function nj_p_json($data, int $code = 200): void {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $me = nj_agent_require_json();
+
+  /* Réglage de la présence SIMULÉE, depuis « Mon équipe ». Intercepté avant le
+     battement : ce POST-ci ne dit pas « je suis là », il dit « fais croire que
+     ceux-là sont là ». Réservé aux gestionnaires et superviseurs — un
+     commercial pourrait sinon se déclarer joignable à la place des autres. */
+  if (isset($_POST['demo'])) {
+    if (!in_array($me['role'], ['gestionnaire', 'superviseur'], true)) {
+      nj_p_json(['ok' => false, 'error' => 'Réservé aux gestionnaires et superviseurs.', 'code' => 'reserveGestionnaires'], 403);
+    }
+    $ids = array_filter(explode(',', (string)($_POST['agents'] ?? '')), 'strlen');
+    $etat = nj_demo_presence_ecrire($ids, (int)($_POST['minutes'] ?? 0));
+    nj_p_json(['ok' => true] + $etat);
+  }
+
   $presence = $_POST['presence'] ?? null;
   if ($presence !== null && !in_array($presence, NJ_PRESENCE_STATES, true)) $presence = null;
   nj_agent_touch((int)$me['id'], $presence);
@@ -54,7 +74,10 @@ if (isset($_GET['equipe'])) {
   if (nj_agent_ou_admin($njSessionDefaut) === null) {
     nj_p_json(['ok' => false, 'error' => 'Non connecté.', 'code' => 'nonConnecte'], 401);
   }
-  nj_p_json(['ok' => true, 'agents' => nj_presence_equipe()]);
+  /* L'état de la simulation voyage avec l'équipe : « Mon équipe » sonde déjà
+     ce point toutes les huit secondes, un second aller-retour n'apprendrait
+     rien de plus. */
+  nj_p_json(['ok' => true, 'agents' => nj_presence_equipe(), 'demo' => nj_demo_presence_etat()]);
 }
 
 /* Agrégat anonyme « quelqu'un décroche-t-il ? », tous bureaux confondus — lu

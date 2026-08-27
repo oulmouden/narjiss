@@ -179,6 +179,25 @@
   [dir="rtl"] .ea-top .who { text-align: left; }
   [dir="rtl"] table.team th, [dir="rtl"] table.team td { text-align: right; }
   [dir="rtl"] .callbox-hangup { margin-left: 0; margin-right: .6rem; }
+
+  /* ── Présence simulée (démonstrations) ──
+     Volontairement voyante, et en orange plutôt qu'aux couleurs de la page :
+     tant qu'une simulation tourne, le site ment à ses visiteurs. Ça ne doit
+     pas ressembler à un réglage ordinaire qu'on oublie au fond d'un écran. */
+  .demo-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;
+    margin: 0 0 1rem; padding: .6rem .8rem;
+    border: 1px solid #f0c36d; border-radius: 10px;
+    background: #fff8e8; color: #7a5900;
+    font-size: .88rem;
+  }
+  :root[data-theme="dark"] .demo-bar { background: #2a2313; border-color: #7a5900; color: #f0c36d; }
+  .demo-bar select { padding: .3rem .5rem; border-radius: 6px; border: 1px solid #e0b45a; background: transparent; color: inherit; font: inherit; }
+  .demo-bar .demo-etat { font-weight: 700; }
+  .demo-bar .demo-libre { font-weight: 400; opacity: .85; }
+  table.team td.democell { text-align: center; }
+  table.team td.democell input { width: 18px; height: 18px; cursor: pointer; }
+  .pcell .simule { font-size: .78rem; opacity: .8; }
 </style>
 </head>
 <body>
@@ -335,8 +354,19 @@
       <p style="margin:-.4rem 0 1rem;color:#54627a;font-size:.92rem" data-i18n="equipeAide">
         Validez les nouveaux comptes de votre bureau, ou suspendez un accès.
       </p>
+      <div class="demo-bar" id="demoBar">
+        <span data-i18n="demoTitre">🎬 Démonstration — cochez qui doit apparaître joignable :</span>
+        <select id="demoDuree" aria-label="Durée">
+          <option value="30">30 min</option>
+          <option value="60">1 h</option>
+          <option value="120" selected>2 h</option>
+          <option value="240">4 h</option>
+        </select>
+        <button class="btn sm" id="demoStop" type="button" data-i18n="demoArreter">Tout arrêter</button>
+        <span class="demo-etat" id="demoEtat"></span>
+      </div>
       <table class="team">
-        <thead><tr><th data-i18n="thNom">Nom</th><th data-i18n="thRole">Rôle</th><th data-i18n="thStatut">Statut</th><th data-i18n="thPresence">Présence</th><th></th></tr></thead>
+        <thead><tr><th data-i18n="thNom">Nom</th><th data-i18n="thRole">Rôle</th><th data-i18n="thStatut">Statut</th><th data-i18n="thPresence">Présence</th><th data-i18n="thDemo">Démo</th><th></th></tr></thead>
         <tbody id="teamBody"></tbody>
       </table>
     </div>
@@ -345,8 +375,8 @@
 </main>
 
 <script src="shared/backoffice-i18n.js?v=5091ae71"></script>
-<script src="espace-agent-i18n.js?v=16a69a50"></script>
+<script src="espace-agent-i18n.js?v=b45b2f6e"></script>
 <script src="assets/vendor/livekit/livekit-client.umd.js?v=83b83f21"></script>
-<script src="espace-agent.js?v=0b47ebd7"></script>
+<script src="espace-agent.js?v=04f68afb"></script>
 </body>
 </html>

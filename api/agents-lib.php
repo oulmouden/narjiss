@@ -286,8 +286,91 @@ function nj_agent_touch(int $agentId, ?string $presence = null): void {
   }
 }
 
-/** Un agent est-il en ligne (battement récent) ? */
+/* ===========================================================================
+   PRÉSENCE SIMULÉE — pour les démonstrations
+   ---------------------------------------------------------------------------
+   Montrer le site à un promoteur suppose des conseillers en ligne. Or on ne
+   peut pas demander à cinq commerciaux de rester connectés pendant la
+   présentation : le gestionnaire coche donc, depuis « Mon équipe », qui doit
+   apparaître joignable.
+
+   DANS UN FICHIER ET NON EN BASE : aucune migration à jouer sur le VPS avant
+   une démo, et la simulation s'efface d'un coup en supprimant le fichier. Elle
+   ne peut pas non plus abîmer les vraies données de présence, qu'elle ne
+   touche jamais.
+
+   AVEC UNE ÉCHÉANCE ET NON UN SIMPLE OUI/NON : une case laissée cochée ferait
+   mentir le site à de vrais visiteurs, indéfiniment. On promettrait un
+   conseiller joignable là où personne ne décroche — pire que de n'avoir rien
+   promis. L'échéance fait que l'oubli se répare tout seul.
+   =========================================================================== */
+const NJ_DEMO_PRESENCE_FICHIER = __DIR__ . '/../data/presence-demo.json';
+const NJ_DEMO_PRESENCE_MAX_MIN = 480;          // 8 h : au-delà, ce n'est plus une démo
+
+/**
+ * État brut de la simulation : les identifiants cochés et l'échéance.
+ * Rend des listes vides quand rien n'est en cours ou que l'échéance est passée.
+ */
+function nj_demo_presence_etat(): array {
+  $vide = ['agents' => [], 'expire' => null, 'restant_min' => 0];
+  if (!is_file(NJ_DEMO_PRESENCE_FICHIER)) return $vide;
+
+  $brut = @file_get_contents(NJ_DEMO_PRESENCE_FICHIER);
+  $data = $brut === false ? null : json_decode($brut, true);
+  if (!is_array($data) || empty($data['expire'])) return $vide;
+
+  $fin = strtotime((string)$data['expire']);
+  if ($fin === false || $fin <= time()) return $vide;   // échéance passée : plus rien
+
+  $ids = [];
+  foreach ((array)($data['agents'] ?? []) as $id) {
+    $id = (int)$id;
+    if ($id > 0) $ids[] = $id;
+  }
+  return [
+    'agents'      => array_values(array_unique($ids)),
+    'expire'      => date('c', $fin),
+    'restant_min' => (int)ceil(($fin - time()) / 60),
+  ];
+}
+
+/** Les seuls identifiants à faire passer pour connectés, à cet instant. */
+function nj_demo_presence_ids(): array {
+  return nj_demo_presence_etat()['agents'];
+}
+
+/**
+ * Enregistre la simulation. Une liste vide (ou zéro minute) l'arrête net, en
+ * supprimant le fichier : il ne reste aucune trace à oublier.
+ */
+function nj_demo_presence_ecrire(array $ids, int $minutes): array {
+  $propres = [];
+  foreach ($ids as $id) {
+    $id = (int)$id;
+    if ($id > 0) $propres[] = $id;
+  }
+  $propres = array_values(array_unique($propres));
+  $minutes = max(0, min($minutes, NJ_DEMO_PRESENCE_MAX_MIN));
+
+  if (!$propres || $minutes === 0) {
+    @unlink(NJ_DEMO_PRESENCE_FICHIER);
+    return ['agents' => [], 'expire' => null, 'restant_min' => 0];
+  }
+
+  $dir = dirname(NJ_DEMO_PRESENCE_FICHIER);
+  if (!is_dir($dir)) @mkdir($dir, 0775, true);
+  @file_put_contents(NJ_DEMO_PRESENCE_FICHIER, json_encode([
+    '_commentaire' => 'Presence SIMULEE pour une demonstration. Supprimer ce fichier arrete tout.',
+    'agents'       => $propres,
+    'expire'       => date('c', time() + $minutes * 60),
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT), LOCK_EX);
+
+  return nj_demo_presence_etat();
+}
+
+/** Un agent est-il en ligne (battement récent, ou présence simulée) ? */
 function nj_agent_is_online(int $agentId): bool {
+  if (in_array($agentId, nj_demo_presence_ids(), true)) return true;
   $st = nj_adb()->prepare('SELECT last_seen FROM agent_presence WHERE agent_id = ?');
   $st->execute([$agentId]);
   $r = $st->fetch();
@@ -312,15 +395,22 @@ function nj_presence_globale(): array {
   // Comparaison en PHP et non en SQL, comme nj_presence_roster() : PHP et
   // MySQL ne partagent pas forcément le même fuseau, et un décalage d'une
   // heure ferait ici passer toute l'équipe pour joignable — ou l'inverse.
+  /* LEFT JOIN et non JOIN : un commercial coché pour une démonstration peut
+     n'avoir jamais ouvert son espace, donc n'avoir aucune ligne de présence.
+     Avec une jointure stricte il serait resté invisible ici alors qu'il
+     apparaît en ligne partout ailleurs — le lanceur aurait annoncé « personne
+     au bureau » pendant que le bureau affichait trois conseillers. */
   $st = nj_adb()->query(
-    'SELECT p.last_seen, p.presence
+    'SELECT a.id, p.last_seen, p.presence
        FROM agents a
-       JOIN agent_presence p ON p.agent_id = a.id
+       LEFT JOIN agent_presence p ON p.agent_id = a.id
       WHERE a.statut = "active"
         AND a.role IN ("commercial", "superviseur")'
   );
+  $demo = nj_demo_presence_ids();
   $n = 0;
   foreach ($st->fetchAll() as $r) {
+    if (in_array((int)$r['id'], $demo, true)) { $n++; continue; }
     if (!$r['last_seen']) continue;
     if ((time() - strtotime($r['last_seen'])) > NJ_PRESENCE_TTL) continue;
     if (($r['presence'] ?? '') === 'absent') continue;
@@ -346,16 +436,20 @@ function nj_presence_roster(string $projet): array {
       ORDER BY a.role = "superviseur" DESC, a.name'
   );
   $st->execute([$projet]);
+  $demo = nj_demo_presence_ids();
   $out = [];
   foreach ($st->fetchAll() as $r) {
-    $online = $r['last_seen'] && (time() - strtotime($r['last_seen'])) <= NJ_PRESENCE_TTL;
+    $simule = in_array((int)$r['id'], $demo, true);
+    $online = $simule || ($r['last_seen'] && (time() - strtotime($r['last_seen'])) <= NJ_PRESENCE_TTL);
     $out[] = [
       'id'        => (int)$r['id'],
       'name'      => $r['name'],
       'role'      => $r['role'],
       'online'    => $online,
       // Hors ligne : le statut manuel n'a plus de sens, on force « absent ».
-      'presence'  => $online ? ($r['presence'] ?: 'en_ligne') : 'absent',
+      // Simulé : on ignore le statut manuel, qui daterait de la dernière vraie
+      // connexion — un « occupé » oublié ferait fuir le visiteur en pleine démo.
+      'presence'  => $online ? ($simule ? 'en_ligne' : ($r['presence'] ?: 'en_ligne')) : 'absent',
       'telephone' => $r['telephone'],
       'whatsapp'  => $r['whatsapp'],
     ];
@@ -602,16 +696,22 @@ function nj_presence_equipe(): array {
       WHERE a.statut = "active"
       ORDER BY a.name'
   );
+  $demo = nj_demo_presence_ids();
   $out = [];
   foreach ($st->fetchAll() as $r) {
-    $online = $r['last_seen'] && (time() - strtotime($r['last_seen'])) <= NJ_PRESENCE_TTL;
+    $simule = in_array((int) $r['id'], $demo, true);
+    $online = $simule || ($r['last_seen'] && (time() - strtotime($r['last_seen'])) <= NJ_PRESENCE_TTL);
     $out[] = [
       'id'        => (int) $r['id'],
       'name'      => $r['name'],
       'role'      => $r['role'],
       'projet'    => $r['projet'],
       'online'    => $online,
-      'presence'  => $online ? ($r['presence'] ?: 'en_ligne') : 'absent',
+      // Dit à « Mon équipe » de distinguer le vrai du simulé : sans ce drapeau,
+      // le gestionnaire ne saurait plus si son équipe est là ou s'il regarde sa
+      // propre mise en scène.
+      'simule'    => $simule,
+      'presence'  => $online ? ($simule ? 'en_ligne' : ($r['presence'] ?: 'en_ligne')) : 'absent',
       'last_seen' => $r['last_seen'],
     ];
   }

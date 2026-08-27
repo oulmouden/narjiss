@@ -91,3 +91,6 @@ visites/
 
 # Raccourcis Windows (specifiques a une machine)
 *.lnk
+
+# Presence simulee pour les demos : etat d execution, propre a chaque serveur
+data/presence-demo.json
