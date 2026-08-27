@@ -1,46 +1,46 @@
 {
-  "phones": [
-     {
-      "label": "Commercial test",
-      "number": "+33 6 12 45 53 87",
-      "whatsapp": true
+    "phones": [
+        {
+            "label": "Admin",
+            "number": "+33 6 12 45 53 87",
+            "whatsapp": true
+        },
+        {
+            "label": "Commercial",
+            "number": "+212 6 88 11 55 22",
+            "whatsapp": true
+        },
+        {
+            "label": "Commercial",
+            "number": "+212 6 88 11 55 99",
+            "whatsapp": true
+        }
+    ],
+    "email": "contact@narjiss.company",
+    "address": {
+        "fr": "N 38 AV ABDELLAH BEN YASSINE LOT EL FAIZ DCHEIRA EL JIHADIA, INEZGANE-AIT MELLOUL, MAROC",
+        "en": "N 38 AV ABDELLAH BEN YASSINE LOT EL FAIZ DCHEIRA EL JIHADIA, INEZGANE-AIT MELLOUL,  Morocco",
+        "ar": "رقم 38 شارع عبد الله بن ياسين الفايز دشيرة الجهادية، إنزكان آيت ملول، المغرب",
+        "es": "N 38 AV ABDELLAH BEN YASSINE LOT EL FAIZ DCHEIRA EL JIHADIA, INEZGANE-AIT MELLOUL, Marruecos"
     },
-    {
-      "label": "Commercial",
-      "number": "+212 6 88 11 55 22",
-      "whatsapp": true
+    "whatsappMessages": {
+        "fr": "Bonjour,\nJe suis : {name}\nTéléphone : {phone}\nJe souhaite me renseigner sur : {subject}",
+        "en": "Hello,\nI am: {name}\nPhone: {phone}\nI would like information about: {subject}",
+        "ar": "السلام عليكم،\nأنا: {name}\nالهاتف: {phone}\nأرغب في الاستفسار عن: {subject}",
+        "es": "Hola,\nSoy: {name}\nTeléfono: {phone}\nQuiero información sobre: {subject}"
     },
-    {
-      "label": "Commercial",
-      "number": "+212 6 88 11 55 99",
-      "whatsapp": true
-    } 
-            ],
-  "email": "contact@narjiss.company",
-  "address": {
-    "fr": "Agadir, Maroc",
-    "en": "Agadir, Morocco",
-    "ar": "أكادير — إنزكان — الدشيرة، المغرب",
-    "es": "Agadir, Marruecos"
-  },
-  "whatsappMessages": {
-    "fr": "Bonjour,\nJe suis : {name}\nTéléphone : {phone}\nJe souhaite me renseigner sur : {subject}",
-    "en": "Hello,\nI am: {name}\nPhone: {phone}\nI would like information about: {subject}",
-    "ar": "السلام عليكم،\nأنا: {name}\nالهاتف: {phone}\nأرغب في الاستفسار عن: {subject}",
-    "es": "Hola,\nSoy: {name}\nTeléfono: {phone}\nQuiero información sobre: {subject}"
-  },
-  "socials": [
-    {
-      "platform": "instagram",
-      "label": "Instagram",
-      "url": "https://www.instagram.com/narjissimmobilier1/",
-      "enabled": true
-    },
-    {
-      "platform": "facebook",
-      "label": "Facebook",
-      "url": "https://www.facebook.com/p/Narjiss-immobiliere-100092321302273/",
-      "enabled": true
-    }
-  ]
+    "socials": [
+        {
+            "platform": "instagram",
+            "label": "Instagram",
+            "url": "https://www.instagram.com/narjissimmobilier1/",
+            "enabled": true
+        },
+        {
+            "platform": "facebook",
+            "label": "Facebook",
+            "url": "https://www.facebook.com/p/Narjiss-immobiliere-100092321302273/",
+            "enabled": true
+        }
+    ]
 }
