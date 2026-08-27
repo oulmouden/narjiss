@@ -1029,14 +1029,19 @@ html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
 
 /* ── La bulle d'amorce ─────────────────────────────────────────────────────── */
 .nj-parlons-teaser {
-  /* Fond brun pastel plutôt que blanc : posée devant une carte de projet, qui
-     est elle-même une surface blanche, la bulle s'y fondait et ne se lisait
-     plus comme une prise de parole. Les deux teintes vivent dans des variables
-     parce que la flèche (::after) et le bouton de fermeture doivent reprendre
-     exactement les mêmes — trois valeurs recopiées à la main auraient dérivé
-     à la première retouche. */
-  --nj-teaser-fond: #f3e6d8;
-  --nj-teaser-bord: #e2cdb5;
+  /* Bleu pastel plutôt que blanc : posée devant une carte de projet, qui est
+     elle-même une surface blanche, la bulle s'y fondait et ne se lisait plus
+     comme une prise de parole. Le bleu la rattache visiblement à la pastille
+     qui la porte (--ocean-deep → --ocean) : les deux se lisent comme un même
+     objet, là où une teinte étrangère aurait fait deux éléments sans rapport.
+
+     Les deux valeurs vivent dans des variables parce que TROIS surfaces
+     doivent s'accorder exactement — la bulle, sa flèche (::after) et la
+     pastille de fermeture posée à cheval sur le bord. Recopiées à la main
+     elles auraient dérivé dès la première retouche, et une flèche restée
+     blanche se verrait immédiatement. */
+  --nj-teaser-fond: #e3f2fb;
+  --nj-teaser-bord: #bfe1f4;
 
   position: relative;
   max-width: 15.5rem;
@@ -1080,12 +1085,12 @@ html[dir=rtl] .nj-parlons-teaser::after { right: auto; left: 1.7rem; }
 html[dir=rtl] .nj-parlons-teaser-close { right: auto; left: -8px; }
 .nj-parlons-teaser-close:hover { color: var(--text); }
 
-/* Nocturne : le brun pastel devient un brun sourd, sinon la bulle éclairerait
-   la page comme une lampe. Une seule surcharge suffit — le site ne suit pas
-   prefers-color-scheme, voir la note en tête de ce fichier. */
+/* Nocturne : le bleu pastel devient un bleu profond sourd, sinon la bulle
+   éclairerait la page comme une lampe. Une seule surcharge suffit — le site ne
+   suit pas prefers-color-scheme, voir la note en tête de ce fichier. */
 :root[data-theme="dark"] .nj-parlons-teaser {
-  --nj-teaser-fond: #2b2119;
-  --nj-teaser-bord: #4a3928;
+  --nj-teaser-fond: #14252f;
+  --nj-teaser-bord: #27506a;
 }
 
 @keyframes njParlonsPop {
