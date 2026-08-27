@@ -37,7 +37,19 @@ function read_project_sliders(): array
    data/contacts.json : téléphones, e-mail, adresse et réseaux sociaux, tels
    que les affichent le pied de page, la page contact et le lanceur
    « On en parle ? ». Jusqu'ici ce fichier ne s'éditait qu'à la main.
+
+   POURQUOI LA CONSTANTE EST DÉFINIE ICI ET PAS SEULEMENT DANS config.php
+   deploy.sh exclut admin/includes/config.php du déploiement — il porte le hash
+   du mot de passe admin, propre à chaque serveur. Une constante ajoutée
+   là-bas n'atteint donc JAMAIS le VPS : la page tombait en erreur fatale
+   « constante non définie » dès qu'un administrateur connecté l'ouvrait, alors
+   qu'une visite sans session redirigeait normalement vers login.php et ne
+   montrait rien. Le repli ci-dessous rend l'écran autonome ; le defined()
+   laisse la main à config.php quand il la définit déjà.
    ─────────────────────────────────────────────────────────────────────────── */
+if (! defined('NARJISS_CONTACTS_FILE')) {
+    define('NARJISS_CONTACTS_FILE', __DIR__ . '/../../data/contacts.json');
+}
 
 function read_contacts(): array
 {
