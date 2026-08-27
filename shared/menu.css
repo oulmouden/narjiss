@@ -1041,12 +1041,19 @@ html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
      elles auraient dérivé dès la première retouche, et une flèche restée
      blanche se verrait immédiatement. */
   --nj-teaser-fond: #e3f2fb;
-  --nj-teaser-bord: #bfe1f4;
+  /* Contour au bleu FRANC du bouton, pas une nuance du fond : c'est lui qui
+     détache la bulle de la page et signe son appartenance à la pastille.
+     var(--ocean) et non une valeur figée — le jeton change déjà de valeur en
+     nocturne (#00AEEF → #35C3FF), le contour suit donc tout seul. */
+  --nj-teaser-bord: var(--ocean);
 
   position: relative;
   max-width: 15.5rem;
   padding: .7rem .85rem;
-  border: 1px solid var(--nj-teaser-bord);
+  /* 2px et non 1.5 : les navigateurs arrondissent les bordures fractionnaires
+     à l'entier de pixel, si bien qu'un 1.5px se rendait exactement comme le
+     1px d'origine — le trait n'aurait pas bougé d'un cheveu. */
+  border: 2px solid var(--nj-teaser-bord);
   border-radius: 14px;
   background: var(--nj-teaser-fond);
   color: var(--text);
@@ -1063,8 +1070,8 @@ html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
   right: 1.7rem; bottom: -7px;
   width: 12px; height: 12px;
   background: var(--nj-teaser-fond);
-  border-right: 1px solid var(--nj-teaser-bord);
-  border-bottom: 1px solid var(--nj-teaser-bord);
+  border-right: 2px solid var(--nj-teaser-bord);
+  border-bottom: 2px solid var(--nj-teaser-bord);
   transform: rotate(45deg);
 }
 html[dir=rtl] .nj-parlons-teaser::after { right: auto; left: 1.7rem; }
@@ -1089,8 +1096,9 @@ html[dir=rtl] .nj-parlons-teaser-close { right: auto; left: -8px; }
    éclairerait la page comme une lampe. Une seule surcharge suffit — le site ne
    suit pas prefers-color-scheme, voir la note en tête de ce fichier. */
 :root[data-theme="dark"] .nj-parlons-teaser {
+  /* Seul le fond est repris ici : le contour suit var(--ocean), qui a déjà sa
+     valeur nocturne. */
   --nj-teaser-fond: #14252f;
-  --nj-teaser-bord: #27506a;
 }
 
 @keyframes njParlonsPop {
