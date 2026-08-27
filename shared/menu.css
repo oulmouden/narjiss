@@ -980,7 +980,14 @@ html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
   align-items: flex-end;
   gap: .6rem;
   font-family: var(--font-sans);
+  /* Le conteneur ne reçoit AUCUN clic ; seuls la pastille, la bulle et le
+     panneau en reçoivent. Sur téléphone il s'étire d'un bord à l'autre (voir
+     la règle 540 px plus bas) : sans ça, une bande invisible barrait tout le
+     bas de l'écran et avalait les clics du pied de page — un lien qui ne
+     répond pas, sans que rien n'explique pourquoi. */
+  pointer-events: none;
 }
+.nj-parlons > * { pointer-events: auto; }
 html[dir=rtl] .nj-parlons { right: auto; left: 1.15rem; align-items: flex-start; }
 html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
 

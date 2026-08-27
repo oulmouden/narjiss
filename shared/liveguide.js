@@ -185,8 +185,9 @@
       pointeurActif: '👉 Pointeur actif',
       pointeurAide: 'Suit la souris dans une vue 360°',
       chat: '💬 Chat',
-      copier: 'Copier le lien visiteur',
-      copie: 'Lien copié ✓',
+      copier: 'Copier le lien + le code',
+      copie: 'Lien et code copiés ✓',
+      codeASaisir: 'Code à saisir :',
       copieEchec: 'Copie échouée',
       terminer: 'Terminer',
       afficherBarre: 'Afficher la barre de visite guidée',
@@ -209,8 +210,9 @@
       pointeurActif: '👉 Pointer on',
       pointeurAide: 'Follows the mouse in a 360° view',
       chat: '💬 Chat',
-      copier: 'Copy visitor link',
-      copie: 'Link copied ✓',
+      copier: 'Copy link + code',
+      copie: 'Link and code copied ✓',
+      codeASaisir: 'Code to enter:',
       copieEchec: 'Copy failed',
       terminer: 'End',
       afficherBarre: 'Show the guided tour bar',
@@ -233,8 +235,9 @@
       pointeurActif: '👉 Puntero activo',
       pointeurAide: 'Sigue el ratón en una vista 360°',
       chat: '💬 Chat',
-      copier: 'Copiar el enlace del visitante',
-      copie: 'Enlace copiado ✓',
+      copier: 'Copiar el enlace + el código',
+      copie: 'Enlace y código copiados ✓',
+      codeASaisir: 'Código a introducir:',
       copieEchec: 'Error al copiar',
       terminer: 'Finalizar',
       afficherBarre: 'Mostrar la barra de visita guiada',
@@ -257,8 +260,9 @@
       pointeurActif: '👉 المؤشر مُفعَّل',
       pointeurAide: 'يتابع الفأرة داخل مشهد 360°',
       chat: '💬 الدردشة',
-      copier: 'نسخ رابط الزائر',
-      copie: 'تم نسخ الرابط ✓',
+      copier: 'نسخ الرابط والرمز',
+      copie: 'تم نسخ الرابط والرمز ✓',
+      codeASaisir: 'الرمز المطلوب إدخاله:',
       copieEchec: 'تعذّر النسخ',
       terminer: 'إنهاء',
       afficherBarre: 'إظهار شريط الجولة',
@@ -1675,9 +1679,16 @@
     var count = el('span', 'lg-count');
     count.innerHTML = '<span class="lg-dot"></span><b>0</b> ' + T('spectateurs');
 
-    // Le code se DIT (téléphone, WhatsApp), il ne s'envoie pas avec le lien :
-    // un lien qui contiendrait déjà le code ne protégerait plus rien. D'où un
-    // affichage bien lisible ici, et un bouton « copier » qui ne prend que le lien.
+    /* Le code reste affiché ici bien lisible : le conseiller au téléphone le
+       dit de vive voix, sans rien copier.
+
+       Le bouton « copier », lui, emporte MAINTENANT le lien ET le code, sur
+       demande expresse : en pratique le conseiller collait le lien dans
+       WhatsApp puis oubliait le code, et le visiteur restait bloqué devant la
+       porte. Le compromis est assumé — un message qui porte les deux se
+       transfère tel quel, donc le code ne protège plus le lien contre une
+       réexpédition. Il continue en revanche de protéger contre un lien deviné
+       ou retrouvé dans un historique. */
     var codeBox = el('span', 'lg-code');
     codeBox.innerHTML = T('code') + ' <b>' + code.replace(/[^0-9]/g, '') + '</b>';
     codeBox.title = T('codeAide');
@@ -1701,7 +1712,12 @@
     copy.type = 'button';
     copy.textContent = T('copier');
     copy.addEventListener('click', function () {
-      copyText(viewerLink, function (ok) {
+      /* Le code sur sa propre ligne, sous le lien : collé dans WhatsApp, le
+         lien devient cliquable et le code reste lisible à côté. Mis bout à
+         bout sur une seule ligne, les messageries l'avalent dans l'aperçu du
+         lien et il devient invisible. */
+      var aCopier = viewerLink + '\n\n' + T('codeASaisir') + ' ' + code.replace(/[^0-9]/g, '');
+      copyText(aCopier, function (ok) {
         copy.textContent = ok ? T('copie') : T('copieEchec');
         // Le libellé est relu à l'expiration et non capturé maintenant : la
         // langue a pu changer pendant les deux secondes d'accusé de réception.
