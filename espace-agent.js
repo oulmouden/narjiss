@@ -103,6 +103,13 @@
     show($('reqCard'), canReceive);
     show($('teamCard'), canManage);
 
+    /* Le choix de l'agent est gardé d'une session à l'autre : la permission de
+       notifier est de toute façon persistante côté navigateur, lui refaire
+       cliquer chaque matin n'apporterait rien. Le son, lui, restera muet tant
+       qu'il n'aura pas touché la page — voir le déblocage au premier geste. */
+    try { alertesActives = localStorage.getItem(ALERTES_CLE) === '1'; } catch (e) { alertesActives = false; }
+    alertesMajBouton();
+
     // Le battement de présence part pour TOUS les rôles : c'est lui qui rend
     // « connecté » visible, à soi comme aux autres. Les demandes d'accès des
     // visiteurs, elles, ne concernent que ceux qui peuvent les recevoir.
@@ -168,6 +175,10 @@
   }
 
   function stopLoops() {
+    // Le prochain agent qui se connecte repart d'une ardoise vierge : sinon il
+    // n'entendrait pas les demandes déjà vues par le précédent.
+    demandesVues = null;
+    titreArrete();
     [hbTimer, pollTimer, teamTimer, msgTimer].forEach(function (t) { if (t) clearInterval(t); });
     hbTimer = pollTimer = teamTimer = msgTimer = null;
     stopRepRec();
@@ -503,11 +514,150 @@
     });
   }
 
+  /* ── Alertes : son, notification système, titre clignotant ───────────────
+     Jusqu'ici une demande n'apparaissait que sous forme de carte : l'agent
+     devait avoir sa page SOUS LES YEUX pour la voir. Onglet en arrière-plan,
+     et le visiteur attendait 90 secondes pour rien.
+
+     Bouton explicite plutôt que demande d'autorisation à l'ouverture : les
+     navigateurs exigent un geste de l'utilisateur pour l'audio comme pour les
+     notifications, et une permission réclamée sans raison visible se refuse
+     par réflexe. ────────────────────────────────────────────────────────── */
+  var ALERTES_CLE = 'nj-agent-alertes';
+  var alertesActives = false;
+  var audioCtx = null;
+  var titreInitial = document.title;
+  var titreTimer = null;
+  var demandesVues = null;          // null = le premier sondage n'a pas encore eu lieu
+
+  function alertesMajBouton() {
+    var b = $('alertBtn');
+    if (!b) return;
+    b.classList.toggle('on', alertesActives);
+    b.textContent = T(alertesActives ? 'alertesActives' : 'alertesActiver');
+  }
+
+  /* À appeler DANS un geste de l'utilisateur : hors d'un geste, les
+     navigateurs refusent de démarrer ou de reprendre un contexte audio. */
+  function alertesDebloquerAudio() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) {}
+  }
+
+  /* Bip synthétisé plutôt qu'un fichier son : rien à télécharger, rien à
+     déployer, rien à maintenir — deux notes montantes suffisent. */
+  function bip() {
+    if (!audioCtx) return;
+    try {
+      [0, 0.18].forEach(function (dt) {
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.value = dt ? 1046 : 784;
+        var t0 = audioCtx.currentTime + dt;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.15);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(t0); o.stop(t0 + 0.16);
+      });
+    } catch (e) {}
+  }
+
+  function alertesBasculer() {
+    if (alertesActives) {
+      alertesActives = false;
+      try { localStorage.removeItem(ALERTES_CLE); } catch (e) {}
+      alertesMajBouton();
+      titreArrete();
+      return;
+    }
+    alertesDebloquerAudio();
+    alertesActives = true;
+    try { localStorage.setItem(ALERTES_CLE, '1'); } catch (e) {}
+    alertesMajBouton();
+    bip();                           // démonstration : l'agent entend ce qui l'attend
+    if (window.Notification && Notification.permission === 'default') {
+      try { Notification.requestPermission().then(alertesMajBouton); } catch (e) {}
+    }
+  }
+
+  /* Le texte est relu à chaque battement au lieu d'être figé à la première
+     alerte : deux visiteurs arrivant pendant que l'agent est ailleurs, il
+     n'aurait vu que le nom du premier et serait revenu en croyant n'avoir
+     qu'une personne à recevoir. Au-delà d'un, on annonce le nombre — un seul
+     nom mentirait par omission. */
+  var titreTexte = '';
+  var titreEnAttente = 0;
+
+  function titreClignote(texte) {
+    titreEnAttente++;
+    titreTexte = titreEnAttente > 1
+      ? '🔔 ' + T('alertePlusieurs').replace('{n}', String(titreEnAttente))
+      : texte;
+    if (titreTimer) return;
+    var bascule = false;
+    titreTimer = setInterval(function () {
+      bascule = !bascule;
+      document.title = bascule ? titreTexte : titreInitial;
+    }, 1000);
+  }
+  function titreArrete() {
+    if (titreTimer) { clearInterval(titreTimer); titreTimer = null; }
+    titreEnAttente = 0;
+    titreTexte = '';
+    document.title = titreInitial;
+  }
+
+  function alerterNouvelleDemande(req) {
+    if (!alertesActives) return;
+    bip();
+    var texte = T('alerteDemande').replace('{name}', req.visitor || '');
+    if (window.Notification && Notification.permission === 'granted') {
+      try {
+        // tag : deux sondages ne doivent pas empiler deux bulles pour la même
+        // demande si le navigateur rejoue la notification.
+        var n = new Notification(T('alerteTitre'), {
+          body: texte, tag: 'nj-req-' + req.id, icon: 'images/icones/apple-touch-icon.png'
+        });
+        n.onclick = function () { window.focus(); titreArrete(); n.close(); };
+      } catch (e) {}
+    }
+    // Le titre ne clignote que si l'agent regarde ailleurs : sur l'onglet
+    // actif il verrait la carte, et un titre qui bat serait du bruit.
+    if (document.hidden) titreClignote('🔔 ' + texte);
+  }
+
   /* ── Demandes d'accès ──────────────────────────────────────────────────── */
   function pollRequests() {
     get('agent-access.php?action=pending').then(function (r) {
       if (!r || !r.ok) return;
-      renderRequests(r.requests || []);
+      var list = r.requests || [];
+      signalerNouvelles(list);
+      renderRequests(list);
+    });
+  }
+
+  /**
+   * Ne sonne que pour ce qui vient d'arriver.
+   *
+   * Le tout premier sondage ne sonne jamais : l'agent vient d'ouvrir sa page
+   * et voit déjà les cartes. Sans cette mise à zéro silencieuse, un simple
+   * rechargement ferait sonner des demandes qu'il a déjà sous les yeux.
+   */
+  function signalerNouvelles(list) {
+    if (demandesVues === null) {
+      demandesVues = {};
+      list.forEach(function (r) { demandesVues[r.id] = true; });
+      return;
+    }
+    list.forEach(function (r) {
+      if (demandesVues[r.id]) return;
+      demandesVues[r.id] = true;
+      alerterNouvelleDemande(r);
     });
   }
 
@@ -837,6 +987,27 @@
 
     // Présence simulée : le bouton d'arrêt et la durée vivent hors du tableau,
     // ils ne sont donc pas rebranchés par loadTeam() toutes les huit secondes.
+    if ($('alertBtn')) $('alertBtn').onclick = alertesBasculer;
+
+    /* Un contexte audio créé hors d'un geste reste suspendu. Au rechargement de
+       la page, les alertes peuvent être réactivées d'après localStorage sans
+       qu'aucun clic n'ait eu lieu : on saisit donc le tout premier geste, quel
+       qu'il soit, pour rendre le son possible. */
+    ['click', 'keydown', 'touchstart'].forEach(function (ev) {
+      document.addEventListener(ev, function debloquer() {
+        ['click', 'keydown', 'touchstart'].forEach(function (e2) {
+          document.removeEventListener(e2, debloquer);
+        });
+        if (alertesActives) alertesDebloquerAudio();
+      }, { once: false });
+    });
+
+    // Revenir sur l'onglet vaut acquittement : la carte est sous ses yeux.
+    window.addEventListener('focus', titreArrete);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) titreArrete();
+    });
+
     if ($('demoStop')) $('demoStop').onclick = arreterDemo;
     if ($('demoDuree')) $('demoDuree').onchange = function () { enregistrerDemo(); };
 

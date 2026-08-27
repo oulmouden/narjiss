@@ -152,6 +152,13 @@ window.EA_TEXTES = {
     thRole: 'Rôle',
     thStatut: 'Statut',
     thPresence: 'Présence',
+    /* ── Alertes (son + notification) ── */
+    alertesActiver: '🔔 Activer les alertes',
+    alertesActives: '🔔 Alertes activées',
+    alertesAide: 'Un son et une notification quand un visiteur demande à vous parler.',
+    alerteTitre: 'Un visiteur vous demande',
+    alerteDemande: '{name} souhaite être reçu.',
+    alertePlusieurs: '{n} visiteurs vous demandent.',
     /* ── Présence simulée (démonstrations) ── */
     thDemo: 'Démo',
     demoTitre: '🎬 Démonstration — cochez qui doit apparaître joignable :',
@@ -315,6 +322,13 @@ window.EA_TEXTES = {
     thRole: 'Role',
     thStatut: 'Status',
     thPresence: 'Availability',
+    /* ── Alerts (sound + notification) ── */
+    alertesActiver: '🔔 Turn on alerts',
+    alertesActives: '🔔 Alerts on',
+    alertesAide: 'A sound and a notification when a visitor asks to talk to you.',
+    alerteTitre: 'A visitor is asking for you',
+    alerteDemande: '{name} would like to be received.',
+    alertePlusieurs: '{n} visitors are asking for you.',
     /* ── Simulated availability (demos) ── */
     thDemo: 'Demo',
     demoTitre: '🎬 Demo — tick who should appear available:',
@@ -474,6 +488,13 @@ window.EA_TEXTES = {
     thRole: 'Función',
     thStatut: 'Estado',
     thPresence: 'Disponibilidad',
+    /* ── Alertas (sonido + notificación) ── */
+    alertesActiver: '🔔 Activar las alertas',
+    alertesActives: '🔔 Alertas activadas',
+    alertesAide: 'Un sonido y una notificación cuando un visitante pide hablar con usted.',
+    alerteTitre: 'Un visitante le busca',
+    alerteDemande: '{name} desea ser atendido.',
+    alertePlusieurs: '{n} visitantes le buscan.',
     /* ── Disponibilidad simulada (demostraciones) ── */
     thDemo: 'Demo',
     demoTitre: '🎬 Demostración — marque quién debe aparecer disponible:',
@@ -633,6 +654,13 @@ window.EA_TEXTES = {
     thRole: 'الوظيفة',
     thStatut: 'الحالة',
     thPresence: 'الحضور',
+    /* ── التنبيهات (صوت + إشعار) ── */
+    alertesActiver: '🔔 تفعيل التنبيهات',
+    alertesActives: '🔔 التنبيهات مفعّلة',
+    alertesAide: 'صوت وإشعار عندما يطلب زائر التحدث إليك.',
+    alerteTitre: 'زائر يطلبك',
+    alerteDemande: '{name} يرغب في مقابلتك.',
+    alertePlusieurs: '{n} زوار يطلبونك.',
     /* ── الحضور المحاكى (العروض التوضيحية) ── */
     thDemo: 'عرض',
     demoTitre: '🎬 عرض توضيحي — أشّر على من يجب أن يظهر متاحا:',
