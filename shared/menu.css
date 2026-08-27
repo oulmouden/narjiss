@@ -1029,12 +1029,21 @@ html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
 
 /* ── La bulle d'amorce ─────────────────────────────────────────────────────── */
 .nj-parlons-teaser {
+  /* Fond brun pastel plutôt que blanc : posée devant une carte de projet, qui
+     est elle-même une surface blanche, la bulle s'y fondait et ne se lisait
+     plus comme une prise de parole. Les deux teintes vivent dans des variables
+     parce que la flèche (::after) et le bouton de fermeture doivent reprendre
+     exactement les mêmes — trois valeurs recopiées à la main auraient dérivé
+     à la première retouche. */
+  --nj-teaser-fond: #f3e6d8;
+  --nj-teaser-bord: #e2cdb5;
+
   position: relative;
   max-width: 15.5rem;
   padding: .7rem .85rem;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--nj-teaser-bord);
   border-radius: 14px;
-  background: var(--surface);
+  background: var(--nj-teaser-fond);
   color: var(--text);
   font-size: .88rem;
   line-height: 1.4;
@@ -1048,9 +1057,9 @@ html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
   position: absolute;
   right: 1.7rem; bottom: -7px;
   width: 12px; height: 12px;
-  background: var(--surface);
-  border-right: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
+  background: var(--nj-teaser-fond);
+  border-right: 1px solid var(--nj-teaser-bord);
+  border-bottom: 1px solid var(--nj-teaser-bord);
   transform: rotate(45deg);
 }
 html[dir=rtl] .nj-parlons-teaser::after { right: auto; left: 1.7rem; }
@@ -1060,9 +1069,9 @@ html[dir=rtl] .nj-parlons-teaser::after { right: auto; left: 1.7rem; }
   top: -8px; right: -8px;
   width: 22px; height: 22px;
   display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--nj-teaser-bord);
   border-radius: 50%;
-  background: var(--surface-raised);
+  background: var(--nj-teaser-fond);
   color: var(--muted);
   font-size: .8rem;
   line-height: 1;
@@ -1070,6 +1079,14 @@ html[dir=rtl] .nj-parlons-teaser::after { right: auto; left: 1.7rem; }
 }
 html[dir=rtl] .nj-parlons-teaser-close { right: auto; left: -8px; }
 .nj-parlons-teaser-close:hover { color: var(--text); }
+
+/* Nocturne : le brun pastel devient un brun sourd, sinon la bulle éclairerait
+   la page comme une lampe. Une seule surcharge suffit — le site ne suit pas
+   prefers-color-scheme, voir la note en tête de ce fichier. */
+:root[data-theme="dark"] .nj-parlons-teaser {
+  --nj-teaser-fond: #2b2119;
+  --nj-teaser-bord: #4a3928;
+}
 
 @keyframes njParlonsPop {
   from { opacity: 0; transform: translateY(8px) scale(.96); }
