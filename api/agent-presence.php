@@ -8,6 +8,9 @@
  *   GET ?projet=<id>      : roster public d'un bureau (ouvert) — pour la page
  *                           visiteur et l'hôtesse IA : qui est en ligne / son statut.
  *   GET ?agent_id=<n>     : { online: bool } — vérif ciblée (hôtesse IA).
+ *   GET ?dispo            : { online: bool, count: n } — agrégat ANONYME, tous
+ *                           bureaux confondus, pour le lanceur « On en parle ? »
+ *                           des pages publiques. Aucun nom, aucun horaire.
  */
 
 require __DIR__ . '/agents-lib.php';
@@ -52,6 +55,14 @@ if (isset($_GET['equipe'])) {
     nj_p_json(['ok' => false, 'error' => 'Non connecté.', 'code' => 'nonConnecte'], 401);
   }
   nj_p_json(['ok' => true, 'agents' => nj_presence_equipe()]);
+}
+
+/* Agrégat anonyme « quelqu'un décroche-t-il ? », tous bureaux confondus — lu
+   par le lanceur « On en parle ? » de shared/menu.js, posé sur toutes les
+   pages publiques. Ouvert comme le roster ?projet= juste en dessous, mais sans
+   un seul nom, pour la raison exposée sur ?equipe= ci-dessus. */
+if (isset($_GET['dispo'])) {
+  nj_p_json(['ok' => true] + nj_presence_globale());
 }
 
 $projet = preg_replace('/[^a-z0-9_]/', '', strtolower($_GET['projet'] ?? ''));

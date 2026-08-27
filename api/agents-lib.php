@@ -296,6 +296,40 @@ function nj_agent_is_online(int $agentId): bool {
 }
 
 /**
+ * Quelqu'un décroche-t-il, tous bureaux confondus ?
+ *
+ * Agrégat DÉLIBÉRÉMENT anonyme. Ce compte est lu par le lanceur « On en
+ * parle ? » posé sur toutes les pages publiques, donc sans session : rendre le
+ * roster nominatif y dirait à n'importe qui combien de personnes travaillent
+ * ici et à quelle heure elles décrochent — exactement ce que refuse la note du
+ * roster ?projet= dans api/agent-presence.php. On ne rend qu'un nombre.
+ *
+ * Le « absent » posé à la main compte comme hors ligne : un commercial dont le
+ * navigateur bat encore mais qui s'est déclaré absent ne doit pas faire
+ * promettre au visiteur une réponse immédiate.
+ */
+function nj_presence_globale(): array {
+  // Comparaison en PHP et non en SQL, comme nj_presence_roster() : PHP et
+  // MySQL ne partagent pas forcément le même fuseau, et un décalage d'une
+  // heure ferait ici passer toute l'équipe pour joignable — ou l'inverse.
+  $st = nj_adb()->query(
+    'SELECT p.last_seen, p.presence
+       FROM agents a
+       JOIN agent_presence p ON p.agent_id = a.id
+      WHERE a.statut = "active"
+        AND a.role IN ("commercial", "superviseur")'
+  );
+  $n = 0;
+  foreach ($st->fetchAll() as $r) {
+    if (!$r['last_seen']) continue;
+    if ((time() - strtotime($r['last_seen'])) > NJ_PRESENCE_TTL) continue;
+    if (($r['presence'] ?? '') === 'absent') continue;
+    $n++;
+  }
+  return ['online' => $n > 0, 'count' => $n];
+}
+
+/**
  * Roster de présence d'un projet : agents actifs + état en ligne/statut.
  * Utilisé par la page visiteur et par l'hôtesse IA.
  */

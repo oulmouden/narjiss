@@ -946,3 +946,238 @@ html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
 }
 
 .footer-raccourci-aide[hidden] { display: none; }
+
+/* ============================================================================
+   LANCEUR « ON EN PARLE ? »
+   ----------------------------------------------------------------------------
+   Une pastille fixe, présente sur toutes les pages publiques, qui ouvre les
+   quatre façons de nous joindre. Elle remplace l'idée d'un bouton en pied de
+   page : celui-ci n'aurait été vu que des visiteurs allant jusqu'en bas.
+
+   Elle NE s'installe PAS sur bureaudevente.html, qui porte déjà son propre
+   bouton flottant « Parler à l'hôtesse » (.stage-agent) — deux pastilles au
+   même coin se recouvriraient. Voir njParlonsAutorise() dans menu.js.
+
+   z-index : 9000, sous la barre de navigation (9999) pour que le menu déroulé
+   sur téléphone passe par-dessus, au-dessus de tout le reste (Leaflet ≤ 700).
+   ========================================================================== */
+.nj-parlons {
+  position: fixed;
+  right: 1.15rem;
+  bottom: 1.15rem;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .6rem;
+  font-family: var(--font-sans);
+}
+html[dir=rtl] .nj-parlons { right: auto; left: 1.15rem; align-items: flex-start; }
+html[lang=ar] .nj-parlons { font-family: var(--font-arabic); }
+
+/* ── La pastille ───────────────────────────────────────────────────────────── */
+.nj-parlons-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .7rem 1.15rem;
+  border: 0;
+  border-radius: 40px;
+  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean));
+  color: #fff;
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .28);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.nj-parlons-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0, 0, 0, .34); }
+.nj-parlons-btn:active { transform: translateY(1px); }
+.nj-parlons-btn:focus-visible { outline: 3px solid var(--sun-light); outline-offset: 3px; }
+.nj-parlons-btn .nj-parlons-ico { font-size: 1.15rem; line-height: 1; }
+
+/* Pastille de présence : verte si un conseiller décroche, grise sinon. Posée
+   sur le bord du bouton, elle se lit avant même de l'ouvrir. */
+.nj-parlons-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #9aa4ad;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .55);
+  flex: 0 0 auto;
+}
+.nj-parlons.on .nj-parlons-dot {
+  background: #33c481;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .55), 0 0 0 5px rgba(51, 196, 129, .28);
+}
+
+/* ── La bulle d'amorce ─────────────────────────────────────────────────────── */
+.nj-parlons-teaser {
+  position: relative;
+  max-width: 15.5rem;
+  padding: .7rem .85rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: .88rem;
+  line-height: 1.4;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  animation: njParlonsPop .32s ease both;
+}
+.nj-parlons-teaser[hidden] { display: none; }
+.nj-parlons-teaser::after {
+  content: '';
+  position: absolute;
+  right: 1.7rem; bottom: -7px;
+  width: 12px; height: 12px;
+  background: var(--surface);
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  transform: rotate(45deg);
+}
+html[dir=rtl] .nj-parlons-teaser::after { right: auto; left: 1.7rem; }
+
+.nj-parlons-teaser-close {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+html[dir=rtl] .nj-parlons-teaser-close { right: auto; left: -8px; }
+.nj-parlons-teaser-close:hover { color: var(--text); }
+
+@keyframes njParlonsPop {
+  from { opacity: 0; transform: translateY(8px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Le panneau ────────────────────────────────────────────────────────────── */
+.nj-parlons-panel {
+  width: min(21.5rem, calc(100vw - 2.3rem));
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: njParlonsPop .24s ease both;
+}
+.nj-parlons-panel[hidden] { display: none; }
+
+.nj-parlons-head {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .9rem 1rem;
+  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean));
+  color: #fff;
+}
+.nj-parlons-avatar {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .2);
+  font-size: 1.25rem;
+  flex: 0 0 auto;
+}
+.nj-parlons-who { flex: 1; min-width: 0; }
+.nj-parlons-who b { display: flex; align-items: center; gap: .4rem; font-size: .98rem; line-height: 1.25; }
+.nj-parlons-who span { display: block; font-size: .78rem; opacity: .85; }
+.nj-parlons-close {
+  border: 0; background: transparent; color: #fff;
+  font-size: 1.3rem; line-height: 1; padding: .2rem .3rem;
+  cursor: pointer; opacity: .8;
+}
+.nj-parlons-close:hover { opacity: 1; }
+
+.nj-parlons-options { display: flex; flex-direction: column; gap: .45rem; padding: .85rem; }
+.nj-parlons-opt {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  width: 100%;
+  padding: .65rem .8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: .9rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .15s ease, transform .15s ease;
+}
+html[dir=rtl] .nj-parlons-opt { text-align: right; }
+.nj-parlons-opt:hover { border-color: var(--ocean); transform: translateY(-1px); }
+.nj-parlons-opt:focus-visible { outline: 2px solid var(--ocean); outline-offset: 2px; }
+.nj-parlons-opt .nj-parlons-opt-ico { font-size: 1.15rem; flex: 0 0 auto; }
+.nj-parlons-opt b { display: block; font-weight: 600; }
+.nj-parlons-opt small { display: block; color: var(--muted); font-size: .76rem; line-height: 1.35; }
+
+/* L'option mise en avant dépend de la présence : « Parler à un conseiller »
+   quand quelqu'un décroche, l'hôtesse IA sinon. C'est njParlonsRendreOptions()
+   qui pose la classe, pas le CSS. */
+.nj-parlons-opt.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean));
+  color: #fff;
+}
+.nj-parlons-opt.primary small { color: rgba(255, 255, 255, .82); }
+.nj-parlons-opt.primary:hover { border-color: transparent; }
+
+.nj-parlons-foot {
+  padding: .6rem 1rem .8rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--muted);
+  font-size: .74rem;
+  text-align: center;
+}
+
+/* ── Le formulaire « écrire » (déployé dans le panneau) ────────────────────── */
+.nj-parlons-form { display: flex; flex-direction: column; gap: .45rem; padding: .85rem; }
+.nj-parlons-form input,
+.nj-parlons-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: .55rem .7rem;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: .88rem;
+}
+.nj-parlons-form textarea { min-height: 4.5rem; resize: vertical; }
+.nj-parlons-form input:focus,
+.nj-parlons-form textarea:focus { outline: 0; border-color: var(--ocean); }
+.nj-parlons-err {
+  margin: 0;
+  color: #d9534f;
+  font-size: .8rem;
+}
+.nj-parlons-err[hidden] { display: none; }
+
+/* ── Téléphone ─────────────────────────────────────────────────────────────── */
+@media (max-width: 540px) {
+  .nj-parlons { right: .75rem; bottom: .75rem; left: .75rem; align-items: flex-end; }
+  html[dir=rtl] .nj-parlons { left: .75rem; right: .75rem; align-items: flex-start; }
+  .nj-parlons-panel { width: 100%; }
+  .nj-parlons-btn { font-size: .9rem; padding: .65rem 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nj-parlons-teaser,
+  .nj-parlons-panel { animation: none; }
+  .nj-parlons-btn:hover,
+  .nj-parlons-opt:hover { transform: none; }
+}

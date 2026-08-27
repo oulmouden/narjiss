@@ -941,6 +941,488 @@ function buildFooterHTML(basePath) {
     '</footer>';
 }
 
+
+/* ============================================================================
+   LANCEUR « ON EN PARLE ? »
+   ----------------------------------------------------------------------------
+   Une pastille fixe sur toutes les pages publiques, qui ouvre les quatre façons
+   de nous joindre : écrire, appeler un conseiller, parler à l'hôtesse IA,
+   entrer dans le bureau de vente.
+
+   POURQUOI FLOTTANT, ET NON UN BOUTON EN PIED DE PAGE
+   Un bouton en bas de page n'est vu que des visiteurs qui vont jusqu'en bas.
+   La pastille suit le visiteur, et la bulle d'amorce va le chercher.
+
+   POURQUOI LA PRÉSENCE DÉCIDE DE L'OPTION MISE EN AVANT
+   Proposer « Parler à un conseiller » à 22 h un dimanche fabrique une
+   déception. Quand personne ne décroche, c'est l'hôtesse IA — disponible en
+   permanence — qui passe en avant, et « écrire » qui prend le relais du
+   téléphone. Le compte vient de api/agent-presence.php?dispo, agrégat anonyme.
+   ========================================================================== */
+var NJ_PARLONS_UI = {
+  fr: {
+    btn: "On en parle ?",
+    teaser: "Un projet en tête ? Dites-nous lequel, on vous répond.",
+    title: "On en parle ?",
+    subOn: "Un conseiller est joignable",
+    subOff: "Personne au bureau à cette heure",
+    close: "Fermer",
+    writeT: "Écrire maintenant",
+    writeD: "Laissez votre message, on vous rappelle",
+    callT: "Parler à un conseiller",
+    callD: "Par téléphone ou WhatsApp",
+    aiT: "Parler à l'hôtesse IA",
+    aiD: "À la voix, à toute heure, sans attendre",
+    officeT: "Entrer dans le bureau de vente",
+    officeD: "Visitez le bureau et nos projets en 360°",
+    privacy: "Vos échanges restent confidentiels.",
+    back: "← Retour",
+    callIntro: "Appelez, ou écrivez-nous sur WhatsApp :",
+    callPhone: "Appeler",
+    callWa: "WhatsApp",
+    fName: "Votre nom",
+    fTel: "Téléphone",
+    fMail: "E-mail",
+    fMsg: "Votre message",
+    send: "Envoyer",
+    sending: "Envoi en cours…",
+    thanks: "Merci ! Nous vous répondons au plus vite.",
+    errContact: "Laissez au moins un téléphone ou un e-mail.",
+    errEmpty: "Écrivez-nous quelques mots."
+  },
+  en: {
+    btn: "Let's talk",
+    teaser: "Got a project in mind? Tell us which one, we'll get back to you.",
+    title: "Let's talk",
+    subOn: "An advisor is available",
+    subOff: "Nobody at the office right now",
+    close: "Close",
+    writeT: "Write to us now",
+    writeD: "Leave your message, we'll call you back",
+    callT: "Talk to an advisor",
+    callD: "By phone or WhatsApp",
+    aiT: "Talk to the AI host",
+    aiD: "By voice, any time, no waiting",
+    officeT: "Enter the sales office",
+    officeD: "Tour the office and our projects in 360°",
+    privacy: "Your messages stay confidential.",
+    back: "← Back",
+    callIntro: "Call us, or write on WhatsApp:",
+    callPhone: "Call",
+    callWa: "WhatsApp",
+    fName: "Your name",
+    fTel: "Phone",
+    fMail: "E-mail",
+    fMsg: "Your message",
+    send: "Send",
+    sending: "Sending…",
+    thanks: "Thank you! We'll get back to you shortly.",
+    errContact: "Leave at least a phone number or an e-mail.",
+    errEmpty: "Write us a few words."
+  },
+  ar: {
+    btn: "لنتحدث",
+    teaser: "لديك مشروع في بالك؟ أخبرنا به، ونحن نجيبك.",
+    title: "لنتحدث",
+    subOn: "مستشار متاح الآن",
+    subOff: "لا أحد في المكتب في هذه الساعة",
+    close: "إغلاق",
+    writeT: "اكتب إلينا الآن",
+    writeD: "اترك رسالتك، وسنعاود الاتصال بك",
+    callT: "التحدث إلى مستشار",
+    callD: "عبر الهاتف أو واتساب",
+    aiT: "التحدث إلى المضيفة الذكية",
+    aiD: "بالصوت، في أي وقت، دون انتظار",
+    officeT: "ادخل مكتب البيع",
+    officeD: "زر المكتب ومشاريعنا بتقنية 360°",
+    privacy: "تبقى محادثاتك سرية.",
+    back: "← رجوع",
+    callIntro: "اتصل بنا، أو راسلنا على واتساب:",
+    callPhone: "اتصال",
+    callWa: "واتساب",
+    fName: "اسمك",
+    fTel: "الهاتف",
+    fMail: "البريد الإلكتروني",
+    fMsg: "رسالتك",
+    send: "إرسال",
+    sending: "جارٍ الإرسال…",
+    thanks: "شكرا لك! سنجيبك في أقرب وقت.",
+    errContact: "اترك على الأقل رقم هاتف أو بريدا إلكترونيا.",
+    errEmpty: "اكتب لنا بضع كلمات."
+  },
+  es: {
+    btn: "¿Hablamos?",
+    teaser: "¿Tiene un proyecto en mente? Díganos cuál y le respondemos.",
+    title: "¿Hablamos?",
+    subOn: "Un asesor está disponible",
+    subOff: "No hay nadie en la oficina a esta hora",
+    close: "Cerrar",
+    writeT: "Escríbanos ahora",
+    writeD: "Deje su mensaje y le llamamos",
+    callT: "Hablar con un asesor",
+    callD: "Por teléfono o WhatsApp",
+    aiT: "Hablar con la anfitriona IA",
+    aiD: "Por voz, a cualquier hora, sin esperas",
+    officeT: "Entrar en la oficina de ventas",
+    officeD: "Visite la oficina y nuestros proyectos en 360°",
+    privacy: "Sus mensajes son confidenciales.",
+    back: "← Volver",
+    callIntro: "Llámenos o escríbanos por WhatsApp:",
+    callPhone: "Llamar",
+    callWa: "WhatsApp",
+    fName: "Su nombre",
+    fTel: "Teléfono",
+    fMail: "Correo electrónico",
+    fMsg: "Su mensaje",
+    send: "Enviar",
+    sending: "Enviando…",
+    thanks: "¡Gracias! Le responderemos lo antes posible.",
+    errContact: "Deje al menos un teléfono o un correo electrónico.",
+    errEmpty: "Escríbanos unas palabras."
+  }
+};
+
+/* Clé de session : une amorce refusée ne doit pas revenir à chaque page. */
+var NJ_PARLONS_TEASER_KEY = 'nj-parlons-teaser-vu';
+var njParlonsOnline = false;
+
+/**
+ * Le lanceur a-t-il sa place sur cette page ?
+ *
+ * Non sur bureaudevente.html : #stageAgentBtn y est déjà une pastille flottante
+ * au même coin, et l'hôtesse y est de toute façon à portée de clic.
+ * Non pendant une visite guidée : le conseiller est DÉJÀ en ligne avec le
+ * visiteur, lui proposer de nous joindre n'aurait aucun sens.
+ */
+function njParlonsAutorise() {
+  if (document.getElementById('stageAgentBtn')) return false;
+  try {
+    var p = new URLSearchParams(window.location.search);
+    if (p.get('lghost') != null || p.get('lg')) return false;
+    var r = window.sessionStorage.getItem('lg_role');
+    if (r === 'host' || r === 'viewer') return false;
+  } catch (e) { /* sessionStorage refusé (navigation privée) : on installe. */ }
+  return true;
+}
+
+function njParlonsT() {
+  return NJ_PARLONS_UI[currentLang] || NJ_PARLONS_UI.fr;
+}
+
+/** Élément avec classe et contenu, pour alléger la construction ci-dessous. */
+function njParlonsEl(tag, cls, html) {
+  var el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (html != null) el.innerHTML = html;
+  return el;
+}
+
+/**
+ * Rend la liste des options. Rappelée après la sonde de présence, d'où la
+ * reconstruction complète plutôt qu'une simple bascule de classe.
+ */
+function njParlonsRendreOptions(host, basePath) {
+  var t = njParlonsT();
+  host.innerHTML = '';
+  host.className = 'nj-parlons-options';
+  /* Quelle vue est à l'écran. Le marqueur est indispensable : les sous-vues
+     réutilisent la classe .nj-parlons-options pour leur mise en forme, si bien
+     que la sonde de présence, en revenant, croyait retrouver le menu et
+     effaçait sous les doigts du visiteur la liste des numéros ou son
+     formulaire à demi rempli. */
+  host.dataset.vue = 'menu';
+
+  /* L'ordre ne change pas — un menu qui se réordonne sous les yeux du visiteur
+     est déroutant. Seule la mise en avant bouge. */
+  var options = [
+    { ico: '💬', t: t.writeT, d: t.writeD, act: 'write',  prim: !njParlonsOnline },
+    { ico: '📞', t: t.callT,  d: t.callD,  act: 'call',   prim: njParlonsOnline },
+    { ico: '🎙️', t: t.aiT,    d: t.aiD,    act: 'ai',     prim: false },
+    { ico: '🏢', t: t.officeT, d: t.officeD, act: 'office', prim: false }
+  ];
+
+  options.forEach(function (o) {
+    var b = njParlonsEl('button', 'nj-parlons-opt' + (o.prim ? ' primary' : ''));
+    b.type = 'button';
+    b.innerHTML =
+      '<span class="nj-parlons-opt-ico" aria-hidden="true">' + o.ico + '</span>' +
+      '<span><b>' + escapeHtml(o.t) + '</b><small>' + escapeHtml(o.d) + '</small></span>';
+    b.addEventListener('click', function () { njParlonsAction(o.act, basePath); });
+    host.appendChild(b);
+  });
+}
+
+/** Aiguillage des quatre options. */
+function njParlonsAction(action, basePath) {
+  var corps = document.getElementById('njParlonsCorps');
+  if (action === 'write')  { njParlonsFormulaire(corps, basePath); return; }
+  if (action === 'call')   { njParlonsTelephones(corps, basePath); return; }
+  /* L'hôtesse et le bureau de vente vivent tous deux sur bureaudevente.html ;
+     ?hotesse=1 y ouvre le panneau d'accueil sans un clic de plus. */
+  if (action === 'ai')     { window.location.href = basePath + 'bureaudevente.html?hotesse=1'; return; }
+  if (action === 'office') { window.location.href = basePath + 'bureaudevente.html'; }
+}
+
+/** Bouton « retour » commun aux deux sous-vues. */
+function njParlonsRetour(corps, basePath) {
+  var b = njParlonsEl('button', 'nj-parlons-opt');
+  b.type = 'button';
+  b.innerHTML = '<span><b>' + escapeHtml(njParlonsT().back) + '</b></span>';
+  b.addEventListener('click', function () { njParlonsRendreOptions(corps, basePath); });
+  return b;
+}
+
+/**
+ * Sous-vue « appeler » : les numéros réels du site, avec appel direct et
+ * WhatsApp. Réutilise les fabricants de liens du pied de page plutôt que d'en
+ * refaire — un seul endroit décide de la forme d'un numéro.
+ */
+function njParlonsTelephones(corps, basePath) {
+  var t = njParlonsT();
+  corps.innerHTML = '';
+  corps.className = 'nj-parlons-options';
+  corps.dataset.vue = 'appeler';
+  corps.appendChild(njParlonsEl('p', 'nj-parlons-foot', escapeHtml(t.callIntro)));
+
+  var phones = (siteContacts && siteContacts.phones) || [];
+  phones.forEach(function (p) {
+    var ligne = njParlonsEl('div', 'nj-parlons-opt');
+    ligne.innerHTML =
+      '<span class="nj-parlons-opt-ico" aria-hidden="true">📞</span>' +
+      '<span style="flex:1"><b>' + escapeHtml(p.number) + '</b>' +
+      '<small>' + escapeHtml(p.label || '') + '</small></span>';
+
+    var appel = document.createElement('a');
+    appel.href = contactPhoneHref(p.number);
+    appel.textContent = t.callPhone;
+    appel.style.cssText = 'font-weight:600;text-decoration:underline;color:inherit;';
+    ligne.appendChild(appel);
+
+    if (p.whatsapp) {
+      var wa = document.createElement('a');
+      wa.href = contactWhatsappMessageHref(p.number, currentLang);
+      wa.target = '_blank';
+      wa.rel = 'noopener';
+      wa.textContent = t.callWa;
+      wa.style.cssText = 'font-weight:600;text-decoration:underline;color:inherit;margin-inline-start:.6rem;';
+      ligne.appendChild(wa);
+    }
+    corps.appendChild(ligne);
+  });
+
+  corps.appendChild(njParlonsRetour(corps, basePath));
+}
+
+/**
+ * Sous-vue « écrire » : dépose sur api/message-depot.php, le même point que
+ * l'hôtesse du bureau de vente. Les commerciaux traitent donc les messages du
+ * lanceur depuis leur espace habituel, sans nouvelle boîte à surveiller.
+ */
+function njParlonsFormulaire(corps, basePath) {
+  var t = njParlonsT();
+  corps.innerHTML = '';
+  corps.className = 'nj-parlons-form';
+  corps.dataset.vue = 'ecrire';
+
+  function champ(tag, type, ph, maxLen) {
+    var el = document.createElement(tag);
+    if (tag === 'input') el.type = type;
+    el.placeholder = ph;
+    if (maxLen) el.maxLength = maxLen;
+    return el;
+  }
+  var fNom  = champ('input', 'text',  t.fName, 120);
+  var fTel  = champ('input', 'tel',   t.fTel,  40);
+  var fMail = champ('input', 'email', t.fMail, 160);
+  var fMsg  = champ('textarea', '',   t.fMsg,  4000);
+  [fNom, fTel, fMail, fMsg].forEach(function (el) { corps.appendChild(el); });
+
+  var err = njParlonsEl('p', 'nj-parlons-err');
+  err.hidden = true;
+  corps.appendChild(err);
+  function echec(msg) { err.textContent = msg; err.hidden = false; }
+
+  var envoyer = njParlonsEl('button', 'nj-parlons-opt primary');
+  envoyer.type = 'button';
+  envoyer.innerHTML = '<span style="flex:1;text-align:center"><b>' + escapeHtml(t.send) + '</b></span>';
+  envoyer.addEventListener('click', function () {
+    var tel = fTel.value.trim(), mail = fMail.value.trim(), texte = fMsg.value.trim();
+    /* Un message sans moyen de rappel est un message perdu : le commercial le
+       lirait sans pouvoir y répondre. */
+    if (!tel && !mail) { echec(t.errContact); fTel.focus(); return; }
+    if (!texte) { echec(t.errEmpty); fMsg.focus(); return; }
+    err.hidden = true;
+    envoyer.disabled = true;
+    envoyer.innerHTML = '<span style="flex:1;text-align:center"><b>' + escapeHtml(t.sending) + '</b></span>';
+
+    var projet = getCurrentProjectForMenu();
+    var fd = new FormData();
+    fd.append('projet', projet ? projet.id : '');
+    fd.append('nom', fNom.value.trim());
+    fd.append('telephone', tel);
+    fd.append('email', mail);
+    fd.append('message', texte);
+    fd.append('langue', currentLang);
+
+    fetch(basePath + 'api/message-depot.php', { method: 'POST', body: fd })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) throw new Error((d && d.error) || 'ko');
+        corps.className = 'nj-parlons-options';
+        corps.dataset.vue = 'merci';
+        corps.innerHTML = '<p class="nj-parlons-foot">' + escapeHtml(t.thanks) + '</p>';
+        corps.appendChild(njParlonsRetour(corps, basePath));
+      })
+      .catch(function () {
+        envoyer.disabled = false;
+        envoyer.innerHTML = '<span style="flex:1;text-align:center"><b>' + escapeHtml(t.send) + '</b></span>';
+        echec(t.errEmpty);
+      });
+  });
+  corps.appendChild(envoyer);
+  corps.appendChild(njParlonsRetour(corps, basePath));
+  fNom.focus();
+}
+
+/**
+ * Sonde la présence et met à jour la pastille, le sous-titre et l'option mise
+ * en avant. Appelée à l'installation puis à chaque ouverture : le battement
+ * expire en 20 s (NJ_PRESENCE_TTL), une valeur gardée plus longtemps mentirait.
+ */
+function njParlonsSonderPresence(basePath, racine) {
+  return fetch(basePath + 'api/agent-presence.php?dispo=1')
+    .then(function (r) { return r.json(); })
+    .then(function (d) { njParlonsOnline = !!(d && d.ok && d.online); })
+    .catch(function () { njParlonsOnline = false; })
+    .then(function () {
+      var t = njParlonsT();
+      racine.classList.toggle('on', njParlonsOnline);
+      var sous = racine.querySelector('.nj-parlons-sous');
+      if (sous) sous.textContent = njParlonsOnline ? t.subOn : t.subOff;
+      var corps = document.getElementById('njParlonsCorps');
+      /* On ne réécrit le corps que s'il montre encore le menu : le visiteur
+         peut être en train de remplir le formulaire. */
+      if (corps && corps.dataset.vue === 'menu') {
+        njParlonsRendreOptions(corps, basePath);
+      }
+    });
+}
+
+/**
+ * Construit et pose le lanceur. Rappelée à chaque changement de langue depuis
+ * installMenuAndFooter() : on retire l'ancien plutôt que de traduire en place,
+ * un panneau ouvert n'ayant pas à survivre à un changement de langue.
+ */
+function njParlonsInstaller(basePath) {
+  basePath = basePath || '';
+  var ancien = document.querySelector('.nj-parlons');
+  if (ancien) ancien.remove();
+  if (!njParlonsAutorise()) return;
+
+  var t = njParlonsT();
+  var racine = njParlonsEl('div', 'nj-parlons');
+
+  // ── Panneau (masqué au départ) ──────────────────────────────────────────
+  var panneau = njParlonsEl('div', 'nj-parlons-panel');
+  panneau.id = 'njParlonsPanel';
+  panneau.hidden = true;
+  panneau.setAttribute('role', 'dialog');
+  panneau.setAttribute('aria-label', t.title);
+  panneau.innerHTML =
+    '<div class="nj-parlons-head">' +
+      '<div class="nj-parlons-avatar" aria-hidden="true">💬</div>' +
+      '<div class="nj-parlons-who">' +
+        '<b>' + escapeHtml(t.title) + '<span class="nj-parlons-dot"></span></b>' +
+        '<span class="nj-parlons-sous">' + escapeHtml(t.subOff) + '</span>' +
+      '</div>' +
+      '<button class="nj-parlons-close" type="button" aria-label="' + escapeHtml(t.close) + '">×</button>' +
+    '</div>' +
+    '<div class="nj-parlons-options" id="njParlonsCorps"></div>' +
+    '<p class="nj-parlons-foot">🔒 ' + escapeHtml(t.privacy) + '</p>';
+
+  // ── Bulle d'amorce ──────────────────────────────────────────────────────
+  var amorce = njParlonsEl('div', 'nj-parlons-teaser');
+  amorce.hidden = true;
+  amorce.innerHTML =
+    escapeHtml(t.teaser) +
+    '<button class="nj-parlons-teaser-close" type="button" aria-label="' + escapeHtml(t.close) + '">×</button>';
+
+  // ── Pastille ────────────────────────────────────────────────────────────
+  var bouton = njParlonsEl('button', 'nj-parlons-btn');
+  bouton.type = 'button';
+  bouton.setAttribute('aria-expanded', 'false');
+  bouton.setAttribute('aria-controls', 'njParlonsPanel');
+  bouton.innerHTML =
+    '<span class="nj-parlons-ico" aria-hidden="true">💬</span>' +
+    '<span>' + escapeHtml(t.btn) + '</span>' +
+    '<span class="nj-parlons-dot"></span>';
+
+  racine.appendChild(panneau);
+  racine.appendChild(amorce);
+  racine.appendChild(bouton);
+  document.body.appendChild(racine);
+
+  njParlonsRendreOptions(document.getElementById('njParlonsCorps'), basePath);
+
+  // ── Ouverture / fermeture ───────────────────────────────────────────────
+  function masquerAmorce(definitif) {
+    amorce.hidden = true;
+    if (definitif) {
+      try { window.sessionStorage.setItem(NJ_PARLONS_TEASER_KEY, '1'); } catch (e) {}
+    }
+  }
+  function ouvrir() {
+    panneau.hidden = false;
+    bouton.setAttribute('aria-expanded', 'true');
+    masquerAmorce(true);
+    njParlonsSonderPresence(basePath, racine);
+  }
+  function fermer() {
+    panneau.hidden = true;
+    bouton.setAttribute('aria-expanded', 'false');
+    njParlonsRendreOptions(document.getElementById('njParlonsCorps'), basePath);
+  }
+
+  bouton.addEventListener('click', function () {
+    if (panneau.hidden) ouvrir(); else fermer();
+  });
+  panneau.querySelector('.nj-parlons-close').addEventListener('click', fermer);
+  amorce.querySelector('.nj-parlons-teaser-close').addEventListener('click', function (e) {
+    e.stopPropagation();
+    masquerAmorce(true);
+  });
+  amorce.addEventListener('click', ouvrir);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !panneau.hidden) fermer();
+  });
+  /* Fermeture au clic à l'extérieur.
+     composedPath() plutôt que contains() : le chemin est figé au moment où le
+     clic part, alors que contains() n'est évalué qu'APRÈS les gestionnaires.
+     Or cliquer une option reconstruit le corps du panneau, donc détache le
+     bouton cliqué : contains() ne le retrouvait plus dans le lanceur, concluait
+     à un clic extérieur, et refermait le panneau à l'instant même où le
+     visiteur venait d'y entrer. */
+  document.addEventListener('click', function (e) {
+    if (panneau.hidden) return;
+    var chemin = typeof e.composedPath === 'function' ? e.composedPath() : null;
+    var dedans = chemin ? chemin.indexOf(racine) >= 0 : racine.contains(e.target);
+    if (!dedans) fermer();
+  });
+
+  // ── L'amorce, une fois par session et jamais d'emblée ───────────────────
+  var dejaVue = false;
+  try { dejaVue = window.sessionStorage.getItem(NJ_PARLONS_TEASER_KEY) === '1'; } catch (e) {}
+  if (!dejaVue) {
+    /* Douze secondes : le temps de commencer à lire. Une bulle qui s'ouvre à
+       l'arrivée se referme sans être lue. */
+    window.setTimeout(function () {
+      if (panneau.hidden && document.querySelector('.nj-parlons')) amorce.hidden = false;
+    }, 12000);
+  }
+
+  njParlonsSonderPresence(basePath, racine);
+}
 // ===== INSTALLATION DU MENU & FOOTER =====
 function installMenuAndFooter(activePage, basePath) {
   // Inject menu at the start of body
@@ -1000,6 +1482,10 @@ function installMenuAndFooter(activePage, basePath) {
       });
     }
   }
+
+  // Lanceur « On en parle ? ». Posé ici et non dans initPage() parce que
+  // switchLang() repasse par cette fonction : le panneau doit se retraduire.
+  njParlonsInstaller(basePath);
 }
 
 // ===== CHANGEMENT DE LANGUE =====

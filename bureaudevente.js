@@ -930,6 +930,14 @@
     if (stageAgentBtn) stageAgentBtn.onclick = function() { openAgent(false); };
     setupFullscreen();
     initPage("projects", "");
+
+    /* ?hotesse=1 — le visiteur arrive du lanceur « On en parle ? » d'une autre
+       page, où il a choisi de parler à l'hôtesse. Lui redemander de cliquer sur
+       la pastille lui ferait refaire le geste qu'il vient de faire.
+       Après initPage() : le panneau lit currentLang, réglé par celui-ci. */
+    try {
+      if (new URLSearchParams(window.location.search).get("hotesse")) openAgent(false);
+    } catch (e) { /* URLSearchParams absent : le visiteur clique, comme avant. */ }
   });
 
   // Ne pas laisser une room ouverte derrière soi.
