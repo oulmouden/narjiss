@@ -10,6 +10,7 @@ var MENU_UI = {
     units: "Disponibilités",
     map: "Carte",
     guides: "Guides",
+    footer_agadir: "Immobilier à Agadir",
     about: "À propos",
     contact: "Contact",
     demo: "Démo",
@@ -37,6 +38,7 @@ var MENU_UI = {
     units: "Availability",
     map: "Map",
     guides: "Guides",
+    footer_agadir: "Real estate in Agadir",
     about: "About",
     contact: "Contact",
     demo: "Demo",
@@ -64,6 +66,7 @@ var MENU_UI = {
     units: "عروض",
     map: "الخريطة",
     guides: "أدلة",
+    footer_agadir: "عقارات في أكادير",
     about: "من نحن",
     contact: "اتصل بنا",
     demo: "عرض توضيحي",
@@ -91,6 +94,7 @@ var MENU_UI = {
     units: "Disponibilidad",
     map: "Mapa",
     guides: "Guías",
+    footer_agadir: "Inmobiliaria en Agadir",
     about: "Acerca de",
     contact: "Contacto",
     demo: "Demo",
@@ -908,6 +912,12 @@ function buildFooterHTML(basePath) {
             '<li><a href="' + basePath + 'index.html' + langHash + '">' + t.home + '</a></li>' +
             '<li><a href="' + basePath + 'explorer.html' + langHash + '">' + t.projects + '</a></li>' +
             '<li><a href="' + basePath + 'guides.html' + langHash + '">' + t.guides + '</a></li>' +
+            /* Page ville : le lien pointe sur le FICHIER de la langue courante,
+               jamais sur une ancre. C'est la seule page du site à exister en
+               quatre URL distinctes, et c'est exactement ce qui la rend
+               indexable dans les quatre langues. Un lien interne présent sur
+               chaque page lui donne de quoi être trouvée, et pesée. */
+            '<li><a href="' + basePath + 'immobilier-agadir-' + currentLang + '.html">' + t.footer_agadir + '</a></li>' +
             '<li><a href="' + basePath + 'carte.html' + langHash + '">' + t.map + '</a></li>' +
           '</ul>' +
           '</div>' +

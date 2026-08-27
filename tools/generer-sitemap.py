@@ -62,6 +62,14 @@ PAGES_FIXES = [
     ('explorer.html', '/explorer.html'),
     ('disponibilites.html', '/disponibilites.html'),
     ('guides.html', '/guides.html'),
+    # Page ville, une par langue (tools/generer-page-ville.py). Ce sont de VRAIS
+    # fichiers, pas des ancres : c'est ce qui les rend indexables, contrairement
+    # aux formes #en / #ar des autres pages, que le moteur ne distingue pas de
+    # leur version francaise.
+    ('immobilier-agadir-fr.html', '/immobilier-agadir-fr.html'),
+    ('immobilier-agadir-en.html', '/immobilier-agadir-en.html'),
+    ('immobilier-agadir-ar.html', '/immobilier-agadir-ar.html'),
+    ('immobilier-agadir-es.html', '/immobilier-agadir-es.html'),
     ('carte.html', '/carte.html'),
     ('demo.html', '/demo.html'),
     ('apropos.html', '/apropos.html'),

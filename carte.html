@@ -172,6 +172,22 @@ html[dir=rtl] .map-search-item { text-align: right; }
   transform: translateX(-50%) rotate(45deg);
 }
 </style>
+<!-- Balises lues par les moteurs et les apercus de messagerie AVANT tout
+     JavaScript. Posees par tools/poser-seo-pages.py ; modifiables a la main,
+     le script ne recrit jamais par-dessus. -->
+<meta name="description" content="Carte interactive des programmes NARJISS à Agadir : situez chaque résidence et découvrez les commerces, écoles et services de son quartier.">
+<link rel="canonical" href="https://www.narjiss.company/carte.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NARJISS">
+<meta property="og:title" content="Carte de nos projets à Agadir — NARJISS">
+<meta property="og:description" content="Carte interactive des programmes NARJISS à Agadir : situez chaque résidence et découvrez les commerces, écoles et services de son quartier.">
+<meta property="og:url" content="https://www.narjiss.company/carte.html">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:image" content="https://www.narjiss.company/images/logo-narjiss.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Carte de nos projets à Agadir — NARJISS">
+<meta name="twitter:description" content="Carte interactive des programmes NARJISS à Agadir : situez chaque résidence et découvrez les commerces, écoles et services de son quartier.">
+<meta name="twitter:image" content="https://www.narjiss.company/images/logo-narjiss.jpg">
 </head>
 <body>
 <div id="mainMenu"></div>
@@ -195,7 +211,7 @@ html[dir=rtl] .map-search-item { text-align: right; }
 </main>
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=eb805e3a"></script>
+<script src="shared/menu.js?v=82772e6c"></script>
 <script>
 var PAGE_UI = {
   fr: { title: "Carte globale de nos projets", subtitle: "Tous nos projets immobiliers au Maroc", viewProject: "Voir le projet →", comingSoon: "Bientôt disponible", searchPlaceholder: "Rechercher un projet", noResult: "Aucun projet ne correspond." },

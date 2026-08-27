@@ -330,3 +330,119 @@ html[lang=ar] .guide-corps { line-height: 1.95; }
   .guide-page { padding: 1rem .95rem 3rem; }
   .guide-corps { font-size: 1rem; }
 }
+
+/* ============================================================================
+   PAGE VILLE — « Immobilier à Agadir »
+   ----------------------------------------------------------------------------
+   Produite par tools/generer-page-ville.py, une page par langue. Elle réutilise
+   l'ossature des guides (.guide-page, .guide-hub-entete) et n'ajoute que la
+   liste des projets, qui n'existe nulle part ailleurs en HTML servi.
+   ========================================================================== */
+.ville-compte-total {
+  margin-top: .6rem;
+  font-weight: 600;
+  color: var(--ocean);
+}
+
+.ville-projets h2,
+.ville-guides h2,
+.ville-cta h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+  margin: 2.4rem 0 .6rem;
+}
+html[lang=ar] .ville-projets h2,
+html[lang=ar] .ville-guides h2,
+html[lang=ar] .ville-cta h2 { font-family: var(--font-arabic); }
+
+.ville-projets h3 {
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--muted);
+  margin: 1.6rem 0 .7rem;
+}
+.ville-compte { font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+.ville-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: .8rem;
+}
+
+.ville-projet a {
+  display: flex;
+  align-items: flex-start;
+  gap: .85rem;
+  height: 100%;
+  padding: .9rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.ville-projet a:hover {
+  border-color: var(--ocean);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.ville-projet img {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--surface-raised);
+}
+.ville-projet-txt { min-width: 0; }
+.ville-projet-txt strong {
+  display: block;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  margin-bottom: .2rem;
+}
+.ville-projet-lieu {
+  display: block;
+  font-size: .84rem;
+  color: var(--muted);
+}
+.ville-projet-desc {
+  display: block;
+  margin-top: .35rem;
+  font-size: .86rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.ville-projet-lire {
+  display: block;
+  margin-top: .5rem;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--ocean);
+}
+
+.ville-guides ul {
+  margin: .6rem 0 0;
+  padding-inline-start: 1.1rem;
+  line-height: 1.9;
+}
+.ville-guides a { color: var(--ocean); }
+
+.ville-cta {
+  margin-top: 2.6rem;
+  padding: 1.4rem 1.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  background: var(--surface-raised);
+}
+.ville-cta h2 { margin-top: 0; }
+.ville-cta .btn { margin-inline-end: .6rem; margin-top: .4rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ville-projet a:hover { transform: none; }
+}
