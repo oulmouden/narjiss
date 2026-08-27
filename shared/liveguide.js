@@ -153,6 +153,123 @@
   // Configuration ICE pour la voix WebRTC.
   var ICE = buildIce();
 
+  /* Cette table est posee ICI, avant tout demarrage, et non plus au milieu du
+     fichier avec le reste de l'interface. Dans une iframe, startCadre() part
+     immediatement — sans attendre le SDK Pusher — et construit la barre, donc
+     appelle T(). Declaree plus bas, TEXTES valait encore undefined a cet
+     instant : TypeError, script interrompu, et PLUS RIEN ne se synchronisait
+     a l'interieur de demo.html. Hors cadre le defaut ne se voyait pas, le
+     demarrage y etant differe par le chargement du SDK. */
+  /* ======================================================================
+     TRADUCTIONS DE LA BARRE DU CONSEILLER
+     ----------------------------------------------------------------------
+     Le site parle quatre langues et le conseiller travaille dans celle de son
+     client : la barre restait en français par-dessus une page en arabe, avec
+     le mot « spectateur(s) » au milieu d'un texte écrit de droite à gauche.
+
+     Les libellés du bouton « Faire visiter » reprennent mot pour mot ceux de
+     PROFIL_UI (menu.js), où le même bouton existe déjà dans le menu agent :
+     deux traductions différentes du même bouton se remarqueraient.
+     ====================================================================== */
+  var TEXTES = {
+    fr: {
+      barreActive: 'Visite guidée active',
+      spectateurs: 'spectateur(s)',
+      code: 'Code :',
+      codeAide: 'À communiquer de vive voix au visiteur',
+      micActiver: '🎙️ Activer le micro',
+      micActif: '🎙️ Micro actif',
+      micRefuse: '🎙️ Micro refusé',
+      voixNonSupportee: 'Voix non supportée',
+      pointeur: '👉 Pointeur',
+      pointeurActif: '👉 Pointeur actif',
+      pointeurAide: 'Suit la souris dans une vue 360°',
+      chat: '💬 Chat',
+      copier: 'Copier le lien visiteur',
+      copie: 'Lien copié ✓',
+      copieEchec: 'Copie échouée',
+      terminer: 'Terminer',
+      afficherBarre: 'Afficher la barre de visite guidée',
+      reduireBarre: 'Réduire la barre',
+      erreurConnexion: 'Erreur de connexion',
+      faireVisiter: '🎥 Faire visiter',
+      faireVisiterAide: 'Ouvrir une visite guidée en direct depuis cette page',
+      ouverture: 'Ouverture…'
+    },
+    en: {
+      barreActive: 'Guided tour active',
+      spectateurs: 'viewer(s)',
+      code: 'Code:',
+      codeAide: 'To be given to the visitor by voice',
+      micActiver: '🎙️ Turn on microphone',
+      micActif: '🎙️ Microphone on',
+      micRefuse: '🎙️ Microphone denied',
+      voixNonSupportee: 'Voice not supported',
+      pointeur: '👉 Pointer',
+      pointeurActif: '👉 Pointer on',
+      pointeurAide: 'Follows the mouse in a 360° view',
+      chat: '💬 Chat',
+      copier: 'Copy visitor link',
+      copie: 'Link copied ✓',
+      copieEchec: 'Copy failed',
+      terminer: 'End',
+      afficherBarre: 'Show the guided tour bar',
+      reduireBarre: 'Collapse the bar',
+      erreurConnexion: 'Connection error',
+      faireVisiter: '🎥 Start a tour',
+      faireVisiterAide: 'Open a live guided tour from this page',
+      ouverture: 'Opening…'
+    },
+    es: {
+      barreActive: 'Visita guiada activa',
+      spectateurs: 'espectador(es)',
+      code: 'Código:',
+      codeAide: 'Para comunicar de viva voz al visitante',
+      micActiver: '🎙️ Activar el micrófono',
+      micActif: '🎙️ Micrófono activo',
+      micRefuse: '🎙️ Micrófono denegado',
+      voixNonSupportee: 'Voz no compatible',
+      pointeur: '👉 Puntero',
+      pointeurActif: '👉 Puntero activo',
+      pointeurAide: 'Sigue el ratón en una vista 360°',
+      chat: '💬 Chat',
+      copier: 'Copiar el enlace del visitante',
+      copie: 'Enlace copiado ✓',
+      copieEchec: 'Error al copiar',
+      terminer: 'Finalizar',
+      afficherBarre: 'Mostrar la barra de visita guiada',
+      reduireBarre: 'Contraer la barra',
+      erreurConnexion: 'Error de conexión',
+      faireVisiter: '🎥 Iniciar visita',
+      faireVisiterAide: 'Abrir una visita guiada en directo desde esta página',
+      ouverture: 'Abriendo…'
+    },
+    ar: {
+      barreActive: 'الجولة المباشرة نشطة',
+      spectateurs: 'مشاهد(ون)',
+      code: 'الرمز:',
+      codeAide: 'يُبلَّغ به الزائر شفويًا',
+      micActiver: '🎙️ تشغيل الميكروفون',
+      micActif: '🎙️ الميكروفون يعمل',
+      micRefuse: '🎙️ رُفض الميكروفون',
+      voixNonSupportee: 'الصوت غير مدعوم',
+      pointeur: '👉 المؤشر',
+      pointeurActif: '👉 المؤشر مُفعَّل',
+      pointeurAide: 'يتابع الفأرة داخل مشهد 360°',
+      chat: '💬 الدردشة',
+      copier: 'نسخ رابط الزائر',
+      copie: 'تم نسخ الرابط ✓',
+      copieEchec: 'تعذّر النسخ',
+      terminer: 'إنهاء',
+      afficherBarre: 'إظهار شريط الجولة',
+      reduireBarre: 'تصغير الشريط',
+      erreurConnexion: 'خطأ في الاتصال',
+      faireVisiter: '🎥 بدء الجولة',
+      faireVisiterAide: 'فتح جولة مباشرة انطلاقًا من هذه الصفحة',
+      ouverture: 'جارٍ الفتح…'
+    }
+  };
+
   // ----- Identifiants, puis chargement paresseux du SDK Pusher -------------
   // Rien n'est chargé tant qu'on n'a pas de quoi entrer : le conseiller doit
   // obtenir sa session du serveur, le visiteur doit avoir saisi son code.
@@ -214,11 +331,11 @@
     if (document.querySelector('.lg-lancer')) return;
     var b = el('button', 'lg-lancer');
     b.type = 'button';
-    b.textContent = '🎥 Faire visiter';
-    b.title = 'Ouvrir une visite guidée en direct depuis cette page';
+    b.textContent = T('faireVisiter');
+    b.title = T('faireVisiterAide');
     b.addEventListener('click', function () {
       b.disabled = true;
-      b.textContent = 'Ouverture…';
+      b.textContent = T('ouverture');
 
       // POURQUOI UN RECHARGEMENT PLUTÔT QU'UN DÉMARRAGE À CHAUD
       // Une partie de l'amorçage a déjà eu lieu, et ne se rejoue pas : menu.js
@@ -472,6 +589,25 @@
   function initHost(channel) {
     var ui = buildHostBar();
     initChat(channel, ui.chat, 'Conseiller');
+
+    /* La langue se change SANS recharger la page (switchLang, menu.js) : la
+       barre est construite une fois pour toutes et resterait dans la langue
+       d'arrivée. switchLang pose la langue dans le hash — on s'y accroche
+       plutôt qu'à une fonction du menu, qu'une autre page a pu déjà réserver
+       (project.js définit window.onLanguageChange). */
+    window.addEventListener('hashchange', function () {
+      ui.status.textContent = T('barreActive');
+      ui.code.innerHTML = T('code') + ' <b>' + code.replace(/[^0-9]/g, '') + '</b>';
+      ui.code.title = T('codeAide');
+      ui.mic.textContent = micOn ? T('micActif') : T('micActiver');
+      ui.point.textContent = pointeurActif ? T('pointeurActif') : T('pointeur');
+      ui.point.title = T('pointeurAide');
+      ui.chat.textContent = T('chat');
+      ui.copy.textContent = T('copier');
+      ui.end.textContent = T('terminer');
+      ui.majRepli();
+      updateCount(ui, keyCount(viewers), keyCount(parleurs));
+    });
     var viewers = {};   // viewerId -> true
     var pcs = {};       // viewerId -> RTCPeerConnection (voix)
     var localStream = null;
@@ -500,7 +636,7 @@
       updateCount(ui, keyCount(viewers), keyCount(parleurs));
     });
     channel.bind('pusher:subscription_error', function () {
-      ui.status.textContent = 'Erreur de connexion';
+      ui.status.textContent = T('erreurConnexion');
     });
 
     // Diffusion du scroll (throttlé) + battement régulier pour les retardataires.
@@ -550,8 +686,35 @@
       var sel2 = cssPath(t);
       if (!sel2) return;
       var value = t.type === 'checkbox' ? t.checked : t.value;
+      valeursSuivies[sel2] = true;
       channel.trigger('client-action', { kind: 'value', selector: sel2, value: value });
     }, true);
+
+    /* Réémission des valeurs, comme la carte et le panorama en ont une.
+       C'était le seul canal à ne parler qu'une fois : un client event Pusher
+       est best-effort, et rien ne rattrapait la perte — le filtre restait sur
+       « toutes catégories » chez le visiteur jusqu'au changement suivant. Un
+       visiteur arrivé après coup, lui, ne le recevait jamais.
+
+       On ne redit que les contrôles que le conseiller a effectivement touchés,
+       et on relit leur état réel plutôt qu'une copie : la page peut les avoir
+       reconstruits entre-temps — la barre des POI se réécrit entièrement à
+       chaque filtrage. Côté visiteur, une valeur déjà en place est ignorée
+       sans être rejouée, faute de quoi la liste se reconstruirait toutes les
+       deux secondes. */
+    var valeursSuivies = {};
+    var valeurBeat = setInterval(function () {
+      for (var sv in valeursSuivies) {
+        if (!Object.prototype.hasOwnProperty.call(valeursSuivies, sv)) continue;
+        var ev2;
+        try { ev2 = document.querySelector(sv); } catch (e) { continue; }
+        if (!ev2) { delete valeursSuivies[sv]; continue; } // contrôle disparu
+        channel.trigger('client-action', {
+          kind: 'value', selector: sv,
+          value: ev2.type === 'checkbox' ? ev2.checked : ev2.value
+        });
+      }
+    }, 2000);
 
     /* Curseurs — <input type="range">. Ni le clic ni le 'change' ne les
        rendaient : le clic n'a pas de sens sur une glissière, et 'change' ne
@@ -574,7 +737,9 @@
       var el = rangeEnAttente;
       if (!el) return;
       var sel3 = cssPath(el);
-      if (sel3) channel.trigger('client-action', { kind: 'value', selector: sel3, value: el.value });
+      if (!sel3) return;
+      valeursSuivies[sel3] = true;
+      channel.trigger('client-action', { kind: 'value', selector: sel3, value: el.value });
     }, 120);
     document.addEventListener('input', function (ev) {
       var t = ev.target;
@@ -603,7 +768,7 @@
     ui.point.addEventListener('click', function () {
       pointeurActif = !pointeurActif;
       if (!pointeurActif) pointPos = null;
-      ui.point.textContent = pointeurActif ? '👉 Pointeur actif' : '👉 Pointeur';
+      ui.point.textContent = pointeurActif ? T('pointeurActif') : T('pointeur');
       ui.point.classList.toggle('lg-btn-on', pointeurActif);
     });
 
@@ -678,6 +843,60 @@
       }
     }, 200);
 
+    // Diffusion des dessins et des mesures tracés sur les cartes. Une forme
+    // tracée à la main (leaflet-draw) ou un trait de décamètre
+    // (PolylineMeasure) ne déplace pas la vue, ne change pas l'URL et ne
+    // produit aucun clic reproductible : rien de la synchro existante ne les
+    // emportait. Le conseiller entourait un lot, mesurait la distance à la
+    // plage, et le visiteur regardait une carte nue.
+    //
+    // Les pages déclarent les calques à partager dans window.LG_DRAW (voir
+    // lgPartagerDessins() dans project.js) ; on les traduit ici en formes
+    // simples, car Leaflet ne sait pas se relire lui-même : toGeoJSON perd les
+    // couleurs, et les étiquettes du décamètre sont des divIcon dont le HTML
+    // est réécrit à la volée dans le DOM.
+    var lastDraw = [];
+    var drawTicks = 0;
+    var drawTropGros = false;
+    var drawBeat = setInterval(function () {
+      var maps = window.LG_MAPS || [];
+      var entrees = window.LG_DRAW || [];
+      drawTicks++;
+      var parCarte = {};
+      for (var e = 0; e < entrees.length; e++) {
+        var idx = maps.indexOf(entrees[e].map);
+        if (idx < 0) continue;
+        // Une carte déclarée compte même sans dessin : c'est le tableau vide
+        // qui efface, chez le visiteur, le tracé que le conseiller vient de
+        // gommer.
+        if (!parCarte[idx]) parCarte[idx] = [];
+        var couches;
+        try { couches = entrees[e].layers(); } catch (err) { continue; }
+        if (couches && couches.length) serialiserDessins(couches, parCarte[idx]);
+      }
+      for (var k in parCarte) {
+        var formes = parCarte[k];
+        var cle = JSON.stringify(formes);
+        // Un client event Pusher est plafonné à 10 Ko : au-delà, l'envoi
+        // échoue en silence et le visiteur ne verrait plus RIEN, pas même le
+        // début du tracé. On ampute donc la fin, et on le dit une fois.
+        while (cle.length > 9000 && formes.length > 1) {
+          formes.pop();
+          cle = JSON.stringify(formes);
+          if (!drawTropGros) {
+            drawTropGros = true;
+            console.warn('[liveguide] dessin trop volumineux : fin du tracé non transmise');
+          }
+        }
+        // Réémission de sécurité plus espacée que celle de la vue (~2 s au lieu
+        // de 600 ms) : la charge utile est bien plus lourde qu'un centre et un
+        // zoom, et les client events Pusher sont comptés.
+        if (cle === lastDraw[k] && drawTicks % 5 !== 0) continue;
+        lastDraw[k] = cle;
+        channel.trigger('client-action', { kind: 'draw', i: Number(k), s: formes });
+      }
+    }, 400);
+
     // --- Voix : réception des réponses / ICE des visiteurs ---
     channel.bind('client-webrtc', function (msg) {
       if (!msg || msg.to !== userId) return;
@@ -707,20 +926,20 @@
     ui.mic.addEventListener('click', function () {
       if (micOn) { stopVoice(); return; }
       if (!navigator.mediaDevices || !window.RTCPeerConnection) {
-        ui.mic.textContent = 'Voix non supportée';
+        ui.mic.textContent = T('voixNonSupportee');
         return;
       }
       navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
         localStream = stream;
         micOn = true;
-        ui.mic.textContent = '🎙️ Micro actif';
+        ui.mic.textContent = T('micActif');
         ui.mic.classList.add('lg-btn-on');
         // refreshPeer et non startPeer : une connexion peut déjà exister avec
         // un visiteur qui avait pris la parole, et elle ne porte pas encore
         // notre voix.
         forEachKey(viewers, refreshPeer);
       }).catch(function () {
-        ui.mic.textContent = '🎙️ Micro refusé';
+        ui.mic.textContent = T('micRefuse');
       });
     });
 
@@ -793,7 +1012,7 @@
     function stopVoice() {
       micOn = false;
       if (localStream) { localStream.getTracks().forEach(function (t) { t.stop(); }); localStream = null; }
-      ui.mic.textContent = '🎙️ Activer le micro';
+      ui.mic.textContent = T('micActiver');
       ui.mic.classList.remove('lg-btn-on');
       // On ne coupe pas tout : les visiteurs à qui l'on a donné la parole
       // doivent rester audibles même quand le conseiller se tait.
@@ -805,6 +1024,8 @@
       clearInterval(beat);
       clearInterval(panoBeat);
       clearInterval(mapBeat);
+      clearInterval(drawBeat);
+      clearInterval(valeurBeat);
       window.removeEventListener('scroll', onScroll);
       stopVoice();
       // Ferme la session côté serveur : le lien ET le code deviennent inertes.
@@ -1023,6 +1244,15 @@
         var elt2;
         try { elt2 = document.querySelector(msg.selector); } catch (e) { return; }
         if (!elt2) return;
+        /* Déjà dans cet état ? On ne touche à rien. La réémission de sécurité
+           repasse toutes les 2 s ; rejouer un 'change' à chaque passage
+           relancerait le rendu de la page — la liste des points d'intérêt se
+           reconstruirait sans fin. Même leçon que pour les cartes : on compare
+           à l'ÉTAT réel du contrôle, jamais au dernier message reçu. */
+        var estCase = elt2.tagName === 'INPUT' && (elt2.type === 'checkbox' || elt2.type === 'radio');
+        if (estCase && elt2.type === 'checkbox' && elt2.checked === !!msg.value) return;
+        if (estCase && elt2.type === 'radio' && elt2.checked) return;
+        if (!estCase && String(elt2.value) === String(msg.value)) return;
         if (elt2.tagName === 'INPUT' && elt2.type === 'checkbox') elt2.checked = !!msg.value;
         else if (elt2.tagName === 'INPUT' && elt2.type === 'radio') elt2.checked = true;
         else elt2.value = msg.value;
@@ -1067,6 +1297,33 @@
           if (typeof mp.stop === 'function') mp.stop(); // coupe un flyTo en cours
           mp.setView([msg.lat, msg.lng], msg.zoom, { animate: false });
         } catch (e) {}
+        return;
+      }
+      if (msg.kind === 'draw') {
+        var cartes = window.LG_MAPS || [];
+        var mpd = cartes[msg.i || 0];
+        if (!mpd || !window.L) return;
+        // Calque dédié, et non le groupe de dessin de la page : celui-ci est
+        // enregistré dans le localStorage du visiteur (voir saveDrawings dans
+        // project.js). Le tracé du conseiller est un calque de séance, pas un
+        // dessin qu'on garde au visiteur après son départ.
+        var grp = mpd.__lgDessins;
+        if (!grp || !mpd.hasLayer(grp)) {
+          grp = window.L.layerGroup().addTo(mpd);
+          mpd.__lgDessins = grp;
+          grp.__lgCle = null; // le calque a pu être emporté par un rendu de la page
+        }
+        var cle = JSON.stringify(msg.s || []);
+        // On compare à ce qui est RÉELLEMENT posé sur la carte — ce calque
+        // n'appartient qu'à nous, son contenu est donc exactement ce qu'on y a
+        // mis. C'est ce qui laisse la réémission de sécurité réparer un
+        // événement perdu sans reconstruire les formes cinq fois par seconde
+        // (même piège que le clignotement de la vue, corrigé plus haut).
+        if (grp.__lgCle === cle) return;
+        grp.clearLayers();
+        var formes = construireDessins(msg.s || []);
+        for (var fi = 0; fi < formes.length; fi++) grp.addLayer(formes[fi]);
+        grp.__lgCle = cle;
         return;
       }
       if (msg.kind === 'pano') {
@@ -1220,6 +1477,138 @@
     });
   }
 
+  /* ----------------------------------------------------------------------
+     Dessins de carte : traduction aller (hôte) et retour (visiteur)
+     ---------------------------------------------------------------------- */
+
+  // Nombre de sommets au-delà duquel un tracé est éclairci. Le décamètre ne
+  // dessine pas un segment droit mais un arc de grand cercle d'une centaine de
+  // points PAR segment : une mesure en cinq clics pèserait 10 Ko, soit le
+  // plafond d'un client event Pusher à elle seule. À l'échelle d'un quartier
+  // l'arc et la corde se confondent au pixel près : quelques dizaines de
+  // sommets suffisent donc à le redessiner à l'identique. Les formes tracées à la main, elles,
+  // dépassent rarement la trentaine de sommets et passent intactes.
+  var MAX_SOMMETS = 60;
+
+  function echantillonner(pts) {
+    if (pts.length <= MAX_SOMMETS) return pts;
+    var pas = Math.ceil(pts.length / MAX_SOMMETS), out = [];
+    for (var i = 0; i < pts.length; i += pas) out.push(pts[i]);
+    // Le dernier sommet est gardé quoi qu'il arrive : c'est lui qui ferme le
+    // trait sous l'étiquette de distance.
+    if (out[out.length - 1] !== pts[pts.length - 1]) out.push(pts[pts.length - 1]);
+    return out;
+  }
+
+  // Arrondi à 1e-6 degré (~11 cm) : la précision de l'écran, pour un message
+  // deux fois plus court que les flottants bruts de Leaflet.
+  function arrondirPoints(p) {
+    if (!p) return p;
+    if (p.length !== undefined) {
+      // Un tableau de LatLng (et non de tableaux) : c'est un tracé, on l'éclaircit.
+      var src = (p.length && p[0] && p[0].lat !== undefined) ? echantillonner(p) : p;
+      var out = [];
+      for (var i = 0; i < src.length; i++) out.push(arrondirPoints(src[i]));
+      return out;
+    }
+    return [Math.round(p.lat * 1e6) / 1e6, Math.round(p.lng * 1e6) / 1e6];
+  }
+
+  var CHAMPS_STYLE = ['color', 'weight', 'opacity', 'dashArray', 'lineCap',
+                      'lineJoin', 'fill', 'fillColor', 'fillOpacity'];
+
+  function styleDessin(couche) {
+    var o = couche.options || {}, s = {};
+    for (var i = 0; i < CHAMPS_STYLE.length; i++) {
+      var c = CHAMPS_STYLE[i];
+      if (o[c] !== undefined && o[c] !== null) s[c] = o[c];
+    }
+    return s;
+  }
+
+  // Décrit des calques Leaflet sous une forme transportable. Pas de GeoJSON :
+  // il ne porte ni le style ni les étiquettes, or c'est précisément ce que le
+  // visiteur doit voir — le trait orange, le « 462 m ».
+  function serialiserDessins(couches, sortie) {
+    var L = window.L;
+    sortie = sortie || [];
+    if (!L) return sortie;
+    for (var i = 0; i < couches.length; i++) {
+      var c = couches[i];
+      if (!c) continue;
+      if (typeof c.getLayers === 'function') { serialiserDessins(c.getLayers(), sortie); continue; }
+      if (typeof c.getLatLngs === 'function') {
+        sortie.push({
+          t: (L.Polygon && c instanceof L.Polygon) ? 'pg' : 'pl',
+          p: arrondirPoints(c.getLatLngs()),
+          o: styleDessin(c)
+        });
+      } else if (typeof c.getRadius === 'function' && typeof c.getLatLng === 'function') {
+        // L.Circle a un rayon en MÈTRES, L.CircleMarker en PIXELS : confondre
+        // les deux poserait un disque de la taille d'une ville à la place
+        // d'une pastille de sommet.
+        sortie.push({
+          t: (L.Circle && c instanceof L.Circle) ? 'c' : 'cm',
+          p: arrondirPoints(c.getLatLng()),
+          r: c.getRadius(),
+          o: styleDessin(c)
+        });
+      } else if (typeof c.getLatLng === 'function') {
+        var f = { t: 'm', p: arrondirPoints(c.getLatLng()) };
+        var ic = c.options && c.options.icon;
+        // Reconnaître l'icône HTML par son TYPE et non par son contenu : les
+        // étiquettes du décamètre sont des L.divIcon créés SANS html (l'option
+        // vaut false), que le greffon remplit ensuite en écrivant directement
+        // dans _icon.innerHTML à chaque point ajouté. Tester options.html les
+        // laissait toutes de côté : le visiteur recevait des marqueurs vides,
+        // sans le « 462 m » ni la classe qui l'habille.
+        var estHtml = ic && ic.options &&
+                      ((L.DivIcon && ic instanceof L.DivIcon) || typeof ic.options.html === 'string');
+        if (estHtml) {
+          // Le HTML vient du DOM quand il existe : lui seul porte la distance
+          // à jour ; les options ne gardent que l'état initial.
+          if (c._icon && typeof c._icon.innerHTML === 'string') f.h = c._icon.innerHTML;
+          else f.h = typeof ic.options.html === 'string' ? ic.options.html : '';
+          f.k = ic.options.className || '';
+          if (ic.options.iconSize) f.z = ic.options.iconSize;
+          if (ic.options.iconAnchor) f.a = ic.options.iconAnchor;
+        }
+        sortie.push(f);
+      }
+    }
+    return sortie;
+  }
+
+  // Reconstruit les formes reçues. Tout est posé en non interactif : le
+  // visiteur regarde le tracé du conseiller, il ne le déplace ni ne le
+  // supprime — et un clic dessus ne doit pas lui voler le curseur.
+  function construireDessins(formes) {
+    var L = window.L, out = [];
+    if (!L) return out;
+    for (var i = 0; i < formes.length; i++) {
+      var f = formes[i], o = {}, k;
+      for (k in (f.o || {})) o[k] = f.o[k];
+      o.interactive = false;
+      try {
+        if (f.t === 'pl') out.push(L.polyline(f.p, o));
+        else if (f.t === 'pg') out.push(L.polygon(f.p, o));
+        else if (f.t === 'c') { o.radius = f.r; out.push(L.circle(f.p, o)); }
+        else if (f.t === 'cm') { o.radius = f.r; out.push(L.circleMarker(f.p, o)); }
+        else if (f.t === 'm') {
+          var opts = { interactive: false, keyboard: false };
+          if (typeof f.h === 'string') {
+            var ico = { html: f.h, className: f.k || '' };
+            if (f.z) ico.iconSize = f.z;
+            if (f.a) ico.iconAnchor = f.a;
+            opts.icon = L.divIcon(ico);
+          }
+          out.push(L.marker(f.p, opts));
+        }
+      } catch (e) {}
+    }
+    return out;
+  }
+
   // Côté visiteur, la carte suit l'hôte : on coupe ses propres interactions
   // (sinon il se bat contre la resynchronisation qui arrive ~600 ms plus tard).
   // Pendant du config.draggable=false appliqué au panorama Pannellum.
@@ -1240,6 +1629,24 @@
     // scroll fluide (gelé quand l'onglet n'est pas au premier plan) et plus
     // juste pour un suivi — le visiteur se cale exactement où est l'hôte.
     window.scrollTo(0, Math.round(frac * max));
+  }
+
+
+  /* Langue courante, dans l'ordre où l'information est fiable :
+     - currentLang (menu.js) est la source de vérité du site ;
+     - le hash la porte aussi, et c'est lui qui survit à un rechargement ;
+     - l'attribut lang du document sert de dernier recours (page sans menu). */
+  function langue() {
+    if (TEXTES[window.currentLang]) return window.currentLang;
+    var h = (window.location.hash || '').replace('#', '');
+    if (TEXTES[h]) return h;
+    var l = (document.documentElement.getAttribute('lang') || '').slice(0, 2);
+    return TEXTES[l] ? l : 'fr';
+  }
+
+  function T(cle) {
+    var d = TEXTES[langue()] || TEXTES.fr;
+    return d[cle] !== undefined ? d[cle] : TEXTES.fr[cle];
   }
 
   /* ======================================================================
@@ -1263,46 +1670,48 @@
     var viewerLink = lienBase.href;
 
     var status = el('span', 'lg-status');
-    status.textContent = 'Visite guidée active';
+    status.textContent = T('barreActive');
 
     var count = el('span', 'lg-count');
-    count.innerHTML = '<span class="lg-dot"></span><b>0</b> spectateur(s)';
+    count.innerHTML = '<span class="lg-dot"></span><b>0</b> ' + T('spectateurs');
 
     // Le code se DIT (téléphone, WhatsApp), il ne s'envoie pas avec le lien :
     // un lien qui contiendrait déjà le code ne protégerait plus rien. D'où un
     // affichage bien lisible ici, et un bouton « copier » qui ne prend que le lien.
     var codeBox = el('span', 'lg-code');
-    codeBox.innerHTML = 'Code : <b>' + code.replace(/[^0-9]/g, '') + '</b>';
-    codeBox.title = 'À communiquer de vive voix au visiteur';
+    codeBox.innerHTML = T('code') + ' <b>' + code.replace(/[^0-9]/g, '') + '</b>';
+    codeBox.title = T('codeAide');
 
     var mic = el('button', 'lg-btn lg-btn-ghost');
     mic.type = 'button';
-    mic.textContent = '🎙️ Activer le micro';
+    mic.textContent = T('micActiver');
 
     // Montrer du doigt dans le panorama, comme le fait le Live Tour de 3DVista.
     var point = el('button', 'lg-btn lg-btn-ghost');
     point.type = 'button';
-    point.textContent = '👉 Pointeur';
-    point.title = 'Suit la souris dans une vue 360°';
+    point.textContent = T('pointeur');
+    point.title = T('pointeurAide');
 
     var chat = el('button', 'lg-btn lg-btn-ghost');
     chat.type = 'button';
-    chat.textContent = '💬 Chat';
+    chat.textContent = T('chat');
     chat.setAttribute('aria-expanded', 'false');
 
     var copy = el('button', 'lg-btn lg-btn-primary');
     copy.type = 'button';
-    copy.textContent = 'Copier le lien visiteur';
+    copy.textContent = T('copier');
     copy.addEventListener('click', function () {
       copyText(viewerLink, function (ok) {
-        copy.textContent = ok ? 'Lien copié ✓' : 'Copier échoué';
-        setTimeout(function () { copy.textContent = 'Copier le lien visiteur'; }, 2000);
+        copy.textContent = ok ? T('copie') : T('copieEchec');
+        // Le libellé est relu à l'expiration et non capturé maintenant : la
+        // langue a pu changer pendant les deux secondes d'accusé de réception.
+        setTimeout(function () { copy.textContent = T('copier'); }, 2000);
       });
     });
 
     var end = el('button', 'lg-btn lg-btn-ghost lg-btn-end');
     end.type = 'button';
-    end.textContent = 'Terminer';
+    end.textContent = T('terminer');
 
     /* Repli de la barre.
      *
@@ -1327,7 +1736,7 @@
       bar.classList.toggle('lg-repliee', replie);
       document.body.classList.toggle('lg-barre-repliee', replie);
       replier.textContent = replie ? '⌃' : '⌄';
-      var titre = replie ? 'Afficher la barre de visite guidée' : 'Réduire la barre';
+      var titre = replie ? T('afficherBarre') : T('reduireBarre');
       replier.title = titre;
       replier.setAttribute('aria-label', titre);
       replier.setAttribute('aria-expanded', replie ? 'false' : 'true');
@@ -1358,11 +1767,14 @@
     appliquerRepli(SS.getItem('lg_barre_repliee') === '1');
 
     return { bar: bar, status: status, count: count, code: codeBox,
-             mic: mic, point: point, chat: chat, copy: copy, end: end };
+             mic: mic, point: point, chat: chat, copy: copy, end: end,
+             // Réapplique les libellés du bouton de repli dans la langue du
+             // moment, sans changer l'état plié/déplié.
+             majRepli: function () { appliquerRepli(bar.classList.contains('lg-repliee')); } };
   }
 
   function updateCount(ui, n, micros) {
-    var t = '<span class="lg-dot"></span><b>' + n + '</b> spectateur(s)';
+    var t = '<span class="lg-dot"></span><b>' + n + '</b> ' + T('spectateurs');
     // Le conseiller doit voir d'un coup d'œil qui peut lui répondre.
     if (micros) t += ' · 🎤 <b>' + micros + '</b>';
     ui.count.innerHTML = t;

@@ -315,6 +315,18 @@
     "linear-gradient(135deg, #4f46e5 0%, #93c5fd 55%, #ffb020 100%)"
   ];
   var mapInstance;
+  /* Le cadrage voulu de la carte, rejouable.
+
+     La carte vit dans un volet masque (#heroMapPane) : au chargement, son
+     conteneur mesure 0 x 0. Un fitBounds sur une boite vide ne peut rien
+     cadrer — Leaflet retombe sur le zoom 0, la planete entiere. C'est ce que
+     voyait le visiteur en ouvrant l'onglet « Carte » : le monde, et non son
+     quartier. invalidateSize() seul ne repare rien : il corrige la taille,
+     pas la vue deja calculee.
+
+     On memorise donc la derniere intention de cadrage pour pouvoir la
+     rejouer une fois le volet visible et mesure. */
+  var cadrageVoulu = null;
   var mapMarkers = [];
   var markerMap = {};
   var homePoi = null;
@@ -1541,7 +1553,9 @@
     }
 
     if (bounds.isValid()) {
-      mapInstance.fitBounds(bounds.pad(0.18), { maxZoom: 15 });
+      var boite = bounds.pad(0.18);
+      cadrageVoulu = function () { mapInstance.fitBounds(boite, { maxZoom: 15 }); };
+      cadrageVoulu();
     }
   }
 
@@ -1775,7 +1789,7 @@
       if (L.control && typeof L.control.polylineMeasure === "function") measureFn = L.control.polylineMeasure;
       else if (L.Control && L.Control.PolylineMeasure) measureFn = function(opts) { return new L.Control.PolylineMeasure(opts); };
       if (measureFn) {
-        measureFn({
+        var measureControl = measureFn({
           position: "topleft",
           unit: "metres",
           showBearings: false,
@@ -1786,6 +1800,12 @@
           measureControlTitleOff: "Arreter la mesure",
           measureControlLabel: "📏"
         }).addTo(mapInstance);
+        // Le greffon ne cree son calque de trace qu'au premier clic sur la
+        // regle : on le relit a chaque envoi plutot que de le saisir ici, ou
+        // il n'existe pas encore.
+        lgPartagerDessins(mapInstance, function () {
+          return measureControl._layerPaint ? measureControl._layerPaint.getLayers() : [];
+        });
       }
     } catch (e) {}
 
@@ -1839,6 +1859,10 @@
       if (L.Control && L.Control.Draw) {
         drawnItems = new L.FeatureGroup();
         mapInstance.addLayer(drawnItems);
+        // Capture locale : renderMap reconstruit la carte et reaffecte
+        // drawnItems ; l'ancienne carte doit continuer a decrire SON groupe.
+        var groupeDessins = drawnItems;
+        lgPartagerDessins(mapInstance, function () { return groupeDessins.getLayers(); });
         loadDrawings();
         var drawControl = new L.Control.Draw({
           position: "topleft",
@@ -1908,6 +1932,31 @@
     } catch (e) {}
   }
 
+  /* Partage d'un calque de dessin avec la visite guidee en direct.
+
+     Une forme tracee a la main ou un trait de decametre ne deplace pas la vue,
+     ne change pas l'URL et ne produit aucun clic reproductible : rien de la
+     synchronisation existante ne les emportait vers l'ecran du visiteur. La
+     page se contente de dire quels calques regarder ; shared/liveguide.js
+     s'occupe de les traduire et de les emettre.
+
+     window.LG_MAPS n'existe que pendant une visite guidee (voir le bloc de
+     capture des cartes en tete de shared/menu.js) : hors visite, cette
+     fonction ne fait rien et la page reste strictement inchangee. */
+  function lgPartagerDessins(map, couches) {
+    if (!window.LG_MAPS || !map) return;
+    var entree = { map: map, layers: couches };
+    window.LG_DRAW = window.LG_DRAW || [];
+    window.LG_DRAW.push(entree);
+    // renderMap detruit la carte pour la reconstruire (changement de projet,
+    // de langue) : sans ce retrait, on continuerait a serialiser les calques
+    // d'une carte qui n'est plus a l'ecran.
+    map.on("unload", function () {
+      var i = window.LG_DRAW.indexOf(entree);
+      if (i !== -1) window.LG_DRAW.splice(i, 1);
+    });
+  }
+
   function saveDrawings() {
     if (!drawnItems) return;
     try {
@@ -1967,6 +2016,8 @@
       }
     } catch (e) {}
     mapInstance = L.map("projectMap", mapOptions).setView([project.lat, project.lng], 14);
+    // Cadrage de repli tant qu'aucun point d'interet n'a etendu les limites.
+    cadrageVoulu = function () { mapInstance.setView([project.lat, project.lng], 14); };
     enableWheelZoomOnFocus(mapInstance);
     installMapControls(lang);
 
@@ -2330,7 +2381,14 @@
     var panos = project.panoramas || [];
     var floor = projectFloorPlan(project);
 
-    var tabs = "";
+    /* La carte OUVRE la rangée. Elle en était le septième et dernier onglet :
+       on la croyait supprimée de la fiche projet, alors qu'elle n'était qu'au
+       bout d'une file, en limite d'écran. Elle répond pourtant à la première
+       question d'un acheteur — « qu'est-ce qu'il y a autour ? » — avant les
+       plans et les panoramas.
+       Elle n'est pas pour autant l'onglet OUVERT par défaut : celui-ci est
+       choisi explicitement plus bas (markTab), et reste la visite 360°. */
+    var tabs = '<button type="button" class="hero-tab" data-tab="carte">🗺️ ' + m.tabCarte + '</button>';
     if (panos.length) tabs += '<button type="button" class="hero-tab" data-tab="p360">🌐 ' + m.tab360 + '</button>';
     // La visite du projet a son onglet comme les autres médias. Sans lui elle
     // n'était atteignable qu'en repli, quand le projet n'avait aucun panorama
@@ -2344,10 +2402,6 @@
     // institutionnel plutôt que de masquer l'onglet.
     tabs += '<button type="button" class="hero-tab" data-tab="videos">🎬 ' + m.tabVideos + '</button>';
     if (floor && !project.plan_architecte_url && !project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan">⌗ ' + m.tabPlan + '</button>';
-    // La carte est un média comme les autres — elle répond à « à quoi ça
-    // ressemble ? », au même titre que les panoramas et les plans. Elle a donc
-    // sa place dans cette barre, pas au-dessus de la scène.
-    tabs += '<button type="button" class="hero-tab" data-tab="carte">🗺️ ' + m.tabCarte + '</button>';
 
     var thumbs = "";
     for (var i = 0; i < panos.length; i++) {
@@ -2410,7 +2464,15 @@
         // Leaflet a mesuré un conteneur masqué au chargement : sans ce
         // recalcul la carte reste grise, les tuiles ne se chargeant jamais.
         if (surCarte && mapInstance) {
-          window.setTimeout(function () { mapInstance.invalidateSize(); }, 0);
+          window.setTimeout(function () {
+            mapInstance.invalidateSize();
+            /* Puis on rejoue le cadrage si la vue n'a manifestement pas pu
+               etre calculee : un projet se regarde entre les zooms 13 et 17,
+               jamais en dessous de 4. Ce seuil evite de contrarier le
+               visiteur qui a deplace la carte lui-meme avant de passer sur un
+               autre onglet — on ne repare que l'absurde. */
+            if (cadrageVoulu && mapInstance.getZoom() <= 3) cadrageVoulu();
+          }, 0);
         }
       }
     }
@@ -2666,7 +2728,12 @@
           // repart sur le premier onglet restant — sinon elle garderait la
           // page d'erreur à l'écran.
           if (!estAffichee()) return;
-          var reste = document.querySelector('.hero-tab');
+          /* :not(carte) — depuis que la carte ouvre la rangée, « le premier
+             onglet restant » serait elle. Or ce repli sert à remplacer une
+             visite absente par un autre MÉDIA : basculer sur la carte
+             donnerait l'impression que la fiche n'a plus d'images. */
+          var reste = document.querySelector('.hero-tab:not([data-tab="carte"])') ||
+                      document.querySelector('.hero-tab');
           if (reste) reste.click();
           else stage.innerHTML = '<div class="hero-note">' + m.tourMissing + '</div>';
         });
