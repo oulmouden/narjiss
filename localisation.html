@@ -159,9 +159,16 @@ body.lg-has-bar { --loc-bas: 64px; }
   box-shadow: 0 14px 34px rgba(0, 0, 0, .22);
   transform: translateY(-101%);
   transition: transform .22s ease;
+  /* Le bouton « Filtres » est posé sur la carte, en 10, 10 : tiroir ouvert, il
+     passe PAR-DESSUS le contenu et masquait l'onglet « Quartier ». On lui
+     réserve sa place en tête du tiroir plutôt que de le déplacer, pour qu'il
+     ne bouge pas sous le doigt entre l'ouverture et la fermeture. */
+  padding-top: 58px;
 }
 .loc-panneau.est-ouvert { transform: none; }
-.loc-panneau .map-intro { padding: .9rem 1.2rem .5rem; }
+/* Le titre du bloc fait doublon avec l'en-tête de page, qui nomme déjà le
+   projet juste au-dessus, et il coûtait 82 px de tiroir. */
+.loc-panneau .map-intro { display: none; }
 .loc-barre { padding: 0 1.2rem 1rem; border-bottom: 0; }
 
 /* Le bouton reste visible quel que soit l'état du tiroir. */
@@ -201,8 +208,6 @@ body.lg-has-bar { --loc-bas: 64px; }
   /* Bord à bord : sur un écran étroit, les marges volent de la carte. */
   .loc-shell { width: 100%; margin-bottom: 0; }
   .map-composition { border-radius: 0; border-left: 0; border-right: 0; box-shadow: none; }
-  .loc-panneau .map-intro { padding: .8rem 1rem .4rem; }
-  .loc-panneau .map-intro h2 { font-size: 1rem; }
   .loc-barre { padding: 0 1rem .8rem; }
   .poi-summary { max-height: none; }
 }
