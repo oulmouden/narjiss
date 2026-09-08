@@ -82,6 +82,119 @@ try {
       nj_lg_json(['ok' => true] + nj_lg_create());
     }
 
+    /* Envoyer l'invitation par e-mail.
+     *
+     * Le conseiller n'a pas toujours WhatsApp sur son poste, ni le numéro du
+     * client sous la main : sans cela il lui reste à dicter un lien au
+     * téléphone. On envoie donc le lien ET le code depuis le serveur.
+     *
+     * Trois garde-fous, parce qu'un endpoint qui envoie des e-mails est une
+     * cible : il faut pouvoir animer (agent actif ou admin), détenir le jeton
+     * hôte de CETTE session, et le lien doit pointer sur ce site — sinon on
+     * offrirait à un tiers un relais signé Narjiss vers la page de son choix.
+     */
+    case 'invite': {
+      $qui = nj_agent_ou_admin($njSessionDefaut);
+      if ($qui === null) {
+        nj_lg_json(['ok' => false, 'error' => 'Connexion requise.', 'need' => 'login'], 401);
+      }
+
+      $session = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($_POST['session'] ?? ''));
+      $row     = nj_lg_get($session);
+      if (!nj_lg_is_open($row)) {
+        nj_lg_json(['ok' => false, 'error' => 'Visite terminée.'], 410);
+      }
+      if (!nj_lg_check_host($row, (string) ($_POST['host_token'] ?? ''))) {
+        nj_lg_json(['ok' => false, 'error' => 'Vous n\'animez pas cette visite.'], 403);
+      }
+
+      $email = trim((string) ($_POST['email'] ?? ''));
+      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        nj_lg_json(['ok' => false, 'error' => 'Adresse e-mail invalide.', 'champ' => 'email'], 422);
+      }
+
+      // Le lien vient du navigateur : il porte la page où se trouve le
+      // conseiller, que le serveur ne connaît pas. On vérifie donc son hôte
+      // plutôt que de le reconstruire.
+      $lien  = trim((string) ($_POST['lien'] ?? ''));
+      $parts = parse_url($lien);
+      $hote  = strtolower((string) ($parts['host'] ?? ''));
+      $ici   = strtolower(preg_replace('/:\d+$/', '', (string) ($_SERVER['HTTP_HOST'] ?? '')));
+      if (!in_array(strtolower((string) ($parts['scheme'] ?? '')), ['http', 'https'], true)
+          || $hote === '' || preg_replace('/:\d+$/', '', $hote) !== $ici) {
+        nj_lg_json(['ok' => false, 'error' => 'Lien invalide.'], 422);
+      }
+
+      $code   = preg_replace('/\D/', '', (string) ($_POST['code'] ?? ''));
+      $langue = in_array(($_POST['langue'] ?? ''), ['fr', 'en', 'ar', 'es'], true)
+        ? $_POST['langue'] : 'fr';
+      $auteur = trim((string) ($qui['name'] ?? $qui['nom'] ?? ''));
+
+      require_once __DIR__ . '/mail.php';
+
+      $L = [
+        'fr' => [
+          'sujet'  => 'Votre visite guidée Narjiss',
+          'titre'  => 'Votre visite guidée en direct',
+          'intro'  => $auteur !== ''
+            ? htmlspecialchars($auteur) . ' vous invite à une visite guidée en direct des projets Narjiss.'
+            : 'Vous êtes invité à une visite guidée en direct des projets Narjiss.',
+          'consigne' => "Ouvrez le lien ci-dessous, puis saisissez ce code lorsqu'il vous est demandé :",
+          'cta'    => 'Rejoindre la visite',
+          'aide'   => 'Le lien et le code ne sont valables que pendant la visite.',
+        ],
+        'en' => [
+          'sujet'  => 'Your Narjiss guided tour',
+          'titre'  => 'Your live guided tour',
+          'intro'  => $auteur !== ''
+            ? htmlspecialchars($auteur) . ' invites you to a live guided tour of the Narjiss projects.'
+            : 'You are invited to a live guided tour of the Narjiss projects.',
+          'consigne' => 'Open the link below, then enter this code when prompted:',
+          'cta'    => 'Join the tour',
+          'aide'   => 'The link and code are only valid for the duration of the tour.',
+        ],
+        'ar' => [
+          'sujet'  => 'جولتكم الموجهة مع نرجس',
+          'titre'  => 'جولتكم الموجهة المباشرة',
+          'intro'  => $auteur !== ''
+            ? htmlspecialchars($auteur) . ' يدعوكم إلى جولة موجهة مباشرة في مشاريع نرجس.'
+            : 'ندعوكم إلى جولة موجهة مباشرة في مشاريع نرجس.',
+          'consigne' => 'افتحوا الرابط أدناه، ثم أدخلوا هذا الرمز عند الطلب:',
+          'cta'    => 'الانضمام إلى الجولة',
+          'aide'   => 'الرابط والرمز صالحان طوال مدة الجولة فقط.',
+        ],
+        'es' => [
+          'sujet'  => 'Su visita guiada Narjiss',
+          'titre'  => 'Su visita guiada en directo',
+          'intro'  => $auteur !== ''
+            ? htmlspecialchars($auteur) . ' le invita a una visita guiada en directo de los proyectos Narjiss.'
+            : 'Le invitamos a una visita guiada en directo de los proyectos Narjiss.',
+          'consigne' => 'Abra el enlace de abajo y escriba este código cuando se le pida:',
+          'cta'    => 'Unirse a la visita',
+          'aide'   => 'El enlace y el código solo son válidos durante la visita.',
+        ],
+      ][$langue];
+
+      $corps = '<p>' . $L['intro'] . '</p>'
+        . '<p>' . $L['consigne'] . '</p>'
+        . '<p style="font-size:30px;font-weight:800;letter-spacing:.22em;color:#0c2340;'
+        . 'background:#eef2f7;border-radius:10px;padding:14px 18px;text-align:center;'
+        . 'margin:18px 0">' . htmlspecialchars($code) . '</p>'
+        . '<p style="font-size:12.5px;color:#8a96ad">' . $L['aide'] . '</p>';
+
+      [$envoye, $info] = nj_mail(
+        $email,
+        $L['sujet'],
+        nj_mail_template($L['titre'], $corps, $L['cta'], $lien, 'client')
+      );
+
+      if (!$envoye) {
+        error_log('liveguide invite: ' . (string) $info);
+        nj_lg_json(['ok' => false, 'error' => 'Envoi impossible pour le moment.'], 502);
+      }
+      nj_lg_json(['ok' => true, 'destinataire' => $email]);
+    }
+
     case 'verify': {
       $session = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($_POST['session'] ?? ''));
       $code    = preg_replace('/\D/', '', (string) ($_POST['code'] ?? ''));

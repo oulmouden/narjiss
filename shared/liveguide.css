@@ -142,6 +142,85 @@ body.lg-has-bar {
    CHAT ÉCRIT
    ============================================================ */
 
+/* ── Panneau « Envoyer le lien » ─────────────────────────────────────
+   Même famille visuelle que le chat : posé au-dessus de la barre, sombre,
+   pour ne pas repeindre la page que le conseiller est en train de montrer. */
+.lg-invite {
+  position: fixed;
+  right: 12px;
+  bottom: 72px;
+  z-index: 100000;
+  width: min(340px, calc(100vw - 24px));
+  max-height: min(78vh, 640px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  background: #1c1c1e;
+  color: #fff;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  font-family: 'Outfit', system-ui, sans-serif;
+  overflow: hidden;
+}
+.lg-invite[hidden] { display: none; }
+html[dir="rtl"] .lg-invite { right: auto; left: 12px; }
+
+.lg-invite-tete {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+}
+.lg-invite-fermer {
+  width: 30px; height: 30px; padding: 0;
+  background: none; border: 0; border-radius: 8px;
+  color: #fff; font-size: 20px; line-height: 1; cursor: pointer;
+}
+.lg-invite-fermer:hover { background: rgba(255, 255, 255, 0.12); }
+
+.lg-invite-corps { overflow-y: auto; padding: 12px; display: grid; gap: 14px; }
+.lg-invite-bloc { display: grid; gap: 7px; }
+.lg-invite-titre {
+  font-size: 11px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: #9fb0c4;
+}
+.lg-invite-aide { font-size: 11.5px; line-height: 1.45; color: #93a2b5; }
+
+.lg-invite-qr {
+  display: flex; justify-content: center;
+  padding: 10px; background: #fff; border-radius: 10px;
+}
+.lg-invite-qr img {
+  display: block; width: 240px; height: 240px;
+  /* Le lien porte le code : le QR est plus dense qu'un simple lien.
+     Sans cette ligne le navigateur lisse les modules et le scan devient
+     capricieux de loin, ce qui est justement le cas en agence. */
+  image-rendering: pixelated;
+}
+.lg-invite-code {
+  text-align: center; font-size: 22px; font-weight: 800; letter-spacing: .2em;
+  /* Le code reste lu de gauche à droite, même en arabe. */
+  direction: ltr; unicode-bidi: isolate;
+}
+
+.lg-invite-ligne { display: flex; gap: 6px; }
+.lg-invite-input {
+  flex: 1; min-width: 0; min-height: 38px; padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 9px;
+  color: #fff; font: inherit; font-size: 13.5px;
+}
+.lg-invite-input::placeholder { color: rgba(255, 255, 255, 0.45); }
+.lg-invite-input:focus { outline: none; border-color: #4ade80; }
+
+.lg-invite-wa { --lg-wa: #25d366; }
+.lg-invite .lg-btn { white-space: nowrap; text-decoration: none; }
+/* Numéro absent ou trop court : le lien mènerait nulle part. */
+.lg-invite-off { opacity: .45; cursor: default; }
+
+.lg-invite-etat { min-height: 16px; font-size: 12px; line-height: 1.4; }
+.lg-invite-ok { color: #6ee7a8; }
+.lg-invite-ko { color: #ff9c9c; }
+
 .lg-chat {
   position: fixed;
   right: 12px;

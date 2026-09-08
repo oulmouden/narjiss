@@ -40,6 +40,7 @@
   var userId = SS.getItem('lg_uid') || '';
   var hostToken = SS.getItem('lg_host_token') || ''; // conseiller : droit d'émettre
   var code = SS.getItem('lg_code') || '';            // visiteur : droit d'entrer
+  var codeDepuisLien = false;                        // code lu dans l'URL (QR)
 
   if (params.get('lghost') != null) {
     // La session n'est plus tirée au sort ici : c'est le serveur qui la crée
@@ -58,8 +59,23 @@
     hostToken = ''; SS.removeItem('lg_host_token');
     role = 'viewer';
     session = asked;
+
+    /* Le lien peut porter le code (paramètre « c »), et c'est ce que fait le
+       QR affiché en agence : le visiteur scanne et entre, sans rien saisir.
+
+       Le compromis est le même que celui déjà accepté pour le bouton
+       « copier », en plus marqué : ce lien-là ouvre la porte à lui seul. Il
+       n'est donc produit QUE par le QR, montré à quelqu'un qui est en face du
+       conseiller — pas par l'e-mail, où le code reste sur sa propre ligne. */
+    var codeLien = (params.get('c') || '').replace(/\D/g, '');
+    if (codeLien.length === 6) {
+      code = codeLien;
+      codeDepuisLien = true;
+      SS.setItem('lg_code', code);
+    }
     persistIdentity();
     stripParam('lg'); // l'URL reste propre ; sessionStorage garde le rôle
+    stripParam('c');  // et surtout : le code ne reste pas dans la barre d'adresse
   }
 
   // ----- Relais entre cadres (iframes de même origine) --------------------
@@ -185,6 +201,27 @@
       pointeurActif: '👉 Pointeur actif',
       pointeurAide: 'Suit la souris dans une vue 360°',
       chat: '💬 Chat',
+      envoyer: '✉️ Envoyer le lien',
+      envoyerTitre: 'Envoyer l\'invitation',
+      envoyerAide: 'Le visiteur reçoit le lien et le code.',
+      parQr: 'Faire scanner ce code',
+      parQrAide: 'Un seul scan : le visiteur entre directement, sans saisir le code.',
+      appliOuverture: 'Ouverture de l’application…',
+      appliOuverte: 'Application ouverte ✓ Envoyez le message depuis celle-ci.',
+      appliAbsente: 'Aucune application n’a répondu sur ce poste. Utilisez le QR ou l’e-mail.',
+      parEmail: 'Par e-mail',
+      emailPlaceholder: 'adresse@exemple.com',
+      parTel: 'Par téléphone',
+      telPlaceholder: '06 12 34 56 78',
+      viaWhatsapp: 'WhatsApp',
+      viaSms: 'SMS',
+      telAide: 'Ouvre WhatsApp ou la messagerie de ce poste. Aucun envoi depuis le serveur.',
+      envoiEnCours: 'Envoi…',
+      envoiOk: 'Invitation envoyée à',
+      envoiEchec: 'Envoi impossible.',
+      emailInvalide: 'Adresse e-mail invalide.',
+      telInvalide: 'Numéro invalide.',
+      fermerPanneau: 'Fermer',
       copier: 'Copier le lien + le code',
       copie: 'Lien et code copiés ✓',
       codeASaisir: 'Code à saisir :',
@@ -210,6 +247,27 @@
       pointeurActif: '👉 Pointer on',
       pointeurAide: 'Follows the mouse in a 360° view',
       chat: '💬 Chat',
+      envoyer: '✉️ Send the link',
+      envoyerTitre: 'Send the invitation',
+      envoyerAide: 'The visitor receives the link and the code.',
+      parQr: 'Have this code scanned',
+      parQrAide: 'One scan: the visitor enters directly, without typing the code.',
+      appliOuverture: 'Opening the app…',
+      appliOuverte: 'App opened ✓ Send the message from there.',
+      appliAbsente: 'No app responded on this computer. Use the QR code or email.',
+      parEmail: 'By email',
+      emailPlaceholder: 'address@example.com',
+      parTel: 'By phone',
+      telPlaceholder: '+212 6 12 34 56 78',
+      viaWhatsapp: 'WhatsApp',
+      viaSms: 'SMS',
+      telAide: 'Opens WhatsApp or this computer\'s messaging app. Nothing is sent from the server.',
+      envoiEnCours: 'Sending…',
+      envoiOk: 'Invitation sent to',
+      envoiEchec: 'Could not send.',
+      emailInvalide: 'Invalid email address.',
+      telInvalide: 'Invalid number.',
+      fermerPanneau: 'Close',
       copier: 'Copy link + code',
       copie: 'Link and code copied ✓',
       codeASaisir: 'Code to enter:',
@@ -235,6 +293,27 @@
       pointeurActif: '👉 Puntero activo',
       pointeurAide: 'Sigue el ratón en una vista 360°',
       chat: '💬 Chat',
+      envoyer: '✉️ Enviar el enlace',
+      envoyerTitre: 'Enviar la invitación',
+      envoyerAide: 'El visitante recibe el enlace y el código.',
+      parQr: 'Haga escanear este código',
+      parQrAide: 'Un solo escaneo: el visitante entra directamente, sin escribir el código.',
+      appliOuverture: 'Abriendo la aplicación…',
+      appliOuverte: 'Aplicación abierta ✓ Envíe el mensaje desde ella.',
+      appliAbsente: 'Ninguna aplicación respondió en este equipo. Use el QR o el correo.',
+      parEmail: 'Por correo',
+      emailPlaceholder: 'direccion@ejemplo.com',
+      parTel: 'Por teléfono',
+      telPlaceholder: '+212 6 12 34 56 78',
+      viaWhatsapp: 'WhatsApp',
+      viaSms: 'SMS',
+      telAide: 'Abre WhatsApp o la mensajería de este equipo. No se envía nada desde el servidor.',
+      envoiEnCours: 'Enviando…',
+      envoiOk: 'Invitación enviada a',
+      envoiEchec: 'No se pudo enviar.',
+      emailInvalide: 'Correo electrónico no válido.',
+      telInvalide: 'Número no válido.',
+      fermerPanneau: 'Cerrar',
       copier: 'Copiar el enlace + el código',
       copie: 'Enlace y código copiados ✓',
       codeASaisir: 'Código a introducir:',
@@ -260,6 +339,27 @@
       pointeurActif: '👉 المؤشر مُفعَّل',
       pointeurAide: 'يتابع الفأرة داخل مشهد 360°',
       chat: '💬 الدردشة',
+      envoyer: '✉️ إرسال الرابط',
+      envoyerTitre: 'إرسال الدعوة',
+      envoyerAide: 'يتوصل الزائر بالرابط والرمز.',
+      parQr: 'امسح هذا الرمز',
+      parQrAide: 'مسح واحد: يدخل الزائر مباشرة دون إدخال الرمز.',
+      appliOuverture: 'جاري فتح التطبيق…',
+      appliOuverte: 'تم فتح التطبيق ✓ أرسل الرسالة من هناك.',
+      appliAbsente: 'لم يستجب أي تطبيق على هذا الجهاز. استعمل رمز QR أو البريد.',
+      parEmail: 'بالبريد الإلكتروني',
+      emailPlaceholder: 'adresse@exemple.com',
+      parTel: 'بالهاتف',
+      telPlaceholder: '06 12 34 56 78',
+      viaWhatsapp: 'واتساب',
+      viaSms: 'رسالة نصية',
+      telAide: 'يفتح واتساب أو تطبيق الرسائل في هذا الجهاز. لا يتم أي إرسال من الخادم.',
+      envoiEnCours: 'جاري الإرسال…',
+      envoiOk: 'أُرسلت الدعوة إلى',
+      envoiEchec: 'تعذر الإرسال.',
+      emailInvalide: 'عنوان بريد إلكتروني غير صالح.',
+      telInvalide: 'رقم غير صالح.',
+      fermerPanneau: 'إغلاق',
       copier: 'نسخ الرابط والرمز',
       copie: 'تم نسخ الرابط والرمز ✓',
       codeASaisir: 'الرمز المطلوب إدخاله:',
@@ -538,7 +638,21 @@
       });
       return;
     }
-    if (code) { done(true); return; }
+    if (code) {
+      // Code déjà validé lors d'une entrée précédente : rien à revérifier.
+      if (!codeDepuisLien) { done(true); return; }
+      /* Code lu dans le lien : un QR périmé ou retouché doit retomber sur la
+         saisie manuelle, et non sur un échec d'abonnement Pusher que le
+         visiteur ne saurait pas interpréter. */
+      codeDepuisLien = false;
+      postForm('api/liveguide-session.php?action=verify',
+               { session: session, code: code }, function (res) {
+        if (res && res.ok && res.valid) { done(true); return; }
+        code = ''; SS.removeItem('lg_code');
+        askCode(done);
+      });
+      return;
+    }
     askCode(done);
   }
 
@@ -1739,6 +1853,12 @@
       });
     });
 
+    var invite = el('button', 'lg-btn lg-btn-ghost');
+    invite.type = 'button';
+    invite.textContent = T('envoyer');
+    invite.setAttribute('aria-expanded', 'false');
+    initInvitation(invite, viewerLink, code.replace(/[^0-9]/g, ''));
+
     var end = el('button', 'lg-btn lg-btn-ghost lg-btn-end');
     end.type = 'button';
     end.textContent = T('terminer');
@@ -1784,6 +1904,7 @@
     bar.appendChild(point);
     bar.appendChild(chat);
     bar.appendChild(copy);
+    bar.appendChild(invite);
     bar.appendChild(end);
     bar.appendChild(replier);
     // Dans un cadre, la barre est construite mais NON attachée : elle
@@ -1978,6 +2099,223 @@
    * @param {Element} bouton  bouton de la barre qui ouvre le panneau
    * @param {string} monNom   nom affiché à côté de nos messages
    */
+  /**
+   * Panneau « Envoyer le lien ».
+   *
+   * Le bouton « copier » suppose que le conseiller a, sur son poste, de quoi
+   * coller le message : WhatsApp Web, une messagerie, le numéro du client.
+   * En bureau de vente ce n'est pas toujours vrai — d'où trois voies qui ne
+   * dépendent pas de ce que la machine contient :
+   *
+   *   - le QR code, quand le visiteur est là physiquement ;
+   *   - l'e-mail, envoyé PAR LE SERVEUR, donc sans rien sur le poste ;
+   *   - WhatsApp et SMS, qui eux ouvrent une application locale et ne
+   *     marchent que si le poste en a une. C'est dit dans le panneau.
+   *
+   * @param {Element} bouton  bouton de la barre qui ouvre le panneau
+   * @param {string}  lien    URL visiteur, page courante comprise
+   * @param {string}  chiffres code à 6 chiffres, déjà nettoyé
+   */
+  function initInvitation(bouton, lien, chiffres) {
+    var panneau = el('div', 'lg-invite');
+    panneau.hidden = true;
+
+    var tete = el('div', 'lg-invite-tete');
+    var titre = el('b', '');
+    titre.textContent = T('envoyerTitre');
+    var fermer = el('button', 'lg-invite-fermer');
+    fermer.type = 'button';
+    fermer.textContent = '×';
+    fermer.title = T('fermerPanneau');
+    fermer.setAttribute('aria-label', T('fermerPanneau'));
+    tete.appendChild(titre);
+    tete.appendChild(fermer);
+
+    var corps = el('div', 'lg-invite-corps');
+
+    /* ── Le QR, pour le visiteur présent au bureau ────────────────── */
+    var blocQr = el('div', 'lg-invite-bloc');
+    var titreQr = el('div', 'lg-invite-titre');
+    titreQr.textContent = T('parQr');
+    var boiteQr = el('div', 'lg-invite-qr');
+    var aideQr = el('div', 'lg-invite-aide');
+    aideQr.textContent = T('parQrAide');
+    var rappelCode = el('div', 'lg-invite-code');
+    rappelCode.textContent = chiffres;
+    blocQr.appendChild(titreQr);
+    blocQr.appendChild(boiteQr);
+    blocQr.appendChild(rappelCode);
+    blocQr.appendChild(aideQr);
+
+    /* ── E-mail : la seule voie qui ne dépend pas du poste ────────── */
+    var blocMail = el('div', 'lg-invite-bloc');
+    var titreMail = el('div', 'lg-invite-titre');
+    titreMail.textContent = T('parEmail');
+    var formMail = el('form', 'lg-invite-ligne');
+    var champMail = el('input', 'lg-invite-input');
+    champMail.type = 'email';
+    champMail.placeholder = T('emailPlaceholder');
+    champMail.setAttribute('aria-label', T('parEmail'));
+    var envoiMail = el('button', 'lg-btn lg-btn-primary');
+    envoiMail.type = 'submit';
+    envoiMail.textContent = T('envoyer').replace(/^\S+\s/, '');
+    formMail.appendChild(champMail);
+    formMail.appendChild(envoiMail);
+    var etatMail = el('div', 'lg-invite-etat');
+    etatMail.setAttribute('role', 'status');
+    blocMail.appendChild(titreMail);
+    blocMail.appendChild(formMail);
+    blocMail.appendChild(etatMail);
+
+    /* ── Téléphone : ouvre une application du poste ───────────────── */
+    var blocTel = el('div', 'lg-invite-bloc');
+    var titreTel = el('div', 'lg-invite-titre');
+    titreTel.textContent = T('parTel');
+    var ligneTel = el('div', 'lg-invite-ligne');
+    var champTel = el('input', 'lg-invite-input');
+    champTel.type = 'tel';
+    champTel.placeholder = T('telPlaceholder');
+    champTel.setAttribute('aria-label', T('parTel'));
+    var versWa = el('a', 'lg-btn lg-btn-ghost lg-invite-wa');
+    versWa.textContent = T('viaWhatsapp');
+    versWa.target = '_blank';
+    versWa.rel = 'noopener';
+    var versSms = el('a', 'lg-btn lg-btn-ghost');
+    versSms.textContent = T('viaSms');
+    ligneTel.appendChild(champTel);
+    ligneTel.appendChild(versWa);
+    ligneTel.appendChild(versSms);
+    var etatTel = el('div', 'lg-invite-etat');
+    etatTel.setAttribute('role', 'status');
+    var aideTel = el('div', 'lg-invite-aide');
+    aideTel.textContent = T('telAide');
+    blocTel.appendChild(titreTel);
+    blocTel.appendChild(ligneTel);
+    blocTel.appendChild(etatTel);
+    blocTel.appendChild(aideTel);
+
+    corps.appendChild(blocQr);
+    corps.appendChild(blocMail);
+    corps.appendChild(blocTel);
+    panneau.appendChild(tete);
+    panneau.appendChild(corps);
+    if (!dansCadre) document.body.appendChild(panneau);
+
+    /* Le message est celui du bouton « copier » : le lien, puis le code sur
+       sa propre ligne, pour qu'il reste lisible à côté de l'aperçu du lien. */
+    function messageInvitation() {
+      return lien + '\n\n' + T('codeASaisir') + ' ' + chiffres;
+    }
+
+    // Les liens ne se construisent qu'à la saisie : un href figé au chargement
+    // enverrait vers un numéro vide.
+    function majLiensTel() {
+      var brut = champTel.value.replace(/[^0-9+]/g, '');
+      var msg = encodeURIComponent(messageInvitation());
+      var valide = brut.replace(/\D/g, '').length >= 8;
+      versWa.href = valide ? 'https://wa.me/' + brut.replace(/\D/g, '') + '?text=' + msg : '#';
+      versSms.href = valide ? 'sms:' + brut + '?body=' + msg : '#';
+      versWa.classList.toggle('lg-invite-off', !valide);
+      versSms.classList.toggle('lg-invite-off', !valide);
+      versWa.setAttribute('aria-disabled', valide ? 'false' : 'true');
+      versSms.setAttribute('aria-disabled', valide ? 'false' : 'true');
+    }
+    champTel.addEventListener('input', majLiensTel);
+    majLiensTel();
+
+    /* Un lien wa.me ou sms: ne dit jamais s'il a abouti : le navigateur passe
+       la main au système et n'en entend plus parler. Faute de mieux, on
+       observe si la page perd la main dans la seconde qui suit — c'est ce que
+       fait une application qui s'ouvre. Sinon, on le dit franchement plutôt
+       que de laisser le conseiller croire que le message est parti. */
+    [versWa, versSms].forEach(function (a) {
+      a.addEventListener('click', function (ev) {
+        if (a.classList.contains('lg-invite-off')) {
+          ev.preventDefault();
+          champTel.focus();
+          etatTel.className = 'lg-invite-etat lg-invite-ko';
+          etatTel.textContent = T('telInvalide');
+          return;
+        }
+        var quitte = false;
+        function partie() { quitte = true; }
+        window.addEventListener('blur', partie, { once: true });
+        document.addEventListener('visibilitychange', partie, { once: true });
+
+        etatTel.className = 'lg-invite-etat';
+        etatTel.textContent = T('appliOuverture');
+        setTimeout(function () {
+          window.removeEventListener('blur', partie);
+          document.removeEventListener('visibilitychange', partie);
+          if (quitte || document.hidden) {
+            etatTel.className = 'lg-invite-etat lg-invite-ok';
+            etatTel.textContent = T('appliOuverte');
+          } else {
+            etatTel.className = 'lg-invite-etat lg-invite-ko';
+            etatTel.textContent = T('appliAbsente');
+          }
+        }, 1400);
+      });
+    });
+
+    formMail.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var adresse = champMail.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(adresse)) {
+        etatMail.className = 'lg-invite-etat lg-invite-ko';
+        etatMail.textContent = T('emailInvalide');
+        champMail.focus();
+        return;
+      }
+      envoiMail.disabled = true;
+      etatMail.className = 'lg-invite-etat';
+      etatMail.textContent = T('envoiEnCours');
+
+      postForm('api/liveguide-session.php', {
+        action: 'invite', session: session, host_token: hostToken,
+        email: adresse, lien: lien, code: chiffres, langue: langue()
+      }, function (res) {
+        envoiMail.disabled = false;
+        if (res && res.ok) {
+          etatMail.className = 'lg-invite-etat lg-invite-ok';
+          etatMail.textContent = T('envoiOk') + ' ' + adresse;
+          champMail.value = '';
+        } else {
+          etatMail.className = 'lg-invite-etat lg-invite-ko';
+          etatMail.textContent = (res && res.error) ? res.error : T('envoiEchec');
+        }
+      });
+    });
+
+    // Le QR n'est dessiné qu'à la première ouverture : inutile de charger la
+    // bibliothèque pour un conseiller qui ne s'en sert pas.
+    var qrFait = false;
+    function dessinerQr() {
+      if (qrFait) return;
+      qrFait = true;
+      loadScript(absPath('assets/vendor/qrcode/qrcode.js'), function (ok) {
+        if (!ok || typeof qrcode !== 'function') { boiteQr.hidden = true; return; }
+        var qr = qrcode(0, 'M');
+        // Le code voyage dans le lien : un seul scan et le visiteur est dans
+        // la visite, sans saisie. Voir le commentaire de lecture du paramètre.
+        qr.addData(lien + (lien.indexOf('?') === -1 ? '?' : '&') + 'c=' + chiffres);
+        qr.make();
+        boiteQr.innerHTML = qr.createImgTag(6, 6);
+      });
+    }
+
+    bouton.addEventListener('click', function () {
+      panneau.hidden = !panneau.hidden;
+      bouton.setAttribute('aria-expanded', panneau.hidden ? 'false' : 'true');
+      if (!panneau.hidden) { dessinerQr(); champMail.focus(); }
+    });
+    fermer.addEventListener('click', function () {
+      panneau.hidden = true;
+      bouton.setAttribute('aria-expanded', 'false');
+      bouton.focus();
+    });
+  }
+
   function initChat(channel, bouton, monNom) {
     var panneau = el('div', 'lg-chat');
     panneau.hidden = true;
