@@ -36,6 +36,7 @@ return [
     'accueil_projets'   => 'إدارة المشاريع',
     'accueil_audit'     => 'تدقيق الملفات',
     'accueil_carte'     => 'عرض الخريطة',
+    'accueil_presentation' => 'ملف العرض التقديمي',
 
     /* ── المشاريع ── */
     'projets_titre'     => 'المشاريع',

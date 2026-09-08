@@ -36,6 +36,7 @@ return [
     'accueil_projets'   => 'Manage the projects',
     'accueil_audit'     => 'Audit the files',
     'accueil_carte'     => 'View the map',
+    'accueil_presentation' => 'Presentation pack',
 
     /* ── Projects ── */
     'projets_titre'     => 'Projects',

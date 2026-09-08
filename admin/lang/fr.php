@@ -44,6 +44,7 @@ return [
     'accueil_projets'   => 'Gérer les projets',
     'accueil_audit'     => 'Auditer les fichiers',
     'accueil_carte'     => 'Voir la carte',
+    'accueil_presentation' => 'Dossier de présentation',
 
     /* ── Projets ── */
     'projets_titre'     => 'Projets',

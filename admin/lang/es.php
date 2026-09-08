@@ -36,6 +36,7 @@ return [
     'accueil_projets'   => 'Gestionar los proyectos',
     'accueil_audit'     => 'Auditar los archivos',
     'accueil_carte'     => 'Ver el mapa',
+    'accueil_presentation' => 'Dosier de presentación',
 
     /* ── Proyectos ── */
     'projets_titre'     => 'Proyectos',
