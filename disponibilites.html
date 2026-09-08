@@ -689,10 +689,14 @@ body.nj-fige { overflow: hidden; }
 /* Onglets d'etage en rangee au-dessus du plan ; ils defilent horizontalement
    si l'immeuble compte beaucoup de niveaux. */
 .nj-mq-etages { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; padding-bottom: 2px; }
-.nj-mq-etages .nj-mq-etage { flex: 1 1 130px; min-width: 118px; }
+.nj-mq-etages .nj-mq-etage { flex: 1 1 118px; min-width: 104px; }
+/* Le nom et le compte partagent une ligne, la jauge passe dessous. Empiles,
+   ils portaient chaque bouton a 60 px : quatre etages coutaient ainsi plus de
+   hauteur que la legende et le titre reunis, avant le plan. */
 .nj-mq-etage {
-  display: grid; gap: .18rem;
-  min-height: 52px; padding: .45rem .6rem;
+  display: grid; grid-template-columns: auto 1fr; align-items: baseline;
+  gap: .1rem .4rem;
+  min-height: 38px; padding: .3rem .55rem;
   background: var(--surface-raised);
   border: 1px solid var(--border-medium); border-radius: 8px;
   font: inherit; text-align: start; color: var(--text); cursor: pointer;
@@ -701,10 +705,14 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-etage.is-active {
   background: var(--accent-solid); border-color: var(--accent-solid); color: var(--on-accent);
 }
-.nj-mq-etage-nom { font-weight: 800; font-size: .95rem; line-height: 1; }
-.nj-mq-etage-note { font-size: .7rem; opacity: .8; line-height: 1; }
+.nj-mq-etage-nom { font-weight: 800; font-size: .9rem; line-height: 1.1; }
+.nj-mq-etage-note {
+  font-size: .68rem; opacity: .8; line-height: 1.1;
+  text-align: end; white-space: nowrap;
+}
 .nj-mq-etage-jauge {
-  height: 4px; border-radius: 999px; background: var(--sand-dark); overflow: hidden;
+  grid-column: 1 / -1;
+  height: 3px; border-radius: 999px; background: var(--sand-dark); overflow: hidden;
 }
 .nj-mq-etage-jauge span { display: block; height: 100%; background: var(--lot-dispo); }
 .nj-mq-etage.is-active .nj-mq-etage-jauge { background: rgba(255, 255, 255, .35); }
@@ -878,7 +886,6 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-imm:fullscreen .nj-mq-corps { flex: 1; min-height: 0; }
 .nj-mq-imm:fullscreen .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-mq-imm:fullscreen .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
-.nj-mq-imm:fullscreen .nj-mq-etage { min-height: 60px; }
 
 /* Plein écran « maison », posé par une classe plutôt que par l'API du
    navigateur — qui affiche sur Android un bandeau « faites glisser vers le bas
@@ -904,7 +911,6 @@ body.nj-fige { overflow: hidden; }
 .nj-mq-imm.nj-plein .nj-mq-corps { flex: 1; min-height: 0; }
 .nj-mq-imm.nj-plein .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-mq-imm.nj-plein .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
-.nj-mq-imm.nj-plein .nj-mq-etage { min-height: 60px; }
 /* Le reste de la page ne doit pas defiler derriere le plan agrandi. */
 body.nj-fige-plein { overflow: hidden; }
 .nj-mq-lot polygon.nj-mq-forme { stroke-width: 4; fill-opacity: .42; }
@@ -1002,15 +1008,21 @@ body.nj-fige-plein { overflow: hidden; }
    bouton « Plein écran » (mêmes règles que .nj-mq-imm:fullscreen), sans
    dépendre de l'API Fullscreen — capricieuse dans un cadre. Le plan prend
    toute la hauteur ; l'élévation des étages et « Mes choix » restent à
-   gauche. Filtres, aide, bouton d'agrandissement et barre du bas relèvent
-   de la version site : masqués ici, comme en vrai plein écran. */
+   gauche. L'aide, le bouton d'agrandissement et la barre du bas relèvent de
+   la version site : masqués ici, comme en vrai plein écran. La barre
+   d'outils, elle, RESTE — c'est devant le client qu'on filtre. */
 .nj-embed #mainMenu,
 .nj-embed .nj-hero,
 .nj-embed #mainFooter,
-.nj-embed .nj-outils-zone,
-.nj-embed .nj-mq-aide,
 .nj-embed .nj-mq-agrandir,
+.nj-embed .nj-mq-aide,
 .nj-embed .nj-barre { display: none !important; }
+
+/* Dans la scene de la demo, la barre d'outils reste : c'est la que le
+   conseiller filtre devant son client. Le menu du site, lui, n'y est pas —
+   la barre part donc du haut du cadre. */
+:root.nj-embed { --nj-menu: 0px; }   /* passe apres le :root du bloc « barre d'outils » */
+.nj-embed .nj-outils-zone { padding: .4rem .5rem 0; }
 /* Le body réserve 68px pour le menu fixe, masqué ici : sans cette remise à
    zéro, une bande blanche pousse toute la page vers le bas. */
 .nj-embed body { padding: 0 !important; margin: 0 !important; }
@@ -1034,17 +1046,18 @@ body.nj-fige-plein { overflow: hidden; }
    (« Retour au projet », « Voir mes choix ») — les rappeler en haut ajoutait
    une ligne sans rien apprendre. Il reste sur le site public. */
 .nj-embed .nj-fil { display: none !important; }
-/* Un immeuble = un écran (reprise des règles :fullscreen ci-dessus). */
+/* Un immeuble = un écran (reprise des règles :fullscreen ci-dessus).
+   La barre d'outils lui passe devant : sans la retrancher, l'immeuble
+   demandait la hauteur entière du cadre et la scène défilait de sa hauteur. */
 .nj-embed .nj-mq-imm {
   display: flex; flex-direction: column; box-sizing: border-box;
-  min-height: 100vh; min-height: 100svh;
+  min-height: calc(100svh - var(--nj-outils, 72px));
   margin: 0; padding: 1rem 1.2rem; background: var(--bg);
 }
 .nj-embed .nj-mq-legende { flex: 0 0 auto; margin: .2rem 0 .8rem; }
 .nj-embed .nj-mq-corps { flex: 1; min-height: 0; }
 .nj-embed .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-embed .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
-.nj-embed .nj-mq-etage { min-height: 60px; }
 
 /* ── Barre d'outils, et tiroirs ────────────────────────────────────
    Mesuré sur un 1280 x 800 : l'en-tête, le panneau de filtres, le fil
@@ -1527,6 +1540,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=dda04ff4"></script>
-<script src="disponibilites.js?v=1c496b8d"></script>
+<script src="disponibilites.js?v=e5962cd2"></script>
 </body>
 </html>
