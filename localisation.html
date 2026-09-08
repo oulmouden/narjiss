@@ -53,8 +53,15 @@ body { background: var(--ivory); }
 .loc-hero {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding: .55rem 0 .35rem;   /* en-tête compact : plus de place pour la carte */
+  /* Une seule ligne : le nom du projet, et le retour à sa droite.
+     Le kicker « Localisation » et la ligne de lieu répétaient ce que le titre
+     de l'onglet et la carte disent déjà, en coûtant deux lignes de hauteur
+     avant la carte — sur la page dont la carte est le sujet. */
+  display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem;
+  padding: .45rem 0 .45rem;
 }
+.loc-hero .section-kicker,
+.loc-hero .loc-lieu { display: none; }
 .section-kicker {
   color: var(--bronze);
   font-size: .8rem;
@@ -73,7 +80,8 @@ html[dir=rtl] .loc-hero h1 { font-family: 'Noto Sans Arabic', serif; }
 .loc-hero .loc-lieu { margin: .3rem 0 0; color: var(--muted); }
 .loc-retour {
   display: inline-flex; align-items: center; gap: .35rem;
-  min-height: 44px; padding: .5rem .9rem; margin-top: .8rem;
+  min-height: 40px; padding: .45rem .9rem; margin: 0;
+  margin-inline-start: auto;   /* poussé au bout de la ligne du titre */
   border: 1px solid var(--border-subtle); border-radius: 8px;
   background: var(--smoke); color: var(--ocean-deep);
   font-weight: 700; font-size: .88rem; text-decoration: none;
@@ -133,12 +141,16 @@ body.lg-has-bar { --loc-bas: 64px; }
 .loc-filtrer { display: none; }
 
 @media (max-width: 700px) {
-  /* En-tête réduit : le visiteur arrive de la fiche projet, il sait où il est. */
-  .loc-hero { padding: .55rem 1rem .5rem; }
-  .loc-hero .section-kicker { display: none; }
-  .loc-hero h1 { font-size: 1.12rem; margin: 0; }
-  .loc-hero .loc-lieu { font-size: .8rem; margin-top: .1rem; }
-  .loc-retour { margin-top: .35rem; min-height: 34px; font-size: .8rem; }
+  /* Sur téléphone, la ligne d'en-tête se resserre encore.
+     On refuse le retour à la ligne : le nom du projet se tronque plutôt que
+     de renvoyer le bouton une ligne plus bas, ce qui coûterait 45 px de
+     hauteur pris sur la carte. */
+  .loc-hero { padding: .4rem 1rem; gap: .3rem .6rem; flex-wrap: nowrap; }
+  .loc-hero h1 {
+    font-size: 1.08rem; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .loc-retour { flex: none; min-height: 34px; padding: .35rem .6rem; font-size: .78rem; }
 
   .loc-shell { width: 100%; margin-bottom: 0; }
   .map-composition {
@@ -641,6 +653,6 @@ html[dir=rtl] .poi-item { text-align: right; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=1d6e0256"></script>
-<script src="localisation.js?v=fa69beb7"></script>
+<script src="localisation.js?v=47e4a52f"></script>
 </body>
 </html>
