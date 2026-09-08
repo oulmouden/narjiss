@@ -1102,6 +1102,10 @@ body.nj-fige-plein { overflow: hidden; }
   background: var(--surface-raised); color: var(--text);
   font: inherit; font-weight: 700; font-size: .88rem; cursor: pointer;
 }
+/* display:inline-flex ci-dessus l'emporterait sur l'attribut hidden, qui ne
+   vaut que « display:none » par défaut : le bouton resterait visible là où il
+   n'a rien à ouvrir. */
+.nj-outils-btn[hidden] { display: none; }
 .nj-outils-btn::after,
 .nj-filtres-bascule::after { content: '▾'; font-size: .9rem; opacity: .7; }
 .nj-outils-btn[aria-expanded="true"]::after,
@@ -1512,6 +1516,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=1d6e0256"></script>
-<script src="disponibilites.js?v=d5551813"></script>
+<script src="disponibilites.js?v=bbb41d9d"></script>
 </body>
 </html>

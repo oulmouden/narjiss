@@ -2443,10 +2443,19 @@
       b.classList.toggle('is-active', actif);
       b.setAttribute('aria-pressed', actif ? 'true' : 'false');
     });
-    // La maquette porte désormais sa propre légende sous le titre de chaque
-    // immeuble : on masque la légende globale pour ne pas la doubler.
+    /* La maquette porte sa propre légende sous le titre de chaque immeuble :
+       le bouton « Légende » de la barre n'y aurait rien à montrer. C'est LUI
+       qu'on retire, et non la légende elle-même : masquer le contenu d'un
+       tiroir laissait un bouton qui ne répondait plus. */
+    var boutonLeg = document.getElementById('njLegendeBascule');
     var legGlobale = document.getElementById('njLegende');
-    if (legGlobale) legGlobale.style.display = (vue === 'maquette') ? 'none' : '';
+    if (boutonLeg) {
+      boutonLeg.hidden = (vue === 'maquette');
+      if (boutonLeg.hidden) {
+        boutonLeg.setAttribute('aria-expanded', 'false');
+        if (legGlobale) legGlobale.classList.remove('est-ouvert');
+      }
+    }
     afficherLots();
   }
 
@@ -2574,6 +2583,14 @@
     var lang = langue();
     document.getElementById('njCompteur').textContent = '';
     document.getElementById('njLegende').innerHTML = '';
+    /* Sans grille, la légende n'a rien à légender : le bouton ouvrirait un
+       tiroir vide. */
+    var boutonLeg = document.getElementById('njLegendeBascule');
+    if (boutonLeg) {
+      boutonLeg.hidden = true;
+      boutonLeg.setAttribute('aria-expanded', 'false');
+      document.getElementById('njLegende').classList.remove('est-ouvert');
+    }
     document.getElementById('njGrille').innerHTML =
       '<div class="nj-vide nj-attente">' +
         '<p><strong>' + t('enPreparationTitre') + '</strong></p>' +
