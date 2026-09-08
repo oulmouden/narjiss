@@ -743,8 +743,42 @@
         if (cible) cible.classList.toggle('est-ouvert', actif);
       });
       majBasculeFiltres();   // compteur du bouton « Affiner »
+      mesurerBandeaux();
     });
+
+    mesurerBandeaux();
+    /* La barre change de hauteur quand la fenêtre rétrécit — les commandes
+       passent alors sur deux rangées. */
+    window.addEventListener('resize', mesurerBandeaux);
   }
+
+  /**
+   * Hauteur réelle des bandeaux qui encadrent le plan.
+   *
+   * Le plan se dimensionne en soustrayant ces hauteurs de celle de la
+   * fenêtre. Les mesurer plutôt que les écrire en dur est ce qui permet au
+   * plan de rester exactement à sa place quand un tiroir s'ouvre.
+   */
+  function mesurerBandeaux() {
+    var racine = document.documentElement;
+    var zone = document.querySelector('.nj-outils-zone');
+    if (zone) {
+      racine.style.setProperty('--nj-outils', Math.round(zone.offsetHeight) + 'px');
+    }
+    var bas = document.getElementById('njBarre');
+    var hBas = (bas && bas.offsetParent) ? Math.round(bas.offsetHeight) : 0;
+    racine.style.setProperty('--nj-bas', hBas + 'px');
+
+    /* Le plan vient de changer de hauteur : on le lui dit, une fois la
+       nouvelle valeur appliquée. setTimeout et non requestAnimationFrame :
+       une page qui n'est pas à l'écran — un onglet en arrière-plan, un cadre
+       masqué — ne peint plus, et le rappel d'animation n'y arrive jamais. */
+    if (recadrerMasse) setTimeout(recadrerMasse, 0);
+  }
+
+  /* Posée par rendreSituation, remise à zéro quand on quitte la vue : hors du
+     plan de masse, il n'y a rien à recadrer. */
+  var recadrerMasse = null;
 
   /* ── Rendu des lots ────────────────────────────────────────────────── */
 
@@ -1748,7 +1782,11 @@
 
     var carte = L.map(hote, {
       crs: L.CRS.Simple,
-      minZoom: -4, maxZoom: 2, zoomSnap: 0.25,
+      /* zoomSnap: 0 — le cadrage n'est plus arrondi au quart de niveau. Avec
+         0.25, fitBounds laissait le plan à 560 px dans une boîte de 646 : la
+         hauteur gagnée sur la page ne profitait pas au plan lui-même. Il n'y
+         a qu'une image de fond ici, aucune tuile à recaler sur une grille. */
+      minZoom: -4, maxZoom: 2, zoomSnap: 0,
       attributionControl: false,
       scrollWheelZoom: true
     });
@@ -1807,6 +1845,31 @@
       });
     }
     carte.on('resize zoomend moveend', replacerEtiquettes);
+
+    /* La boîte du plan change de hauteur en cours de route — un tiroir qui
+       s'ouvre, une fenêtre qu'on redimensionne. Tant que le visiteur n'a rien
+       déplacé lui-même, on recadre : sinon le plan gardait le cadrage d'une
+       boîte qui n'existe plus et laissait du vide.
+       Dès qu'il touche la carte, en revanche, on ne recadre plus : reprendre
+       la main sur son zoom serait pire que le vide. */
+    var deplaceParVisiteur = false;
+    ['pointerdown', 'wheel', 'keydown'].forEach(function (ev) {
+      carte.getContainer().addEventListener(ev, function () {
+        deplaceParVisiteur = true;
+      }, { passive: true });
+    });
+    /* La hauteur de la boîte dépend d'un tiroir qui s'ouvre — ce dont ni la
+       fenêtre ni Leaflet n'ont connaissance. C'est donc la barre d'outils qui
+       prévient, par cette fonction, une fois la nouvelle hauteur appliquée. */
+    recadrerMasse = function () {
+      carte.invalidateSize({ animate: false });
+      if (!deplaceParVisiteur) carte.fitBounds(bornes, { animate: false });
+      replacerEtiquettes();
+    };
+    // Redimensionnement de la fenêtre : Leaflet le voit seul, on recadre.
+    carte.on('resize', function () {
+      if (!deplaceParVisiteur) carte.fitBounds(bornes, { animate: false });
+    });
 
     // Le conteneur vient d'apparaître : Leaflet a mesuré une taille périmée.
     setTimeout(function () {
@@ -2464,6 +2527,8 @@
     var compteur = document.getElementById('njCompteur');
     compteur.textContent = etat.lots.length + ' ' +
       (etat.lots.length > 1 ? t('resultats') : t('resultat'));
+    // Le plan de masse va être refait, ou quitté : son recadrage ne vaut plus.
+    recadrerMasse = null;
     if (etat.vue === 'situation') rendreSituation();
     else if (etat.vue === 'plan') rendrePlan();
     else if (etat.vue === 'maquette') rendreMaquette();

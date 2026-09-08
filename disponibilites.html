@@ -94,8 +94,10 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
      propre — l'a réduite à 2 px. D'où width:100%, explicite. */
   width: 100%; max-width: 1500px; margin: 0 auto;
   /* Aucune marge en haut : la barre d'outils, juste au-dessus, porte la
-     sienne, et chaque pixel gagné ici est un pixel de plan. */
-  padding: 0 var(--space-md) 7rem;
+     sienne, et chaque pixel gagné ici est un pixel de plan. En bas, juste de
+     quoi dégager la barre de sélection QUAND elle est là — 7 rem en toutes
+     circonstances faisaient défiler une page qui tenait à l'écran. */
+  padding: 0 var(--space-md) calc(var(--nj-bas, 0px) + .8rem);
 }
 /* Un élément de grille a min-width:auto — sa piste ne peut donc pas devenir
    plus étroite que son contenu. Un seul enfant trop large élargissait ainsi
@@ -1204,10 +1206,20 @@ body.nj-fige-plein { overflow: hidden; }
    Le plan est servi par Leaflet en CRS.Simple. La hauteur est fixée ici :
    Leaflet mesure son conteneur au montage et n'affiche rien dans une boite
    sans hauteur — panne classique, et muette. */
-.nj-situation { display: flex; flex-direction: column; gap: .5rem; }
-.nj-situation-carte {
-  height: min(72vh, 720px);
+/* Le plan prend la hauteur utile, comme la carte des points d'intérêt.
+   Il valait 72 vh plafonnés à 720 px, mesurés sur la fenêtre entière : le
+   menu, la barre d'outils et la barre de sélection en retranchaient encore
+   leur part, et il n'en restait que 576 px sur un écran de 800.
+   --nj-outils et --nj-bas sont posées par le script, qui mesure la barre et
+   ses tiroirs : une hauteur écrite en dur se serait démentie dès qu'un tiroir
+   s'ouvre. Leurs valeurs de repli servent le temps du premier rendu. */
+.nj-situation {
+  display: flex; flex-direction: column; gap: .5rem;
+  height: calc(100dvh - var(--nj-menu) - var(--nj-outils, 78px) - var(--nj-bas, 0px) - .6rem);
   min-height: 320px;
+}
+.nj-situation-carte {
+  flex: 1 1 auto; min-height: 0;
   border-radius: 14px;
   border: 1px solid var(--border-medium);
   background: var(--surface-raised);
@@ -1246,7 +1258,6 @@ body.nj-fige-plein { overflow: hidden; }
 [dir="rtl"] .leaflet-container .leaflet-tooltip.nj-masse-etiq { left: 0; right: auto; }
 
 @media (max-width: 560px) {
-  .nj-situation-carte { height: min(60vh, 460px); }
   .leaflet-tooltip.nj-masse-etiq { font-size: .64rem; padding: .15rem .35rem; }
 }
 #njSousTitre:empty { display: none; }   /* pas de marge pour un texte absent */
@@ -1516,6 +1527,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=1d6e0256"></script>
-<script src="disponibilites.js?v=bbb41d9d"></script>
+<script src="disponibilites.js?v=1c496b8d"></script>
 </body>
 </html>
