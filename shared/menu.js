@@ -972,6 +972,8 @@ function buildFooterHTML(basePath) {
 var NJ_PARLONS_UI = {
   fr: {
     btn: "On en parle ?",
+    replier: "Réduire",
+    deplier: "On en parle ?",
     teaser: "Un projet en tête ? Dites-nous lequel, on vous répond.",
     title: "On en parle ?",
     subOn: "Un conseiller est joignable",
@@ -1002,6 +1004,8 @@ var NJ_PARLONS_UI = {
   },
   en: {
     btn: "Let's talk",
+    replier: "Collapse",
+    deplier: "Chat with us",
     teaser: "Got a project in mind? Tell us which one, we'll get back to you.",
     title: "Let's talk",
     subOn: "An advisor is available",
@@ -1032,6 +1036,8 @@ var NJ_PARLONS_UI = {
   },
   ar: {
     btn: "لنتحدث",
+    replier: "تصغير",
+    deplier: "تحدث معنا",
     teaser: "لديك مشروع في بالك؟ أخبرنا به، ونحن نجيبك.",
     title: "لنتحدث",
     subOn: "مستشار متاح الآن",
@@ -1062,6 +1068,8 @@ var NJ_PARLONS_UI = {
   },
   es: {
     btn: "¿Hablamos?",
+    replier: "Reducir",
+    deplier: "Hablemos",
     teaser: "¿Tiene un proyecto en mente? Díganos cuál y le respondemos.",
     title: "¿Hablamos?",
     subOn: "Un asesor está disponible",
@@ -1094,6 +1102,7 @@ var NJ_PARLONS_UI = {
 
 /* Clé de session : une amorce refusée ne doit pas revenir à chaque page. */
 var NJ_PARLONS_TEASER_KEY = 'nj-parlons-teaser-vu';
+var NJ_PARLONS_REPLI_KEY = 'nj-parlons-replie';
 var njParlonsOnline = false;
 
 /**
@@ -1371,15 +1380,51 @@ function njParlonsInstaller(basePath) {
   bouton.setAttribute('aria-controls', 'njParlonsPanel');
   bouton.innerHTML =
     '<span class="nj-parlons-ico" aria-hidden="true">💬</span>' +
-    '<span>' + escapeHtml(t.btn) + '</span>' +
+    '<span class="nj-parlons-mot">' + escapeHtml(t.btn) + '</span>' +
     '<span class="nj-parlons-dot"></span>';
+
+  /* ── Repli ──────────────────────────────────────────────────────────────
+     Le lanceur est posé en bas à droite, par-dessus la page. Sur un écran de
+     téléphone il y rencontre du monde : la barre de visite guidée, le bouton
+     « Retour à la carte », les commandes de Leaflet. Il se réduit donc à sa
+     pastille ronde — il reste joignable, mais ne recouvre plus rien. Le choix
+     tient le temps de la visite, pas au-delà : c'est une gêne de circonstance,
+     pas une préférence. */
+  var replier = njParlonsEl('button', 'nj-parlons-replier');
+  replier.type = 'button';
+  replier.innerHTML = '<span aria-hidden="true">›</span>';
+
+  function majRepli(replie) {
+    racine.classList.toggle('nj-parlons-replie', replie);
+    replier.setAttribute('aria-label', replie ? t.deplier : t.replier);
+    replier.title = replier.getAttribute('aria-label');
+    bouton.setAttribute('aria-label', replie ? t.deplier : '');
+    if (replie) masquerAmorce(false);
+    try { window.sessionStorage.setItem(NJ_PARLONS_REPLI_KEY, replie ? '1' : '0'); } catch (e) {}
+  }
+
+  replier.addEventListener('click', function (e) {
+    e.stopPropagation();
+    majRepli(!racine.classList.contains('nj-parlons-replie'));
+  });
+
+  /* Le chevron et la pastille partagent une ligne : posé en dessous, le
+     chevron aurait été le premier élément touché au pouce, à la place du
+     lanceur qu'il commande. */
+  var ligne = njParlonsEl('div', 'nj-parlons-ligne');
+  ligne.appendChild(replier);
+  ligne.appendChild(bouton);
 
   racine.appendChild(panneau);
   racine.appendChild(amorce);
-  racine.appendChild(bouton);
+  racine.appendChild(ligne);
   document.body.appendChild(racine);
 
   njParlonsRendreOptions(document.getElementById('njParlonsCorps'), basePath);
+
+  var repliDepart = false;
+  try { repliDepart = window.sessionStorage.getItem(NJ_PARLONS_REPLI_KEY) === '1'; } catch (e) {}
+  majRepli(repliDepart);
 
   // ── Ouverture / fermeture ───────────────────────────────────────────────
   function masquerAmorce(definitif) {
@@ -1389,6 +1434,7 @@ function njParlonsInstaller(basePath) {
     }
   }
   function ouvrir() {
+    if (racine.classList.contains('nj-parlons-replie')) majRepli(false);
     panneau.hidden = false;
     bouton.setAttribute('aria-expanded', 'true');
     masquerAmorce(true);
