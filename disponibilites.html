@@ -88,7 +88,11 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
      de l'ecran sur telephone. */
   display: grid; grid-template-columns: minmax(0, 1fr);
   gap: var(--space-lg); align-items: start;
-  max-width: 1500px; margin: 0 auto;
+  /* body est un conteneur flex : « margin:0 auto » y dimensionne l'élément sur
+     son CONTENU. Tant que le panneau de filtres était là, ses champs suffisaient
+     à remplir la largeur ; une fois seul, le plan — qui n'a pas de largeur
+     propre — l'a réduite à 2 px. D'où width:100%, explicite. */
+  width: 100%; max-width: 1500px; margin: 0 auto;
   /* Aucune marge en haut : la barre d'outils, juste au-dessus, porte la
      sienne, et chaque pixel gagné ici est un pixel de plan. */
   padding: 0 var(--space-md) 7rem;
@@ -1057,7 +1061,9 @@ body.nj-fige-plein { overflow: hidden; }
    Le fond est opaque — le plan défile dessous. */
 .nj-outils-zone {
   position: sticky; top: var(--nj-menu); z-index: 20;
-  max-width: 1500px; margin: 0 auto;
+  /* width:100% est indispensable : body est un conteneur flex, et « margin:0
+     auto » y fait tenir l'élément à la largeur de son CONTENU. */
+  width: 100%; max-width: 1500px; margin: 0 auto;
   padding: .6rem var(--space-md) 0;
   background: var(--bg);
 }
