@@ -18,7 +18,7 @@
       title: "Le projet dans son territoire",
       text: "Repérez l'adresse et les commodités du quartier. Touchez une catégorie pour n'afficher que ses points sur la carte.",
       gpsLabel: "Coordonnées GPS",
-      back: "Retour aux disponibilités",
+      back: "Retour aux disponibilités", backCourt: "Retour",
       globalMap: "Carte globale",
       projectSheet: "Voir la fiche du projet",
       poiLoading: "Chargement des points d'intérêt du quartier...",
@@ -39,7 +39,7 @@
       title: "The project in its territory",
       text: "Locate the address and the neighbourhood amenities. Tap a category to show only its points on the map.",
       gpsLabel: "GPS coordinates",
-      back: "Back to availability",
+      back: "Back to availability", backCourt: "Back",
       globalMap: "Global map",
       projectSheet: "View the project page",
       poiLoading: "Loading neighborhood points of interest...",
@@ -60,7 +60,7 @@
       title: "المشروع داخل مجاله",
       text: "حدد العنوان ومرافق الحي. المس فئة لعرض نقاطها وحدها على الخريطة.",
       gpsLabel: "إحداثيات GPS",
-      back: "العودة إلى العروض",
+      back: "العودة إلى العروض", backCourt: "العودة",
       globalMap: "الخريطة الشاملة",
       projectSheet: "عرض بطاقة المشروع",
       poiLoading: "جاري تحميل نقاط الاهتمام في الحي...",
@@ -81,7 +81,7 @@
       title: "El proyecto en su territorio",
       text: "Ubica la dirección y los servicios del barrio. Toca una categoría para mostrar solo sus puntos en el mapa.",
       gpsLabel: "Coordenadas GPS",
-      back: "Volver a la disponibilidad",
+      back: "Volver a la disponibilidad", backCourt: "Volver",
       globalMap: "Mapa global",
       projectSheet: "Ver la ficha del proyecto",
       poiLoading: "Cargando puntos de interés del barrio...",
@@ -1306,7 +1306,8 @@
     texte('locKicker', u.kicker);
     texte('locTitre', u.title);
     texte('locTexte', u.text);
-    texte('locRetour', (l === 'ar' ? '→ ' : '← ') + u.back);
+    var etroit = window.matchMedia('(max-width: 700px)').matches;
+    texte('locRetour', (l === 'ar' ? '→ ' : '← ') + (etroit ? u.backCourt : u.back));
     texte('locCarteGlobale', u.globalMap);
     texte('locFiche', u.projectSheet);
 
