@@ -74,6 +74,15 @@ build_code_list(){
   find admin -type f 2>/dev/null \
        ! -path 'admin/includes/config.php'
   find kb    -type f 2>/dev/null
+  # Outils serveur. Le dossier tools/ n'appartenait a AUCUN bucket : le script
+  # de test SMTP n'est jamais arrive sur le VPS, comme les guides et les CSV de
+  # POI avant lui. On n'envoie pas tout pour autant — export-prod.php et
+  # rapatrier-visite.php n'ont pas de garde CLI et seraient executables depuis
+  # le web. Le critere EST la garde : un outil qui ne refuse pas HTTP ne part
+  # pas, et le jour ou on lui en ajoute une, il part sans qu'on y pense.
+  for f in tools/*.php; do
+    [ -f "$f" ] && grep -q "PHP_SAPI !== 'cli'" "$f" && echo "$f"
+  done || true
   # data : uniquement les JSON de contenu du site (jamais rendezvous/backups/outbox)
   for f in projects.json project-sliders.json home-slider-images.json contacts.json; do
     [ -f "data/$f" ] && echo "data/$f"
