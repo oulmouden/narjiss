@@ -106,10 +106,9 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
   border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-md);
 }
 @media (max-width: 900px) { .nj-filtres { position: static; } }
-.nj-filtres h2 {
-  margin: 0; align-self: center; font-size: .78rem; font-weight: 800;
-  color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
-}
+/* Le titre « Affiner » est porté par le bouton de repli, sur toutes les
+   tailles d'écran : deux libellés identiques côte à côte n'apprenaient rien. */
+.nj-filtres h2 { display: none; }
 /* Les champs vivent dans .nj-filtres-corps : c'est lui qui les met en ligne. */
 .nj-filtres-corps {
   flex: 1 1 100%;
@@ -1056,17 +1055,23 @@ body.nj-fige-plein { overflow: hidden; }
 .nj-embed .nj-mq-etage { min-height: 60px; }
 
 /* ── Bouton de repli des filtres ──────────────────────────────────
-   Masqué par défaut : il n'existe que sur téléphone. */
+   Sur PC comme sur téléphone : mesuré sur un 1280, le panneau déplié occupait
+   200 px et repoussait la ligne des résultats à 466 px du haut. Replié, il
+   n'en reste qu'une ligne — le projet, et le bouton qui compte les critères
+   actifs — soit 112 px, et les résultats remontent à 377 px.
+   Le sélecteur de PROJET reste dehors ici (il ne filtre pas, il change de
+   contexte) ; il ne se replie que sur téléphone, où la place manque. */
 .nj-filtres-bascule {
-  display: none; width: 100%; min-height: 46px;
+  display: flex; width: auto; flex: 0 0 auto; min-height: 46px;
   align-items: center; justify-content: space-between; gap: .5rem;
-  margin: .2rem 0 .8rem; padding: .6rem .8rem;
+  margin: 0; padding: .6rem .8rem;
   border: 1px solid var(--border-medium); border-radius: 10px;
   background: var(--surface-raised); color: var(--text);
   font: inherit; font-weight: 700; font-size: .95rem; cursor: pointer;
 }
 .nj-filtres-bascule::after { content: '▾'; font-size: .9rem; opacity: .7; }
 .nj-filtres-bascule[aria-expanded="true"]::after { content: '▴'; }
+.nj-filtres-bascule[aria-expanded="false"] + .nj-filtres-corps { display: none; }
 .nj-filtres-bascule .nj-filtres-compte {
   margin-inline-start: .4rem; padding: .1rem .45rem;
   border-radius: 999px; background: var(--accent-solid); color: #fff;
@@ -1110,9 +1115,9 @@ body.nj-fige-plein { overflow: hidden; }
 
   .nj-shell { padding: .9rem .9rem 7rem; gap: .9rem; }
   .nj-filtres { padding: .8rem; }
-  .nj-filtres h2 { display: none; }        /* remplacé par le bouton de repli */
-  .nj-filtres-bascule { display: flex; }
-  .nj-filtres-bascule[aria-expanded="false"] + .nj-filtres-corps { display: none; }
+  /* Le bouton prend la ligne : à côté du sélecteur de projet, il ne resterait
+     ni à l'un ni à l'autre de quoi se lire. */
+  .nj-filtres-bascule { width: 100%; margin-bottom: .2rem; }
   /* Le selecteur de PROJET se replie desormais avec les filtres. Reste dehors,
      il coutait a lui seul un panneau entier — 198 px avant le premier logement,
      sur un ecran de 812. Or on arrive ici par un lien qui nomme deja le projet :
@@ -1344,12 +1349,10 @@ body.nj-fige-plein { overflow: hidden; }
       <select id="fProjet"></select>
     </div>
 
-    <!-- Repli des filtres, sur téléphone uniquement (cf. @media 640px). Sans
-         lui, six sélecteurs empilés repoussent le premier logement à deux
-         écrans de défilement. Sur grand écran ce bouton est masqué et les
-         filtres restent dépliés : rien ne change de ce côté.
-         Le sélecteur de projet reste hors du repli — il ne filtre pas, il
-         change de projet, et c'est l'action la plus demandée. -->
+    <!-- Repli des filtres. Sans lui, les six sélecteurs repoussent la ligne
+         des résultats de 88 px sur PC, et de deux écrans sur téléphone. Le sélecteur de projet reste hors du repli — il ne filtre
+         pas, il change de projet, et c'est l'action la plus demandée ; il ne
+         se replie que sous 640 px, où il n'y a plus de place. -->
     <button type="button" class="nj-filtres-bascule" id="njFiltresBascule"
             aria-expanded="false" aria-controls="njFiltresCorps">
       <span id="njFiltresBasculeLbl">Affiner</span>
@@ -1470,6 +1473,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=1d6e0256"></script>
-<script src="disponibilites.js?v=f8fa84ef"></script>
+<script src="disponibilites.js?v=fe14bb7b"></script>
 </body>
 </html>

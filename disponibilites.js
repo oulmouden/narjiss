@@ -622,8 +622,12 @@
       panneau.classList.toggle('nj-replie', bascule.getAttribute('aria-expanded') !== 'true');
     }
 
+    /* Le compteur ne parle que de ce que le bouton cache. « immeuble » a quitté
+       le panneau pour la ligne des résultats (cf. .nj-champ-immeuble) : l'y
+       compter afficherait « 1 » en permanence, sur un critère que le visiteur
+       voit pourtant à l'écran. */
     var actifs = Object.keys(etat.filtres).filter(function (k) {
-      return etat.filtres[k] !== '' && etat.filtres[k] != null;
+      return k !== 'immeuble' && etat.filtres[k] !== '' && etat.filtres[k] != null;
     }).length;
     lbl.innerHTML = echapper(t('affiner')) +
       (actifs ? '<span class="nj-filtres-compte">' + actifs + '</span>' : '');
@@ -2589,11 +2593,11 @@
       el.addEventListener('change', function () { lireFiltres(); charger(); });
     });
 
-    /* Le repli des filtres n'existe que sur téléphone (le bouton y est seul
-       visible) : inutile de tester la largeur ici, la feuille de style s'en
-       charge. Dépliés, les filtres poussent la grille vers le bas — c'est
-       voulu : on ne filtre pas et on ne regarde pas les résultats en même
-       temps sur un écran de six centimètres. */
+    /* Le repli vaut sur toutes les tailles d'écran ; ce qui change d'une
+       taille à l'autre — le sélecteur de projet, la largeur du bouton — est
+       affaire de feuille de style, pas de code. Dépliés, les filtres poussent
+       la grille vers le bas : c'est voulu, on ne filtre pas et on ne regarde
+       pas les résultats en même temps. */
     var bascule = document.getElementById('njFiltresBascule');
     if (bascule) {
       bascule.addEventListener('click', function () {
