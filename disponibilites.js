@@ -1422,17 +1422,6 @@
     return a.numero.localeCompare(b.numero, undefined, { numeric: true });
   }
 
-  /* Légende des statuts, posée dans chaque immeuble (donc visible en plein
-     écran). Mêmes couleurs que la légende globale, libellés traduits. */
-  function legendeMaquetteHTML() {
-    return '<p class="nj-legende nj-mq-legende">' +
-      '<span><i style="background:var(--lot-dispo)"></i>' + t('disponible') + '</span>' +
-      '<span><i style="background:var(--lot-optionne)"></i>' + t('optionne') + '</span>' +
-      '<span><i style="background:var(--lot-reserve)"></i>' + t('reserve') + '</span>' +
-      '<span><i style="background:var(--lot-vendu)"></i>' + t('vendu') + '</span>' +
-      '</p>';
-  }
-
   /* Contenu du panneau « Mes choix » de la maquette (sous la liste des
      niveaux). Reprend la sélection globale : jetons retirables + bouton vider. */
   function choixPanelHTML() {
@@ -1637,29 +1626,30 @@
           '</bdi> ' + t('libres') + '</span>' +
           '<span class="nj-plan-jauge" role="img" aria-label="' + pct + '%">' +
             '<span style="width:' + pct + '%"></span></span>' +
-          /* La legende partage la ligne du titre. Sur sa propre ligne elle
-             coutait 19 px plus ses marges, pour quatre mots que le titre
-             laisse largement passer a cote de lui. */
-          legendeMaquetteHTML() +
+          /* Les etages partagent la ligne du titre. Sur leur propre rangee ils
+             coutaient 40 px de plus, entre le titre et le plan, alors qu'ils
+             tiennent a cote du nom de l'immeuble et de sa jauge.
+             La legende, elle, est passee dans le tiroir de la barre d'outils :
+             elle ne se lit qu'une fois, et pas a chaque immeuble. */
+          '<div class="nj-mq-etages" role="group" aria-label="' + t('etage') + '">' +
+            ordres.map(function (n) {
+              var l = niveaux[n].lots;
+              var lib = l.filter(function (x) { return x.statut === 'disponible'; }).length;
+              var p = Math.round(lib / l.length * 100);
+              var actif = n === courant;
+              return '<button type="button" class="nj-mq-etage' + (actif ? ' is-active' : '') +
+                '" data-etage="' + echapper(n) + '" data-imm="' + echapper(imm) +
+                '" aria-pressed="' + (actif ? 'true' : 'false') + '">' +
+                '<span class="nj-mq-etage-nom">' + nomEtage(n) + '</span>' +
+                '<span class="nj-mq-etage-note"><bdi dir="ltr">' + lib + '/' + l.length +
+                '</bdi> ' + t('libres') + '</span>' +
+                '<span class="nj-mq-etage-jauge"><span style="width:' + p + '%"></span></span>' +
+                '</button>';
+            }).join('') +
+          '</div>' +
         '</header>' +
         '<div class="nj-mq-corps">' +
           '<div class="nj-mq-colonne">' +
-            '<div class="nj-mq-etages" role="group" aria-label="' + t('etage') + '">' +
-              ordres.map(function (n) {
-                var l = niveaux[n].lots;
-                var lib = l.filter(function (x) { return x.statut === 'disponible'; }).length;
-                var p = Math.round(lib / l.length * 100);
-                var actif = n === courant;
-                return '<button type="button" class="nj-mq-etage' + (actif ? ' is-active' : '') +
-                  '" data-etage="' + echapper(n) + '" data-imm="' + echapper(imm) +
-                  '" aria-pressed="' + (actif ? 'true' : 'false') + '">' +
-                  '<span class="nj-mq-etage-nom">' + nomEtage(n) + '</span>' +
-                  '<span class="nj-mq-etage-note"><bdi dir="ltr">' + lib + '/' + l.length +
-                  '</bdi> ' + t('libres') + '</span>' +
-                  '<span class="nj-mq-etage-jauge"><span style="width:' + p + '%"></span></span>' +
-                  '</button>';
-              }).join('') +
-            '</div>' +
             // « Mes choix » sous la liste des niveaux : reste visible en plein
             // écran (la barre du bas, hors de la section agrandie, ne l'est pas).
             '<div class="nj-mq-choix">' + choixPanelHTML() + '</div>' +
@@ -2509,19 +2499,11 @@
       b.classList.toggle('is-active', actif);
       b.setAttribute('aria-pressed', actif ? 'true' : 'false');
     });
-    /* La maquette porte sa propre légende sous le titre de chaque immeuble :
-       le bouton « Légende » de la barre n'y aurait rien à montrer. C'est LUI
-       qu'on retire, et non la légende elle-même : masquer le contenu d'un
-       tiroir laissait un bouton qui ne répondait plus. */
+    /* Le bouton « Légende » vaut pour toutes les vues, maquette comprise : la
+       légende répétée sous le titre de chaque immeuble a été retirée, une même
+       lecture des couleurs suffit pour la page entière. */
     var boutonLeg = document.getElementById('njLegendeBascule');
-    var legGlobale = document.getElementById('njLegende');
-    if (boutonLeg) {
-      boutonLeg.hidden = (vue === 'maquette');
-      if (boutonLeg.hidden) {
-        boutonLeg.setAttribute('aria-expanded', 'false');
-        if (legGlobale) legGlobale.classList.remove('est-ouvert');
-      }
-    }
+    if (boutonLeg) boutonLeg.hidden = false;
     afficherLots();
   }
 
