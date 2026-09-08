@@ -1637,8 +1637,11 @@
           '</bdi> ' + t('libres') + '</span>' +
           '<span class="nj-plan-jauge" role="img" aria-label="' + pct + '%">' +
             '<span style="width:' + pct + '%"></span></span>' +
+          /* La legende partage la ligne du titre. Sur sa propre ligne elle
+             coutait 19 px plus ses marges, pour quatre mots que le titre
+             laisse largement passer a cote de lui. */
+          legendeMaquetteHTML() +
         '</header>' +
-        legendeMaquetteHTML() +
         '<div class="nj-mq-corps">' +
           '<div class="nj-mq-colonne">' +
             '<div class="nj-mq-etages" role="group" aria-label="' + t('etage') + '">' +
