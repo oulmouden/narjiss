@@ -12,8 +12,16 @@
  */
 require_once __DIR__ . '/config.php';
 
-/** Gabarit HTML sobre aux couleurs Narjiss. */
-function nj_mail_template(string $titre, string $corpsHtml, ?string $ctaLabel = null, ?string $ctaUrl = null): string {
+/**
+ * Gabarit HTML sobre aux couleurs Narjiss.
+ *
+ * $pied choisit la mention de bas de page. Par défaut « interne » : la
+ * plupart des envois sont des notifications au bureau de vente, qui peuvent
+ * porter des données de prospect. Passer 'client' pour un message adressé
+ * au visiteur lui-même — lui dire de ne pas transférer son propre message
+ * n'aurait aucun sens.
+ */
+function nj_mail_template(string $titre, string $corpsHtml, ?string $ctaLabel = null, ?string $ctaUrl = null, string $pied = 'interne'): string {
   $cta = '';
   if ($ctaLabel && $ctaUrl) {
     $u = htmlspecialchars($ctaUrl, ENT_QUOTES);
@@ -28,7 +36,11 @@ function nj_mail_template(string $titre, string $corpsHtml, ?string $ctaLabel = 
     . '<tr><td style="padding:26px 32px 6px"><h1 style="margin:0 0 14px;font-size:19px;color:#0c2340">' . htmlspecialchars($titre) . '</h1>'
     . '<div style="font-size:14.5px;line-height:1.65;color:#35405a">' . $corpsHtml . '</div></td></tr>'
     . $cta
-    . '<tr><td style="padding:16px 32px;border-top:1px solid #e2e8f0;font-size:11.5px;color:#8a96ad">Notification interne — Narjiss Immobilière. Ne pas transférer : ce message peut contenir des données personnelles de prospect.</td></tr>'
+    . '<tr><td style="padding:16px 32px;border-top:1px solid #e2e8f0;font-size:11.5px;color:#8a96ad">'
+    . ($pied === 'client'
+        ? 'Narjiss Immobilière — ce message vous a été envoyé par votre conseiller. Si ce message ne vous est pas destiné, ignorez-le.'
+        : 'Notification interne — Narjiss Immobilière. Ne pas transférer : ce message peut contenir des données personnelles de prospect.')
+    . '</td></tr>'
     . '</table></td></tr></table></body></html>';
 }
 
