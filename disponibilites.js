@@ -78,6 +78,7 @@
       sansTour: 'Aucune visite 360° disponible pour ce projet.',
       vue: 'Affichage', vuePlan: 'Plan', vueListe: 'Liste', vueMaquette: 'Maquette',
       vueSituation: 'Situation', plusActions: 'Autres actions',
+      legende: 'Légende', leProjet: 'Le projet',
       dispoSur: 'disponibles sur', completSur: 'complet — 0 sur',
       aidePlanMasse: "Touchez un immeuble pour voir ses logements. Pincez pour zoomer, glissez pour déplacer.",
       sansPlanMasse: "Aucun plan de masse tracé pour ce projet.",
@@ -132,6 +133,7 @@
       sansTour: 'No 360° tour available for this project.',
       vue: 'View', vuePlan: 'Plan', vueListe: 'List', vueMaquette: 'Floor mockup',
       vueSituation: 'Site plan', plusActions: 'More actions',
+      legende: 'Key', leProjet: 'The project',
       dispoSur: 'available out of', completSur: 'sold out — 0 of',
       aidePlanMasse: 'Tap a building to see its homes. Pinch to zoom, drag to pan.',
       sansPlanMasse: 'No site plan has been mapped for this project.',
@@ -186,6 +188,7 @@
       sansTour: 'لا توجد جولة 360° متاحة لهذا المشروع.',
       vue: 'العرض', vuePlan: 'المخطط', vueListe: 'القائمة', vueMaquette: 'مجسم الطابق',
       vueSituation: 'المخطط العام', plusActions: 'إجراءات أخرى',
+      legende: 'مفتاح الألوان', leProjet: 'المشروع',
       dispoSur: 'متاح من أصل', completSur: 'مكتمل — 0 من',
       aidePlanMasse: 'اضغط على عمارة لعرض شققها. اقرص للتكبير، اسحب للتحريك.',
       sansPlanMasse: 'لا يوجد مخطط عام لهذا المشروع.',
@@ -240,6 +243,7 @@
       sansTour: 'No hay visita 360° disponible para este proyecto.',
       vue: 'Vista', vuePlan: 'Plano', vueListe: 'Lista', vueMaquette: 'Maqueta',
       vueSituation: 'Situación', plusActions: 'Más acciones',
+      legende: 'Leyenda', leProjet: 'El proyecto',
       dispoSur: 'disponibles de', completSur: 'completo — 0 de',
       aidePlanMasse: 'Toque un edificio para ver sus viviendas. Pellizque para ampliar, arrastre para mover.',
       sansPlanMasse: 'No hay plano de situación para este proyecto.',
@@ -614,14 +618,6 @@
     var lbl = document.getElementById('njFiltresBasculeLbl');
     if (!lbl) return;
 
-    /* Le panneau porte l'etat replie : le selecteur de projet le precede dans
-       le DOM, et CSS ne sait pas remonter a un frere precedent. */
-    var bascule = document.getElementById('njFiltresBascule');
-    var panneau = document.querySelector('.nj-filtres');
-    if (bascule && panneau) {
-      panneau.classList.toggle('nj-replie', bascule.getAttribute('aria-expanded') !== 'true');
-    }
-
     /* Le compteur ne parle que de ce que le bouton cache. « immeuble » a quitté
        le panneau pour la ligne des résultats (cf. .nj-champ-immeuble) : l'y
        compter afficherait « 1 » en permanence, sur un critère que le visiteur
@@ -631,6 +627,123 @@
     }).length;
     lbl.innerHTML = echapper(t('affiner')) +
       (actifs ? '<span class="nj-filtres-compte">' + actifs + '</span>' : '');
+  }
+
+  /**
+   * Une seule barre d'outils, et le plan juste dessous.
+   *
+   * Mesuré sur un 1280 x 800 : l'en-tête, le panneau de filtres, le fil
+   * d'étapes, le nom du projet et la ligne des résultats consommaient 464 px
+   * avant le premier plan — plus de la moitié de l'écran, sur la page dont le
+   * plan EST le sujet. Aucun de ces blocs n'est inutile ; ils n'ont
+   * simplement pas à être TOUS visibles en même temps.
+   *
+   * On ne duplique aucun contrôle : les nœuds existants sont déplacés, avec
+   * leurs écouteurs et leurs identifiants. Ce qui ne sert qu'au besoin passe
+   * dans un tiroir : les six filtres, la légende des couleurs, les actions du
+   * projet et le fil d'étapes.
+   */
+  function installerBarreOutils() {
+    var shell = document.querySelector('.nj-shell');
+    var panneau = document.querySelector('.nj-filtres');
+    if (!shell || !panneau || document.querySelector('.nj-outils')) return;
+
+    /* La zone vit AVANT .nj-shell, et non dedans : un enfant de grille voit
+       son adhérence bornée à sa propre case, et la barre décrochait au bout de
+       quelques dizaines de pixels de défilement. */
+    var zone = document.createElement('div');
+    zone.className = 'nj-outils-zone';
+    shell.parentNode.insertBefore(zone, shell);
+
+    var barre = document.createElement('div');
+    barre.className = 'nj-outils';
+    zone.appendChild(barre);
+
+    var tiroirs = document.createElement('div');
+    tiroirs.className = 'nj-tiroirs';
+    zone.appendChild(tiroirs);
+
+    /* Ordre de la barre : d'abord OÙ l'on est (projet, immeuble), puis
+       COMBIEN, puis COMMENT on regarde. Les étiquettes des sélecteurs restent
+       dans le DOM — elles sont traduites à chaque changement de langue et
+       nomment le champ pour un lecteur d'écran — mais la feuille de style les
+       sort du flux : empilées, elles doublaient la hauteur de la barre. */
+    [ '.nj-champ-projet', '#njFiltresBascule', '.nj-champ-immeuble',
+      '.nj-compteur' ].forEach(function (sel) {
+      var n = document.querySelector(sel);
+      if (n) barre.appendChild(n);
+    });
+
+    /* Les filtres eux-mêmes rejoignent les autres tiroirs : le panneau qui
+       les portait n'avait plus qu'eux. */
+    var corps = document.getElementById('njFiltresCorps');
+    if (corps) tiroirs.appendChild(corps);
+    if (panneau.parentNode) panneau.parentNode.removeChild(panneau);
+    corps.classList.add('nj-tiroir');
+
+    /**
+     * Un bouton de la barre, et le panneau qu'il montre.
+     * Un seul tiroir ouvert à la fois : deux panneaux dépliés repousseraient
+     * le plan aussi bas qu'avant.
+     */
+    function tiroir(idBouton, idLibelle, cle, contenu) {
+      if (!contenu) return null;
+      contenu.classList.add('nj-tiroir');
+      tiroirs.appendChild(contenu);
+      if (!contenu.id) contenu.id = idBouton + 'Panneau';
+
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'nj-outils-btn';
+      b.id = idBouton;
+      b.setAttribute('aria-expanded', 'false');
+      b.setAttribute('aria-controls', contenu.id);
+      b.innerHTML = '<span id="' + idLibelle + '"></span>';
+      b.querySelector('span').textContent = t(cle);
+      barre.appendChild(b);
+      return b;
+    }
+
+    var boutonProjet = document.createElement('div');
+    boutonProjet.className = 'nj-outils-projet';
+    tiroirs.appendChild(boutonProjet);
+    [ '.nj-hero-actions', '.nj-fil' ].forEach(function (sel) {
+      var n = document.querySelector(sel);
+      if (n) boutonProjet.appendChild(n);
+    });
+
+    tiroir('njLegendeBascule', 'njLegendeLbl', 'legende',
+           document.getElementById('njLegende'));
+    tiroir('njProjetBascule', 'njProjetLbl', 'leProjet', boutonProjet);
+
+    /* Le choix de l'affichage ferme la marche, poussé à l'autre bout de la
+       barre : c'est la dernière décision qu'on prend, et s'il faut qu'un
+       élément passe à la ligne faute de place — en arabe, où les libellés
+       sont plus larges — mieux vaut que ce soit celui-là. */
+    var vue = document.querySelector('.nj-vue');
+    if (vue) barre.appendChild(vue);
+
+    /* Un seul tiroir ouvert à la fois, celui des filtres compris : deux
+       panneaux dépliés repousseraient le plan aussi bas qu'avant.
+       Les panneaux ne sont plus les frères de leur bouton — ils vivent tous
+       dans .nj-tiroirs — d'où l'ouverture par classe et non par sélecteur
+       « + » comme auparavant. */
+    barre.addEventListener('click', function (ev) {
+      var b = ev.target;
+      while (b && b !== barre && !(b.getAttribute && b.getAttribute('aria-controls'))) {
+        b = b.parentNode;
+      }
+      if (!b || b === barre) return;
+
+      var ouvre = b.getAttribute('aria-expanded') !== 'true';
+      [].forEach.call(barre.querySelectorAll('[aria-controls]'), function (bouton) {
+        var cible = document.getElementById(bouton.getAttribute('aria-controls'));
+        var actif = bouton === b && ouvre;
+        bouton.setAttribute('aria-expanded', actif ? 'true' : 'false');
+        if (cible) cible.classList.toggle('est-ouvert', actif);
+      });
+      majBasculeFiltres();   // compteur du bouton « Affiner »
+    });
   }
 
   /* ── Rendu des lots ────────────────────────────────────────────────── */
@@ -2593,19 +2706,11 @@
       el.addEventListener('change', function () { lireFiltres(); charger(); });
     });
 
-    /* Le repli vaut sur toutes les tailles d'écran ; ce qui change d'une
-       taille à l'autre — le sélecteur de projet, la largeur du bouton — est
-       affaire de feuille de style, pas de code. Dépliés, les filtres poussent
-       la grille vers le bas : c'est voulu, on ne filtre pas et on ne regarde
-       pas les résultats en même temps. */
-    var bascule = document.getElementById('njFiltresBascule');
-    if (bascule) {
-      bascule.addEventListener('click', function () {
-        var ouvert = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', ouvert ? 'false' : 'true');
-        majBasculeFiltres();   // le selecteur de projet suit le repli
-      });
-    }
+    /* La barre regroupe les commandes et range le reste dans des tiroirs ;
+       c'est elle qui porte désormais l'ouverture et la fermeture, pour tous
+       les boutons à la fois. Dépliés, les tiroirs poussent le plan vers le
+       bas : c'est voulu, on ne règle pas et on ne regarde pas en même temps. */
+    installerBarreOutils();
 
     document.getElementById('njReinit').addEventListener('click', function () {
       ['fTypologie', 'fImmeuble', 'fOrientation', 'fNiveau'].forEach(function (id) {
@@ -2957,6 +3062,9 @@
         if (etapes[i]) li.textContent = etapes[i];
       });
     }
+
+    texte('njLegendeLbl', t('legende'));
+    texte('njProjetLbl', t('leProjet'));
 
     var legende = document.getElementById('njLegende');
     if (legende) {
