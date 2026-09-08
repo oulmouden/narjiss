@@ -181,10 +181,16 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 .nj-plan-aide { margin: 0 0 1.1rem; font-size: .84rem; color: var(--muted); }
 .nj-plan-imm { margin-bottom: var(--space-lg); }
 .nj-plan-tete {
-  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem;
-  padding-bottom: .5rem; margin-bottom: .8rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem;
+  padding-bottom: .45rem; margin-bottom: .6rem;
   border-bottom: 2px solid var(--sand-dark);
 }
+/* Les étages prennent le reste de la ligne et défilent au doigt plutôt que de
+   passer à la ligne : c'est une rangée de plus sinon, et c'est précisément ce
+   qu'on cherchait à supprimer. La jauge du titre leur cède la place — chaque
+   étage porte deja la sienne. */
+.nj-plan-tete .nj-mq-etages { flex: 1 1 220px; min-width: 0; margin-inline-start: auto; }
+@media (max-width: 900px) { .nj-plan-tete .nj-plan-jauge { display: none; } }
 .nj-plan-tete h2 {
   margin: 0; font-family: var(--font-serif); font-size: 1.3rem; color: var(--charcoal);
 }
@@ -681,8 +687,12 @@ body.nj-fige { overflow: hidden; }
 }
 @media (max-width: 760px) {
   .nj-mq-corps { grid-template-columns: 1fr; }
-  .nj-mq-etages { flex-direction: row; flex-wrap: wrap; }
-  .nj-mq-etage { flex: 1 1 84px; }
+  /* Une ligne qui defile au doigt, et non deux rangees : les etages partagent
+     desormais la ligne du titre, et un retour a la ligne y rendrait les 40 px
+     gagnes. Le dernier bouton coupe par le bord signale qu'il y a une suite. */
+  .nj-mq-etages { flex-direction: row; flex-wrap: nowrap; scrollbar-width: none; }
+  .nj-mq-etages::-webkit-scrollbar { display: none; }
+  .nj-mq-etage { flex: 0 0 auto; min-width: 96px; }
 }
 
 /* Élévation : les étages empilés, le dernier en haut, comme la maquette. */
@@ -878,11 +888,6 @@ body.nj-fige { overflow: hidden; }
   box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
 }
 .nj-mq-imm:fullscreen .nj-mq-sortie:hover { filter: brightness(1.1); }
-/* Légende de la maquette, posée sous le titre de l'immeuble. Étant à
-   l'intérieur de la section, elle reste visible en plein écran (l'ancienne
-   légende globale, hors de la section agrandie, disparaissait). */
-.nj-mq-legende { margin: .1rem 0 .7rem; }
-.nj-mq-imm:fullscreen .nj-mq-legende { flex: 0 0 auto; margin: .2rem 0 .8rem; }
 .nj-mq-imm:fullscreen .nj-mq-corps { flex: 1; min-height: 0; }
 .nj-mq-imm:fullscreen .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-mq-imm:fullscreen .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
@@ -907,7 +912,6 @@ body.nj-fige { overflow: hidden; }
 }
 .nj-mq-imm.nj-plein .nj-mq-sortie:hover { filter: brightness(1.1); }
 .nj-mq-imm.nj-plein .nj-mq-choix { display: block; }
-.nj-mq-imm.nj-plein .nj-mq-legende { flex: 0 0 auto; margin: .2rem 0 .8rem; }
 .nj-mq-imm.nj-plein .nj-mq-corps { flex: 1; min-height: 0; }
 .nj-mq-imm.nj-plein .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-mq-imm.nj-plein .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
@@ -1054,7 +1058,6 @@ body.nj-fige-plein { overflow: hidden; }
   min-height: calc(100svh - var(--nj-outils, 72px));
   margin: 0; padding: 1rem 1.2rem; background: var(--bg);
 }
-.nj-embed .nj-mq-legende { flex: 0 0 auto; margin: .2rem 0 .8rem; }
 .nj-embed .nj-mq-corps { flex: 1; min-height: 0; }
 .nj-embed .nj-mq-plateau { height: 100%; display: flex; flex-direction: column; }
 .nj-embed .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
@@ -1540,6 +1543,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=dda04ff4"></script>
-<script src="disponibilites.js?v=e5962cd2"></script>
+<script src="disponibilites.js?v=9f524a73"></script>
 </body>
 </html>
