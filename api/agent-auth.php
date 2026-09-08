@@ -7,6 +7,8 @@
  *   register  : crée un compte « en attente » de validation
  *   login     : ouvre une session agent (compte actif uniquement)
  *   logout    : ferme la session
+ *   forgot    : envoie un lien de réinitialisation à l'adresse du compte
+ *   reset     : consomme le lien et pose le nouveau mot de passe
  *   me        : renvoie l'agent connecté (ou null)
  *   pending   : [gestionnaire] liste les comptes en attente de son projet
  *   team      : [gestionnaire] liste les agents de son projet
@@ -109,6 +111,102 @@ try {
       $_SESSION['nj_agent_id'] = (int)$a['id'];
       nj_agent_touch((int)$a['id']); // marque en ligne dès la connexion
       nj_json(['ok' => true, 'agent' => nj_agent_public($a)]);
+
+    /* Mot de passe oublié — demande du lien.
+     *
+     * La réponse est LA MÊME que l'adresse existe ou non. Distinguer les deux
+     * ferait de cette page un annuaire : on y taperait des adresses jusqu'à
+     * trouver celles qui ont un compte chez Narjiss. Le prix à payer est
+     * qu'une faute de frappe ne se signale pas ; l'e-mail qui n'arrive pas
+     * s'en charge, et le texte de confirmation le dit.
+     */
+    case 'forgot':
+      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.', 'code' => 'post'], 405);
+      $email = trim($_POST['email'] ?? '');
+      $reponse = ['ok' => true, 'envoye' => true];   // toujours la même
+
+      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        nj_json(['ok' => false, 'error' => 'Adresse e-mail invalide.', 'code' => 'emailInvalide'], 422);
+      }
+      $a = nj_agent_by_email($email);
+      /* Un compte en attente ou suspendu ne reçoit rien : lui donner un lien
+         laisserait croire que se réinitialiser rouvre la porte, alors que
+         c'est la validation d'un gestionnaire qui l'ouvre. */
+      if (!$a || $a['statut'] !== 'active') nj_json($reponse);
+
+      $jeton = nj_agent_reset_create((int) $a['id'], $_SERVER['REMOTE_ADDR'] ?? '');
+      if ($jeton === null) nj_json($reponse);   // trop de demandes : on se tait aussi
+
+      require_once __DIR__ . '/mail.php';
+      $langue = in_array($_POST['langue'] ?? '', ['fr', 'en', 'ar', 'es'], true)
+        ? $_POST['langue'] : 'fr';
+
+      /* Le lien pointe vers l'espace commercial de CE serveur, jamais vers une
+         adresse fournie dans la requête : un champ « lien » posté par
+         l'appelant enverrait la victime où bon lui semble. */
+      $hote = $_SERVER['HTTP_HOST'] ?? 'www.narjiss.company';
+      $schema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+      // /narjiss/api/agent-auth.php -> /narjiss ; a la racine, chaine vide.
+      $base = rtrim(preg_replace('#/api$#', '', dirname($_SERVER['SCRIPT_NAME'] ?? '/api/x.php')), '/');
+      $lien = $schema . '://' . $hote . $base . '/espace-agent.html?reset='
+            . $jeton . '#' . $langue;
+
+      $T = [
+        'fr' => ['s' => 'Réinitialiser votre mot de passe — Narjiss',
+                 't' => 'Réinitialiser votre mot de passe',
+                 "c" => "Vous avez demandé à redéfinir le mot de passe de votre espace commercial Narjiss. Ce lien est valable une heure et ne fonctionne qu'une fois.",
+                 'b' => 'Choisir un nouveau mot de passe',
+                 "f" => "Si vous n'avez rien demandé, ignorez ce message : votre mot de passe reste inchangé."],
+        'en' => ['s' => 'Reset your password — Narjiss',
+                 't' => 'Reset your password',
+                 'c' => 'You asked to set a new password for your Narjiss sales workspace. This link is valid for one hour and works only once.',
+                 'b' => 'Choose a new password',
+                 'f' => 'If you did not ask for this, ignore this message: your password stays unchanged.'],
+        'ar' => ['s' => 'إعادة تعيين كلمة المرور — Narjiss',
+                 't' => 'إعادة تعيين كلمة المرور',
+                 'c' => 'لقد طلبت تعيين كلمة مرور جديدة لفضائك التجاري لدى Narjiss. هذا الرابط صالح لمدة ساعة واحدة ويعمل مرة واحدة فقط.',
+                 'b' => 'اختيار كلمة مرور جديدة',
+                 'f' => 'إذا لم تطلب ذلك، تجاهل هذه الرسالة: كلمة المرور تبقى كما هي.'],
+        'es' => ['s' => 'Restablecer su contraseña — Narjiss',
+                 't' => 'Restablecer su contraseña',
+                 'c' => 'Ha solicitado definir una nueva contraseña para su espacio comercial Narjiss. Este enlace es válido durante una hora y solo funciona una vez.',
+                 'b' => 'Elegir una nueva contraseña',
+                 'f' => 'Si no ha solicitado nada, ignore este mensaje: su contraseña no cambia.'],
+      ][$langue];
+
+      $corps = '<p style="margin:0 0 14px">' . htmlspecialchars($T['c']) . '</p>'
+             . '<p style="margin:0;color:#6b7280;font-size:13px">' . htmlspecialchars($T['f']) . '</p>';
+      nj_mail($a['email'], $T['s'],
+              nj_mail_template($T['t'], $corps, $T['b'], $lien, 'client'));
+
+      nj_json($reponse);
+
+    /* Mot de passe oublié — pose du nouveau mot de passe.
+     *
+     * Le jeton n'ouvre PAS de session : après avoir choisi son mot de passe,
+     * l'agent se connecte normalement. Un lien reçu par e-mail qui ouvrirait
+     * la session vaudrait un mot de passe, et transiterait par autant de
+     * boîtes et de relais que le message.
+     */
+    case 'reset':
+      if (!$post) nj_json(['ok' => false, 'error' => 'POST requis.', 'code' => 'post'], 405);
+      $jeton = trim($_POST['token'] ?? '');
+      $pass  = (string) ($_POST['password'] ?? '');
+      if (strlen($pass) < 6) {
+        nj_json(['ok' => false, 'error' => 'Mot de passe : 6 caractères minimum.', 'code' => 'mdpCourt'], 422);
+      }
+      if (!nj_agent_reset_use($jeton, $pass)) {
+        nj_json(['ok' => false, 'code' => 'lienInvalide',
+                 "error" => "Ce lien n'est plus valable. Demandez-en un nouveau."], 410);
+      }
+      nj_json(['ok' => true]);
+
+    /* Le lien est-il encore bon ? Posé avant d'afficher le formulaire, pour
+       ne pas faire choisir un mot de passe qui sera refusé ensuite. */
+    case 'reset-check':
+      $a = nj_agent_reset_agent(trim($_GET['token'] ?? $_POST['token'] ?? ''));
+      nj_json(['ok' => true, 'valide' => $a !== null,
+               'email' => $a ? $a['email'] : '']);
 
     case 'logout':
       $_SESSION = [];

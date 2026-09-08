@@ -21,6 +21,14 @@
      fournit la langue courante, les boutons et le parcours du balisage. Le
      repli sur le français couvre le cas où l'un des deux fichiers manque :
      la page reste utilisable, simplement pas traduite. */
+  /* Jeton de réinitialisation lu dans l'URL. Vidé dès qu'il est consommé. */
+  var jetonReset = '';
+
+  /** Code de langue courant, pour que l'e-mail parte dans la bonne. */
+  function langue() {
+    return (window.NJ_LANG && window.NJ_LANG.courante()) || 'fr';
+  }
+
   function T(cle, vars) {
     if (window.NJ_LANG && window.EA_TEXTES) return window.NJ_LANG.t(window.EA_TEXTES, cle, vars);
     var fr = (window.EA_TEXTES && window.EA_TEXTES.fr) || {};
@@ -77,6 +85,21 @@
     $('tabReg').classList.toggle('active', which === 'reg');
     show($('formLogin'), which === 'login');
     show($('formReg'), which === 'reg');
+    /* « Oubli » et « reset » ne sont pas des onglets : on n'y arrive que par le
+       lien ou par l'URL. Revenir sur un onglet les referme donc. */
+    show($('formOubli'), false);
+    show($('formReset'), false);
+    show($('tabLogin').parentNode, true);
+  }
+
+  /** Affiche l'un des deux écrans hors onglets, et masque le reste. */
+  function ecranHorsOnglets(id) {
+    show($('formLogin'), false);
+    show($('formReg'), false);
+    show($('formOubli'), id === 'formOubli');
+    show($('formReset'), id === 'formReset');
+    // Les onglets n'ont plus de sens ici : ils ramèneraient sans prévenir.
+    show($('tabLogin').parentNode, false);
   }
 
   /* ── Rendu de l'état connecté / déconnecté ─────────────────────────────── */
@@ -1031,6 +1054,59 @@
         });
     };
 
+    $('lienOubli').onclick = function () {
+      ecranHorsOnglets('formOubli');
+      $('obEmail').value = $('liEmail').value.trim();   // reprend ce qui est déjà saisi
+      $('oubliMsg').textContent = '';
+      $('obEmail').focus();
+    };
+    $('retourConnexion').onclick = function () { setTab('login'); };
+
+    $('formOubli').onsubmit = function (e) {
+      e.preventDefault();
+      var msg = $('oubliMsg'); msg.className = 'msg'; msg.textContent = T('envoiEnCours');
+      post('agent-auth.php', {
+        action: 'forgot', email: $('obEmail').value.trim(), langue: langue()
+      }).then(function (r) {
+        if (r && r.ok) {
+          /* Le serveur répond la même chose que l'adresse existe ou non — il
+             ne doit pas servir d'annuaire. Le message le dit franchement,
+             plutôt que d'affirmer un envoi dont on ne sait rien. */
+          msg.className = 'msg good';
+          msg.textContent = T('oubliEnvoye');
+        } else {
+          msg.className = 'msg err';
+          msg.textContent = messageErreur(r, 'oubliEchec');
+        }
+      });
+    };
+
+    $('formReset').onsubmit = function (e) {
+      e.preventDefault();
+      var msg = $('resetMsg');
+      if ($('rsPass').value !== $('rsPass2').value) {
+        msg.className = 'msg err'; msg.textContent = T('mdpDifferents');
+        return;
+      }
+      msg.className = 'msg'; msg.textContent = T('enregistrementEnCours');
+      post('agent-auth.php', {
+        action: 'reset', token: jetonReset, password: $('rsPass').value
+      }).then(function (r) {
+        if (r && r.ok) {
+          msg.className = 'msg good';
+          msg.textContent = T('mdpChange');
+          /* Le jeton est consommé : on nettoie l'URL pour qu'un rafraîchissement
+             ne ramène pas un écran de réinitialisation devenu inutile. */
+          jetonReset = '';
+          try { history.replaceState({}, '', location.pathname + location.hash); } catch (x) {}
+          setTimeout(function () { setTab('login'); }, 1600);
+        } else {
+          msg.className = 'msg err';
+          msg.textContent = messageErreur(r, 'lienInvalide');
+        }
+      });
+    };
+
     $('formReg').onsubmit = function (e) {
       e.preventDefault();
       var msg = $('regMsg'); msg.className = 'msg'; msg.textContent = T('creationEnCours');
@@ -1092,6 +1168,35 @@
     // État initial
     get('agent-auth.php?action=me').then(function (r) {
       renderAuth(r && r.ok ? r.agent : null);
+
+      /* Lien de réinitialisation. On le VÉRIFIE avant d'afficher quoi que ce
+         soit : faire choisir un mot de passe pour l'annoncer périmé ensuite
+         est la pire des façons de l'apprendre. Le jeton quitte aussitôt la
+         barre d'adresse — il ne doit pas rester à l'écran ni partir dans un
+         en-tête Referer vers une page tierce. */
+      var params = new URLSearchParams(location.search);
+      var jeton = (params.get('reset') || '').trim();
+      if (!jeton || (r && r.ok && r.agent)) return;   // déjà connecté : rien à réinitialiser
+
+      try { history.replaceState({}, '', location.pathname + location.hash); } catch (x) {}
+
+      get('agent-auth.php?action=reset-check&token=' + encodeURIComponent(jeton))
+        .then(function (v) {
+          if (v && v.ok && v.valide) {
+            jetonReset = jeton;
+            $('resetEmail').textContent = v.email || '';
+            ecranHorsOnglets('formReset');
+            $('rsPass').focus();
+          } else {
+            /* Lien périmé : on ramène sur la demande, avec l'explication —
+               plutôt qu'un écran de connexion muet où l'on se demanderait ce
+               qu'est devenu le lien reçu. */
+            ecranHorsOnglets('formOubli');
+            var m = $('oubliMsg');
+            m.className = 'msg err';
+            m.textContent = T('lienInvalide');
+          }
+        });
     });
   });
 })();

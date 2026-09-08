@@ -99,6 +99,22 @@ CREATE TABLE IF NOT EXISTS agent_push (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL);
 
+  $pdo->exec(<<<'SQL'
+CREATE TABLE IF NOT EXISTS agent_resets (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  agent_id   INT UNSIGNED NOT NULL,
+  token_hash CHAR(64)     NOT NULL,
+  expire_at  DATETIME     NOT NULL,
+  used_at    DATETIME     NULL DEFAULT NULL,
+  created_ip VARCHAR(45)  NOT NULL DEFAULT '',
+  created_at DATETIME     NOT NULL,
+  UNIQUE KEY uniq_token (token_hash),
+  INDEX idx_agent (agent_id),
+  CONSTRAINT fk_reset_agent FOREIGN KEY (agent_id)
+    REFERENCES agents(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL);
+
   // Évolution du schéma : rôle « superviseur » (accès à tous les bureaux).
   // MODIFY est idempotent — sûr même si la colonne a déjà la bonne définition.
   try {
@@ -183,6 +199,99 @@ function nj_agent_login(string $email, string $password): ?array {
   if (!$a || !password_verify($password, $a['password_hash'])) return null;
   if ($a['statut'] !== 'active') return null;
   return $a;
+}
+
+/* ── Mot de passe oublié ─────────────────────────────────────────────────
+ *
+ * Le mot de passe est haché : il ne peut pas être « retrouvé », seulement
+ * remplacé. On envoie donc à l'adresse du compte un lien à usage unique.
+ *
+ * Ce qui est stocké est le HACHÉ du jeton, jamais le jeton lui-même — comme
+ * un mot de passe. Une copie de la base ne permet ainsi de réinitialiser
+ * aucun compte : elle ne contient rien qu'on puisse mettre dans un lien.
+ */
+
+/** Durée de vie d'un lien de réinitialisation. */
+const NJ_RESET_TTL = 3600;          // une heure
+
+/** Nombre de demandes tolérées par compte et par heure. */
+const NJ_RESET_MAX_PAR_HEURE = 3;
+
+/**
+ * Crée un lien de réinitialisation pour ce compte.
+ *
+ * @return string|null Le jeton en clair — la SEULE fois où il existe — ou
+ *                     null si le compte en a déjà demandé trop dans l'heure.
+ */
+function nj_agent_reset_create(int $agentId, string $ip = ''): ?string {
+  $pdo = nj_adb();
+
+  /* Purge d'abord : un jeton périmé n'a plus de raison d'occuper la table, et
+     le comptage qui suit ne doit porter que sur des demandes vivantes. */
+  $pdo->exec("DELETE FROM agent_resets WHERE expire_at < NOW() - INTERVAL 1 DAY");
+
+  $st = $pdo->prepare(
+    "SELECT COUNT(*) FROM agent_resets
+      WHERE agent_id = ? AND created_at > NOW() - INTERVAL 1 HOUR");
+  $st->execute([$agentId]);
+  if ((int) $st->fetchColumn() >= NJ_RESET_MAX_PAR_HEURE) return null;
+
+  /* Les liens précédents tombent : deux liens valides pour un même compte,
+     c'est deux occasions d'en intercepter un. */
+  $pdo->prepare("UPDATE agent_resets SET used_at = NOW()
+                  WHERE agent_id = ? AND used_at IS NULL")->execute([$agentId]);
+
+  $jeton = bin2hex(random_bytes(32));
+  $pdo->prepare(
+    "INSERT INTO agent_resets (agent_id, token_hash, expire_at, created_ip, created_at)
+     VALUES (?, ?, DATE_ADD(NOW(), INTERVAL ? SECOND), ?, NOW())")
+    ->execute([$agentId, hash('sha256', $jeton), NJ_RESET_TTL, substr($ip, 0, 45)]);
+
+  return $jeton;
+}
+
+/**
+ * Le compte visé par ce jeton, s'il est encore valable.
+ *
+ * Un jeton inconnu, périmé ou déjà utilisé donne null — sans dire lequel des
+ * trois, ce qui n'apprendrait rien d'utile à celui qui l'a saisi.
+ */
+function nj_agent_reset_agent(string $jeton): ?array {
+  if (!preg_match('/^[0-9a-f]{64}$/', $jeton)) return null;
+  $st = nj_adb()->prepare(
+    "SELECT agent_id FROM agent_resets
+      WHERE token_hash = ? AND used_at IS NULL AND expire_at > NOW()");
+  $st->execute([hash('sha256', $jeton)]);
+  $id = $st->fetchColumn();
+  if ($id === false) return null;
+
+  $a = nj_agent_by_id((int) $id);
+  /* Un compte suspendu entre-temps ne se rouvre pas par un lien envoyé
+     avant : la réinitialisation change le mot de passe, pas le droit d'entrer. */
+  return ($a && $a['statut'] === 'active') ? $a : null;
+}
+
+/**
+ * Consomme le jeton et pose le nouveau mot de passe.
+ *
+ * @return bool false si le jeton n'est plus valable — y compris s'il vient
+ *              d'être consommé par une autre requête (le UPDATE conditionnel
+ *              tranche, plutôt qu'une vérification suivie d'une écriture).
+ */
+function nj_agent_reset_use(string $jeton, string $motDePasse): bool {
+  $a = nj_agent_reset_agent($jeton);
+  if (!$a) return false;
+
+  $pdo = nj_adb();
+  $st = $pdo->prepare(
+    "UPDATE agent_resets SET used_at = NOW()
+      WHERE token_hash = ? AND used_at IS NULL AND expire_at > NOW()");
+  $st->execute([hash('sha256', $jeton)]);
+  if ($st->rowCount() !== 1) return false;
+
+  $pdo->prepare("UPDATE agents SET password_hash = ? WHERE id = ?")
+      ->execute([password_hash($motDePasse, PASSWORD_DEFAULT), (int) $a['id']]);
+  return true;
 }
 
 /**

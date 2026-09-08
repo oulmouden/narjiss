@@ -37,6 +37,8 @@ return [
     'accueil_audit'     => 'Auditar los archivos',
     'accueil_carte'     => 'Ver el mapa',
     'accueil_presentation' => 'Dosier de presentación',
+    'login_oubli'       => '¿Ha olvidado su contraseña?',
+    'login_oubli_aide'  => 'Esta cuenta no tiene dirección de correo, así que no se puede enviar ningún enlace de restablecimiento. La contraseña está cifrada y no se puede recuperar — se reemplaza por SSH, desde la raíz del sitio:',
 
     /* ── Proyectos ── */
     'projets_titre'     => 'Proyectos',

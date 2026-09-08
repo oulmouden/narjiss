@@ -28,7 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title><?= t('login_titre') ?> - <?= t('marque') ?></title>
-    <link rel="stylesheet" href="assets/admin.css?v=6">
+    <link rel="stylesheet" href="assets/admin.css?v=7">
+    <script src="../shared/voir-mdp.js?v=46195115" defer></script>
 </head>
 <body>
 <main class="login">
@@ -54,6 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <br>
         <button type="submit"><?= t('login_entrer') ?></button>
     </form>
+    <?php /* Ce compte n'a pas d'adresse e-mail : il n'y a nulle part où
+             envoyer un lien. Le mot de passe est haché, donc irrécupérable —
+             il se remplace, en SSH, avec l'outil prévu. Le dire ici évite de
+             chercher un lien qui ne peut pas exister. */ ?>
+    <details class="aide-mdp">
+        <summary><?= t('login_oubli') ?></summary>
+        <p><?= t('login_oubli_aide') ?></p>
+        <code>php admin/reinitialiser-mdp.php</code>
+    </details>
     <!-- Le pied de page du site propose « Espace professionnel » et « Espace
          commercial » côte à côte. Un commercial qui se trompe de porte arrive
          ici, et ses identifiants y sont refusés sans explication : cette page

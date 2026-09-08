@@ -37,6 +37,8 @@ return [
     'accueil_audit'     => 'Audit the files',
     'accueil_carte'     => 'View the map',
     'accueil_presentation' => 'Presentation pack',
+    'login_oubli'       => 'Forgotten your password?',
+    'login_oubli_aide'  => 'This account has no e-mail address, so no reset link can be sent. The password is hashed and cannot be recovered — it is replaced over SSH, from the site root:',
 
     /* ── Projects ── */
     'projets_titre'     => 'Projects',

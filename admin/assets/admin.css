@@ -488,3 +488,15 @@ textarea {
 [dir="rtl"] td { text-align: right; }
 
 [dir="rtl"] .badge small { margin-left: 0; margin-right: 0.35rem; }
+
+/* ── « Mot de passe oublié ? » sur l'écran de connexion ────────────────────
+   Un <details> replié : la réponse est une commande SSH, elle n'intéresse que
+   celui qui la cherche et n'a pas à occuper l'écran des autres. */
+.login .aide-mdp { margin-top: 1.1rem; font-size: .86rem; }
+.login .aide-mdp summary { cursor: pointer; color: var(--lien, #0a58ca); }
+.login .aide-mdp p { margin: .6rem 0 .5rem; line-height: 1.55; }
+.login .aide-mdp code {
+  display: block; padding: .5rem .6rem; border-radius: 6px;
+  background: rgba(0, 0, 0, .06); font-size: .82rem;
+  overflow-x: auto; white-space: nowrap;
+}

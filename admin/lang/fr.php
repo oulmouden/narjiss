@@ -45,6 +45,8 @@ return [
     'accueil_audit'     => 'Auditer les fichiers',
     'accueil_carte'     => 'Voir la carte',
     'accueil_presentation' => 'Dossier de présentation',
+    'login_oubli'       => 'Mot de passe oublié ?',
+    'login_oubli_aide'  => "Ce compte n'a pas d'adresse e-mail : aucun lien de réinitialisation ne peut être envoyé. Le mot de passe est haché, donc irrécupérable — il se remplace en SSH, à la racine du site :",
 
     /* ── Projets ── */
     'projets_titre'     => 'Projets',
