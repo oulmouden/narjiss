@@ -988,6 +988,40 @@ html[dir=rtl] .section-title h2 { font-family: 'Noto Sans Arabic', serif; }
   pointer-events: none;
 }
 .nj-parlons > * { pointer-events: auto; }
+
+/* ── Repli du lanceur ───────────────────────────────────────────────────────
+   Posé en bas à droite par-dessus la page, le lanceur y rencontre du monde sur
+   un écran de téléphone : la barre de visite guidée, un bouton « Retour à la
+   carte », les commandes de Leaflet. Réduit à sa pastille ronde, il reste
+   joignable sans rien recouvrir. */
+.nj-parlons-ligne { display: flex; align-items: center; gap: .4rem; }
+.nj-parlons-replier {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; padding: 0;
+  border: 1px solid var(--border-medium); border-radius: 50%;
+  background: var(--surface); color: var(--muted);
+  font: inherit; font-size: 1rem; line-height: 1; cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .2);
+  transition: transform .18s ease;
+}
+.nj-parlons-replier:hover { color: var(--text); border-color: var(--ocean); }
+.nj-parlons-replier:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+/* Le chevron pointe vers là où part la pastille : à droite quand elle se
+   réduit, vers la gauche quand elle va se rouvrir. En RTL, tout s'inverse. */
+.nj-parlons-replie .nj-parlons-replier { transform: rotate(180deg); }
+html[dir=rtl] .nj-parlons-replier { transform: rotate(180deg); }
+html[dir=rtl] .nj-parlons-replie .nj-parlons-replier { transform: none; }
+
+/* Réduit : la pastille perd son mot et devient un rond. */
+.nj-parlons-replie .nj-parlons-mot { display: none; }
+.nj-parlons-replie .nj-parlons-btn {
+  width: 46px; height: 46px; padding: 0;
+  justify-content: center; gap: 0;
+}
+/* La pastille de présence se pose sur le bord du rond plutôt que dans la file
+   du texte, qui n'existe plus. */
+.nj-parlons-replie .nj-parlons-btn { position: relative; }
+.nj-parlons-replie .nj-parlons-dot { position: absolute; top: 4px; inset-inline-end: 4px; }
 /* En RTL le lanceur passe en bas à GAUCHE. On ne redéfinit PAS align-items :
    la valeur de base, flex-end, désigne le bord de fin de ligne, donc la gauche
    quand la direction est inversée — exactement le bord auquel le conteneur est
@@ -1222,6 +1256,16 @@ html[dir=rtl] .nj-parlons-opt { text-align: right; }
 .nj-parlons-err[hidden] { display: none; }
 
 /* ── Téléphone ─────────────────────────────────────────────────────────────── */
+/* ── Au-dessus de la barre de visite guidée ────────────────────────────────
+   Cette barre est fixée en bas de la fenêtre et porte ses propres commandes.
+   Le lanceur, ancré au même coin, se posait dessus. Les hauteurs reprises ici
+   sont celles que la barre réserve elle-même (voir body.lg-has-bar dans
+   shared/liveguide.css) : une seule valeur à tenir à jour de chaque côté. */
+body.lg-has-bar .nj-parlons { bottom: calc(1.15rem + 64px); }
+/* Repliée, la barre se réduit à une pastille dans ce même coin : on monte de
+   quoi la dégager, sans plus. */
+body.lg-has-bar.lg-barre-repliee .nj-parlons { bottom: calc(1.15rem + 52px); }
+
 @media (max-width: 540px) {
   .nj-parlons { right: .75rem; bottom: .75rem; left: .75rem; align-items: flex-end; }
   /* Même raison qu'au-dessus, et même correction : sur téléphone le conteneur
@@ -1230,6 +1274,12 @@ html[dir=rtl] .nj-parlons-opt { text-align: right; }
   html[dir=rtl] .nj-parlons { left: .75rem; right: .75rem; }
   .nj-parlons-panel { width: 100%; }
   .nj-parlons-btn { font-size: .9rem; padding: .65rem 1rem; }
+  /* Sur un écran étroit la barre de visite guidée occupe deux ou trois
+     rangées : les hauteurs sont celles de shared/liveguide.css. */
+  body.lg-has-bar .nj-parlons { bottom: calc(.75rem + 116px); }
+  body.lg-has-bar.lg-host .nj-parlons { bottom: calc(.75rem + 152px); }
+  body.lg-has-bar.lg-barre-repliee .nj-parlons,
+  body.lg-has-bar.lg-host.lg-barre-repliee .nj-parlons { bottom: calc(.75rem + 52px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
