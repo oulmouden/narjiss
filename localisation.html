@@ -88,10 +88,6 @@ html[dir=rtl] .loc-hero h1 { font-family: 'Noto Sans Arabic', serif; }
 }
 
 .loc-shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto 2.5rem; }
-/* La carte occupe la hauteur restante sous l'en-tête, sinon la page reste à
-   moitié vide sur un grand écran. --loc-carte est la hauteur réservée au
-   menu, au titre et à la marge basse. */
-:root { --loc-carte: calc(100vh - 200px); }
 /* Carte pleine largeur, commandes au-dessus, liste dessous.
    L'ancien panneau latéral de 390 px mangeait la moitié d'un écran de
    téléphone : la carte n'y était plus lisible, alors qu'elle est le sujet.
@@ -123,22 +119,72 @@ html[dir=rtl] .loc-hero h1 { font-family: 'Noto Sans Arabic', serif; }
 .loc-barre > * { min-width: 0; }
 .loc-barre .map-actions { margin-inline-start: auto; }
 
-#projectMap { height: var(--loc-carte); min-height: 420px; width: 100%; z-index: 1; }
 
-/* ── Téléphone : la carte prend l'écran ─────────────────────────────────
-   Mesuré avant ce bloc sur un 375 x 812 : le menu, l'en-tête, les onglets et
-   les filtres occupaient 502 px, et il ne restait que 310 px de carte — 38 %
-   de l'écran, sur la page dont la carte EST le sujet.
+/* ── La carte prend l'écran, sur TOUS les écrans ────────────────────────
+   Mesuré avant : sur un 375 x 812, le menu, l'en-tête, les onglets et les
+   filtres occupaient 502 px, et il ne restait que 310 px de carte — 38 % de
+   l'écran, sur la page dont la carte EST le sujet.
 
-   Les commandes passent donc par-dessus la carte, dans un panneau qu'on
-   ouvre au besoin, plutôt que de la repousser vers le bas. */
+   Les commandes passent donc par-dessus la carte, dans un tiroir qu'on ouvre
+   au besoin, plutôt que de la repousser vers le bas.
+
+   POURQUOI LA MÊME COMPOSITION PARTOUT, ET NON SEULEMENT SUR TÉLÉPHONE
+   Cette page est partagée en visite guidée : l'écran du conseiller est
+   recopié chez le visiteur. Si le conseiller est sur PC et le visiteur sur
+   téléphone, deux mises en page différentes signifient que ce que l'un
+   décrit ne correspond pas à ce que l'autre voit — « le filtre en haut à
+   gauche » n'existe pas chez celui d'en face. Une seule composition supprime
+   ce décalage. */
 :root { --loc-menu: 68px; --loc-bas: 0px; }
 @media (max-width: 768px) { :root { --loc-menu: 64px; } }
 /* La barre de visite guidée occupe le bas de l'écran : la carte ne doit pas
    passer dessous. Voir body.lg-has-bar dans shared/liveguide.css. */
 body.lg-has-bar { --loc-bas: 64px; }
 
-.loc-filtrer { display: none; }
+.map-composition { position: relative; }
+
+#projectMap {
+  height: calc(100dvh - var(--loc-menu) - var(--loc-bas));
+  min-height: 320px;
+  width: 100%;
+  z-index: 1;
+}
+
+/* Le tiroir glisse depuis le haut de la carte, sans la rétrécir. */
+.loc-panneau {
+  position: absolute; top: 0; inset-inline: 0; z-index: 600;
+  max-height: calc(100% - 64px); overflow-y: auto;
+  background: var(--surface-2);
+  border-bottom: 1px solid rgba(17, 24, 39, .12);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .22);
+  transform: translateY(-101%);
+  transition: transform .22s ease;
+}
+.loc-panneau.est-ouvert { transform: none; }
+.loc-panneau .map-intro { padding: .9rem 1.2rem .5rem; }
+.loc-barre { padding: 0 1.2rem 1rem; border-bottom: 0; }
+
+/* Le bouton reste visible quel que soit l'état du tiroir. */
+.loc-filtrer {
+  display: inline-flex; align-items: center; gap: .4rem;
+  position: absolute; top: 10px; inset-inline-start: 10px; z-index: 601;
+  min-height: 40px; padding: .4rem .8rem;
+  background: var(--surface-2); color: var(--ink);
+  border: 1px solid rgba(17, 24, 39, .18); border-radius: 999px;
+  font: inherit; font-size: .85rem; font-weight: 700;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .2); cursor: pointer;
+}
+.loc-filtrer:focus-visible { outline: 2px solid var(--gold, #C15A00); outline-offset: 2px; }
+/* Pastille signalant qu'un filtre est actif : sans elle, tiroir refermé, le
+   visiteur ne saurait pas pourquoi la carte ne montre qu'une catégorie. */
+.loc-filtrer .loc-pastille {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold, #C15A00); display: none;
+}
+.loc-filtrer.a-filtre .loc-pastille { display: inline-block; }
+
+/* Les commandes de Leaflet ne doivent pas passer sous le bouton. */
+.leaflet-top.leaflet-left { margin-top: 56px; }
 
 @media (max-width: 700px) {
   /* Sur téléphone, la ligne d'en-tête se resserre encore.
@@ -152,50 +198,12 @@ body.lg-has-bar { --loc-bas: 64px; }
   }
   .loc-retour { flex: none; min-height: 34px; padding: .35rem .6rem; font-size: .78rem; }
 
+  /* Bord à bord : sur un écran étroit, les marges volent de la carte. */
   .loc-shell { width: 100%; margin-bottom: 0; }
-  .map-composition {
-    position: relative;
-    border-radius: 0; border-left: 0; border-right: 0;
-    box-shadow: none;
-  }
-
-  /* Le panneau glisse depuis le haut de la carte, sans la rétrécir. */
-  .loc-panneau {
-    position: absolute; top: 0; inset-inline: 0; z-index: 600;
-    max-height: calc(100% - 64px); overflow-y: auto;
-    background: var(--surface-2);
-    border-bottom: 1px solid rgba(17, 24, 39, .12);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, .22);
-    transform: translateY(-101%);
-    transition: transform .22s ease;
-  }
-  .loc-panneau.est-ouvert { transform: none; }
+  .map-composition { border-radius: 0; border-left: 0; border-right: 0; box-shadow: none; }
   .loc-panneau .map-intro { padding: .8rem 1rem .4rem; }
   .loc-panneau .map-intro h2 { font-size: 1rem; }
-  .loc-barre { padding: 0 1rem .8rem; border-bottom: 0; }
-
-  /* Le bouton reste visible quel que soit l'état du panneau. */
-  .loc-filtrer {
-    display: inline-flex; align-items: center; gap: .4rem;
-    position: absolute; top: 10px; inset-inline-start: 10px; z-index: 601;
-    min-height: 40px; padding: .4rem .8rem;
-    background: var(--surface-2); color: var(--ink);
-    border: 1px solid rgba(17, 24, 39, .18); border-radius: 999px;
-    font: inherit; font-size: .85rem; font-weight: 700;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, .2); cursor: pointer;
-  }
-  .loc-filtrer:focus-visible { outline: 2px solid var(--gold, #C15A00); outline-offset: 2px; }
-  /* Pastille signalant qu'un filtre est actif : sans elle, panneau referme,
-     le visiteur ne saurait pas pourquoi la carte ne montre qu'une categorie. */
-  .loc-filtrer .loc-pastille {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--gold, #C15A00); display: none;
-  }
-  .loc-filtrer.a-filtre .loc-pastille { display: inline-block; }
-
-  /* Les commandes de Leaflet ne doivent pas passer sous le bouton. */
-  .leaflet-top.leaflet-left { margin-top: 56px; }
-
+  .loc-barre { padding: 0 1rem .8rem; }
   .poi-summary { max-height: none; }
 }
 
@@ -395,14 +403,6 @@ html[dir=rtl] .poi-item { text-align: right; }
   .loc-barre .map-actions { margin-inline-start: 0; width: 100%; }
   .loc-barre .map-actions a { flex: 1; font-size: .82rem; padding: .5rem .6rem; }
   .poi-summary { max-height: 50vh; }
-  /* La carte est le sujet de la page : elle prend TOUTE la hauteur utile.
-     Elle valait 55 vh, mais les commandes la repoussaient si bas qu'il n'en
-     restait que 38 % d'ecran. Depuis qu'elles sont passees dans le tiroir,
-     rien ne l'ecrase plus. */
-  #projectMap {
-    height: calc(100dvh - var(--loc-menu) - var(--loc-bas));
-    min-height: 320px;
-  }
 }
 
 /* ── Bascule quartier / repères ────────────────────────────────────────────
