@@ -535,11 +535,14 @@ html[dir=rtl] .poi-item { text-align: right; }
 .nj-embed .map-composition {
   flex: 1 1 auto; min-height: 0; height: auto;
   border-radius: 0; border: 0; box-shadow: none;
-  /* Barre, puis la carte qui prend TOUT le reste. Sans cette rangée 1fr, la
-     carte se calait sur sa hauteur naturelle et se réduisait à un bandeau,
-     laissant un grand vide sous le titre. */
+  /* UNE seule rangée : la carte prend tout.
+     La barre de commandes vivait ici en première rangée « auto ». Depuis
+     qu'elle est passée dans le tiroir — donc hors du flux — la carte se
+     calait sur cette rangée auto, et « height: 100% » d'une rangée qui se
+     dimensionne sur son contenu donne zéro : le cadre de la démo est
+     apparu vide. */
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
 }
 /* Dans la scène de la démo, le titre du projet est déjà porté par la barre du
    bas : ce bloc ne faisait que repousser la carte. */
