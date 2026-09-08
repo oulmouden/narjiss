@@ -189,7 +189,13 @@ html[dir="rtl"] .lg-invite { right: auto; left: 12px; }
   display: flex; justify-content: center;
   padding: 10px; background: #fff; border-radius: 10px;
 }
-.lg-invite-qr img { display: block; width: 168px; height: 168px; }
+.lg-invite-qr img {
+  display: block; width: 240px; height: 240px;
+  /* Le lien porte le code : le QR est plus dense qu'un simple lien.
+     Sans cette ligne le navigateur lisse les modules et le scan devient
+     capricieux de loin, ce qui est justement le cas en agence. */
+  image-rendering: pixelated;
+}
 .lg-invite-code {
   text-align: center; font-size: 22px; font-weight: 800; letter-spacing: .2em;
   /* Le code reste lu de gauche à droite, même en arabe. */

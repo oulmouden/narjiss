@@ -40,6 +40,7 @@
   var userId = SS.getItem('lg_uid') || '';
   var hostToken = SS.getItem('lg_host_token') || ''; // conseiller : droit d'émettre
   var code = SS.getItem('lg_code') || '';            // visiteur : droit d'entrer
+  var codeDepuisLien = false;                        // code lu dans l'URL (QR)
 
   if (params.get('lghost') != null) {
     // La session n'est plus tirée au sort ici : c'est le serveur qui la crée
@@ -58,8 +59,23 @@
     hostToken = ''; SS.removeItem('lg_host_token');
     role = 'viewer';
     session = asked;
+
+    /* Le lien peut porter le code (paramètre « c »), et c'est ce que fait le
+       QR affiché en agence : le visiteur scanne et entre, sans rien saisir.
+
+       Le compromis est le même que celui déjà accepté pour le bouton
+       « copier », en plus marqué : ce lien-là ouvre la porte à lui seul. Il
+       n'est donc produit QUE par le QR, montré à quelqu'un qui est en face du
+       conseiller — pas par l'e-mail, où le code reste sur sa propre ligne. */
+    var codeLien = (params.get('c') || '').replace(/\D/g, '');
+    if (codeLien.length === 6) {
+      code = codeLien;
+      codeDepuisLien = true;
+      SS.setItem('lg_code', code);
+    }
     persistIdentity();
     stripParam('lg'); // l'URL reste propre ; sessionStorage garde le rôle
+    stripParam('c');  // et surtout : le code ne reste pas dans la barre d'adresse
   }
 
   // ----- Relais entre cadres (iframes de même origine) --------------------
@@ -189,7 +205,10 @@
       envoyerTitre: 'Envoyer l\'invitation',
       envoyerAide: 'Le visiteur reçoit le lien et le code.',
       parQr: 'Faire scanner ce code',
-      parQrAide: 'Le visiteur scanne, puis saisit le code ci-dessous.',
+      parQrAide: 'Un seul scan : le visiteur entre directement, sans saisir le code.',
+      appliOuverture: 'Ouverture de l’application…',
+      appliOuverte: 'Application ouverte ✓ Envoyez le message depuis celle-ci.',
+      appliAbsente: 'Aucune application n’a répondu sur ce poste. Utilisez le QR ou l’e-mail.',
       parEmail: 'Par e-mail',
       emailPlaceholder: 'adresse@exemple.com',
       parTel: 'Par téléphone',
@@ -232,7 +251,10 @@
       envoyerTitre: 'Send the invitation',
       envoyerAide: 'The visitor receives the link and the code.',
       parQr: 'Have this code scanned',
-      parQrAide: 'The visitor scans, then enters the code below.',
+      parQrAide: 'One scan: the visitor enters directly, without typing the code.',
+      appliOuverture: 'Opening the app…',
+      appliOuverte: 'App opened ✓ Send the message from there.',
+      appliAbsente: 'No app responded on this computer. Use the QR code or email.',
       parEmail: 'By email',
       emailPlaceholder: 'address@example.com',
       parTel: 'By phone',
@@ -275,7 +297,10 @@
       envoyerTitre: 'Enviar la invitación',
       envoyerAide: 'El visitante recibe el enlace y el código.',
       parQr: 'Haga escanear este código',
-      parQrAide: 'El visitante escanea y luego introduce el código de abajo.',
+      parQrAide: 'Un solo escaneo: el visitante entra directamente, sin escribir el código.',
+      appliOuverture: 'Abriendo la aplicación…',
+      appliOuverte: 'Aplicación abierta ✓ Envíe el mensaje desde ella.',
+      appliAbsente: 'Ninguna aplicación respondió en este equipo. Use el QR o el correo.',
       parEmail: 'Por correo',
       emailPlaceholder: 'direccion@ejemplo.com',
       parTel: 'Por teléfono',
@@ -318,7 +343,10 @@
       envoyerTitre: 'إرسال الدعوة',
       envoyerAide: 'يتوصل الزائر بالرابط والرمز.',
       parQr: 'امسح هذا الرمز',
-      parQrAide: 'يمسح الزائر الرمز ثم يدخل الرمز أدناه.',
+      parQrAide: 'مسح واحد: يدخل الزائر مباشرة دون إدخال الرمز.',
+      appliOuverture: 'جاري فتح التطبيق…',
+      appliOuverte: 'تم فتح التطبيق ✓ أرسل الرسالة من هناك.',
+      appliAbsente: 'لم يستجب أي تطبيق على هذا الجهاز. استعمل رمز QR أو البريد.',
       parEmail: 'بالبريد الإلكتروني',
       emailPlaceholder: 'adresse@exemple.com',
       parTel: 'بالهاتف',
@@ -610,7 +638,21 @@
       });
       return;
     }
-    if (code) { done(true); return; }
+    if (code) {
+      // Code déjà validé lors d'une entrée précédente : rien à revérifier.
+      if (!codeDepuisLien) { done(true); return; }
+      /* Code lu dans le lien : un QR périmé ou retouché doit retomber sur la
+         saisie manuelle, et non sur un échec d'abonnement Pusher que le
+         visiteur ne saurait pas interpréter. */
+      codeDepuisLien = false;
+      postForm('api/liveguide-session.php?action=verify',
+               { session: session, code: code }, function (res) {
+        if (res && res.ok && res.valid) { done(true); return; }
+        code = ''; SS.removeItem('lg_code');
+        askCode(done);
+      });
+      return;
+    }
     askCode(done);
   }
 
@@ -2143,10 +2185,13 @@
     ligneTel.appendChild(champTel);
     ligneTel.appendChild(versWa);
     ligneTel.appendChild(versSms);
+    var etatTel = el('div', 'lg-invite-etat');
+    etatTel.setAttribute('role', 'status');
     var aideTel = el('div', 'lg-invite-aide');
     aideTel.textContent = T('telAide');
     blocTel.appendChild(titreTel);
     blocTel.appendChild(ligneTel);
+    blocTel.appendChild(etatTel);
     blocTel.appendChild(aideTel);
 
     corps.appendChild(blocQr);
@@ -2178,12 +2223,38 @@
     champTel.addEventListener('input', majLiensTel);
     majLiensTel();
 
+    /* Un lien wa.me ou sms: ne dit jamais s'il a abouti : le navigateur passe
+       la main au système et n'en entend plus parler. Faute de mieux, on
+       observe si la page perd la main dans la seconde qui suit — c'est ce que
+       fait une application qui s'ouvre. Sinon, on le dit franchement plutôt
+       que de laisser le conseiller croire que le message est parti. */
     [versWa, versSms].forEach(function (a) {
       a.addEventListener('click', function (ev) {
         if (a.classList.contains('lg-invite-off')) {
           ev.preventDefault();
           champTel.focus();
+          etatTel.className = 'lg-invite-etat lg-invite-ko';
+          etatTel.textContent = T('telInvalide');
+          return;
         }
+        var quitte = false;
+        function partie() { quitte = true; }
+        window.addEventListener('blur', partie, { once: true });
+        document.addEventListener('visibilitychange', partie, { once: true });
+
+        etatTel.className = 'lg-invite-etat';
+        etatTel.textContent = T('appliOuverture');
+        setTimeout(function () {
+          window.removeEventListener('blur', partie);
+          document.removeEventListener('visibilitychange', partie);
+          if (quitte || document.hidden) {
+            etatTel.className = 'lg-invite-etat lg-invite-ok';
+            etatTel.textContent = T('appliOuverte');
+          } else {
+            etatTel.className = 'lg-invite-etat lg-invite-ko';
+            etatTel.textContent = T('appliAbsente');
+          }
+        }, 1400);
       });
     });
 
@@ -2225,9 +2296,11 @@
       loadScript(absPath('assets/vendor/qrcode/qrcode.js'), function (ok) {
         if (!ok || typeof qrcode !== 'function') { boiteQr.hidden = true; return; }
         var qr = qrcode(0, 'M');
-        qr.addData(lien);
+        // Le code voyage dans le lien : un seul scan et le visiteur est dans
+        // la visite, sans saisie. Voir le commentaire de lecture du paramètre.
+        qr.addData(lien + (lien.indexOf('?') === -1 ? '?' : '&') + 'c=' + chiffres);
         qr.make();
-        boiteQr.innerHTML = qr.createImgTag(4, 6);
+        boiteQr.innerHTML = qr.createImgTag(6, 6);
       });
     }
 
