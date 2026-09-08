@@ -19,25 +19,22 @@
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
    seul, contrastes tenant à deux mètres de distance. */
 
-.nj-hero {
-  padding: .55rem 1.5rem .45rem;   /* en-tête compact */
-  background: linear-gradient(180deg, var(--sand) 0%, var(--bg) 100%);
-  border-bottom: 1px solid var(--border-subtle);
-  text-align: center;
-}
+/* L'en-tête ne survit pas à la barre d'outils : « Choisissez votre logement »
+   répétait l'onglet « Disponibilités » du menu, actif juste au-dessus, et ses
+   66 px étaient pris sur le plan. Ses boutons d'action, eux, sont conservés :
+   ils passent dans le tiroir « Le projet ». Le bloc reste dans le document —
+   des scripts l'alimentent — mais ne s'affiche plus. */
+.nj-hero { display: none; }
 .nj-hero h1 {
   margin: 0 0 .15rem;
   font-family: var(--font-serif);
   font-size: clamp(1.25rem, 2.4vw, 1.8rem);
   color: var(--charcoal);
 }
-/* Nom du projet, rappelé en tête des résultats : il reste visible quand on
-   fait défiler jusqu'au plan (l'en-tête, lui, disparaît). */
-.nj-projet-bandeau {
-  margin: 0 0 .6rem; font-family: var(--font-serif);
-  font-size: 1.15rem; font-weight: 700; color: var(--charcoal);
-}
-.nj-projet-bandeau:empty { display: none; }
+/* Le nom du projet est porté par le sélecteur PROJET de la barre d'outils,
+   qui l'affiche en toutes lettres et reste à l'écran : ce rappel faisait la
+   même chose 30 px plus bas. */
+.nj-projet-bandeau { display: none; }
 /* Actions reprises de project.html : contact, bureau de vente, itinéraire.
    Cibles ≥ 44 px comme le reste de la page (borne tactile). */
 .nj-hero-actions {
@@ -91,7 +88,10 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
      de l'ecran sur telephone. */
   display: grid; grid-template-columns: minmax(0, 1fr);
   gap: var(--space-lg); align-items: start;
-  max-width: 1500px; margin: 0 auto; padding: var(--space-lg) var(--space-md) 7rem;
+  max-width: 1500px; margin: 0 auto;
+  /* Aucune marge en haut : la barre d'outils, juste au-dessus, porte la
+     sienne, et chaque pixel gagné ici est un pixel de plan. */
+  padding: 0 var(--space-md) 7rem;
 }
 /* Un élément de grille a min-width:auto — sa piste ne peut donc pas devenir
    plus étroite que son contenu. Un seul enfant trop large élargissait ainsi
@@ -100,25 +100,12 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 @media (max-width: 900px) { .nj-shell { grid-template-columns: 1fr; } }
 
 /* ── Filtres ───────────────────────────────────────────────────────── */
-.nj-filtres {
-  display: flex; flex-wrap: wrap; align-items: flex-end; gap: .7rem 1rem;
-  background: var(--surface); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-md);
-}
-@media (max-width: 900px) { .nj-filtres { position: static; } }
-/* Le titre « Affiner » est porté par le bouton de repli, sur toutes les
-   tailles d'écran : deux libellés identiques côte à côte n'apprenaient rien. */
-.nj-filtres h2 { display: none; }
-/* Les champs vivent dans .nj-filtres-corps : c'est lui qui les met en ligne. */
-.nj-filtres-corps {
-  flex: 1 1 100%;
-  display: flex; flex-wrap: wrap; align-items: flex-end; gap: .7rem 1rem;
-}
+/* Le panneau latéral « Affiner » n'existe plus : ses champs sont répartis
+   entre la barre d'outils (projet, immeuble) et le tiroir des filtres.
+   Voir le bloc « Barre d'outils, et tiroirs » plus bas. */
 .nj-champ { margin-bottom: 0; flex: 1 1 165px; min-width: 0; }
-.nj-filtres .nj-case { flex: 0 0 auto; }
-.nj-filtres .nj-reinit { flex: 0 0 auto; width: auto; margin-top: 0; padding: 0 1rem; }
 /* Le sélecteur de projet change de contexte, il ne filtre pas : il se
-   détache visuellement des filtres qui le suivent. */
+   détache visuellement de ce qui le suit. */
 .nj-champ-projet {
   flex: 1 1 210px;
   padding-inline-end: 1rem; margin-inline-end: .2rem;
@@ -157,10 +144,9 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 .nj-reinit:hover { border-color: var(--sun); color: var(--sun); }
 
 /* ── Résultats ─────────────────────────────────────────────────────── */
-.nj-resultats-tete {
-  display: flex; align-items: baseline; justify-content: space-between;
-  flex-wrap: wrap; gap: 1rem; margin-bottom: .9rem;
-}
+/* Vidée de ses commandes — passées dans la barre d'outils — elle ne réserve
+   plus ni place ni marge. Le nœud reste : des scripts s'y raccrochent. */
+.nj-resultats-tete { display: none; }
 .nj-compteur { font-size: 1.05rem; font-weight: 700; color: var(--charcoal); }
 .nj-legende { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .75rem; }
 .nj-legende span { display: inline-flex; align-items: center; gap: .3rem; color: var(--muted); }
@@ -1015,7 +1001,7 @@ body.nj-fige-plein { overflow: hidden; }
 .nj-embed #mainMenu,
 .nj-embed .nj-hero,
 .nj-embed #mainFooter,
-.nj-embed .nj-filtres,
+.nj-embed .nj-outils-zone,
 .nj-embed .nj-mq-aide,
 .nj-embed .nj-mq-agrandir,
 .nj-embed .nj-barre { display: none !important; }
@@ -1054,29 +1040,99 @@ body.nj-fige-plein { overflow: hidden; }
 .nj-embed .nj-mq-reel { flex: 1; min-height: 0; height: auto; max-height: 100%; }
 .nj-embed .nj-mq-etage { min-height: 60px; }
 
-/* ── Bouton de repli des filtres ──────────────────────────────────
-   Sur PC comme sur téléphone : mesuré sur un 1280, le panneau déplié occupait
-   200 px et repoussait la ligne des résultats à 466 px du haut. Replié, il
-   n'en reste qu'une ligne — le projet, et le bouton qui compte les critères
-   actifs — soit 112 px, et les résultats remontent à 377 px.
-   Le sélecteur de PROJET reste dehors ici (il ne filtre pas, il change de
-   contexte) ; il ne se replie que sur téléphone, où la place manque. */
+/* ── Barre d'outils, et tiroirs ────────────────────────────────────
+   Mesuré sur un 1280 x 800 : l'en-tête, le panneau de filtres, le fil
+   d'étapes, le nom du projet et la ligne des résultats occupaient 464 px
+   avant le premier plan — plus de la moitié de l'écran, sur la page dont le
+   plan EST le sujet. Tout cela tient maintenant sur UNE ligne, et ce qui ne
+   sert qu'au besoin attend dans un tiroir.
+
+   La barre colle SOUS le menu, pas en haut de la fenêtre : le menu est en
+   position fixe et la recouvrait entièrement. Elle reste ainsi atteignable
+   quand on descend dans un plan de neuf immeubles. */
+:root { --nj-menu: 68px; }
+@media (max-width: 768px) { :root { --nj-menu: 64px; } }
+/* C'est la ZONE qui adhère, barre et tiroir ouvert compris : un tiroir qui
+   resterait en place pendant que son bouton s'en va n'aurait plus de sens.
+   Le fond est opaque — le plan défile dessous. */
+.nj-outils-zone {
+  position: sticky; top: var(--nj-menu); z-index: 20;
+  max-width: 1500px; margin: 0 auto;
+  padding: .6rem var(--space-md) 0;
+  background: var(--bg);
+}
+.nj-outils {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .7rem;
+  padding: .5rem .7rem; margin-bottom: .5rem;
+  background: var(--surface); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+/* L'étiquette du champ reste lue par les lecteurs d'écran et suit la langue,
+   mais quitte le flux : empilée, elle doublait la hauteur de la barre. */
+.nj-outils .nj-champ > label {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.nj-outils .nj-champ { flex: 0 1 15rem; margin: 0; }
+.nj-outils .nj-champ-projet {
+  flex: 1 1 14rem;
+  padding-inline-end: .7rem; margin-inline-end: 0;
+}
+.nj-outils .nj-champ-immeuble { flex: 0 1 9rem; }
+.nj-outils .nj-champ select { min-height: 40px; }
+.nj-outils .nj-compteur { font-size: .92rem; white-space: nowrap; }
+/* Les commandes d'affichage se rangent à l'autre bout : c'est la dernière
+   décision qu'on prend, et elle ne doit pas s'intercaler entre le projet et
+   le nombre de logements. */
+.nj-outils .nj-vue { margin-inline-start: auto; }
+.nj-outils .nj-vue-label { display: none; }
+
+.nj-outils-btn,
 .nj-filtres-bascule {
-  display: flex; width: auto; flex: 0 0 auto; min-height: 46px;
-  align-items: center; justify-content: space-between; gap: .5rem;
-  margin: 0; padding: .6rem .8rem;
+  display: inline-flex; width: auto; flex: 0 0 auto; min-height: 40px;
+  align-items: center; gap: .4rem; margin: 0; padding: .4rem .8rem;
   border: 1px solid var(--border-medium); border-radius: 10px;
   background: var(--surface-raised); color: var(--text);
-  font: inherit; font-weight: 700; font-size: .95rem; cursor: pointer;
+  font: inherit; font-weight: 700; font-size: .88rem; cursor: pointer;
 }
+.nj-outils-btn::after,
 .nj-filtres-bascule::after { content: '▾'; font-size: .9rem; opacity: .7; }
+.nj-outils-btn[aria-expanded="true"]::after,
 .nj-filtres-bascule[aria-expanded="true"]::after { content: '▴'; }
-.nj-filtres-bascule[aria-expanded="false"] + .nj-filtres-corps { display: none; }
+.nj-outils-btn[aria-expanded="true"],
+.nj-filtres-bascule[aria-expanded="true"] {
+  border-color: var(--accent-solid); color: var(--accent-solid);
+}
+.nj-outils-btn:focus-visible,
+.nj-filtres-bascule:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+/* Pastille du nombre de critères actifs : tiroir fermé, sans elle, un
+   visiteur qui ne trouve aucun logement n'aurait aucun moyen de comprendre
+   qu'il a laissé trois filtres posés. */
 .nj-filtres-bascule .nj-filtres-compte {
-  margin-inline-start: .4rem; padding: .1rem .45rem;
+  padding: .1rem .45rem;
   border-radius: 999px; background: var(--accent-solid); color: #fff;
   font-size: .72rem; font-weight: 700;
 }
+
+/* Un seul tiroir ouvert à la fois — c'est le script qui le garantit ; la
+   feuille de style ne fait que montrer celui qui porte la classe. */
+.nj-tiroirs:empty { display: none; }
+.nj-tiroir { display: none; margin-bottom: .6rem; }
+.nj-tiroir.est-ouvert {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: .7rem 1rem;
+  padding: .9rem; background: var(--surface);
+  border: 1px solid var(--border-subtle); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.nj-tiroir .nj-champ { flex: 1 1 165px; margin-bottom: 0; }
+.nj-tiroir .nj-case { flex: 0 0 auto; }
+.nj-tiroir .nj-reinit { flex: 0 0 auto; width: auto; margin-top: 0; padding: 0 1rem; }
+/* Le tiroir « Le projet » empile ses deux blocs : les actions, puis le fil
+   d'étapes qui les commente. */
+.nj-outils-projet.est-ouvert { flex-direction: column; align-items: stretch; }
+.nj-outils-projet .nj-hero-actions { margin: 0; }
+.nj-outils-projet .nj-fil { margin: 0; }
 
 /* ── Téléphone ────────────────────────────────────────────────
    Mesuré sur un écran de 390 px : l'en-tête (titre, six boutons sur trois
@@ -1085,16 +1141,13 @@ body.nj-fige-plein { overflow: hidden; }
    filtres, et ce qui s'empilait passe sur une ligne qui défile au doigt.
    Aucune de ces règles ne s'applique au-delà de 640 px. */
 @media (max-width: 640px) {
-  .nj-hero { padding-block: .9rem .7rem; }
-  .nj-hero p { font-size: .92rem; }
-
   /* Une ligne qui défile plutôt que trois lignes empilées. Le dernier bouton
      est volontairement coupé par le bord : ce débord est ce qui signale
-     qu'il y a autre chose à droite. */
+     qu'il y a autre chose à droite. Pas de marge négative : la rangée est
+     maintenant DANS le tiroir « Le projet », elle en déborderait. */
   .nj-hero-actions {
     flex-wrap: nowrap; justify-content: flex-start;
     overflow-x: auto; scroll-snap-type: x proximity;
-    padding-inline: .9rem; margin-inline: -.9rem;
     scrollbar-width: none;
   }
   .nj-hero-actions::-webkit-scrollbar { display: none; }
@@ -1107,31 +1160,34 @@ body.nj-fige-plein { overflow: hidden; }
   .nj-fil {
     flex-wrap: nowrap; justify-content: flex-start;
     overflow-x: auto; font-size: .76rem;
-    padding-inline: .9rem; margin-inline: -.9rem;
     scrollbar-width: none;
   }
   .nj-fil::-webkit-scrollbar { display: none; }
   .nj-fil li { white-space: nowrap; }
 
   .nj-shell { padding: .9rem .9rem 7rem; gap: .9rem; }
-  .nj-filtres { padding: .8rem; }
-  /* Le bouton prend la ligne : à côté du sélecteur de projet, il ne resterait
-     ni à l'un ni à l'autre de quoi se lire. */
-  .nj-filtres-bascule { width: 100%; margin-bottom: .2rem; }
-  /* Le selecteur de PROJET se replie desormais avec les filtres. Reste dehors,
-     il coutait a lui seul un panneau entier — 198 px avant le premier logement,
-     sur un ecran de 812. Or on arrive ici par un lien qui nomme deja le projet :
-     en changer est l'exception. Il reste a un doigt, sous « Affiner ».
-     CSS ne sait pas designer un frere PRECEDENT : d'ou la classe posee sur le
-     panneau plutot qu'un selecteur depuis le bouton. */
-  .nj-filtres.nj-replie .nj-champ-projet { display: none; }
-  /* Replie, le panneau retrouve son empilement : une ligne de champs
-     minuscules serait illisible sur un ecran etroit. */
-  .nj-filtres-corps { flex-direction: column; align-items: stretch; gap: .8rem; }
+  /* La barre défile au doigt plutôt que de s'empiler sur quatre rangées : le
+     sélecteur de projet garde sa largeur, le reste suit à droite. Le débord
+     du dernier élément est ce qui signale qu'il y a autre chose. */
+  .nj-outils {
+    flex-wrap: nowrap; overflow-x: auto;
+    scroll-snap-type: x proximity; scrollbar-width: none;
+  }
+  .nj-outils::-webkit-scrollbar { display: none; }
+  .nj-outils > * { flex: 0 0 auto; scroll-snap-align: start; }
+  .nj-outils .nj-champ-projet {
+    flex: 0 0 11rem;
+    padding-inline-end: .6rem; border-inline-end: 1px solid var(--border-subtle);
+  }
+  .nj-outils .nj-champ-immeuble { flex: 0 0 7.5rem; }
+  /* margin-inline-start: auto ne pousse rien dans une piste qui défile. */
+  .nj-outils .nj-vue { margin-inline-start: 0; }
+
+  /* Déplié, le tiroir retrouve son empilement : une ligne de champs
+     minuscules serait illisible sur un écran étroit. */
+  .nj-tiroir.est-ouvert { flex-direction: column; align-items: stretch; gap: .8rem; }
   .nj-champ { margin-bottom: 0; }
-  .nj-champ-projet { padding-inline-end: 0; margin-inline-end: 0; border-inline-end: 0;
-    padding-bottom: .8rem; border-bottom: 1px solid var(--border-subtle); }
-  .nj-filtres .nj-reinit { width: 100%; }
+  .nj-tiroir .nj-reinit { width: 100%; }
 }
 
 /* ── Vue « Situation » : le plan de masse ─────────────────────────────────
@@ -1193,17 +1249,17 @@ body.nj-fige-plein { overflow: hidden; }
    pales — le texte doit primer, la couleur ne fait que ranger.
    Chaque valeur est en gras : c'est ce que le visiteur a choisi, ca doit
    ressortir davantage que l'etiquette au-dessus. */
-.nj-filtres select,
-.nj-filtres input[type="range"] { font-weight: 700; }
+.nj-outils select, .nj-tiroir select,
+.nj-outils input[type="range"], .nj-tiroir input[type="range"] { font-weight: 700; }
 
-.nj-filtres select {
+.nj-outils select, .nj-tiroir select {
   border: 1.5px solid transparent;
   border-radius: 10px;
   padding: .5rem .6rem;
   color: var(--text);
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.nj-filtres select:focus {
+.nj-outils select:focus, .nj-tiroir select:focus {
   outline: none;
   border-color: var(--ocean, #006aff);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--ocean, #006aff) 18%, transparent);
@@ -1217,39 +1273,16 @@ body.nj-fige-plein { overflow: hidden; }
 #fOrientation { background: color-mix(in oklab, #b0416b 12%, var(--surface)); }
 
 /* Le libelle reste discret : il nomme, il ne se dispute pas la vedette. */
-.nj-filtres .nj-champ > label { font-weight: 600; }
+.nj-tiroir .nj-champ > label { font-weight: 600; }
 
-/* Le titre et les actions secondaires partagent une ligne : ainsi les criteres
-   de selection viennent DIRECTEMENT sous « Choisissez votre logement », sans
-   rangee intercalaire. */
-.nj-hero { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
-.nj-hero h1 { flex: 1 1 auto; margin: 0; }
-.nj-hero #njSousTitre { flex: 1 1 100%; }
-.nj-hero-actions { flex: 0 0 auto; }
-
-/* ── Actions secondaires de l'entete ──────────────────────────────────────
-   Sur grand ecran : la rangee d'origine, tous les boutons visibles, et pas de
-   bascule. Sur telephone : seul « ⋯ » reste, les autres se deplient au clic.
-   Pas de <details> : `display: contents`, indispensable pour le rendre
-   transparent sur grand ecran, casse la mise en page des boutons dans Chrome. */
-/* `.nj-hero-actions button` (plus haut) impose display:inline-flex a tous les
-   boutons de la rangee : une regle a un seul selecteur ne pouvait pas la
-   contredire. On egale sa specificite, et on passe apres. */
+/* ── Actions du projet ────────────────────────────────────────────────────
+   Elles vivaient dans l'en-tête, avec un bouton « ⋯ » qui les repliait sur
+   téléphone. L'en-tête a disparu et elles sont passées dans le tiroir « Le
+   projet » : ce repli-là ferait un second pli à l'intérieur du premier, et
+   sur téléphone il ne resterait qu'un « ⋯ » seul dans un tiroir ouvert.
+   `.nj-hero-actions button` plus haut impose display:inline-flex à toute la
+   rangée : il faut égaler sa spécificité pour la contredire. */
 .nj-hero-actions > .nj-act-bascule { display: none; }
-
-@media (max-width: 640px) {
-  .nj-hero-actions > a,
-  .nj-hero-actions > button:not(.nj-act-bascule) { display: none; }
-  .nj-hero-actions.nj-actions-ouvertes > a,
-  .nj-hero-actions.nj-actions-ouvertes > button { display: inline-flex; }
-  .nj-hero-actions > .nj-act-bascule {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 44px; min-height: 38px; padding: 0 .7rem;
-    border: 1px solid var(--border-medium); border-radius: 999px;
-    background: var(--surface); color: var(--text);
-    font-size: 1.1rem; line-height: 1; cursor: pointer;
-  }
-}
 
 /* ── Actions de l'entete : la meme famille pastel que les criteres ────────
    Un seul bouton colore — le vert WhatsApp — au milieu de quatre boutons
@@ -1473,6 +1506,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=1d6e0256"></script>
-<script src="disponibilites.js?v=fe14bb7b"></script>
+<script src="disponibilites.js?v=d5551813"></script>
 </body>
 </html>
