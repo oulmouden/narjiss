@@ -1604,6 +1604,31 @@
       var ordres = Object.keys(niveaux).sort(function (a, b) {
         return niveaux[b].ordre - niveaux[a].ordre;
       });
+      /* « À partir de l'étage 2 » se lit, devant un plan, comme « montre-moi
+         le 2 ». Le filtre garde son sens — les etages au-dessus restent dans
+         la rangee et dans le compte — mais la vue se pose sur le niveau
+         choisi, sinon rien ne bouge a l'ecran et le filtre parait mort.
+         ordres va du plus haut au plus bas : le seuil est le dernier. */
+      if (etat.filtres.niveau_min === '') seuilEtageApplique = '';
+      if (seuilEtageApplique !== etat.filtres.niveau_min &&
+          etat.filtres.niveau_min !== '') {
+        /* Le niveau vise est celui du seuil lui-meme, et non « le plus bas
+           encore la » : charger() rend une premiere fois avec les lots
+           d'avant, et le plus bas y designe encore le rez-de-chaussee.
+           Partir de la valeur du seuil donne le meme resultat aux deux
+           rendus. */
+        var vise = ordres.filter(function (n) {
+          return String(niveaux[n].ordre) === String(etat.filtres.niveau_min);
+        })[0];
+        /* On ne retient le seuil que s'il a VRAIMENT ete applique. charger()
+           rend une premiere fois avec les lots d'avant, ou l'etage vise peut
+           manquer encore : marquer le seuil des ce rendu-la l'aurait consomme
+           sans rien deplacer, et le second rendu — le bon — n'y touchait plus. */
+        if (vise) {
+          etat.etage[imm] = vise;
+          seuilEtageApplique = etat.filtres.niveau_min;
+        }
+      }
       // Un filtre a pu faire disparaître l'étage retenu : on retombe alors
       // sur le plus haut encore présent.
       if (ordres.indexOf(etat.etage[imm]) === -1) etat.etage[imm] = ordres[0];
@@ -2507,6 +2532,13 @@
     afficherLots();
   }
 
+  /* Dernier seuil d'etage deja pris en compte par la maquette.
+     Un simple drapeau ne tenait pas : charger() rend une premiere fois avec
+     les lots encore en place, et la remise a zero tombait sur ce rendu-la —
+     le seuil etait donc consomme avant que les etages filtres n'arrivent.
+     Comparer les valeurs est insensible a l'ordre des rendus. */
+  var seuilEtageApplique = null;
+
   /** Rend la vue courante. */
   function afficherLots() {
     var compteur = document.getElementById('njCompteur');
@@ -2758,6 +2790,9 @@
 
     ['fTypologie', 'fImmeuble', 'fOrientation', 'fNiveau'].forEach(function (id) {
       document.getElementById(id).addEventListener('change', function () {
+        /* Rouvrir le choix des etages remet la maquette au niveau demande ;
+           les autres filtres laissent le visiteur ou il regardait. */
+        if (id === 'fNiveau') seuilEtageApplique = null;
         lireFiltres(); charger();
       });
     });
