@@ -175,6 +175,15 @@
 
   var mapInstance = null;
   var mapMarkers = [];
+  /* Couche de regroupement.
+   *
+   * Une quarantaine de reperes sur un meme quartier se recouvraient au point
+   * qu'on ne distinguait plus rien sur un telephone. Ils sont desormais
+   * regroupes en pastilles chiffrees qui s'ouvrent au zoom.
+   *
+   * La residence, elle, reste POSEE DIRECTEMENT sur la carte : c'est le sujet
+   * de la page, elle ne doit jamais disparaitre dans un amas. */
+  var amasMarqueurs = null;
   var markerMap = {};
   var homePoi = null;
   var currentPois = [];
@@ -632,20 +641,115 @@
       if (list) list.classList.add('show');
       for (var m = 0; m < mapMarkers.length; m++) {
         if (mapMarkers[m]._cat === categorieFiltre || mapMarkers[m]._cat === 'home') {
-          mapInstance.addLayer(mapMarkers[m]);
+          poserMarqueur(mapMarkers[m], mapMarkers[m]._cat === 'home');
         } else {
-          mapInstance.removeLayer(mapMarkers[m]);
+          retirerMarqueur(mapMarkers[m]);
         }
       }
     } else {
-      for (var n = 0; n < mapMarkers.length; n++) mapInstance.addLayer(mapMarkers[n]);
+      for (var n = 0; n < mapMarkers.length; n++) {
+        poserMarqueur(mapMarkers[n], mapMarkers[n]._cat === 'home');
+      }
     }
+    majBoutonFiltres();
+  }
+
+  /* Pose, retrait et test d'appartenance passent par ces trois fonctions :
+     un marqueur vit soit dans la couche de regroupement, soit sur la carte. */
+  function poserMarqueur(marker, horsAmas) {
+    if (!marker) return;
+    if (amasMarqueurs && !horsAmas) {
+      if (!amasMarqueurs.hasLayer(marker)) amasMarqueurs.addLayer(marker);
+    } else if (!mapInstance.hasLayer(marker)) {
+      marker.addTo(mapInstance);
+    }
+  }
+
+  function retirerMarqueur(marker) {
+    if (!marker) return;
+    if (amasMarqueurs && amasMarqueurs.hasLayer(marker)) amasMarqueurs.removeLayer(marker);
+    if (mapInstance.hasLayer(marker)) mapInstance.removeLayer(marker);
+  }
+
+  function marqueurPose(marker) {
+    return !!marker && ((amasMarqueurs && amasMarqueurs.hasLayer(marker)) ||
+                        mapInstance.hasLayer(marker));
+  }
+
+  /**
+   * Sur téléphone, les commandes passent au-dessus de la carte.
+   *
+   * On ne duplique rien : le titre et la barre de commandes existants sont
+   * simplement enveloppés dans un panneau que le CSS transforme en tiroir
+   * sous 700 px, et laisse en place au-dessus. Un seul balisage sert donc les
+   * deux tailles d'écran, et aucun écouteur existant n'est perdu.
+   */
+  function installerPanneauMobile() {
+    var composition = document.querySelector('.map-composition');
+    var intro = composition && composition.querySelector('.map-intro');
+    var barre = composition && composition.querySelector('.loc-barre');
+    if (!composition || !intro || !barre || composition.querySelector('.loc-panneau')) return;
+
+    var panneau = document.createElement('div');
+    panneau.className = 'loc-panneau';
+    composition.insertBefore(panneau, intro);
+    panneau.appendChild(intro);
+    panneau.appendChild(barre);
+
+    var bouton = document.createElement('button');
+    bouton.type = 'button';
+    bouton.className = 'loc-filtrer';
+    bouton.setAttribute('aria-expanded', 'false');
+    bouton.setAttribute('aria-controls', 'locPanneau');
+    panneau.id = 'locPanneau';
+    composition.appendChild(bouton);
+
+    majBoutonFiltres(bouton);
+
+    bouton.addEventListener('click', function () {
+      var ouvert = panneau.classList.toggle('est-ouvert');
+      bouton.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+    });
+
+    /* Refermer dès qu'on touche la carte : le panneau la recouvre, le garder
+       ouvert reviendrait à cacher ce qu'on vient de filtrer. */
+    var carte = document.getElementById('projectMap');
+    if (carte) {
+      carte.addEventListener('pointerdown', function () {
+        if (panneau.classList.contains('est-ouvert')) {
+          panneau.classList.remove('est-ouvert');
+          bouton.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    boutonFiltres = bouton;
+  }
+
+  var boutonFiltres = null;
+
+  /** Libellé du bouton, et pastille quand un filtre est actif. */
+  function majBoutonFiltres(bouton) {
+    bouton = bouton || boutonFiltres;
+    if (!bouton) return;
+    var l = lang();
+    var mots = {
+      fr: 'Filtres', en: 'Filters', ar: 'التصفية', es: 'Filtros'
+    };
+    bouton.innerHTML = '<span aria-hidden="true">\u2630</span>' +
+      (mots[l] || mots.fr) + '<span class="loc-pastille"></span>';
+    bouton.classList.toggle('a-filtre', !!categorieFiltre);
   }
 
   function focusPoi(index) {
     var marker = markerMap[index];
     if (!marker || !mapInstance) return;
-    if (!mapInstance.hasLayer(marker)) marker.addTo(mapInstance);
+    if (!marqueurPose(marker)) poserMarqueur(marker, marker._cat === 'home');
+    /* Le marqueur peut etre repris dans une pastille : on demande a la couche
+       de l'en extraire, sinon openPopup() s'ouvrirait sur un point invisible. */
+    if (amasMarqueurs && amasMarqueurs.hasLayer(marker)) {
+      amasMarqueurs.zoomToShowLayer(marker, function () { marker.openPopup(); });
+    }
     /* Sur un repère, choisir dans la liste trace le trajet depuis la
        résidence : c'est ce qu'on vient y chercher — la distance, montrée
        plutôt qu'écrite. Zoomer à 17 sur un aéroport à 12 km ferait au
@@ -959,7 +1063,7 @@
 
   function renderPois(project, pois, l, anime) {
     if (!mapInstance || !window.L) return;
-    for (var i = 0; i < mapMarkers.length; i++) mapInstance.removeLayer(mapMarkers[i]);
+    for (var i = 0; i < mapMarkers.length; i++) retirerMarqueur(mapMarkers[i]);
     mapMarkers = [];
     markerMap = {};
     homePoi = null;
@@ -1004,7 +1108,7 @@
         zIndexOffset: isHome ? 1000 : 0
       }).bindPopup(makePopup(poi, l, m));
       marker._cat = poi.cat;
-      marker.addTo(mapInstance);
+      poserMarqueur(marker, isHome);
       mapMarkers.push(marker);
       markerMap[m] = marker;
       bounds.extend([poi.lat, poi.lng]);
@@ -1065,6 +1169,28 @@
 
     // Échelle métrique (utile pour juger les distances aux commodités).
     L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(mapInstance);
+
+    /* Le regroupement se degrade proprement : si la bibliotheque n'a pas pu
+       etre chargee, chaque marqueur retombe sur la carte comme avant. */
+    if (window.L && L.markerClusterGroup) {
+      amasMarqueurs = L.markerClusterGroup({
+        showCoverageOnHover: false,          // le polygone bleu brouille la carte
+        spiderfyOnMaxZoom: true,             // deux points confondus s'ecartent au clic
+        // Au-dela de ce zoom on est dans la rue : regrouper n'aide plus.
+        disableClusteringAtZoom: 17,
+        maxClusterRadius: 45,
+        iconCreateFunction: function (amas) {
+          var n = amas.getChildCount();
+          var taille = n < 10 ? 's' : (n < 30 ? 'm' : 'l');
+          return L.divIcon({
+            html: '<div class="poi-amas poi-amas-' + taille + '">' + n + '</div>',
+            className: '',                   // sinon markercluster ajoute la sienne
+            iconSize: null
+          });
+        }
+      });
+      mapInstance.addLayer(amasMarqueurs);
+    }
 
     // Plein écran, via l'API native du navigateur (pas de plugin à charger).
     var CtrlPlein = L.Control.extend({
@@ -1209,6 +1335,7 @@
       projectId = window.PROJECTS[0].id;
     }
     appliquerLangue();
+    majBoutonFiltres();   // le libelle du bouton suit la langue
     var project = findProject();
     if (project) {
       renderMap(project, lang());
@@ -1218,6 +1345,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     var params = new URLSearchParams(window.location.search);
     projectId = (params.get('projet') || params.get('id') || '').toLowerCase();
+    installerPanneauMobile();
     initPage('projects', '');
   });
 })();
