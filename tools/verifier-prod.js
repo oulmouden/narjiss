@@ -23,7 +23,9 @@
  *     notre PHP tourne, et pas seulement qu'un fichier existe.
  *
  * Sort en code 1 si quelque chose cloche, pour qu'une tâche planifiée ou un
- * pipeline s'en aperçoive.
+ * pipeline s'en aperçoive. Un contrôle qu'on n'a PAS PU faire (DNS injoignable)
+ * sort aussi en code 1, mais se distingue à l'affichage par un « ? » : le site
+ * n'est pas en cause, c'est la machine qui vérifie.
  */
 
 'use strict';
@@ -34,6 +36,70 @@ const https = require('https');
 const DOMAINE = 'www.narjiss.company';
 const APEX = 'narjiss.company';
 const IP_ATTENDUE = '147.79.101.154';
+
+// Utilisés UNIQUEMENT pour retrouver les serveurs d'autorité quand le résolveur
+// système est inutilisable. Voir trouverAutorite().
+const RESOLVEURS_SECOURS = ['8.8.8.8', '1.1.1.1'];
+
+/**
+ * Codes d'erreur DNS qui signifient « le serveur a répondu : ce nom n'a pas cet
+ * enregistrement ». Tous les autres (ECONNREFUSED, ETIMEOUT, ESERVFAIL…)
+ * signifient « on n'a pas obtenu de réponse » — ce n'est PAS la même chose, et
+ * les confondre a produit les deux bugs corrigés le 28/08/2026 : une fausse
+ * alerte sur les A, et surtout un faux « tout va bien » sur les AAAA, où une
+ * panne de résolveur se lisait « absente, comme attendu ».
+ */
+const ABSENCES = new Set(['ENODATA', 'ENOTFOUND', 'NOTFOUND']);
+function estAbsence(e) {
+  return !e.indisponible && ABSENCES.has(e.code);
+}
+
+/**
+ * Adresses des serveurs faisant autorité sur le domaine, cherchées une seule
+ * fois pour toute l'exécution.
+ *
+ * On essaie d'abord le résolveur système, puis des résolveurs publics. Ce
+ * secours est nécessaire parce que le résolveur système n'est pas toujours
+ * exploitable par Node : sur le poste de l'auteur il annonce 127.0.0.1, où rien
+ * n'écoute, et chaque requête part en ECONNREFUSED alors que Windows, lui,
+ * résout très bien.
+ *
+ * Cela n'introduit pas de lecture de cache là où ça compte : les résolveurs
+ * publics ne servent qu'à apprendre QUI fait autorité ; les A et AAAA jugées
+ * ensuite viennent toujours des serveurs d'autorité eux-mêmes.
+ */
+let promesseAutorite = null;
+function serveursAutorite() {
+  if (!promesseAutorite) promesseAutorite = trouverAutorite();
+  return promesseAutorite;
+}
+
+async function trouverAutorite() {
+  const echecs = [];
+  for (const serveurs of [null, ...RESOLVEURS_SECOURS.map((s) => [s])]) {
+    const via = serveurs ? serveurs[0] : 'résolveur système';
+    const r = new dns.Resolver();
+    if (serveurs) r.setServers(serveurs);
+    try {
+      const ns = await r.resolveNs(APEX);
+      const adresses = [];
+      for (const nom of ns) {
+        try {
+          adresses.push(...await r.resolve4(nom));
+        } catch (e) {
+          // Un NS injoignable n'est pas bloquant tant qu'il en reste un autre.
+        }
+      }
+      if (adresses.length) return adresses;
+      echecs.push(`${via} : NS listés mais aucun résolu`);
+    } catch (e) {
+      echecs.push(`${via} : ${e.code || e.message}`);
+    }
+  }
+  const err = new Error('serveurs d\'autorité introuvables — ' + echecs.join(' ; '));
+  err.indisponible = true;
+  throw err;
+}
 
 /**
  * Résout un nom en interrogeant les serveurs FAISANT AUTORITÉ du domaine.
@@ -49,10 +115,8 @@ const IP_ATTENDUE = '147.79.101.154';
  * seuls (TTL de 600 s sur ce domaine).
  */
 async function resoudreAutorite(nom, type) {
-  const ns = await dns.resolveNs(APEX);
-  const adresses = await dns.resolve4(ns[0]);
   const r = new dns.Resolver();
-  r.setServers(adresses);
+  r.setServers(await serveursAutorite());
   return type === 'A' ? r.resolve4(nom) : r.resolve6(nom);
 }
 
@@ -71,8 +135,11 @@ function demander(url, methode = 'GET') {
 }
 
 const constats = [];
-function noter(ok, quoi, detail) {
-  constats.push({ ok, quoi, detail });
+// `indispo` distingue « le contrôle a échoué » de « le contrôle n'a pas pu être
+// fait ». Les deux sortent en code 1 — un contrôle qu'on ne peut pas faire n'est
+// pas un contrôle réussi — mais ils n'appellent pas la même réaction.
+function noter(ok, quoi, detail, indispo = false) {
+  constats.push({ ok, quoi, detail, indispo });
 }
 
 async function verifier() {
@@ -88,7 +155,8 @@ async function verifier() {
       noter(a.includes(IP_ATTENDUE) && !intrus.length, `${nom} → A`,
             a.join(', ') + (intrus.length ? ` — ${intrus.join(', ')} en trop` : ''));
     } catch (e) {
-      noter(false, `${nom} → A`, 'aucun enregistrement : ' + e.code);
+      if (estAbsence(e)) noter(false, `${nom} → A`, 'aucun enregistrement');
+      else noter(false, `${nom} → A`, 'contrôle impossible : ' + (e.code || e.message), true);
     }
 
     // Une AAAA est une anomalie ici : le VPS n'a pas d'IPv6, donc elle mènerait
@@ -97,7 +165,10 @@ async function verifier() {
       const aaaa = await resoudreAutorite(nom, 'AAAA');
       noter(false, `${nom} → AAAA`, 'présente, à supprimer : ' + aaaa.join(', '));
     } catch (e) {
-      noter(true, `${nom} → AAAA`, 'absente, comme attendu');
+      // Ne conclure « absente » que si un serveur l'a effectivement dit. Sans
+      // cette distinction, toute panne de résolveur se lisait « tout va bien ».
+      if (estAbsence(e)) noter(true, `${nom} → AAAA`, 'absente, comme attendu');
+      else noter(false, `${nom} → AAAA`, 'contrôle impossible : ' + (e.code || e.message), true);
     }
   }
 
@@ -130,16 +201,29 @@ async function verifier() {
 
 verifier().then(() => {
   const ratés = constats.filter((c) => !c.ok);
+  const anomalies = ratés.filter((c) => !c.indispo);
+  const indispos = ratés.filter((c) => c.indispo);
+
   constats.forEach((c) => {
-    console.log(`  ${c.ok ? 'ok  ' : 'ÉCHEC'} ${c.quoi.padEnd(30)} ${c.detail}`);
+    const etiquette = (c.ok ? 'ok' : c.indispo ? '?' : 'ÉCHEC').padEnd(5);
+    console.log(`  ${etiquette} ${c.quoi.padEnd(30)} ${c.detail}`);
   });
   console.log('');
-  if (ratés.length) {
-    console.log(`${ratés.length} anomalie(s). Le domaine ne sert peut-être plus le VPS.`);
+
+  if (anomalies.length) {
+    console.log(`${anomalies.length} anomalie(s). Le domaine ne sert peut-être plus le VPS.`);
     console.log('À regarder : les enregistrements DNS du domaine, et si le CDN Hostinger');
     console.log('a été réactivé — c\'est lui qui avait réécrit la zone le 17/08/2026.');
-    process.exit(1);
   }
+  if (indispos.length) {
+    if (anomalies.length) console.log('');
+    console.log(`${indispos.length} contrôle(s) n'ont pas pu être faits : aucun serveur DNS n'a`);
+    console.log('répondu. Cela ne dit RIEN sur l\'état du site — c\'est le poste qui vérifie');
+    console.log('qui est en cause, pas le domaine. Vérifier la connexion réseau et les');
+    console.log('serveurs DNS de la machine, puis relancer.');
+  }
+  if (ratés.length) process.exit(1);
+
   console.log('Tout est conforme : le domaine sert bien notre serveur.');
 }).catch((e) => {
   console.error('Vérification impossible :', e.message);
