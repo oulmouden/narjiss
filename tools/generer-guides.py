@@ -561,6 +561,10 @@ def page_hub(index):
     <p id="hubChapeau">{chapeau}</p>
   </header>
   <div class="guide-hub-grille" id="hubGrille"></div>
+  <section class="guide-interne" id="hubInterne" hidden>
+    <h2 id="hubInterneTitre"></h2>
+    <div class="guide-hub-grille" id="hubInterneGrille"></div>
+  </section>
 </main>
 <div id="mainFooter"></div>
 
@@ -585,10 +589,52 @@ window.onLanguageChange = function (lang) {{
       '</a>';
   }}
   document.getElementById('hubGrille').innerHTML = html;
+  langCourante = lang;
+  rendreInterne();
 }};
+
+/* Bloc reserve a l'administration ------------------------------------------
+   Le dossier de presentation dit franchement les limites du site actuel : il
+   n'a rien a faire sous les yeux d'un visiteur. Mais l'admin doit pouvoir le
+   retrouver sans aller chercher le lien dans une conversation WhatsApp.
+
+   RIEN de ce bloc n'est ecrit ici : ni l'URL, ni meme les libelles. Tout vient
+   de api/admin-statut.php une fois la session verifiee. Ecrire l'URL publierait
+   le jeton secret du dossier ; ecrire les libelles annoncerait a qui affiche le
+   code source qu'un dossier interne existe et de quoi il parle. */
+var interne = null;
+var langCourante = 'fr';
+
+function rendreInterne() {{
+  if (!interne) return;
+  var t = interne.libelles[langCourante] || interne.libelles.fr;
+  document.getElementById('hubInterneTitre').textContent = t.section;
+  document.getElementById('hubInterneGrille').innerHTML =
+    '<a class="guide-carte" href="' + interne.presentation + '">' +
+    '<span class="guide-carte-brouillon">' + t.badge + '</span>' +
+    '<span class="guide-carte-icone" aria-hidden="true">&#128202;</span>' +
+    '<h2>' + t.titre + '</h2>' +
+    '<p>' + t.description + '</p>' +
+    '<span class="guide-carte-lire">' + t.lire + '</span>' +
+    '</a>';
+  document.getElementById('hubInterne').hidden = false;
+}}
 
 document.addEventListener('DOMContentLoaded', function () {{
   initPage('guides', '');
+
+  // En cas d'echec — hors ligne, PHP indisponible, session expiree — on ne fait
+  // rien : le bloc reste masque. Le defaut est donc « invisible », jamais
+  // « visible par erreur ».
+  fetch('api/admin-statut.php', {{ credentials: 'same-origin' }})
+    .then(function (r) {{ return r.ok ? r.json() : null; }})
+    .then(function (d) {{
+      if (d && d.admin && d.presentation && d.libelles) {{
+        interne = d;
+        rendreInterne();
+      }}
+    }})
+    .catch(function () {{}});
 }});
 </script>
 </body>

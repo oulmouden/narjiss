@@ -446,3 +446,22 @@ html[lang=ar] .ville-cta h2 { font-family: var(--font-arabic); }
 @media (prefers-reduced-motion: reduce) {
   .ville-projet a:hover { transform: none; }
 }
+
+/* ── Bloc réservé à l'administration (hub des guides) ──────────────────────
+   Injecté par JavaScript après vérification de la session côté serveur, donc
+   absent de la page pour un visiteur. Il réutilise .guide-carte : le seul
+   habillage propre est le titre de section et un liseré qui le détache
+   visuellement des guides publics. */
+.guide-interne {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--guide-bordure, #d8d2c6);
+}
+.guide-interne h2 {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--guide-texte-doux, #6D766F);
+}
