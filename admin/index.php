@@ -12,23 +12,31 @@ $projects = read_projects();
 
 /* Dossier de présentation à la direction.
  *
- * Son adresse EST sa serrure : le segment secret vit dans presentation/.jeton
- * et rien d'autre ne protège le dossier. Le lien ne doit donc apparaître que
- * derrière l'authentification — jamais sur une page publique, où le jeton
- * serait lisible dans le HTML par n'importe quel visiteur.
+ * Son adresse EST sa serrure : le dossier porte un segment secret pour nom, et
+ * rien d'autre ne le protège. Le lien ne doit donc apparaître que derrière
+ * l'authentification — sur une page publique, ce nom serait lisible dans le
+ * HTML par n'importe quel visiteur.
  *
- * On lit le jeton plutôt que de le recopier ici : le jour où il est renouvelé
- * (dossier renommé + .jeton mis à jour), le bouton suit sans qu'on y pense.
+ * On CHERCHE le dossier au lieu de nommer le segment ici. Deux raisons : le
+ * jour où il est renouvelé, le bouton suit sans qu'on y pense ; et le fichier
+ * presentation/.jeton, qui portait ce nom, n'existe pas sur le serveur — s'y
+ * fier n'aurait affiché le bouton qu'en local. Le plus récent l'emporte, pour
+ * qu'une ancienne version laissée en place ne reprenne pas la main.
  */
 $presentationLien = '';
-$jeton = @file_get_contents(__DIR__ . '/../presentation/.jeton');
-if (is_string($jeton)) {
-    $jeton = trim($jeton);
-    // Le jeton vient d'un fichier : on refuse tout ce qui n'est pas un segment
-    // d'URL simple, sinon un « ../ » y ferait sortir du dossier.
-    if ($jeton !== '' && preg_match('/^[A-Za-z0-9_-]+$/', $jeton) === 1
-        && is_file(__DIR__ . '/../presentation/' . $jeton . '/index.html')) {
-        $presentationLien = '../presentation/' . $jeton . '/index.html';
+$candidats = glob(__DIR__ . '/../presentation/*/index.html') ?: [];
+$recent = 0;
+foreach ($candidats as $chemin) {
+    $segment = basename(dirname($chemin));
+    // Le nom vient du disque : on refuse tout ce qui n'est pas un segment
+    // d'URL simple, plutôt que de le coller tel quel dans un href.
+    if (preg_match('/^[A-Za-z0-9_-]+$/', $segment) !== 1) {
+        continue;
+    }
+    $date = (int) @filemtime($chemin);
+    if ($date >= $recent) {
+        $recent = $date;
+        $presentationLien = '../presentation/' . $segment . '/index.html';
     }
 }
 
