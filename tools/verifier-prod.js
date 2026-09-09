@@ -191,7 +191,9 @@ async function verifier() {
 
   try {
     const p = await demander(`https://${DOMAINE}/index.html`);
-    const versionne = /menu\.js\?v=\d+/.test(p.corps);
+    // L'estampille est un condensé hexadécimal (menu.js?v=dda04ff4) ; elle a
+    // été numérique par le passé, d'où les deux formes acceptées ici.
+    const versionne = /menu\.js\?v=[0-9a-f]+/.test(p.corps);
     noter(p.code === 200 && versionne, 'page d\'accueil',
           'HTTP ' + p.code + (versionne ? ', menu.js versionné' : ', menu.js SANS ?v= — page ancienne'));
   } catch (e) {
