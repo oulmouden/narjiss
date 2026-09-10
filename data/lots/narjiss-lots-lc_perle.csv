@@ -1,0 +1,30 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+lc_perle;I;;10;commerce;79.0;0.0;79.0;0;0;rue;;;aucun;1552009;19645;disponible;;;;;;Consistance bloc i · Façade 1F · Voie 15
+lc_perle;I;;11;commerce;79.0;0.0;79.0;0;0;rue;;;aucun;1574309;19927;disponible;;;;;;Consistance bloc i · Façade 1F · Voie 15
+lc_perle;I;;12;commerce;64.0;0.0;64.0;0;0;angle;;;aucun;1303898;20373;disponible;;;;;;Consistance bloc i · Façade 2F · Voie 15-15
+lc_perle;G;;2;commerce;78.0;0.0;78.0;0;0;rue;;;aucun;1534180;19668;disponible;;;;;;Consistance bloc g · Façade 1F · Voie 15
+lc_perle;K;;23;commerce;41.0;0.0;41.0;0;0;rue;;;aucun;841806;20531;disponible;;;;;;Consistance bloc k · Façade 1F · Voie LA COUR
+lc_perle;K;;24;commerce;31.0;0.0;31.0;0;0;rue;;;aucun;678622;21891;disponible;;;;;;Consistance bloc k · Façade 1F · Voie LA COUR
+lc_perle;K;;25;commerce;48.0;0.0;48.0;0;0;rue;;;aucun;960145;20003;disponible;;;;;;Consistance bloc k · Façade 1F · Voie LA COUR
+lc_perle;K;;26;commerce;39.0;0.0;39.0;0;0;rue;;;aucun;806487;20679;disponible;;;;;;Consistance bloc k · Façade 1F · Voie 15
+lc_perle;K;;28;commerce;30.0;0.0;30.0;0;0;rue;;;aucun;656481;21882;disponible;;;;;;Consistance bloc k · Façade 1F · Voie 15
+lc_perle;K;;29;commerce;38.0;0.0;38.0;0;0;rue;;;aucun;785872;20680;disponible;;;;;;Consistance bloc k · Façade 1F · Voie 15
+lc_perle;G;;3;commerce;78.0;0.0;78.0;0;0;rue;;;aucun;1554862;19934;disponible;;;;;;Consistance bloc g · Façade 1 · Voie 15
+lc_perle;K;;30;commerce;32.0;0.0;32.0;0;0;rue;;;aucun;690237;21569;disponible;;;;;;Consistance bloc k · Façade 1F · Voie 15
+lc_perle;L;;31;commerce;34.0;0.0;34.0;0;0;rue;;;aucun;731882;21525;disponible;;;;;;Consistance bloc l · Façade 1F · Voie 15
+lc_perle;L;;33;commerce;26.0;0.0;26.0;0;0;rue;;;aucun;584617;22485;vendu;;;;;;Consistance bloc l · Façade 1F · Voie 15
+lc_perle;L;;37;commerce;23.0;0.0;23.0;0;0;rue;;;aucun;600000;26086;vendu;;;;;;Consistance bloc l · Façade 1F · Voie 15
+lc_perle;G;;4;commerce;62.0;0.0;62.0;0;0;rue;;;aucun;1267750;20447;disponible;;;;;;Consistance bloc g · Façade 1F · Voie 15
+lc_perle;L;;42;commerce;18.0;0.0;18.0;0;0;rue;;;aucun;457629;25423;disponible;;;;;;Consistance bloc l · Façade 1F · Voie 15
+lc_perle;L;;43;commerce;28.0;0.0;28.0;0;0;rue;;;aucun;626904;22389;disponible;;;;;;Consistance bloc l · Façade 1F · Voie LA COUR
+lc_perle;L;;44;commerce;25.0;0.0;25.0;0;0;rue;;;aucun;570903;22836;disponible;;;;;;Consistance bloc l · Façade 1F · Voie LA COUR
+lc_perle;L;;45;commerce;34.0;0.0;34.0;0;0;rue;;;aucun;722461;21248;disponible;;;;;;Consistance bloc l · Façade 1F · Voie LA COUR
+lc_perle;H;;5;commerce;62.0;0.0;62.0;0;0;rue;;;aucun;1266893;20433;disponible;;;;;;Consistance bloc h · Façade 1 · Voie 15
+lc_perle;M;;50;commerce;62.0;0.0;62.0;0;0;rue;;;aucun;1203631;19413;disponible;;;;;;Consistance bloc m · Façade 1F · Voie LA COUR
+lc_perle;N;;51;commerce;45.0;0.0;45.0;0;0;rue;;;aucun;958948;21309;disponible;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+lc_perle;N;;52;commerce;31.0;0.0;31.0;0;0;rue;;;aucun;673740;21733;vendu;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+lc_perle;N;;53;commerce;36.0;0.0;36.0;0;0;rue;;;aucun;757488;21041;disponible;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+lc_perle;H;;6;commerce;79.0;0.0;79.0;0;0;rue;;;aucun;1574469;19929;disponible;;;;;;Consistance bloc h · Façade 1F · Voie 15
+lc_perle;H;;7;commerce;79.0;0.0;79.0;0;0;rue;;;aucun;1551963;19645;disponible;;;;;;Consistance bloc h · Façade 1F · Voie 15
+lc_perle;H;;8;commerce;63.0;0.0;63.0;0;0;rue;;;aucun;1285620;20406;disponible;;;;;;Consistance bloc h · Façade 1F · Voie 15
+lc_perle;I;;9;commerce;62.0;0.0;62.0;0;0;rue;;;aucun;1267750;20447;disponible;;;;;;Consistance bloc i · Façade 1F · Voie 15

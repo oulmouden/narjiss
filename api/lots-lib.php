@@ -18,7 +18,7 @@ require_once __DIR__ . '/db.php';
 function nj_lot_enums(): array
 {
     return [
-        'typologie'   => ['studio', 'f2', 'f3', 'f4', 'f5', 'duplex', 'bureau', 'commerce'],
+        'typologie'   => ['studio', 'f2', 'f3', 'f4', 'f5', 'duplex', 'bureau', 'commerce', 'terrain'],
         'orientation' => ['rue', 'cour', 'jardin', 'double', 'angle'],
         'exposition'  => ['nord', 'nord-est', 'est', 'sud-est', 'sud', 'sud-ouest', 'ouest', 'nord-ouest'],
         'parking'     => ['aucun', 'sous-sol', 'exterieur', 'box'],

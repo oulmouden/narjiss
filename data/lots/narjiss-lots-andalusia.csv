@@ -1,0 +1,82 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+andalusia;A;;A1 01;f4;71.0;0.0;71.0;3;1;rue;;;sous-sol;1064000;14985;vendu;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie 20
+andalusia;A;1;A1 02;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;1001500;14514;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 20
+andalusia;A;1;A1 03;f3;60.0;0.0;60.0;2;1;rue;;;sous-sol;820000;13666;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;A;1;A1 04;f3;66.0;0.0;66.0;2;1;rue;;;sous-sol;780000;11818;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;A;2;A2 01;f4;71.0;0.0;71.0;3;1;rue;;;sous-sol;1064000;14985;vendu;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie 20
+andalusia;A;2;A2 02;f3;70.0;0.0;70.0;2;1;angle;;;sous-sol;1050000;15000;disponible;;;;;;Consistance 2 chambre + salon + parking · Façade 2 FACADE · Voie 20
+andalusia;A;2;A2 03;f3;60.0;0.0;60.0;2;1;rue;;;sous-sol;820000;13666;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie EV
+andalusia;A;2;A2 04;f3;65.0;0.0;65.0;2;1;rue;;;sous-sol;700000;10769;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;A;3;A3 01;f4;71.0;0.0;71.0;3;1;rue;;;sous-sol;1064000;14985;vendu;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie 20
+andalusia;A;3;A3 02;f3;70.0;0.0;70.0;2;1;angle;;;sous-sol;1050000;15000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 2 · Voie 20
+andalusia;A;3;A3 03;f3;60.0;0.0;60.0;2;1;rue;;;sous-sol;820000;13666;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;A;3;A3 04;f3;66.0;0.0;66.0;2;1;rue;;;sous-sol;895000;13560;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;A;4;A4 01;f4;71.0;0.0;71.0;3;1;rue;;;sous-sol;1064000;14985;vendu;;;;;;Consistance 3 chambre + salon + parking · Façade 1F · Voie 20
+andalusia;A;4;A4 02;f3;69.0;0.0;69.0;2;1;angle;;;sous-sol;1036000;15014;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 2F · Voie 20
+andalusia;A;4;A4 03;f2;57.0;0.0;57.0;1;1;rue;;;sous-sol;782500;13728;vendu;;;;;;Consistance 1 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;A;4;A4 04;f2;60.0;0.0;60.0;1;1;rue;;;sous-sol;820000;13666;vendu;;;;;;Consistance 1 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;B;RDC;B0 01;f3;64.0;0.0;64.0;2;1;rue;;;sous-sol;774000;12093;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie EV
+andalusia;B;RDC;B0 02;f3;59.0;0.0;59.0;2;1;rue;;;sous-sol;719000;12186;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;B;RDC;B0 03;f3;64.0;0.0;64.0;2;1;rue;;;sous-sol;774000;12093;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;B;RDC;B0 04;f3;59.0;0.0;59.0;2;1;rue;;;sous-sol;719000;12186;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;B;1;B1 01;f3;65.0;0.0;65.0;2;1;rue;;;sous-sol;700000;10769;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;B;1;B1 02;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;740000;10724;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;B;1;B1 03;f3;65.0;0.0;65.0;2;1;rue;;;sous-sol;650000;10000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;B;RDC;B1 04;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;829000;12014;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;B;2;B2 01;f3;65.0;0.0;65.0;2;1;rue;;;sous-sol;785000;12076;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;B;2;B2 02;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;740000;10724;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;B;2;B2 03;f3;65.0;0.0;65.0;2;1;rue;;;sous-sol;785000;12076;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;B;2;B2 04;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;829000;12014;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;B;3;B3 01;f3;65.0;0.0;65.0;2;1;rue;;;sous-sol;785000;12076;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;B;3;B3 02;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;829000;12014;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;B;3;B3 03;f3;65.0;0.0;65.0;2;1;rue;;;sous-sol;785000;12076;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;B;3;B3 04;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;829000;12014;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 10
+andalusia;B;4;B4 01;f2;65.0;0.0;65.0;1;1;rue;;;sous-sol;785000;12076;vendu;;;;;;Consistance 1 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;B;4;B4 02;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;829000;12014;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;B;3;B4 03;f2;65.0;0.0;65.0;1;1;rue;;;sous-sol;785000;12076;disponible;;;;;;Consistance 1 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;B;4;B4 04;f3;69.0;0.0;69.0;2;1;rue;;;sous-sol;829000;12014;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;C;RDC;C0 01;f3;68.0;0.0;68.0;2;1;rue;;;sous-sol;774000;11382;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;C;RDC;C0 02;f3;66.0;0.0;66.0;2;1;rue;;;sous-sol;796000;12060;disponible;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;C;RDC;C0 03;f3;63.0;0.0;63.0;2;1;angle;;;sous-sol;617000;9793;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 2 · Voie 10+12
+andalusia;C;1;C1 01;f3;68.0;0.0;68.0;2;1;rue;;;sous-sol;818000;12029;disponible;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;C;1;C1 02;f3;77.0;0.0;77.0;2;1;rue;;;sous-sol;917000;11909;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;C;1;C1 03;f3;70.0;0.0;70.0;2;1;rue;;;sous-sol;680000;9714;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;C;1;C1 04;f3;76.0;0.0;76.0;2;1;rue;;;sous-sol;734000;9657;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;C;2;C2 01;f3;68.0;0.0;68.0;2;1;rue;;;sous-sol;818000;12029;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;C;2;C2 02;f3;77.0;0.0;77.0;2;1;rue;;;sous-sol;917000;11909;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;C;2;C2 03;f3;70.0;0.0;70.0;2;1;rue;;;sous-sol;630000;9000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;C;2;C2 04;f3;76.0;0.0;76.0;2;1;rue;;;sous-sol;760000;10000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;C;3;C3 01;f3;68.0;0.0;68.0;2;1;rue;;;sous-sol;818000;12029;disponible;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;C;3;C3 02;f3;77.0;0.0;77.0;2;1;rue;;;sous-sol;917000;11909;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie EV
+andalusia;C;3;C3 03;f3;70.0;0.0;70.0;2;1;angle;;;sous-sol;840000;12000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 2F · Voie 12+EV
+andalusia;C;3;C3 04;f3;76.0;0.0;76.0;2;1;rue;;;sous-sol;810000;10657;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;C;4;C4 01;f3;68.0;0.0;68.0;2;1;rue;;;sous-sol;818000;12029;disponible;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 10
+andalusia;C;4;C4 02;f2;77.0;0.0;77.0;1;1;rue;;;sous-sol;917000;11909;disponible;;;;;;Consistance 1 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;C;4;C4 03;f2;59.0;0.0;59.0;1;1;rue;;;sous-sol;719000;12186;disponible;;;;;;Consistance 1 chambre + salon + parking · Façade 1 · Voie 12+EV
+andalusia;C;4;C4 04;f2;76.0;0.0;76.0;1;1;angle;;;sous-sol;906000;11921;disponible;;;;;;Consistance 1 chambre + salon + parking · Façade 2F · Voie 12-10
+andalusia;;;COMMERCE 03;commerce;122.0;0.0;122.0;0;0;rue;;;aucun;1570000;12868;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1 · Voie 20
+andalusia;;RDC;CRECHE;f3;32.0;0.0;32.0;2;1;angle;;;sous-sol;288000;9000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 2F · Voie 10+12
+andalusia;D;RDC;D0 01;f3;66.0;0.0;66.0;2;1;rue;;;sous-sol;796000;12060;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;D;RDC;D0 02;f3;56.0;0.0;56.0;2;1;rue;;;sous-sol;686000;12250;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;D;RDC;D0 03;f3;58.0;0.0;58.0;2;1;rue;;;sous-sol;1173000;20224;vendu;;;;;;Consistance 2 chambre + salon +cour 93 m²+ parking · Façade 1 · Voie 12
+andalusia;D;RDC;D0 04;f3;63.0;0.0;63.0;2;1;rue;;;sous-sol;1233000;19571;vendu;;;;;;Consistance 2 chambre + salon +cour 94m²+ parking · Façade 1 · Voie EV
+andalusia;D;1;D1 01;f4;92.0;0.0;92.0;3;1;rue;;;sous-sol;1082000;11760;disponible;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;D;1;D1 02;f3;70.0;0.0;70.0;2;1;rue;;;sous-sol;840000;12000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;D;1;D1 03;f4;96.0;0.0;96.0;3;1;rue;;;sous-sol;1126000;11729;vendu;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;D;1;D1 04;f3;71.0;0.0;71.0;2;1;rue;;;sous-sol;851000;11985;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;D;2;D2 01;f4;92.0;0.0;92.0;3;1;rue;;;sous-sol;1082000;11760;disponible;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;D;2;D2 02;f3;70.0;0.0;70.0;2;1;rue;;;sous-sol;840000;12000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;D;2;D2 02-bis1;f3;70.0;0.0;70.0;2;1;rue;;;sous-sol;840000;12000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;D;2;D2 03;f4;96.0;0.0;96.0;3;1;rue;;;sous-sol;1126000;11729;disponible;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;D;2;D2 04;f3;71.0;0.0;71.0;2;1;rue;;;sous-sol;851000;11985;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;D;2;D2 04-bis1;f3;71.0;0.0;71.0;2;1;rue;;;sous-sol;851000;11985;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1 · Voie EV
+andalusia;D;3;D3 01;f4;92.0;0.0;92.0;3;1;rue;;;sous-sol;1082000;11760;disponible;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie EV+PARK
+andalusia;D;3;D3 02;f3;70.0;0.0;70.0;2;1;rue;;;sous-sol;840000;12000;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;D;3;D3 03;f4;96.0;0.0;96.0;3;1;rue;;;sous-sol;1126000;11729;vendu;;;;;;Consistance 3 chambre + salon + parking · Façade 1 · Voie 12
+andalusia;D;3;D3 04;f3;71.0;0.0;71.0;2;1;rue;;;sous-sol;851000;11985;vendu;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie EV
+andalusia;D;4;D4 01;f2;95.0;0.0;95.0;1;1;rue;;;sous-sol;1115000;11736;disponible;;;;;;Consistance 1 chambre + salon + parking · Façade 1F · Voie EV
+andalusia;D;4;D4 02;f2;63.0;0.0;63.0;1;1;rue;;;sous-sol;763000;12111;vendu;;;;;;Consistance 1 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;D;4;D4 03;f3;92.0;0.0;92.0;2;1;rue;;;sous-sol;1082000;11760;disponible;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie 12
+andalusia;D;4;D4 04;f3;71.0;0.0;71.0;2;1;rue;;;sous-sol;851000;11985;disponible;;;;;;Consistance 2 chambre + salon + parking · Façade 1F · Voie EV
+andalusia;;;LC 01;f3;146.0;0.0;146.0;2;1;angle;;;aucun;1770000;12123;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 2F · Voie 20+10
+andalusia;;;LC02;commerce;82.0;0.0;82.0;0;0;rue;;;aucun;950000;11585;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20

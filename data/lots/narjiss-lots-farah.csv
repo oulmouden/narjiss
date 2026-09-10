@@ -1,0 +1,18 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+farah;A;1;A1 01;f4;152.0;0.0;152.0;3;1;rue;;;aucun;1425000;9375;disponible;;;;;;Consistance salon+3chambres+cuisine+2cours+sdb+wc · Façade 1F · Voie COUR
+farah;A;1;A1 02;f4;153.0;0.0;153.0;3;1;angle;;;aucun;1618000;10575;disponible;;;;;;"Consistance salon+3chambres+cuisine+2cours+sdb+wc · Façade 2F · Voie 25;COUR"
+farah;A;1;A1 03;f3;59.0;0.0;59.0;2;1;rue;;;aucun;896000;15186;vendu;;;;;;Consistance salon+2chambres+cuisine+sdb · Façade 1F · Voie 25
+farah;A;2;A2 01;f4;70.0;0.0;70.0;3;1;rue;;;aucun;1015000;14500;disponible;;;;;;Consistance salon+3chambres+cuisine+sdb+wc · Façade 1F · Voie VIDE COUR
+farah;A;2;A2 02;f4;87.0;0.0;87.0;3;1;angle;;;aucun;1288000;14804;disponible;;;;;;"Consistance salon+3chambres+cuisine+sdb+wc · Façade 2F · Voie 25;VIDE COUR"
+farah;A;2;A2 03;f3;59.0;0.0;59.0;2;1;rue;;;aucun;896000;15186;vendu;;;;;;Consistance salon+2chambres+cuisine+sdb · Façade 1F · Voie 25
+farah;A;3;A3 01;f4;70.0;0.0;70.0;3;1;rue;;;aucun;1015000;14500;disponible;;;;;;Consistance salon+3chambres+cuisine+sdb+wc · Façade 1F · Voie VIDE COUR
+farah;A;3;A3 02;f4;87.0;0.0;87.0;3;1;angle;;;aucun;1288000;14804;disponible;;;;;;"Consistance salon+3chambres+cuisine+sdb+wc · Façade 2F · Voie 25;VIDE COUR"
+farah;A;3;A3 03;f3;59.0;0.0;59.0;2;1;rue;;;aucun;896000;15186;vendu;;;;;;Consistance salon+2chambres+cuisine+sdb · Façade 1F · Voie 25
+farah;A;4;A4 01;f4;70.0;0.0;70.0;3;1;rue;;;aucun;1015000;14500;disponible;;;;;;Consistance salon+3chambres+cuisine+sdb+wc · Façade 1F · Voie VIDE COUR
+farah;A;4;A4 02;f4;87.0;0.0;87.0;3;1;angle;;;aucun;1288000;14804;disponible;;;;;;"Consistance salon+3chambres+cuisine+sdb+wc · Façade 2F · Voie 25;VIDE COUR"
+farah;A;4;A4 03;f3;59.0;0.0;59.0;2;1;rue;;;aucun;896000;15186;vendu;;;;;;Consistance salon+2chambres+cuisine+sdb · Façade 1F · Voie 25
+farah;A;5;A5 01;f4;70.0;0.0;70.0;3;1;rue;;;aucun;1015000;14500;disponible;;;;;;Consistance salon+3chambres+cuisine+sdb+wc · Façade 1F · Voie VIDE COUR
+farah;A;5;A5 02;f4;87.0;0.0;87.0;3;1;angle;;;aucun;1288000;14804;disponible;;;;;;"Consistance salon+3chambres+cuisine+sdb+wc · Façade 2F · Voie 25;VIDE COUR"
+farah;A;5;A5 03;f3;59.0;0.0;59.0;2;1;rue;;;aucun;896000;15186;vendu;;;;;;Consistance salon+2chambres+cuisine+sdb · Façade 1F · Voie 25
+farah;;RDC;C1;commerce;216.0;0.0;216.0;0;0;rue;;;aucun;3560000;16481;disponible;;;;;;Consistance rdc+mezzanine · Façade 1F · Voie 25
+farah;;RDC;C2;commerce;195.0;0.0;195.0;0;0;rue;;;aucun;3200000;16410;disponible;;;;;;Consistance rdc+mezzanine · Façade 1F · Voie 25

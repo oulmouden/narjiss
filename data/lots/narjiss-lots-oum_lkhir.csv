@@ -1,0 +1,23 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+oum_lkhir;;;10;terrain;84.0;0.0;84.0;0;0;rue;;;aucun;1092000;13000;vendu;;;;;;Consistance hc2 · Façade 1F · Voie 15
+oum_lkhir;;;11;terrain;266.0;0.0;266.0;0;0;rue;;;aucun;3059000;11500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;12;terrain;82.0;0.0;82.0;0;0;rue;;;aucun;902000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;13;terrain;83.0;0.0;83.0;0;0;rue;;;aucun;913000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;14;terrain;80.0;0.0;80.0;0;0;angle;;;aucun;1040000;13000;vendu;;;;;;Consistance he2 · Façade 2 · Voie 9-9
+oum_lkhir;;;15;terrain;88.0;0.0;88.0;0;0;angle;;;aucun;1408000;16000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 15-9
+oum_lkhir;;;17;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;891000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;19;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;891000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;2;terrain;107.0;0.0;107.0;0;0;angle;;;aucun;1926000;18000;reserve;;;;;;Consistance hc2 · Façade 2F · Voie 20-EV
+oum_lkhir;;;21;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;891000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;23;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;880000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;25;terrain;163.0;0.0;163.0;0;0;rue;;;aucun;2608000;16000;vendu;;;;;;Consistance hc2 · Façade 1F · Voie 20
+oum_lkhir;;;26;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;891000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;27;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;891000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;28;terrain;84.0;0.0;84.0;0;0;rue;;;aucun;924000;11000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;29;terrain;88.0;0.0;88.0;0;0;rue;;;aucun;1012000;11500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 9
+oum_lkhir;;;4;terrain;82.0;0.0;82.0;0;0;angle;;;aucun;1312000;16000;reserve;;;;;;Consistance hc2 · Façade 2F · Voie 15-EV
+oum_lkhir;;;5;terrain;82.0;0.0;82.0;0;0;angle;;;aucun;1312000;16000;reserve;;;;;;Consistance hc2 · Façade 2F · Voie 15-EV
+oum_lkhir;;;6;terrain;82.0;0.0;82.0;0;0;angle;;;aucun;1312000;16000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 15-EV
+oum_lkhir;;;7;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;1296000;16000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 15-EV
+oum_lkhir;;;8;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;1296000;16000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 15-EV
+oum_lkhir;;;9;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;1296000;16000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 15-EV

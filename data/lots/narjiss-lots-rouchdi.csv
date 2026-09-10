@@ -1,0 +1,5 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+rouchdi;;;01;terrain;132.0;0.0;132.0;0;0;rue;;;aucun;1518000;11500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+rouchdi;;;03;terrain;132.0;0.0;132.0;0;0;rue;;;aucun;1518000;11500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+rouchdi;;;04;terrain;100.0;0.0;100.0;0;0;rue;;;aucun;1150000;11500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 5
+rouchdi;;;05;terrain;127.0;0.0;127.0;0;0;rue;;;aucun;1460500;11500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 5

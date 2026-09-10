@@ -1,0 +1,25 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+arifane;;RDC;0.1;f3;39.0;0.0;39.0;2;1;angle;;;aucun;370500;9500;reserve;;;;;;Consistance rdc · Façade 2F · Voie 6-10
+arifane;;RDC;0.2;f3;60.0;0.0;60.0;2;1;rue;;;aucun;630000;10500;vendu;;;;;;Consistance rdc · Façade 1F · Voie 6
+arifane;;RDC;0.3;f3;76.0;0.0;76.0;2;1;rue;;;aucun;798000;10500;disponible;;;;;;Consistance rdc · Façade 1F · Voie 6
+arifane;;RDC;0.4;f3;70.0;0.0;70.0;2;1;rue;;;aucun;735000;10500;disponible;;;;;;Consistance rdc · Façade 1F · Voie 4.5
+arifane;;;0.5;f3;47.0;0.0;47.0;2;1;rue;;;aucun;493500;10500;disponible;;;;;;Consistance rdc · Façade 1F · Voie 4.5
+arifane;;RDC;0.6;f3;47.0;0.0;47.0;2;1;rue;;;aucun;493500;10500;disponible;;;;;;Consistance 2chambres salon · Façade 1F · Voie EV
+arifane;;;0.7;terrain;54.0;0.0;54.0;0;0;rue;;;aucun;567000;10500;disponible;;;;;;Consistance rdc · Façade 1F · Voie 10
+arifane;;RDC;0.8;f3;62.0;0.0;62.0;2;1;rue;;;aucun;651000;10500;disponible;;;;;;Consistance rdc · Façade 1F · Voie LA COUR
+arifane;;1;1.1;f3;63.0;0.0;63.0;2;1;angle;;;aucun;598500;9500;reserve;;;;;;Consistance 1ere · Façade 2F · Voie 10-6
+arifane;;1;1.2;f3;64.0;0.0;64.0;2;1;rue;;;aucun;640000;10000;vendu;;;;;;Consistance 1ere · Façade 1F · Voie 6
+arifane;;1;1.3;f3;78.0;0.0;78.0;2;1;rue;;;aucun;819000;10500;disponible;;;;;;Consistance 1ere · Façade 1F · Voie 6
+arifane;;1;1.4;f3;73.0;0.0;73.0;2;1;rue;;;aucun;766500;10500;disponible;;;;;;Consistance 1ere · Façade 1F · Voie 4.5
+arifane;;1;1.5;f3;47.0;0.0;47.0;2;1;rue;;;aucun;470000;10000;reserve;;;;;;Consistance 1ere · Façade 1F · Voie 4.5
+arifane;;1;1.6;f3;59.0;0.0;59.0;2;1;angle;;;aucun;590000;10000;vendu;;;;;;Consistance 1ere · Façade 2F · Voie 4.5-10
+arifane;;1;1.7;f3;64.0;0.0;64.0;2;1;rue;;;aucun;640000;10000;vendu;;;;;;Consistance 1ere · Façade 1F · Voie 10
+arifane;;1;1.8;f3;62.0;0.0;62.0;2;1;rue;;;aucun;651000;10500;disponible;;;;;;Consistance 1ere · Façade 1F · Voie LA COUR
+arifane;;2;2.1;f3;63.0;0.0;63.0;2;1;rue;;;aucun;630000;10000;vendu;;;;;;Consistance 2eme · Façade 1F · Voie 10-6
+arifane;;2;2.2;f3;64.0;0.0;64.0;2;1;rue;;;aucun;672000;10500;disponible;;;;;;Consistance 2eme · Façade 1F · Voie 6
+arifane;;2;2.3;f3;78.0;0.0;78.0;2;1;rue;;;aucun;819000;10500;disponible;;;;;;Consistance 2eme · Façade 1F · Voie 6
+arifane;;2;2.4;f3;73.0;0.0;73.0;2;1;rue;;;aucun;766500;10500;disponible;;;;;;Consistance 2eme · Façade 1F · Voie 4.5
+arifane;;2;2.5;f3;47.0;0.0;47.0;2;1;rue;;;aucun;493500;10500;disponible;;;;;;Consistance 2chambres salon · Façade 1F · Voie EV
+arifane;;2;2.6;f3;59.0;0.0;59.0;2;1;angle;;;aucun;590000;10000;vendu;;;;;;Consistance 2eme · Façade 2F · Voie 4.5-10
+arifane;;2;2.7;f3;64.0;0.0;64.0;2;1;rue;;;aucun;640000;10000;vendu;;;;;;Consistance 2eme · Façade 1F · Voie 10
+arifane;;2;2.8;f3;62.0;0.0;62.0;2;1;rue;;;aucun;651000;10500;disponible;;;;;;Consistance 2eme · Façade 1F · Voie LA COUR

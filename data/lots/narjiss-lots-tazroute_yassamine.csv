@@ -1,0 +1,20 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+tazroute_yassamine;;;1;terrain;93.0;0.0;93.0;0;0;rue;;;aucun;604500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute_yassamine;;;10;terrain;87.0;0.0;87.0;0;0;rue;;;aucun;565500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12
+tazroute_yassamine;;;11;terrain;83.0;0.0;83.0;0;0;rue;;;aucun;539500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12
+tazroute_yassamine;;;12;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;520000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12
+tazroute_yassamine;;;13;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;520000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12
+tazroute_yassamine;;;14;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;607500;7500;disponible;;;;;;Consistance he2 · Façade 2F · Voie 12,EV
+tazroute_yassamine;;;15;terrain;89.0;0.0;89.0;0;0;rue;;;aucun;578500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12
+tazroute_yassamine;;;16;terrain;89.0;0.0;89.0;0;0;rue;;;aucun;578500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12
+tazroute_yassamine;;;17;terrain;178.0;0.0;178.0;0;0;rue;;;aucun;1157000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 14
+tazroute_yassamine;;;18;terrain;325.0;0.0;325.0;0;0;angle;;;aucun;5037500;15500;disponible;;;;;;Consistance hc4 · Façade 2F · Voie 37,14
+tazroute_yassamine;;;19;terrain;234.0;0.0;234.0;0;0;angle;;;aucun;3627000;15500;disponible;;;;;;Consistance hc4 · Façade 2F · Voie 37,14
+tazroute_yassamine;;;2;terrain;87.0;0.0;87.0;0;0;rue;;;aucun;565500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute_yassamine;;;3;terrain;85.0;0.0;85.0;0;0;angle;;;aucun;637500;7500;disponible;;;;;;Consistance he2 · Façade 2F · Voie 10,10
+tazroute_yassamine;;;4;terrain;100.0;0.0;100.0;0;0;rue;;;aucun;650000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute_yassamine;;;5;terrain;99.0;0.0;99.0;0;0;rue;;;aucun;643500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute_yassamine;;;6;terrain;86.0;0.0;86.0;0;0;angle;;;aucun;645000;7500;disponible;;;;;;Consistance he2 · Façade 2F · Voie 12,12
+tazroute_yassamine;;;7;terrain;113.0;0.0;113.0;0;0;angle;;;aucun;847500;7500;disponible;;;;;;Consistance he2 · Façade 2F · Voie 12,12
+tazroute_yassamine;;;8;terrain;94.0;0.0;94.0;0;0;rue;;;aucun;611000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12
+tazroute_yassamine;;;9;terrain;91.0;0.0;91.0;0;0;rue;;;aucun;591500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 12

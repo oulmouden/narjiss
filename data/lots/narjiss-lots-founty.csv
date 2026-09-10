@@ -1,0 +1,15 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+founty;;;01;terrain;98.0;0.0;98.0;0;0;angle;;;aucun;1960000;20000;disponible;;;;;;Consistance he2 · Façade 2 · Voie 10-08
+founty;;;02;terrain;105.0;0.0;105.0;0;0;rue;;;aucun;1470000;14000;vendu;;;;;;Consistance he2 · Façade 1F · Voie 08
+founty;;;03;terrain;105.0;0.0;105.0;0;0;rue;;;aucun;1837500;17500;vendu;;;;;;Consistance he2 · Façade 1F · Voie 08
+founty;;;04;terrain;93.0;0.0;93.0;0;0;rue;;;aucun;1441500;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+founty;;;05;terrain;93.0;0.0;93.0;0;0;angle;;;aucun;1302000;14000;vendu;;;;;;Consistance he2 · Façade 2 · Voie 10-10
+founty;;;06;terrain;91.0;0.0;91.0;0;0;rue;;;aucun;1820000;20000;vendu;;;;;;Consistance he2 · Façade 3F · Voie 10-10-EV
+founty;;;07;terrain;91.0;0.0;91.0;0;0;rue;;;aucun;1410500;15500;vendu;;;;;;Consistance he2 · Façade 1F · Voie EV
+founty;;;08;terrain;85.0;0.0;85.0;0;0;rue;;;aucun;1317500;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie EV
+founty;;;09;terrain;86.0;0.0;86.0;0;0;rue;;;aucun;1333000;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie EV
+founty;;;10;terrain;86.0;0.0;86.0;0;0;rue;;;aucun;1333000;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie EV
+founty;;;11;terrain;86.0;0.0;86.0;0;0;rue;;;aucun;1333000;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 15 PARKING
+founty;;;12;terrain;86.0;0.0;86.0;0;0;rue;;;aucun;1333000;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 15 PARKING
+founty;;;13;terrain;87.0;0.0;87.0;0;0;rue;;;aucun;1348500;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 15 PARKING
+founty;;;14;terrain;83.0;0.0;83.0;0;0;rue;;;aucun;1286500;15500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 15 PARKING

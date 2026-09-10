@@ -1,0 +1,12 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+bayt_mawada;;RDC;0-1 117;f4;71.0;0.0;71.0;3;1;angle;;;aucun;653200;9200;disponible;;;;;;Consistance 3 chambre + salon · Façade 2 FACADE · Voie 9-EV
+bayt_mawada;;RDC;0-1 71;f4;79.0;0.0;79.0;3;1;angle;;;aucun;726800;9200;disponible;;;;;;Consistance 3 chambre + salon · Façade 2 FACADE · Voie 9+9
+bayt_mawada;;RDC;0-1 85;f3;73.0;0.0;73.0;2;1;rue;;;aucun;671600;9200;disponible;;;;;;Consistance 2 chambre + salon · Façade 1FACADE · Voie 9
+bayt_mawada;;1;1-1 117;f4;79.0;0.0;79.0;3;1;angle;;;aucun;726800;9200;reserve;;;;;;Consistance 3 chambre + salon · Façade 2 FACADE · Voie 9 + EV
+bayt_mawada;;1;1-1 71;f2;44.0;0.0;44.0;1;1;angle;;;aucun;404800;9200;disponible;;;;;;Consistance 1 chambre + salon · Façade 2 FACADE · Voie 9-9
+bayt_mawada;;1;1-1 85;f3;63.0;0.0;63.0;2;1;rue;;;aucun;579600;9200;vendu;;;;;;Consistance 2 chambre + salon · Façade 1FACADE · Voie 9
+bayt_mawada;;2;1-2 117;f4;79.0;0.0;79.0;3;1;angle;;;aucun;726800;9200;vendu;;;;;;Consistance 3 chambre + salon · Façade 2 FACADE · Voie 9+EV
+bayt_mawada;;1;1-2 71;f2;41.0;0.0;41.0;1;1;rue;;;aucun;377200;9200;disponible;;;;;;Consistance 1 chambre + salon · Façade 1FACADE · Voie 9
+bayt_mawada;;2;1-2 85;f3;63.0;0.0;63.0;2;1;rue;;;aucun;579600;9200;reserve;;;;;;Consistance 2 chambre + salon · Façade 1 · Voie 9
+bayt_mawada;;2;2-1 71;f2;44.0;0.0;44.0;1;1;angle;;;aucun;404800;9200;disponible;;;;;;Consistance 1 chambre + salon · Façade 2 FACADE · Voie 9-9
+bayt_mawada;;2;2-2 71;f2;41.0;0.0;41.0;1;1;rue;;;aucun;377200;9200;disponible;;;;;;Consistance 1 chambre + salon · Façade 1 FACADE · Voie 9

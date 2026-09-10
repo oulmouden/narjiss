@@ -1,0 +1,20 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+mektoub;;;1;terrain;163.0;0.0;163.0;0;0;angle;;;aucun;2934000;18000;disponible;;;;;;"Consistance hc3 · Façade 2F · Voie 20;12"
+mektoub;;;10;terrain;120.0;0.0;120.0;0;0;rue;;;aucun;1740000;14500;disponible;;;;;;Consistance hc2 · Façade 1F · Voie EV
+mektoub;;;11;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;1200000;15000;disponible;;;;;;Consistance hc2 · Façade 1F · Voie PARKING
+mektoub;;;12;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;1200000;15000;disponible;;;;;;Consistance hc2 · Façade 1F · Voie PARKING
+mektoub;;;13;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;1200000;15000;disponible;;;;;;Consistance hc2 · Façade 1F · Voie PARKING
+mektoub;;;14;terrain;88.0;0.0;88.0;0;0;angle;;;aucun;1496000;17000;vendu;;;;;;"Consistance hc2 · Façade 2F · Voie 12;12"
+mektoub;;;15;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;1539000;19000;vendu;;;;;;"Consistance hc2 · Façade 3F · Voie 12;12;PARK"
+mektoub;;;16;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;1377000;17000;vendu;;;;;;"Consistance hc2 · Façade 2F · Voie 12;EV"
+mektoub;;;17;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;1296000;16000;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12
+mektoub;;;18;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;1377000;17000;vendu;;;;;;"Consistance hc2 · Façade 2F · Voie 12;12"
+mektoub;;;19;terrain;88.0;0.0;88.0;0;0;rue;;;aucun;1144000;13000;vendu;;;;;;Consistance he2 · Façade 1F · Voie EV
+mektoub;;;2;terrain;178.0;0.0;178.0;0;0;rue;;;aucun;3293000;18500;disponible;;;;;;"Consistance hc3 · Façade 3F · Voie 20;12;12"
+mektoub;;;20;terrain;90.0;0.0;90.0;0;0;rue;;;aucun;1170000;13000;disponible;;;;;;Consistance he2 · Façade 1F · Voie EV
+mektoub;;;21;terrain;93.0;0.0;93.0;0;0;rue;;;aucun;1287000;13838;disponible;;;;;;Consistance he2 · Façade 1F · Voie 7
+mektoub;;;3;terrain;90.0;0.0;90.0;0;0;rue;;;aucun;1350000;15000;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12
+mektoub;;;4;terrain;87.0;0.0;87.0;0;0;rue;;;aucun;1305000;15000;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12
+mektoub;;;5;terrain;83.0;0.0;83.0;0;0;rue;;;aucun;1245000;15000;vendu;;;;;;Consistance hc2 · Façade 1F · Voie 12
+mektoub;;;6;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;1200000;15000;vendu;;;;;;Consistance hc2 · Façade 1F · Voie 12
+mektoub;;;7;terrain;150.0;0.0;150.0;0;0;angle;;;aucun;2580000;17200;disponible;;;;;;"Consistance hc3 · Façade 2F · Voie 20;12"

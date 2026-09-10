@@ -1,0 +1,21 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+perle_bureaux;;1;110;bureau;43.0;0.0;43.0;0;0;rue;;;aucun;451500;10500;vendu;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+perle_bureaux;;1;12;bureau;72.0;0.0;72.0;0;0;rue;;;aucun;720000;10000;vendu;;;;;;Consistance bloc m · Façade 1F · Voie 15
+perle_bureaux;;2;21;bureau;52.0;0.0;52.0;0;0;rue;;;aucun;520000;10000;vendu;;;;;;Consistance bloc m · Façade 1F · Voie LA COUR
+perle_bureaux;;1;210;bureau;43.0;0.0;43.0;0;0;rue;;;aucun;494500;11500;vendu;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+perle_bureaux;;1;29;bureau;94.0;0.0;94.0;0;0;rue;;;aucun;1034000;11000;vendu;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+perle_bureaux;;3;31;bureau;52.0;0.0;52.0;0;0;rue;;;aucun;572000;11000;vendu;;;;;;Consistance bloc m · Façade 1F · Voie LA COUR
+perle_bureaux;;3;310;bureau;43.0;0.0;43.0;0;0;rue;;;aucun;494500;11500;vendu;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+perle_bureaux;;3;32;bureau;72.0;0.0;72.0;0;0;rue;;;aucun;720000;10000;vendu;;;;;;Consistance bloc m · Façade 1F · Voie 15
+perle_bureaux;;3;33;bureau;141.0;0.0;141.0;0;0;angle;;;aucun;1692000;12000;disponible;;;;;;Consistance bloc m · Façade 2F · Voie 20-15
+perle_bureaux;;3;35;bureau;86.0;0.0;86.0;0;0;rue;;;aucun;1032000;12000;disponible;;;;;;Consistance bloc n · Façade 1F · Voie 20
+perle_bureaux;;3;36;bureau;105.0;0.0;105.0;0;0;rue;;;aucun;1260000;12000;disponible;;;;;;Consistance bloc n · Façade 1F · Voie 20
+perle_bureaux;;3;39;bureau;94.0;0.0;94.0;0;0;rue;;;aucun;1034000;11000;disponible;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+perle_bureaux;;4;41;bureau;52.0;0.0;52.0;0;0;rue;;;aucun;572000;11000;disponible;;;;;;Consistance bloc m · Façade 1F · Voie LA COUR
+perle_bureaux;;4;410;bureau;43.0;0.0;43.0;0;0;rue;;;aucun;494500;11500;disponible;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR
+perle_bureaux;;4;42;bureau;72.0;0.0;72.0;0;0;rue;;;aucun;792000;11000;disponible;;;;;;Consistance bloc m · Façade 1F · Voie 15
+perle_bureaux;;4;43;bureau;119.0;0.0;119.0;0;0;angle;;;aucun;1428000;12000;disponible;;;;;;Consistance bloc m · Façade 2F · Voie 15-20
+perle_bureaux;;4;44;bureau;70.0;0.0;70.0;0;0;rue;;;aucun;840000;12000;disponible;;;;;;Consistance bloc m · Façade 1F · Voie 20
+perle_bureaux;;4;46;bureau;88.0;0.0;88.0;0;0;rue;;;aucun;1056000;12000;disponible;;;;;;Consistance bloc m · Façade 1F · Voie 20
+perle_bureaux;;1;47;bureau;148.0;0.0;148.0;0;0;rue;;;aucun;1776000;12000;disponible;;;;;;Consistance bloc n · Façade 1F · Voie 20
+perle_bureaux;;4;49;bureau;94.0;0.0;94.0;0;0;rue;;;aucun;1034000;11000;disponible;;;;;;Consistance bloc n · Façade 1F · Voie LA COUR

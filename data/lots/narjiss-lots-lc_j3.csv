@@ -1,0 +1,16 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+lc_j3;;;J3-LC-05;commerce;39.0;0.0;39.0;0;0;angle;;;aucun;780000;20000;disponible;;;;;;Consistance bloc d · Façade 2F · Voie 10/13
+lc_j3;;;J3-LC-09;commerce;23.0;0.0;23.0;0;0;rue;;;aucun;414000;18000;disponible;;;;;;Consistance bloc e · Façade 1F · Voie 12
+lc_j3;;;J3-LC-10;commerce;23.0;0.0;23.0;0;0;rue;;;aucun;414000;18000;disponible;;;;;;Consistance bloc e · Façade 1F · Voie 12
+lc_j3;;;J3-LC-11;commerce;26.0;0.0;26.0;0;0;rue;;;aucun;468000;18000;vendu;;;;;;Consistance bloc e · Façade 1F · Voie 12
+lc_j3;;;J3-LC-12;commerce;27.0;0.0;27.0;0;0;rue;;;aucun;486000;18000;disponible;;;;;;Consistance bloc f · Façade 1F · Voie 12
+lc_j3;;;J3-LC-13;commerce;22.0;0.0;22.0;0;0;rue;;;aucun;396000;18000;disponible;;;;;;Consistance bloc f · Façade 1F · Voie 12
+lc_j3;;;J3-LC-14;commerce;22.0;0.0;22.0;0;0;rue;;;aucun;396000;18000;disponible;;;;;;Consistance bloc f · Façade 1F · Voie 12
+lc_j3;;;J3-LC-15;commerce;26.0;0.0;26.0;0;0;rue;;;aucun;468000;18000;vendu;;;;;;Consistance bloc f · Façade 1F · Voie 1
+lc_j3;;;J3-LC-16;commerce;27.0;0.0;27.0;0;0;rue;;;aucun;486000;18000;disponible;;;;;;Consistance bloc g · Façade 1F · Voie 12
+lc_j3;;;J3-LC-17;commerce;23.0;0.0;23.0;0;0;rue;;;aucun;414000;18000;disponible;;;;;;Consistance bloc g · Façade 1F · Voie 12
+lc_j3;;;J3-LC-18;commerce;23.0;0.0;23.0;0;0;rue;;;aucun;414000;18000;disponible;;;;;;Consistance bloc g · Façade 1F · Voie 12
+lc_j3;;;J3-LC-22;commerce;22.0;0.0;22.0;0;0;angle;;;aucun;440000;20000;vendu;;;;;;Consistance bloc h · Façade 2F · Voie 12
+lc_j3;;;J3-LC-24;commerce;21.0;0.0;21.0;0;0;rue;;;aucun;378000;18000;vendu;;;;;;Consistance bloc h · Façade 1F · Voie 12
+lc_j3;;;J3-LC-27;commerce;24.0;0.0;24.0;0;0;angle;;;aucun;480000;20000;reserve;;;;;;Consistance bloc m · Façade 2F · Voie 12/12
+lc_j3;;;J3-LC-28;commerce;21.0;0.0;21.0;0;0;rue;;;aucun;378000;18000;disponible;;;;;;Consistance bloc m · Façade 1F · Voie 12

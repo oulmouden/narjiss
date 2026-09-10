@@ -1,0 +1,20 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+ait_melloul;;;10;terrain;85.0;0.0;85.0;0;0;angle;;;aucun;765000;9000;vendu;;;;;;"Consistance he2 · Façade 2F · Voie 8.5;10"
+ait_melloul;;;12;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;648000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie 08
+ait_melloul;;;15;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;640000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie 08
+ait_melloul;;;16;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;688500;8500;vendu;;;;;;Consistance he2 · Façade 2F · Voie 08-08
+ait_melloul;;;17;terrain;92.0;0.0;92.0;0;0;rue;;;aucun;736000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie 08
+ait_melloul;;;18;terrain;93.0;0.0;93.0;0;0;rue;;;aucun;744000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie 8
+ait_melloul;;;19;terrain;83.0;0.0;83.0;0;0;rue;;;aucun;664000;8000;vendu;;;;;;Consistance he2 · Façade 1 · Voie 08
+ait_melloul;;;2;terrain;119.0;0.0;119.0;0;0;rue;;;aucun;1017450;8550;disponible;;;;;;Consistance hc2 · Façade 1 · Voie 16
+ait_melloul;;;20;terrain;93.0;0.0;93.0;0;0;angle;;;aucun;837000;9000;disponible;;;;;;Consistance hc2 · Façade 2 · Voie 16+08
+ait_melloul;;;21;terrain;94.0;0.0;94.0;0;0;angle;;;aucun;846000;9000;disponible;;;;;;Consistance hc2 · Façade 2 · Voie cp+19
+ait_melloul;;;22;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;648000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie c.p
+ait_melloul;;;23;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;648000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie c.p
+ait_melloul;;;3;terrain;90.0;0.0;90.0;0;0;angle;;;aucun;810000;9000;disponible;;;;;;Consistance hc2 · Façade 2 · Voie 16
+ait_melloul;;;4;terrain;91.0;0.0;91.0;0;0;rue;;;aucun;728000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie 8.5
+ait_melloul;;;5;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;688500;8500;vendu;;;;;;Consistance he2 · Façade 2 · Voie 8
+ait_melloul;;;6;terrain;91.0;0.0;91.0;0;0;rue;;;aucun;728000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie 0.8
+ait_melloul;;;7;terrain;83.0;0.0;83.0;0;0;rue;;;aucun;664000;8000;disponible;;;;;;Consistance he2 · Façade 1 · Voie EV
+ait_melloul;;;8;terrain;106.0;0.0;106.0;0;0;rue;;;aucun;901000;8500;vendu;;;;;;Consistance he2 · Façade 3F · Voie EV+08+10
+ait_melloul;;;9;terrain;83.0;0.0;83.0;0;0;angle;;;aucun;747000;9000;disponible;;;;;;Consistance he2 · Façade 2F · Voie EV

@@ -1,580 +1,1755 @@
 [
-    {
-        "id": "jawhara",
-        "folder": "jawhara",
-        "status": "live",
-        "type": "appartements",
-        "lat": 30.3732,
-        "lng": -9.5372,
-        "poi_count": 41,
-        "has_tour": true,
-        "detail_url": "",
-        "tour_maison": true,
-        "tour_dossier": "jawhara/Tour",
-        "tour_url": "tour-360.html?tour=jawhara/Tour",
-        "apartment_tour_url": "tour-360.html?tour=visites/jawhara-pannellum",
-        "plan_architecte_url": "jawhara/floorplan/plan-architecte.png",
-        "plan_visuel_url": "jawhara/floorplan/plan-visuel.jpg",
-        "brochure_pdf": "images/projects/jawhara/PLAN DE MASSE.pdf",
-        "videos": [
-            {
-                "src": "data/videos/jawhara/rachid-jawhara.mp4",
-                "poster": "data/videos/jawhara/rachid-jawhara.jpg",
-                "title": {
-                    "fr": "Presentation du projet",
-                    "en": "Project overview",
-                    "ar": "تقديم المشروع",
-                    "es": "Presentacion del proyecto"
-                }
-            },
-            {
-                "src": "data/videos/jawhara/rachid-jawhara2.mp4",
-                "poster": "data/videos/jawhara/rachid-jawhara2.jpg",
-                "title": {
-                    "fr": "Presentation (partie 2)",
-                    "en": "Overview (part 2)",
-                    "ar": "تقديم (الجزء 2)",
-                    "es": "Presentacion (parte 2)"
-                }
-            },
-            {
-                "src": "data/videos/jawhara/rachid-jawhara3.mp4",
-                "poster": "data/videos/jawhara/rachid-jawhara3.jpg",
-                "title": {
-                    "fr": "Presentation (partie 3)",
-                    "en": "Overview (part 3)",
-                    "ar": "تقديم (الجزء 3)",
-                    "es": "Presentacion (parte 3)"
-                }
-            },
-            {
-                "src": "data/videos/jawhara/rachid-jawhara3-date-livraison.mp4",
-                "poster": "data/videos/jawhara/rachid-jawhara3-date-livraison.jpg",
-                "title": {
-                    "fr": "Date de livraison",
-                    "en": "Delivery date",
-                    "ar": "تاريخ التسليم",
-                    "es": "Fecha de entrega"
-                }
-            },
-            {
-                "src": "data/videos/jawhara/rachid-jawhara-commerces.mp4",
-                "poster": "data/videos/jawhara/rachid-jawhara-commerces.jpg",
-                "title": {
-                    "fr": "Les commerces",
-                    "en": "Retail spaces",
-                    "ar": "المحلات التجارية",
-                    "es": "Los comercios"
-                }
-            }
-        ],
-        "name": {
-            "fr": "Residence Al Jawhara",
-            "en": "Al Jawhara Residence",
-            "ar": "إقامة الجوهرة",
-            "es": "Residencia Al Jawhara"
-        },
-        "location": {
-            "fr": "Dcheira El Jihadia, Agadir",
-            "en": "Dcheira El Jihadia, Agadir",
-            "ar": "الدشيرة الجهادية، أكادير",
-            "es": "Dcheira El Jihadia, Agadir"
-        },
-        "description": {
-            "fr": "Projet residentiel Narjiss a Dcheira El Jihadia, pres d'Agadir.",
-            "en": "Narjiss residential project in Dcheira El Jihadia, near Agadir.",
-            "ar": "مشروع سكني لنرجس في الدشيرة الجهادية قرب أكادير.",
-            "es": "Proyecto residencial Narjiss en Dcheira El Jihadia, cerca de Agadir."
-        },
-        "images": {
-            "logo": "images/projects/jawhara/jawhara_logo.jpg",
-            "hero": "images/projects/jawhara/concept-hero.jpg",
-            "floorplan": "images/projects/jawhara/floorplan.jpg"
-        },
-        "commercialization": "on-sale",
-        "delivery": {
-            "date": "2026-Q4",
-            "state": "en-construction"
-        },
-        "price_mode": "on-request",
-        "standing": "moyen-standing",
-        "promoteur": "Narjiss Immobilière",
-        "legal": {
-            "titre": true
-        },
-        "typologies": [
-            {
-                "label": "F2",
-                "rooms": 2,
-                "surface_min": 62,
-                "surface_max": 68,
-                "units_total": 20,
-                "units_available": 6,
-                "floorplan": "images/projects/jawhara/floorplan.jpg"
-            },
-            {
-                "label": "F3",
-                "rooms": 3,
-                "surface_min": 78,
-                "surface_max": 92,
-                "units_total": 30,
-                "units_available": 12,
-                "floorplan": "images/projects/jawhara/floorplan.jpg"
-            },
-            {
-                "label": "F4",
-                "rooms": 4,
-                "surface_min": 104,
-                "surface_max": 118,
-                "units_total": 14,
-                "units_available": 3,
-                "floorplan": "images/projects/jawhara/floorplan.jpg"
-            }
-        ],
-        "features": [
-            "piscine",
-            "securite-24-7",
-            "parking-sous-sol",
-            "espaces-verts",
-            "ascenseur",
-            "syndic"
-        ],
-        "gallery": [
-            "images/projects/jawhara/concept-hero.jpg"
-        ],
-        "panoramas": [
-            {
-                "src": "images/projects/jawhara/salon_19.jpeg",
-                "room": {
-                    "fr": "Salon",
-                    "en": "Living room",
-                    "ar": "صالون",
-                    "es": "Salón"
-                }
-            },
-            {
-                "src": "images/projects/jawhara/cuisine.jpeg",
-                "room": {
-                    "fr": "Cuisine",
-                    "en": "Kitchen",
-                    "ar": "مطبخ",
-                    "es": "Cocina"
-                }
-            },
-            {
-                "src": "images/projects/jawhara/chambre1_17.jpeg",
-                "room": {
-                    "fr": "Chambre",
-                    "en": "Bedroom",
-                    "ar": "غرفة نوم",
-                    "es": "Dormitorio"
-                }
-            },
-            {
-                "src": "images/projects/jawhara/couloir_18.jpeg",
-                "room": {
-                    "fr": "Couloir",
-                    "en": "Hallway",
-                    "ar": "ممر",
-                    "es": "Pasillo"
-                }
-            }
-        ]
-    },
-    {
-        "id": "tazroute",
-        "folder": "tazroute",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.358739340382268,
-        "lng": -9.460496051159458,
-        "poi_count": 27,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/tazroute/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Tazroute",
-            "en": "Tazroute",
-            "ar": "تازروت",
-            "es": "Tazroute"
-        },
-        "location": {
-            "fr": "Tazroute, Agadir",
-            "en": "Tazroute, Agadir",
-            "ar": "تازروت، أكادير",
-            "es": "Tazroute, Agadir"
-        },
-        "description": {
-            "fr": "Projet foncier Narjiss presente avec localisation precise et carte interactive.",
-            "en": "Narjiss land project presented with precise location and interactive map.",
-            "ar": "مشروع أراض لنرجس مع موقع دقيق وخريطة تفاعلية.",
-            "es": "Proyecto de terrenos Narjiss con ubicacion precisa y mapa interactivo."
-        },
-        "images": {
-            "logo": "images/projects/tazroute/tazroute_logo.jpg",
-            "hero": "images/projects/tazroute/concept-triptych.jpg",
-            "floorplan": "images/projects/tazroute/floorplan.jpg"
+  {
+    "id": "jawhara",
+    "folder": "jawhara",
+    "status": "live",
+    "type": "appartements",
+    "lat": 30.3732,
+    "lng": -9.5372,
+    "poi_count": 41,
+    "has_tour": true,
+    "detail_url": "",
+    "tour_maison": true,
+    "tour_dossier": "jawhara/Tour",
+    "tour_url": "tour-360.html?tour=jawhara/Tour",
+    "apartment_tour_url": "tour-360.html?tour=visites/jawhara-pannellum",
+    "plan_architecte_url": "jawhara/floorplan/plan-architecte.png",
+    "plan_visuel_url": "jawhara/floorplan/plan-visuel.jpg",
+    "brochure_pdf": "images/projects/jawhara/PLAN DE MASSE.pdf",
+    "videos": [
+      {
+        "src": "data/videos/jawhara/rachid-jawhara.mp4",
+        "poster": "data/videos/jawhara/rachid-jawhara.jpg",
+        "title": {
+          "fr": "Presentation du projet",
+          "en": "Project overview",
+          "ar": "تقديم المشروع",
+          "es": "Presentacion del proyecto"
         }
-    },
-    {
-        "id": "dar_ben_cheikh",
-        "folder": "dar_ben_cheikh",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.361823687819,
-        "lng": -9.4366524680182,
-        "poi_count": 8,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/dar_ben_cheikh/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Dar Ben Cheikh",
-            "en": "Dar Ben Cheikh",
-            "ar": "دار بن الشيخ",
-            "es": "Dar Ben Cheikh"
-        },
-        "location": {
-            "fr": "Dar Ben Cheikh, Agadir",
-            "en": "Dar Ben Cheikh, Agadir",
-            "ar": "دار بن الشيخ، أكادير",
-            "es": "Dar Ben Cheikh, Agadir"
-        },
-        "description": {
-            "fr": "Projet foncier Narjiss avec une lecture claire de l'environnement proche.",
-            "en": "Narjiss land project with clear nearby context.",
-            "ar": "مشروع أراض لنرجس مع قراءة واضحة للمحيط القريب.",
-            "es": "Proyecto de terrenos Narjiss con contexto cercano claro."
-        },
-        "images": {
-            "logo": "images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.jpg",
-            "hero": "images/projects/dar_ben_cheikh/concept-hero.jpg",
-            "floorplan": "images/projects/dar_ben_cheikh/floorplan.jpg"
+      },
+      {
+        "src": "data/videos/jawhara/rachid-jawhara2.mp4",
+        "poster": "data/videos/jawhara/rachid-jawhara2.jpg",
+        "title": {
+          "fr": "Presentation (partie 2)",
+          "en": "Overview (part 2)",
+          "ar": "تقديم (الجزء 2)",
+          "es": "Presentacion (parte 2)"
         }
-    },
-    {
-        "id": "tazroute_yassamine",
-        "folder": "tazroute_yassamine",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.3616466330063,
-        "lng": -9.455007371697246,
-        "poi_count": 21,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/tazroute_yassamine/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Tazroute Al Yassamine",
-            "en": "Tazroute Al Yassamine",
-            "ar": "تازروت الياسمين",
-            "es": "Tazroute Al Yassamine"
-        },
-        "location": {
-            "fr": "Tazroute, Agadir",
-            "en": "Tazroute, Agadir",
-            "ar": "تازروت، أكادير",
-            "es": "Tazroute, Agadir"
-        },
-        "description": {
-            "fr": "Projet foncier Narjiss avec contexte cartographique.",
-            "en": "Narjiss land project with map context.",
-            "ar": "مشروع أراض لنرجس مع سياق خرائطي.",
-            "es": "Proyecto de terrenos Narjiss con contexto cartografico."
-        },
-        "images": {
-            "logo": "images/projects/tazroute_yassamine/tazroute_yassamine_logo.jpg",
-            "hero": "images/projects/tazroute_yassamine/concept-hero.jpg",
-            "floorplan": "images/projects/tazroute_yassamine/floorplan.jpg"
+      },
+      {
+        "src": "data/videos/jawhara/rachid-jawhara3.mp4",
+        "poster": "data/videos/jawhara/rachid-jawhara3.jpg",
+        "title": {
+          "fr": "Presentation (partie 3)",
+          "en": "Overview (part 3)",
+          "ar": "تقديم (الجزء 3)",
+          "es": "Presentacion (parte 3)"
         }
-    },
-    {
-        "id": "farah",
-        "folder": "farah",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.3993056,
-        "lng": -9.5658333,
-        "poi_count": 108,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/farah/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Farah",
-            "en": "Farah",
-            "ar": "فرح",
-            "es": "Farah"
-        },
-        "location": {
-            "fr": "Hay Farah, Agadir",
-            "en": "Hay Farah, Agadir",
-            "ar": "حي الفرح، أكادير",
-            "es": "Hay Farah, Agadir"
-        },
-        "description": {
-            "fr": "Projet foncier avec une forte densite de points utiles cartographies.",
-            "en": "Land project with a rich set of mapped useful points.",
-            "ar": "مشروع أراض مع عدد كبير من النقاط المفيدة على الخريطة.",
-            "es": "Proyecto de terrenos con muchos puntos utiles cartografiados."
-        },
-        "images": {
-            "logo": "images/projects/farah/farah_logo.jpg",
-            "hero": "images/projects/farah/concept-hero.jpg",
-            "floorplan": "images/projects/farah/floorplan.jpg"
+      },
+      {
+        "src": "data/videos/jawhara/rachid-jawhara3-date-livraison.mp4",
+        "poster": "data/videos/jawhara/rachid-jawhara3-date-livraison.jpg",
+        "title": {
+          "fr": "Date de livraison",
+          "en": "Delivery date",
+          "ar": "تاريخ التسليم",
+          "es": "Fecha de entrega"
         }
-    },
-    {
-        "id": "amical",
-        "folder": "amical",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.33269020683,
-        "lng": -9.5112780966889,
-        "poi_count": 74,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/amical/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Lot Amical I",
-            "en": "Lot Amical I",
-            "ar": "تجزئة أميكال",
-            "es": "Lot Amical I"
-        },
-        "location": {
-            "fr": "Les Amicales, Agadir",
-            "en": "Les Amicales, Agadir",
-            "ar": "الأميكال، أكادير",
-            "es": "Les Amicales, Agadir"
-        },
-        "description": {
-            "fr": "Projet presente avec sa position, ses points utiles et son contexte local.",
-            "en": "Project shown with its position, useful points and local context.",
-            "ar": "مشروع مع موقعه ونقاطه المفيدة وسياقه المحلي.",
-            "es": "Proyecto con posicion, puntos utiles y contexto local."
-        },
-        "images": {
-            "logo": "images/projects/amical/amical_logo.jpg",
-            "hero": "images/projects/amical/concept-hero.jpg",
-            "floorplan": "images/projects/amical/floorplan.jpg"
+      },
+      {
+        "src": "data/videos/jawhara/rachid-jawhara-commerces.mp4",
+        "poster": "data/videos/jawhara/rachid-jawhara-commerces.jpg",
+        "title": {
+          "fr": "Les commerces",
+          "en": "Retail spaces",
+          "ar": "المحلات التجارية",
+          "es": "Los comercios"
         }
+      }
+    ],
+    "name": {
+      "fr": "Residence Al Jawhara",
+      "en": "Al Jawhara Residence",
+      "ar": "إقامة الجوهرة",
+      "es": "Residencia Al Jawhara"
     },
-    {
-        "id": "azrou",
-        "folder": "azrou",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.358741122541407,
-        "lng": -9.460487731940148,
-        "poi_count": 27,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/azrou/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Lot Azrou",
-            "en": "Lot Azrou",
-            "ar": "تجزئة أزرو",
-            "es": "Lot Azrou"
-        },
-        "location": {
-            "fr": "Azrou, Agadir",
-            "en": "Azrou, Agadir",
-            "ar": "أزرو، أكادير",
-            "es": "Azrou, Agadir"
-        },
-        "description": {
-            "fr": "Projet foncier Narjiss proche des autres developpements Tazroute.",
-            "en": "Narjiss land project near the other Tazroute developments.",
-            "ar": "مشروع أراض لنرجس قرب مشاريع تازروت الأخرى.",
-            "es": "Proyecto de terrenos Narjiss cerca de otros desarrollos Tazroute."
-        },
-        "images": {
-            "logo": "images/projects/azrou/azrou_logo.jpg",
-            "hero": "images/projects/azrou/concept-hero.jpg",
-            "floorplan": "images/projects/azrou/floorplan.jpg"
-        }
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
     },
-    {
-        "id": "bayt_mawada",
-        "folder": "bayt_mawada",
-        "status": "live",
-        "type": "appartements",
-        "lat": 30.381708282802176,
-        "lng": -9.468861100000003,
-        "poi_count": 24,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/bayt_mawada/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Bayt Al Mawada",
-            "en": "Bayt Al Mawada",
-            "ar": "بيت المودة",
-            "es": "Bayt Al Mawada"
-        },
-        "location": {
-            "fr": "Drarga, Agadir",
-            "en": "Drarga, Agadir",
-            "ar": "الدراركة، أكادير",
-            "es": "Drarga, Agadir"
-        },
-        "description": {
-            "fr": "Projet residentiel Narjiss avec affichage cartographique multilingue.",
-            "en": "Narjiss residential project with multilingual map display.",
-            "ar": "مشروع سكني لنرجس مع عرض خرائطي متعدد اللغات.",
-            "es": "Proyecto residencial Narjiss con mapa multilingue."
-        },
-        "images": {
-            "logo": "images/projects/bayt_mawada/bayt_mawada_logo.jpg",
-            "hero": "images/projects/bayt_mawada/concept-hero.jpg",
-            "floorplan": "images/projects/bayt_mawada/floorplan.jpg"
-        }
+    "description": {
+      "fr": "Projet residentiel Narjiss a Dcheira El Jihadia, pres d'Agadir.",
+      "en": "Narjiss residential project in Dcheira El Jihadia, near Agadir.",
+      "ar": "مشروع سكني لنرجس في الدشيرة الجهادية قرب أكادير.",
+      "es": "Proyecto residencial Narjiss en Dcheira El Jihadia, cerca de Agadir."
     },
-    {
-        "id": "founty",
-        "folder": "founty",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.400406468380485,
-        "lng": -9.573180104254527,
-        "poi_count": 122,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/founty/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Lot Founty",
-            "en": "Lot Founty",
-            "ar": "تجزئة فونتي",
-            "es": "Lot Founty"
-        },
-        "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
-        },
-        "description": {
-            "fr": "Projet foncier avec une carte riche en points utiles.",
-            "en": "Land project with a rich useful-points map.",
-            "ar": "مشروع أراض مع خريطة غنية بالنقاط المفيدة.",
-            "es": "Proyecto de terrenos con mapa rico en puntos utiles."
-        },
-        "images": {
-            "logo": "images/projects/founty/founty_logo.jpg",
-            "hero": "images/projects/founty/concept-hero.jpg",
-            "floorplan": "images/projects/founty/floorplan.jpg"
-        }
+    "images": {
+      "logo": "images/projects/jawhara/jawhara_logo.jpg",
+      "hero": "images/projects/jawhara/concept-hero.jpg",
+      "floorplan": "images/projects/jawhara/floorplan.jpg"
     },
-    {
-        "id": "nahda2",
-        "folder": "nahda2",
-        "status": "live",
-        "type": "terrains",
-        "lat": 30.303208344750637,
-        "lng": -9.463554523291856,
-        "poi_count": 45,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/nahda2/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "Lot Nahda 2",
-            "en": "Lot Nahda 2",
-            "ar": "تجزئة النهضة 2",
-            "es": "Lot Nahda 2"
-        },
-        "location": {
-            "fr": "Nahda, Agadir",
-            "en": "Nahda, Agadir",
-            "ar": "النهضة، أكادير",
-            "es": "Nahda, Agadir"
-        },
-        "description": {
-            "fr": "Projet Narjiss presente avec localisation et environnement.",
-            "en": "Narjiss project shown with location and surrounding context.",
-            "ar": "مشروع نرجس مع الموقع والمحيط.",
-            "es": "Proyecto Narjiss con ubicacion y entorno."
-        },
-        "images": {
-            "logo": "images/projects/nahda2/nahda2_logo.jpg",
-            "hero": "images/projects/nahda2/concept-hero.jpg",
-            "floorplan": "images/projects/nahda2/floorplan.jpg"
-        }
+    "commercialization": "on-sale",
+    "delivery": {
+      "date": "2026-Q4",
+      "state": "en-construction"
     },
-    {
-        "id": "andalusia",
-        "folder": "andalusia",
-        "status": "live",
-        "type": "appartements",
-        "lat": 30.371616372016,
-        "lng": -9.5235006754834,
-        "poi_count": 106,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/andalusia/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "R+3 Andalusia",
-            "en": "R+3 Andalusia",
-            "ar": "أندلسيا",
-            "es": "Andalusia"
-        },
-        "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
-        },
-        "description": {
-            "fr": "Projet d'appartements avec carte interactive et experience de presentation avancee.",
-            "en": "Apartment project with interactive map and advanced presentation experience.",
-            "ar": "مشروع شقق مع خريطة تفاعلية وتجربة عرض متقدمة.",
-            "es": "Proyecto de apartamentos con mapa interactivo y presentacion avanzada."
-        },
-        "images": {
-            "logo": "images/projects/andalusia/andalusia_logo.jpg",
-            "hero": "images/projects/andalusia/concept-hero.jpg",
-            "floorplan": "images/projects/andalusia/floorplan.jpg"
-        }
+    "price_mode": "on-request",
+    "standing": "moyen-standing",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
     },
-    {
-        "id": "kb",
-        "folder": "kb",
-        "status": "live",
-        "type": "appartements",
-        "lat": 30.371826407823608,
-        "lng": -9.549940706126623,
-        "poi_count": 78,
-        "has_tour": false,
-        "detail_url": "",
-        "tour_url": "",
-        "brochure_pdf": "images/projects/kb/PLAN DE MASSE.pdf",
-        "name": {
-            "fr": "R+4 K&B",
-            "en": "R+4 K&B",
-            "ar": "كي أند بي",
-            "es": "K&B"
-        },
-        "location": {
-            "fr": "Agadir",
-            "en": "Agadir",
-            "ar": "أكادير",
-            "es": "Agadir"
-        },
-        "description": {
-            "fr": "Projet d'appartements presente avec carte et donnees de proximite.",
-            "en": "Apartment project presented with map and nearby context data.",
-            "ar": "مشروع شقق مع خريطة ومعطيات القرب.",
-            "es": "Proyecto de apartamentos con mapa y datos de proximidad."
-        },
-        "images": {
-            "logo": "images/projects/kb/kb_logo.jpg",
-            "hero": "images/projects/kb/concept-hero.jpg",
-            "floorplan": "images/projects/kb/floorplan.jpg"
+    "typologies": [
+      {
+        "label": "F2",
+        "rooms": 2,
+        "surface_min": 62,
+        "surface_max": 68,
+        "units_total": 20,
+        "units_available": 6,
+        "floorplan": "images/projects/jawhara/floorplan.jpg"
+      },
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 78,
+        "surface_max": 92,
+        "units_total": 30,
+        "units_available": 12,
+        "floorplan": "images/projects/jawhara/floorplan.jpg"
+      },
+      {
+        "label": "F4",
+        "rooms": 4,
+        "surface_min": 104,
+        "surface_max": 118,
+        "units_total": 14,
+        "units_available": 3,
+        "floorplan": "images/projects/jawhara/floorplan.jpg"
+      }
+    ],
+    "features": [
+      "piscine",
+      "securite-24-7",
+      "parking-sous-sol",
+      "espaces-verts",
+      "ascenseur",
+      "syndic"
+    ],
+    "gallery": [
+      "images/projects/jawhara/concept-hero.jpg"
+    ],
+    "panoramas": [
+      {
+        "src": "images/projects/jawhara/salon_19.jpeg",
+        "room": {
+          "fr": "Salon",
+          "en": "Living room",
+          "ar": "صالون",
+          "es": "Salón"
         }
+      },
+      {
+        "src": "images/projects/jawhara/cuisine.jpeg",
+        "room": {
+          "fr": "Cuisine",
+          "en": "Kitchen",
+          "ar": "مطبخ",
+          "es": "Cocina"
+        }
+      },
+      {
+        "src": "images/projects/jawhara/chambre1_17.jpeg",
+        "room": {
+          "fr": "Chambre",
+          "en": "Bedroom",
+          "ar": "غرفة نوم",
+          "es": "Dormitorio"
+        }
+      },
+      {
+        "src": "images/projects/jawhara/couloir_18.jpeg",
+        "room": {
+          "fr": "Couloir",
+          "en": "Hallway",
+          "ar": "ممر",
+          "es": "Pasillo"
+        }
+      }
+    ]
+  },
+  {
+    "id": "tamount",
+    "folder": "tamount",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 47,
+    "lat": 30.286357,
+    "lng": -9.44521,
+    "poi_count": 23,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/tamount/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Tamount",
+      "en": "Lot Tamount",
+      "es": "Lot Tamount",
+      "ar": "تجزئة تامونت"
+    },
+    "location": {
+      "fr": "Lqliaa, Agadir",
+      "en": "Lqliaa, Agadir",
+      "ar": "القليعة، أكادير",
+      "es": "Lqliaa, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Lqliaa, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Lqliaa, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — القليعة، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Lqliaa, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/tamount/concept-hero.png"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 70,
+        "surface_max": 132,
+        "units_total": 234,
+        "units_available": 228
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/tamount/concept-hero.png"
+    ]
+  },
+  {
+    "id": "andalusia_03",
+    "folder": "andalusia_03",
+    "status": "live",
+    "type": "appartements",
+    "source_id": 70,
+    "lat": 30.371735,
+    "lng": -9.519943,
+    "poi_count": 56,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/andalusia_03/fiche-projet.pdf",
+    "name": {
+      "fr": "Groupement d'habitation Andalusia 03",
+      "en": "Andalusia 03 Housing Complex",
+      "es": "Conjunto residencial Andalusia 03",
+      "ar": "المجموعة السكنية أندلسيا 03"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Résidence d'appartements Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Apartment residence Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "إقامة سكنية Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/andalusia_03/concept-hero.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "F4",
+        "rooms": 4,
+        "surface_min": 80,
+        "surface_max": 98,
+        "units_total": 47,
+        "units_available": 43
+      },
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 52,
+        "surface_max": 86,
+        "units_total": 217,
+        "units_available": 174
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/andalusia_03/concept-hero.jpg",
+      "images/projects/andalusia_03/photo-1.jpg"
+    ]
+  },
+  {
+    "id": "nassime_timersit",
+    "folder": "nassime_timersit",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 66,
+    "lat": 30.358068,
+    "lng": -9.481689,
+    "poi_count": 35,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/nassime_timersit/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Nassime Timersit",
+      "en": "Lot Nassime Timersit",
+      "es": "Lot Nassime Timersit",
+      "ar": "تجزئة نسيم تيمرسيت"
+    },
+    "location": {
+      "fr": "Timersit, Aït Melloul, Agadir",
+      "en": "Timersit, Aït Melloul, Agadir",
+      "ar": "تيمرسيت، آيت ملول، أكادير",
+      "es": "Timersit, Aït Melloul, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Timersit, Aït Melloul, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Timersit, Aït Melloul, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — تيمرسيت، آيت ملول، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Timersit, Aït Melloul, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/nassime_timersit/concept-hero.png"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 80,
+        "surface_max": 110,
+        "units_total": 39,
+        "units_available": 39
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/nassime_timersit/concept-hero.png"
+    ],
+    "delivery": {
+      "date": "2028",
+      "state": "en-construction"
     }
+  },
+  {
+    "id": "lc_andalousia_03",
+    "folder": "lc_andalousia_03",
+    "status": "live",
+    "type": "commerces",
+    "source_id": 69,
+    "lat": 30.371735,
+    "lng": -9.519943,
+    "poi_count": 56,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/lc_andalousia_03/fiche-projet.pdf",
+    "name": {
+      "fr": "Locaux commerciaux Andalousia 03",
+      "en": "Andalousia 03 Commercial Units",
+      "es": "Locales comerciales Andalousia 03",
+      "ar": "محلات تجارية أندلسيا 03"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Locaux commerciaux Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Commercial units Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "محلات تجارية Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Locales comerciales Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/lc_andalousia_03/concept-hero-staged.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Local commercial",
+        "rooms": 0,
+        "surface_min": 30,
+        "surface_max": 199,
+        "units_total": 54,
+        "units_available": 33
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/lc_andalousia_03/concept-hero-staged.jpg",
+      "images/projects/lc_andalousia_03/fiche-adassat.jpg",
+      "images/projects/lc_andalousia_03/photo-1.jpg",
+      "images/projects/lc_andalousia_03/photo-2.jpg"
+    ]
+  },
+  {
+    "id": "kb",
+    "folder": "kb",
+    "status": "live",
+    "type": "appartements",
+    "source_id": 51,
+    "lat": 30.371741,
+    "lng": -9.549911,
+    "poi_count": 78,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/kb/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Appartements K&B La Pergola",
+      "en": "K&B La Pergola Apartments",
+      "es": "Apartamentos K&B La Pergola",
+      "ar": "شقق كي أند بي لابيركولا"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia (La Pergola), Agadir",
+      "en": "Dcheira El Jihadia (La Pergola), Agadir",
+      "ar": "الدشيرة الجهادية (لابيركولا)، أكادير",
+      "es": "Dcheira El Jihadia (La Pergola), Agadir"
+    },
+    "description": {
+      "fr": "Résidence d'appartements Narjiss — Dcheira El Jihadia (La Pergola), Agadir.",
+      "en": "Apartment residence Narjiss — Dcheira El Jihadia (La Pergola), Agadir.",
+      "ar": "إقامة سكنية Narjiss — الدشيرة الجهادية (لابيركولا)، أكادير.",
+      "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia (La Pergola), Agadir."
+    },
+    "images": {
+      "logo": "images/projects/kb/kb_logo.jpg",
+      "hero": "images/projects/kb/concept-hero-staged.jpg",
+      "floorplan": "images/projects/kb/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 47,
+        "surface_max": 107,
+        "units_total": 36,
+        "units_available": 22
+      },
+      {
+        "label": "Local commercial",
+        "rooms": 0,
+        "surface_min": 107,
+        "surface_max": 216,
+        "units_total": 6,
+        "units_available": 6
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/kb/concept-hero-staged.jpg",
+      "images/projects/kb/concept-hero.jpg",
+      "images/projects/kb/photo-1.jpg",
+      "images/projects/kb/photo-2.jpg"
+    ],
+    "delivery": {
+      "date": "",
+      "state": "en-construction"
+    }
+  },
+  {
+    "id": "lc_perle",
+    "folder": "lc_perle",
+    "status": "live",
+    "type": "commerces",
+    "source_id": 40,
+    "lat": 30.371911,
+    "lng": -9.547333,
+    "poi_count": 82,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/lc_perle/fiche-projet.pdf",
+    "name": {
+      "fr": "Locaux commerciaux Perle",
+      "en": "Perle Commercial Units",
+      "es": "Locales comerciales Perle",
+      "ar": "محلات تجارية بيرل"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia (La Pergola), Agadir",
+      "en": "Dcheira El Jihadia (La Pergola), Agadir",
+      "ar": "الدشيرة الجهادية (لابيركولا)، أكادير",
+      "es": "Dcheira El Jihadia (La Pergola), Agadir"
+    },
+    "description": {
+      "fr": "Locaux commerciaux Narjiss — Dcheira El Jihadia (La Pergola), Agadir.",
+      "en": "Commercial units Narjiss — Dcheira El Jihadia (La Pergola), Agadir.",
+      "ar": "محلات تجارية Narjiss — الدشيرة الجهادية (لابيركولا)، أكادير.",
+      "es": "Locales comerciales Narjiss — Dcheira El Jihadia (La Pergola), Agadir."
+    },
+    "images": {
+      "hero": "images/projects/lc_perle/concept-hero.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Local commercial",
+        "rooms": 0,
+        "surface_min": 18,
+        "surface_max": 79,
+        "units_total": 29,
+        "units_available": 26
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/lc_perle/concept-hero.jpg"
+    ],
+    "delivery": {
+      "date": "",
+      "state": "livre"
+    }
+  },
+  {
+    "id": "dar_ben_cheikh",
+    "folder": "dar_ben_cheikh",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 29,
+    "lat": 30.362624,
+    "lng": -9.436223,
+    "poi_count": 8,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/dar_ben_cheikh/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Lotissement Tamassint Ben Cheikh",
+      "en": "Lot Tamassint Ben Cheikh",
+      "es": "Lot Tamassint Ben Cheikh",
+      "ar": "تجزئة تماسينت بن الشيخ"
+    },
+    "location": {
+      "fr": "Temsia, Agadir",
+      "en": "Temsia, Agadir",
+      "ar": "تامسيا، أكادير",
+      "es": "Temsia, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Temsia, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Temsia, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — تامسيا، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Temsia, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.jpg",
+      "hero": "images/projects/dar_ben_cheikh/concept-hero.jpg",
+      "floorplan": "images/projects/dar_ben_cheikh/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 76,
+        "surface_max": 121,
+        "units_total": 71,
+        "units_available": 19
+      },
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 82,
+        "surface_max": 100,
+        "units_total": 3,
+        "units_available": 1
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/dar_ben_cheikh/concept-hero.jpg",
+      "images/projects/dar_ben_cheikh/fiche-adassat.jpg",
+      "images/projects/narjiss-tamassint.jpg"
+    ],
+    "delivery": {
+      "date": "",
+      "state": "livre"
+    }
+  },
+  {
+    "id": "tazroute_yassamine",
+    "folder": "tazroute_yassamine",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 67,
+    "lat": 30.362127,
+    "lng": -9.454709,
+    "poi_count": 21,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/tazroute_yassamine/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Lotissement El Yassamine",
+      "en": "Lot El Yassamine",
+      "es": "Lot El Yassamine",
+      "ar": "تجزئة الياسمين"
+    },
+    "location": {
+      "fr": "Azrou, Aït Melloul, Agadir",
+      "en": "Azrou, Aït Melloul, Agadir",
+      "ar": "أزرو، آيت ملول، أكادير",
+      "es": "Azrou, Aït Melloul, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Azrou, Aït Melloul, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Azrou, Aït Melloul, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — أزرو، آيت ملول، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Azrou, Aït Melloul, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/tazroute_yassamine/tazroute_yassamine_logo.jpg",
+      "hero": "images/projects/tazroute_yassamine/concept-hero.jpg",
+      "floorplan": "images/projects/tazroute_yassamine/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 80,
+        "surface_max": 325,
+        "units_total": 19,
+        "units_available": 19
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/tazroute_yassamine/concept-hero.jpg",
+      "images/projects/tazroute_yassamine/fiche-adassat.png"
+    ]
+  },
+  {
+    "id": "tazroute",
+    "folder": "tazroute",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 61,
+    "lat": 30.358528,
+    "lng": -9.460321,
+    "poi_count": 27,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/tazroute/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Lotissement Tazrout",
+      "en": "Lot Tazrout",
+      "es": "Lot Tazrout",
+      "ar": "تجزئة تازروت"
+    },
+    "location": {
+      "fr": "Azrou, Aït Melloul, Agadir",
+      "en": "Azrou, Aït Melloul, Agadir",
+      "ar": "أزرو، آيت ملول، أكادير",
+      "es": "Azrou, Aït Melloul, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Azrou, Aït Melloul, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Azrou, Aït Melloul, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — أزرو، آيت ملول، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Azrou, Aït Melloul, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/tazroute/tazroute_logo.jpg",
+      "hero": "images/projects/tazroute/concept-triptych.jpg",
+      "floorplan": "images/projects/tazroute/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 80,
+        "surface_max": 112,
+        "units_total": 25,
+        "units_available": 17
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/tazroute/concept-triptych.jpg",
+      "images/projects/tazroute/fiche-adassat.png"
+    ]
+  },
+  {
+    "id": "andalusia",
+    "folder": "andalusia",
+    "status": "live",
+    "type": "appartements",
+    "source_id": 58,
+    "lat": 30.371651,
+    "lng": -9.523502,
+    "poi_count": 106,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/andalusia/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Résidence Andalusia",
+      "en": "Andalusia Residence",
+      "es": "Residencia Andalusia",
+      "ar": "إقامة أندلسيا"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Résidence d'appartements Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Apartment residence Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "إقامة سكنية Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/andalusia/andalusia_logo.jpg",
+      "hero": "images/projects/andalusia/concept-hero-staged.jpg",
+      "floorplan": "images/projects/andalusia/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "F4",
+        "rooms": 4,
+        "surface_min": 71,
+        "surface_max": 96,
+        "units_total": 10,
+        "units_available": 4
+      },
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 32,
+        "surface_max": 146,
+        "units_total": 60,
+        "units_available": 7
+      },
+      {
+        "label": "F2",
+        "rooms": 2,
+        "surface_min": 57,
+        "surface_max": 95,
+        "units_total": 9,
+        "units_available": 5
+      },
+      {
+        "label": "Local commercial",
+        "rooms": 0,
+        "surface_min": 82,
+        "surface_max": 122,
+        "units_total": 2,
+        "units_available": 1
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/andalusia/concept-hero-staged.jpg",
+      "images/projects/andalusia/concept-hero.jpg",
+      "images/projects/andalusia/fiche-adassat.jpg"
+    ]
+  },
+  {
+    "id": "arifane",
+    "folder": "arifane",
+    "status": "live",
+    "type": "appartements",
+    "source_id": 41,
+    "lat": 30.376258,
+    "lng": -9.5315,
+    "poi_count": 82,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/arifane/fiche-projet.pdf",
+    "name": {
+      "fr": "Appartements Al Arifane (R+2)",
+      "en": "Al Arifane Apartments (R+2)",
+      "es": "Apartamentos Al Arifane (R+2)",
+      "ar": "شقق العارفين (R+2)"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Résidence d'appartements Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Apartment residence Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "إقامة سكنية Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/arifane/concept-hero.png"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 39,
+        "surface_max": 78,
+        "units_total": 23,
+        "units_available": 13
+      },
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 54,
+        "surface_max": 54,
+        "units_total": 1,
+        "units_available": 1
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/arifane/concept-hero.png",
+      "images/projects/arifane/photo-1.jpg",
+      "images/projects/arifane/photo-2.jpg",
+      "images/projects/narjiss-arifane.jpg"
+    ],
+    "delivery": {
+      "date": "2026-02",
+      "state": "en-construction"
+    }
+  },
+  {
+    "id": "ait_melloul",
+    "folder": "ait_melloul",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 57,
+    "lat": 30.34075,
+    "lng": -9.505639,
+    "poi_count": 57,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/ait_melloul/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Aït Melloul (TF 15119)",
+      "en": "Lot Aït Melloul (TF 15119)",
+      "es": "Lot Aït Melloul (TF 15119)",
+      "ar": "تجزئة آيت ملول (TF 15119)"
+    },
+    "location": {
+      "fr": "Aït Melloul, Agadir",
+      "en": "Aït Melloul, Agadir",
+      "ar": "آيت ملول، أكادير",
+      "es": "Aït Melloul, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Aït Melloul, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Aït Melloul, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — آيت ملول، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Aït Melloul, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/ait_melloul/concept-hero.png"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 80,
+        "surface_max": 119,
+        "units_total": 19,
+        "units_available": 14
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/ait_melloul/concept-hero.png"
+    ]
+  },
+  {
+    "id": "nahda2",
+    "folder": "nahda2",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 33,
+    "lat": 30.303588,
+    "lng": -9.463296,
+    "poi_count": 45,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/nahda2/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Lotissement Nahda II",
+      "en": "Lot Nahda II",
+      "es": "Lot Nahda II",
+      "ar": "تجزئة النهضة 2"
+    },
+    "location": {
+      "fr": "Lqliaa, Agadir",
+      "en": "Lqliaa, Agadir",
+      "ar": "القليعة، أكادير",
+      "es": "Lqliaa, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Lqliaa, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Lqliaa, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — القليعة، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Lqliaa, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/nahda2/nahda2_logo.jpg",
+      "hero": "images/projects/nahda2/concept-hero.jpg",
+      "floorplan": "images/projects/nahda2/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 75,
+        "surface_max": 114,
+        "units_total": 18,
+        "units_available": 14
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/nahda2/concept-hero.jpg",
+      "images/projects/nahda2/fiche-adassat.jpg"
+    ],
+    "delivery": {
+      "date": "",
+      "state": "livre"
+    }
+  },
+  {
+    "id": "farah",
+    "folder": "farah",
+    "status": "live",
+    "type": "appartements",
+    "source_id": 64,
+    "lat": 30.39934,
+    "lng": -9.56582,
+    "poi_count": 108,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/farah/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Immeuble Al Farah (R+5)",
+      "en": "Al Farah Building (R+5)",
+      "es": "Edificio Al Farah (R+5)",
+      "ar": "عمارة الفرح (R+5)"
+    },
+    "location": {
+      "fr": "Agadir",
+      "en": "Agadir",
+      "es": "Agadir",
+      "ar": "أكادير"
+    },
+    "description": {
+      "fr": "Résidence d'appartements Narjiss — Agadir.",
+      "en": "Apartment residence Narjiss — Agadir.",
+      "ar": "إقامة سكنية Narjiss — أكادير.",
+      "es": "Residencia de apartamentos Narjiss — Agadir."
+    },
+    "images": {
+      "logo": "images/projects/farah/farah_logo.jpg",
+      "hero": "images/projects/farah/concept-hero.jpg",
+      "floorplan": "images/projects/farah/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "F4",
+        "rooms": 4,
+        "surface_min": 70,
+        "surface_max": 153,
+        "units_total": 10,
+        "units_available": 10
+      },
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 59,
+        "surface_max": 59,
+        "units_total": 5,
+        "units_available": 0
+      },
+      {
+        "label": "Local commercial",
+        "rooms": 0,
+        "surface_min": 195,
+        "surface_max": 216,
+        "units_total": 2,
+        "units_available": 2
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/farah/concept-hero.jpg",
+      "images/projects/farah/fiche-adassat.jpg",
+      "images/projects/farah/photo-1.jpg",
+      "images/projects/farah/photo-2.jpg",
+      "images/projects/farah/photo-3.png",
+      "images/projects/farah/photo-4.jpg",
+      "images/projects/farah/photo-5.jpg",
+      "images/projects/farah/photo-6.jpg",
+      "images/projects/farah/photo-7.jpg",
+      "images/projects/farah/photo-8.png"
+    ]
+  },
+  {
+    "id": "drarga_ahaga",
+    "folder": "drarga_ahaga",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 28,
+    "lat": 30.381597,
+    "lng": -9.469034,
+    "poi_count": 24,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/drarga_ahaga/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Drarga Ahaga",
+      "en": "Lot Drarga Ahaga",
+      "es": "Lot Drarga Ahaga",
+      "ar": "تجزئة الدراركة أهاكا"
+    },
+    "location": {
+      "fr": "Drarga, Agadir",
+      "en": "Drarga, Agadir",
+      "ar": "الدراركة، أكادير",
+      "es": "Drarga, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Drarga, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Drarga, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — الدراركة، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Drarga, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/drarga_ahaga/concept-hero.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 71,
+        "surface_max": 117,
+        "units_total": 74,
+        "units_available": 12
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/drarga_ahaga/concept-hero.jpg",
+      "images/projects/drarga_ahaga/photo-1.jpg"
+    ],
+    "delivery": {
+      "date": "",
+      "state": "livre"
+    }
+  },
+  {
+    "id": "mektoub",
+    "folder": "mektoub",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 63,
+    "lat": 30.372065,
+    "lng": -9.52895,
+    "poi_count": 88,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/mektoub/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Mektoub",
+      "en": "Lot Mektoub",
+      "es": "Lot Mektoub",
+      "ar": "تجزئة مكتوب"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/mektoub/concept-hero.png"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 80,
+        "surface_max": 178,
+        "units_total": 19,
+        "units_available": 12
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/mektoub/concept-hero.png",
+      "images/projects/mektoub/photo-1.jpg",
+      "images/projects/mektoub/photo-2.jpg",
+      "images/projects/mektoub/photo-3.jpg",
+      "images/projects/narjiss-mektoub.jpg"
+    ]
+  },
+  {
+    "id": "perle_bureaux",
+    "folder": "perle_bureaux",
+    "status": "live",
+    "type": "bureaux",
+    "source_id": 39,
+    "lat": 30.371911,
+    "lng": -9.547333,
+    "poi_count": 82,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/perle_bureaux/fiche-projet.pdf",
+    "name": {
+      "fr": "Plateau de bureaux Perle",
+      "en": "Perle Office Space",
+      "es": "Oficinas Perle",
+      "ar": "مكاتب بيرل"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Plateaux de bureaux Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Office spaces Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "مكاتب Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Oficinas Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/perle_bureaux/concept-hero-staged.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Bureau",
+        "rooms": 0,
+        "surface_min": 43,
+        "surface_max": 148,
+        "units_total": 20,
+        "units_available": 12
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/perle_bureaux/concept-hero-staged.jpg",
+      "images/projects/perle_bureaux/fiche-adassat.jpg"
+    ],
+    "delivery": {
+      "date": "",
+      "state": "livre"
+    }
+  },
+  {
+    "id": "lc_j3",
+    "folder": "lc_j3",
+    "status": "live",
+    "type": "commerces",
+    "source_id": 62,
+    "lat": 30.373259,
+    "lng": -9.537229,
+    "poi_count": 90,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/lc_j3/fiche-projet.pdf",
+    "name": {
+      "fr": "Locaux commerciaux J3",
+      "en": "J3 Commercial Units",
+      "es": "Locales comerciales J3",
+      "ar": "محلات تجارية J3"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Locaux commerciaux Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Commercial units Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "محلات تجارية Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Locales comerciales Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/lc_j3/concept-hero.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Local commercial",
+        "rooms": 0,
+        "surface_min": 21,
+        "surface_max": 39,
+        "units_total": 15,
+        "units_available": 10
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/lc_j3/concept-hero.jpg"
+    ]
+  },
+  {
+    "id": "founty",
+    "folder": "founty",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 46,
+    "lat": 30.400424,
+    "lng": -9.573122,
+    "poi_count": 122,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/founty/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Lotissement Founty",
+      "en": "Lot Founty",
+      "es": "Lot Founty",
+      "ar": "تجزئة فونتي"
+    },
+    "location": {
+      "fr": "Founty, Agadir, Agadir",
+      "en": "Founty, Agadir, Agadir",
+      "ar": "فونتي، أكادير، أكادير",
+      "es": "Founty, Agadir, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Founty, Agadir, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Founty, Agadir, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — فونتي، أكادير، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Founty, Agadir, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/founty/founty_logo.jpg",
+      "hero": "images/projects/founty/concept-hero.jpg",
+      "floorplan": "images/projects/founty/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 83,
+        "surface_max": 105,
+        "units_total": 14,
+        "units_available": 9
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/founty/concept-hero.jpg",
+      "images/projects/founty/fiche-adassat.jpg"
+    ],
+    "delivery": {
+      "date": "2025-10",
+      "state": "en-construction"
+    }
+  },
+  {
+    "id": "bayt_mawada",
+    "folder": "bayt_mawada",
+    "status": "live",
+    "type": "appartements",
+    "source_id": 60,
+    "lat": 30.381658,
+    "lng": -9.468904,
+    "poi_count": 24,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/bayt_mawada/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Appartements Bayt Al Mawada (R+2)",
+      "en": "Bayt Al Mawada Apartments (R+2)",
+      "es": "Apartamentos Bayt Al Mawada (R+2)",
+      "ar": "شقق بيت المودة (R+2)"
+    },
+    "location": {
+      "fr": "Drarga, Agadir",
+      "en": "Drarga, Agadir",
+      "ar": "الدراركة، أكادير",
+      "es": "Drarga, Agadir"
+    },
+    "description": {
+      "fr": "Résidence d'appartements Narjiss — Drarga, Agadir.",
+      "en": "Apartment residence Narjiss — Drarga, Agadir.",
+      "ar": "إقامة سكنية Narjiss — الدراركة، أكادير.",
+      "es": "Residencia de apartamentos Narjiss — Drarga, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/bayt_mawada/bayt_mawada_logo.jpg",
+      "hero": "images/projects/bayt_mawada/concept-hero.jpg",
+      "floorplan": "images/projects/bayt_mawada/floorplan.jpg"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "F4",
+        "rooms": 4,
+        "surface_min": 71,
+        "surface_max": 79,
+        "units_total": 4,
+        "units_available": 2
+      },
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 63,
+        "surface_max": 73,
+        "units_total": 3,
+        "units_available": 1
+      },
+      {
+        "label": "F2",
+        "rooms": 2,
+        "surface_min": 41,
+        "surface_max": 44,
+        "units_total": 4,
+        "units_available": 4
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/bayt_mawada/concept-hero.jpg",
+      "images/projects/bayt_mawada/fiche-adassat.jpg",
+      "images/projects/bayt_mawada/photo-1.jpg"
+    ]
+  },
+  {
+    "id": "rouchdi",
+    "folder": "rouchdi",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 68,
+    "lat": 30.369936,
+    "lng": -9.54663,
+    "poi_count": 86,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/rouchdi/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Rouchdi",
+      "en": "Lot Rouchdi",
+      "es": "Lot Rouchdi",
+      "ar": "تجزئة رشدي"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia (La Pergola), Agadir",
+      "en": "Dcheira El Jihadia (La Pergola), Agadir",
+      "ar": "الدشيرة الجهادية (لابيركولا)، أكادير",
+      "es": "Dcheira El Jihadia (La Pergola), Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Dcheira El Jihadia (La Pergola), Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Dcheira El Jihadia (La Pergola), Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — الدشيرة الجهادية (لابيركولا)، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Dcheira El Jihadia (La Pergola), Agadir."
+    },
+    "images": {
+      "hero": "images/projects/rouchdi/concept-hero.png"
+    },
+    "commercialization": "on-sale",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 100,
+        "surface_max": 132,
+        "units_total": 4,
+        "units_available": 4
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/rouchdi/concept-hero.png"
+    ]
+  },
+  {
+    "id": "afrah",
+    "folder": "afrah",
+    "status": "live",
+    "type": "appartements",
+    "source_id": 36,
+    "lat": 30.377147,
+    "lng": -9.533145,
+    "poi_count": 82,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/afrah/fiche-projet.pdf",
+    "name": {
+      "fr": "Appartements Afrah (R+2)",
+      "en": "Afrah Apartments (R+2)",
+      "es": "Apartamentos Afrah (R+2)",
+      "ar": "شقق أفراح (R+2)"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Résidence d'appartements Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Apartment residence Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "إقامة سكنية Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/afrah/concept-hero.jpg"
+    },
+    "commercialization": "last-units",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "F3",
+        "rooms": 3,
+        "surface_min": 30,
+        "surface_max": 78,
+        "units_total": 27,
+        "units_available": 2
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/afrah/concept-hero.jpg",
+      "images/projects/afrah/photo-1.jpg",
+      "images/projects/afrah/photo-2.jpg"
+    ],
+    "delivery": {
+      "date": "",
+      "state": "livre"
+    }
+  },
+  {
+    "id": "oum_lkhir",
+    "folder": "oum_lkhir",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 30,
+    "lat": 30.377164,
+    "lng": -9.532224,
+    "poi_count": 80,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/oum_lkhir/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Oum Lkhir",
+      "en": "Lot Oum Lkhir",
+      "es": "Lot Oum Lkhir",
+      "ar": "تجزئة أم الخير"
+    },
+    "location": {
+      "fr": "Dcheira El Jihadia, Agadir",
+      "en": "Dcheira El Jihadia, Agadir",
+      "ar": "الدشيرة الجهادية، أكادير",
+      "es": "Dcheira El Jihadia, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Dcheira El Jihadia, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Dcheira El Jihadia, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — الدشيرة الجهادية، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Dcheira El Jihadia, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/oum_lkhir/concept-hero.jpg"
+    },
+    "commercialization": "last-units",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 80,
+        "surface_max": 266,
+        "units_total": 22,
+        "units_available": 2
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/oum_lkhir/concept-hero.jpg",
+      "images/projects/narjiss-oul-elkhir.jpg"
+    ],
+    "delivery": {
+      "date": "2026-10",
+      "state": "en-construction"
+    }
+  },
+  {
+    "id": "souiri",
+    "folder": "souiri",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 32,
+    "lat": 30.373106,
+    "lng": -9.512266,
+    "poi_count": 45,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/souiri/fiche-projet.pdf",
+    "name": {
+      "fr": "Lotissement Souiri El Jadida",
+      "en": "Lot Souiri El Jadida",
+      "es": "Lot Souiri El Jadida",
+      "ar": "تجزئة الصويري الجديدة"
+    },
+    "location": {
+      "fr": "Tikiouine, Agadir, Agadir",
+      "en": "Tikiouine, Agadir, Agadir",
+      "ar": "تيكيوين، أكادير، أكادير",
+      "es": "Tikiouine, Agadir, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Tikiouine, Agadir, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Tikiouine, Agadir, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — تيكيوين، أكادير، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Tikiouine, Agadir, Agadir."
+    },
+    "images": {
+      "hero": "images/projects/souiri/concept-hero.png"
+    },
+    "commercialization": "last-units",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 97,
+        "surface_max": 107,
+        "units_total": 3,
+        "units_available": 1
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/souiri/concept-hero.png",
+      "images/projects/narjiss-souiri.png"
+    ],
+    "delivery": {
+      "date": "2026-Q4",
+      "state": "en-construction"
+    }
+  },
+  {
+    "id": "amical",
+    "folder": "amical",
+    "status": "live",
+    "type": "terrains",
+    "source_id": 50,
+    "lat": 30.332263,
+    "lng": -9.511,
+    "poi_count": 74,
+    "has_tour": false,
+    "detail_url": "",
+    "tour_url": "",
+    "brochure_pdf": "images/projects/amical/PLAN DE MASSE.pdf",
+    "name": {
+      "fr": "Lotissement Amical 01",
+      "en": "Lot Amical 01",
+      "es": "Lot Amical 01",
+      "ar": "تجزئة أميكال 01"
+    },
+    "location": {
+      "fr": "Aït Melloul, Agadir",
+      "en": "Aït Melloul, Agadir",
+      "ar": "آيت ملول، أكادير",
+      "es": "Aït Melloul, Agadir"
+    },
+    "description": {
+      "fr": "Lotissement de terrains titrés Narjiss — Aït Melloul, Agadir.",
+      "en": "Titled land plots subdivision Narjiss — Aït Melloul, Agadir.",
+      "ar": "تجزئة بقع أرضية محفظة Narjiss — آيت ملول، أكادير.",
+      "es": "Parcelación de terrenos titulados Narjiss — Aït Melloul, Agadir."
+    },
+    "images": {
+      "logo": "images/projects/amical/amical_logo.jpg",
+      "hero": "images/projects/amical/concept-hero.jpg",
+      "floorplan": "images/projects/amical/floorplan.jpg"
+    },
+    "commercialization": "sold-out",
+    "price_mode": "public",
+    "promoteur": "Narjiss Immobilière",
+    "legal": {
+      "titre": true
+    },
+    "typologies": [
+      {
+        "label": "Lot de terrain",
+        "rooms": 0,
+        "surface_min": 80,
+        "surface_max": 100,
+        "units_total": 11,
+        "units_available": 0
+      }
+    ],
+    "features": [],
+    "gallery": [
+      "images/projects/amical/concept-hero.jpg",
+      "images/projects/amical/fiche-adassat.jpg"
+    ]
+  }
 ]

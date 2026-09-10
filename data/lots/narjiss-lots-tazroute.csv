@@ -1,0 +1,26 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+tazroute;;;1;terrain;80.0;0.0;80.0;0;0;angle;;;aucun;680000;8500;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 12-12
+tazroute;;;10;terrain;86.0;0.0;86.0;0;0;rue;;;aucun;619200;7200;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12
+tazroute;;;11;terrain;84.0;0.0;84.0;0;0;rue;;;aucun;604800;7200;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12
+tazroute;;;12;terrain;82.0;0.0;82.0;0;0;rue;;;aucun;590400;7200;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12
+tazroute;;;13;terrain;94.0;0.0;94.0;0;0;rue;;;aucun;611000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;14;terrain;94.0;0.0;94.0;0;0;rue;;;aucun;611000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;15;terrain;112.0;0.0;112.0;0;0;rue;;;aucun;728000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;16;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;520000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;17;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;520000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;18;terrain;83.0;0.0;83.0;0;0;angle;;;aucun;622500;7500;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 14-10
+tazroute;;;19;terrain;83.0;0.0;83.0;0;0;angle;;;aucun;622500;7500;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 14-10
+tazroute;;;2;terrain;89.0;0.0;89.0;0;0;rue;;;aucun;667500;7500;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12
+tazroute;;;20;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;520000;6500;vendu;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;21;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;520000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;22;terrain;84.0;0.0;84.0;0;0;rue;;;aucun;546000;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;23;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;526500;6500;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;24;terrain;81.0;0.0;81.0;0;0;rue;;;aucun;526500;6500;vendu;;;;;;Consistance he2 · Façade 1F · Voie 10
+tazroute;;;25;terrain;94.0;0.0;94.0;0;0;rue;;;aucun;846000;9000;disponible;;;;;;Consistance hc2 · Façade 3F · Voie 10-14-EV
+tazroute;;;3;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;600000;7500;vendu;;;;;;Consistance hc2 · Façade 1F · Voie 12
+tazroute;;;4;terrain;82.0;0.0;82.0;0;0;rue;;;aucun;590400;7200;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 14
+tazroute;;;5;terrain;92.0;0.0;92.0;0;0;rue;;;aucun;662400;7200;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 14
+tazroute;;;6;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;576000;7200;disponible;;;;;;Consistance hc2 · Façade 1 · Voie 14
+tazroute;;;7;terrain;80.0;0.0;80.0;0;0;angle;;;aucun;640000;8000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 14-12
+tazroute;;;8;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;576000;7200;vendu;;;;;;Consistance hc2 · Façade 1 · Voie 12
+tazroute;;;9;terrain;95.0;0.0;95.0;0;0;rue;;;aucun;684000;7200;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 12

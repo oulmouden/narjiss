@@ -1,0 +1,19 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+nahda2;;;10;terrain;102.0;0.0;102.0;0;0;angle;;;aucun;664530;6515;disponible;;;;;;Consistance he2 · Façade 2F · Voie 10.5-10
+nahda2;;;14;terrain;90.0;0.0;90.0;0;0;rue;;;aucun;585000;6500;vendu;;;;;;Consistance hc2 · Façade 1F · Voie 20
+nahda2;;;15;terrain;75.0;0.0;75.0;0;0;rue;;;aucun;525000;7000;vendu;;;;;;Consistance hc2 · Façade 1F · Voie 20
+nahda2;;;23J;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;481200;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;24;terrain;84.0;0.0;84.0;0;0;rue;;;aucun;505260;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;25;terrain;79.0;0.0;79.0;0;0;rue;;;aucun;475185;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;26J;terrain;114.0;0.0;114.0;0;0;rue;;;aucun;685710;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;27;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;481200;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;28;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;481200;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;29;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;481200;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;30J;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;481200;6015;disponible;;;;;;Consistance he2 · Façade 1F · Voie 10
+nahda2;;;32;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;567000;7000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 12-10
+nahda2;;;35J;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;561200;7015;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 15
+nahda2;;;36;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;561200;7015;disponible;;;;;;Consistance hc2 · Façade 1F · Voie 15
+nahda2;;;37;terrain;80.0;0.0;80.0;0;0;rue;;;aucun;561200;7015;disponible;;;;;;Consistance hc2 · Façade 1F · Voie EV
+nahda2;;;38;terrain;79.0;0.0;79.0;0;0;rue;;;aucun;554185;7015;disponible;;;;;;Consistance hc2 · Façade 1F · Voie EV
+nahda2;;;4;terrain;80.0;0.0;80.0;0;0;angle;;;aucun;560000;7000;vendu;;;;;;Consistance hc2 · Façade 2F · Voie 12-10
+nahda2;;;40J;terrain;81.0;0.0;81.0;0;0;angle;;;aucun;608715;7515;disponible;;;;;;Consistance hc2 · Façade 2F · Voie 10-10

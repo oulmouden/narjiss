@@ -1,0 +1,55 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+lc_andalousia_03;;;C0.01;commerce;114.0;0.0;114.0;0;0;rue;;;aucun;1690000;14824;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.02;commerce;127.0;0.0;127.0;0;0;rue;;;aucun;1875000;14763;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.03;commerce;123.0;0.0;123.0;0;0;rue;;;aucun;1755000;14268;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.04;commerce;111.0;0.0;111.0;0;0;rue;;;aucun;1455000;13108;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.05;commerce;94.0;0.0;94.0;0;0;rue;;;aucun;1370000;14574;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.06;commerce;139.0;0.0;139.0;0;0;rue;;;aucun;2035000;14640;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.07;commerce;123.0;0.0;123.0;0;0;rue;;;aucun;1795000;14593;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.08;commerce;127.0;0.0;127.0;0;0;rue;;;aucun;1835000;14448;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.09;commerce;141.0;0.0;141.0;0;0;rue;;;aucun;2045000;14503;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.10;commerce;126.0;0.0;126.0;0;0;rue;;;aucun;1850000;14682;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.11;commerce;130.0;0.0;130.0;0;0;rue;;;aucun;1870000;14384;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.12;commerce;115.0;0.0;115.0;0;0;rue;;;aucun;1535000;13347;reserve;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.13;commerce;106.0;0.0;106.0;0;0;angle;;;aucun;1430000;13490;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 2F · Voie 20-13
+lc_andalousia_03;;;C0.14;commerce;87.0;0.0;87.0;0;0;rue;;;aucun;1024000;11770;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.15;commerce;51.0;0.0;51.0;0;0;rue;;;aucun;920000;18039;vendu;;;;;;Consistance lc  *mezanine/rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.16;commerce;103.0;0.0;103.0;0;0;rue;;;aucun;1845000;17912;vendu;;;;;;Consistance lc  *mezanine/rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.17;commerce;96.0;0.0;96.0;0;0;rue;;;aucun;1734000;18062;vendu;;;;;;Consistance lc  *mezanine/rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.18;commerce;43.0;0.0;43.0;0;0;rue;;;aucun;1032000;24000;vendu;;;;;;Consistance lc  *rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.19;commerce;90.0;0.0;90.0;0;0;rue;;;aucun;1343000;14922;disponible;;;;;;Consistance lc  *rdc/sous sol · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.20;commerce;79.0;0.0;79.0;0;0;angle;;;aucun;1155000;14620;vendu;;;;;;Consistance lc  *rdc/sous sol · Façade 2F · Voie 13-18
+lc_andalousia_03;;;C0.21;commerce;92.0;0.0;92.0;0;0;rue;;;aucun;1288000;14000;reserve;;;;;;Consistance lc  *rdc/sous sol · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.22;commerce;85.0;0.0;85.0;0;0;rue;;;aucun;1955000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.23;commerce;56.0;0.0;56.0;0;0;rue;;;aucun;1288000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.24;commerce;57.0;0.0;57.0;0;0;rue;;;aucun;1311000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.25;commerce;65.0;0.0;65.0;0;0;rue;;;aucun;1495000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.26;commerce;153.0;0.0;153.0;0;0;rue;;;aucun;2025000;13235;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.27;commerce;101.0;0.0;101.0;0;0;rue;;;aucun;1545000;15297;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.28;commerce;127.0;0.0;127.0;0;0;rue;;;aucun;1895000;14921;reserve;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.29;commerce;109.0;0.0;109.0;0;0;rue;;;aucun;1445000;13256;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.30;commerce;118.0;0.0;118.0;0;0;rue;;;aucun;1690000;14322;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.31;commerce;135.0;0.0;135.0;0;0;rue;;;aucun;1935000;14333;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.32;commerce;134.0;0.0;134.0;0;0;rue;;;aucun;2010000;15000;disponible;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.33;commerce;199.0;0.0;199.0;0;0;rue;;;aucun;2935000;14748;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.34;commerce;98.0;0.0;98.0;0;0;rue;;;aucun;1310000;13367;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.35;commerce;129.0;0.0;129.0;0;0;rue;;;aucun;1785000;13837;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.36;commerce;69.0;0.0;69.0;0;0;rue;;;aucun;885000;12826;reserve;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 1F · Voie 20
+lc_andalousia_03;;;C0.37;commerce;113.0;0.0;113.0;0;0;angle;;;aucun;1405000;12433;vendu;;;;;;Consistance lc  *mezanine/rdc/sous sol · Façade 2F · Voie 20-13
+lc_andalousia_03;;;C0.38;commerce;100.0;0.0;100.0;0;0;rue;;;aucun;1830000;18300;disponible;;;;;;Consistance lc  *mezanine/rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.39;commerce;96.0;0.0;96.0;0;0;rue;;;aucun;1696000;17666;disponible;;;;;;Consistance lc  *mezanine/rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.40;commerce;95.0;0.0;95.0;0;0;rue;;;aucun;1767000;18600;disponible;;;;;;Consistance lc  *mezanine/rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.41;commerce;57.0;0.0;57.0;0;0;rue;;;aucun;1368000;24000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.42;commerce;57.0;0.0;57.0;0;0;rue;;;aucun;1368000;24000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.43;commerce;68.0;0.0;68.0;0;0;rue;;;aucun;1632000;24000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.44;commerce;76.0;0.0;76.0;0;0;rue;;;aucun;1824000;24000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 13
+lc_andalousia_03;;;C0.45;commerce;46.0;0.0;46.0;0;0;angle;;;aucun;1104000;24000;vendu;;;;;;Consistance lc  *rdc · Façade 2F · Voie 13-18
+lc_andalousia_03;;;C0.46;commerce;45.0;0.0;45.0;0;0;rue;;;aucun;1035000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.47;commerce;87.0;0.0;87.0;0;0;rue;;;aucun;2001000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.48;commerce;63.0;0.0;63.0;0;0;rue;;;aucun;1449000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.49;commerce;64.0;0.0;64.0;0;0;rue;;;aucun;1472000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.50;commerce;50.0;0.0;50.0;0;0;rue;;;aucun;1955000;39100;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.51;commerce;100.0;0.0;100.0;0;0;rue;;;aucun;2300000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.52;commerce;87.0;0.0;87.0;0;0;rue;;;aucun;2251000;25873;disponible;;;;;;Consistance lc  *mezanine/rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.53;commerce;77.0;0.0;77.0;0;0;rue;;;aucun;1771000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18
+lc_andalousia_03;;;C0.54;commerce;30.0;0.0;30.0;0;0;rue;;;aucun;690000;23000;disponible;;;;;;Consistance lc  *rdc · Façade 1F · Voie 18

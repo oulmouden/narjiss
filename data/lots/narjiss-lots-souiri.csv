@@ -1,0 +1,4 @@
+﻿projet;immeuble;niveau;numero_lot;typologie;surface_habitable;surface_balcon;surface_totale;nb_chambres;nb_sdb;orientation;exposition;ascenseur;parking;prix_dh;prix_m2;statut;date_fin_option;plan_fichier;plan_architecte;plan_visuel;visite_360;notes
+souiri;;;06;terrain;97.0;0.0;97.0;0;0;angle;;;aucun;1050000;10824;vendu;;;;;;Consistance hc2 · Façade 2 · Voie 10-15
+souiri;;;10;terrain;105.0;0.0;105.0;0;0;rue;;;aucun;945000;9000;disponible;;;;;;Consistance he2 · Façade 1F · Voie 9
+souiri;;;11;terrain;107.0;0.0;107.0;0;0;rue;;;aucun;963000;9000;reserve;;;;;;Consistance he2 · Façade 1F · Voie 9
