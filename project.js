@@ -2365,9 +2365,11 @@
           var carte = document.querySelector('.typo-card[data-code="' + String(ty.code).toLowerCase() + '"] .typo-price');
           if (!carte) return;
           var texte = (ty.prix_max && ty.prix_max > ty.prix_min)
-            ? String(x.priceRange).replace("{min}", nf(ty.prix_min)).replace("{max}", nf(ty.prix_max))
-            : x.priceFrom + " " + nf(ty.prix_min);
-          carte.innerHTML = '<bdi dir="ltr">' + texte + "</bdi> " + x.devise;
+            // Seuls les nombres sont isolés en LTR : enfermer toute la phrase
+            // « من … إلى … » inversait l'ordre des mots arabes.
+            ? String(x.priceRange).replace("{min}", ltr(nf(ty.prix_min))).replace("{max}", ltr(nf(ty.prix_max)))
+            : x.priceFrom + " " + ltr(nf(ty.prix_min));
+          carte.innerHTML = texte + " " + x.devise;
         });
         if (minGlobal !== null) {
           var entete = document.querySelector(".commercial-price");
