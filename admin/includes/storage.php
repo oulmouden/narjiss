@@ -262,11 +262,59 @@ function posted_project(?array $existing = null): array
         $project['brochure_pdf'] = $brochure;
     }
 
+    // La vignette des cartes suit le hero : sans ça, un hero remplacé ici
+    // laisserait l'explorateur sur l'ancienne image.
+    regenerer_vignette($project, $existing);
+
     $project['gallery'] = posted_project_gallery($id, $project['gallery'] ?? []);
     $project['panoramas'] = posted_project_panoramas($id, $project['panoramas'] ?? []);
     $project['videos'] = posted_project_videos($id, $project['videos'] ?? []);
 
     return $project;
+}
+
+/**
+ * Vignette des cartes de l'explorateur (cles images.thumb / images.thumb_jpg).
+ *
+ * 640 px de large, WebP + JPEG de repli, dans le dossier du hero. Regeneree
+ * quand le hero change, quand la vignette manque, ou quand le fichier hero
+ * est plus recent qu'elle. Un echec (GD absent, image illisible) laisse
+ * l'existant en place : l'explorateur retombe alors sur le hero plein format,
+ * jamais sur une image cassee.
+ */
+function regenerer_vignette(array &$project, array $existing): void
+{
+    $hero = (string) ($project['images']['hero'] ?? '');
+    if ($hero === '' || !function_exists('imagecreatefromstring')) return;
+    $racine = dirname(__DIR__, 2) . '/';
+    $src = $racine . $hero;
+    if (!is_file($src) || preg_match('/\.svg$/i', $hero)) return;
+
+    $dossier = dirname($hero);
+    $webp = $dossier . '/vignette.webp';
+    $jpg  = $dossier . '/vignette.jpg';
+    $aJour = $hero === (string) ($existing['images']['hero'] ?? '')
+          && ($project['images']['thumb'] ?? '') !== ''
+          && is_file($racine . $webp) && is_file($racine . $jpg)
+          && filemtime($racine . $webp) >= filemtime($src);
+    if ($aJour) return;
+
+    $im = @imagecreatefromstring((string) @file_get_contents($src));
+    if (!$im) return;
+    $w = imagesx($im); $h = imagesy($im);
+    $lw = min(640, $w); $lh = (int) round($h * $lw / $w);
+    $petit = imagecreatetruecolor($lw, $lh);
+    $blanc = imagecolorallocate($petit, 255, 255, 255);
+    imagefill($petit, 0, 0, $blanc);                       // fond blanc sous une eventuelle transparence
+    imagecopyresampled($petit, $im, 0, 0, 0, 0, $lw, $lh, $w, $h);
+    imagedestroy($im);
+
+    $ok = imagejpeg($petit, $racine . $jpg, 80);
+    if ($ok && function_exists('imagewebp')) $ok = imagewebp($petit, $racine . $webp, 80);
+    imagedestroy($petit);
+    if (!$ok) return;
+    $project['images']['thumb_jpg'] = $jpg;
+    if (is_file($racine . $webp)) $project['images']['thumb'] = $webp;
 }
 
 /**
