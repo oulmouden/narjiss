@@ -278,9 +278,19 @@
    * scène), pas son logo. Les logos étaient des rendus provisoires, les mêmes
    * d'un projet à l'autre — trois cartes voisines montraient la même façade.
    */
+  /* WebP est lu par ~97 % des navigateurs ; pour les autres, la vignette JPEG
+     du même dossier. Sondé une fois : un canvas qui sait encoder du WebP sait
+     aussi le décoder. */
+  var supporteWebP = (function () {
+    try { return document.createElement("canvas").toDataURL("image/webp").indexOf("data:image/webp") === 0; }
+    catch (e) { return false; }
+  })();
   function projectImage(project) {
     var imgs = project.images || {};
-    return imgs.hero || imgs.triptych || imgs.logo || "";
+    // Vignette dédiée (640 px, ~40 Ko) avant le hero plein format (~200 Ko) :
+    // 27 cartes à charger, la différence se sent sur mobile.
+    var vignette = supporteWebP ? (imgs.thumb || imgs.thumb_jpg) : (imgs.thumb_jpg || "");
+    return vignette || imgs.hero || imgs.triptych || imgs.logo || "";
   }
 
   function markerLabel(project, lang) {

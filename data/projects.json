@@ -89,7 +89,9 @@
   "images": {
    "logo": "images/projects/jawhara/jawhara_logo.jpg",
    "hero": "images/projects/jawhara/concept-hero-j3.jpg",
-   "floorplan": "images/projects/jawhara/floorplan.jpg"
+   "floorplan": "images/projects/jawhara/floorplan.jpg",
+   "thumb": "images/projects/jawhara/vignette.webp",
+   "thumb_jpg": "images/projects/jawhara/vignette.jpg"
   },
   "commercialization": "on-sale",
   "delivery": {
@@ -215,7 +217,9 @@
    "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/jawhara_j3/concept-hero.jpg"
+   "hero": "images/projects/jawhara_j3/concept-hero.jpg",
+   "thumb": "images/projects/jawhara_j3/vignette.webp",
+   "thumb_jpg": "images/projects/jawhara_j3/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -271,7 +275,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Lqliaa, Agadir."
   },
   "images": {
-   "hero": "images/projects/tamount/concept-hero.jpg"
+   "hero": "images/projects/tamount/concept-hero.jpg",
+   "thumb": "images/projects/tamount/vignette.webp",
+   "thumb_jpg": "images/projects/tamount/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -326,7 +332,9 @@
    "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/andalusia_03/concept-hero.jpg"
+   "hero": "images/projects/andalusia_03/concept-hero.jpg",
+   "thumb": "images/projects/andalusia_03/vignette.webp",
+   "thumb_jpg": "images/projects/andalusia_03/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -390,7 +398,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Timersit, Aït Melloul, Agadir."
   },
   "images": {
-   "hero": "images/projects/nassime_timersit/concept-hero.jpg"
+   "hero": "images/projects/nassime_timersit/concept-hero.jpg",
+   "thumb": "images/projects/nassime_timersit/vignette.webp",
+   "thumb_jpg": "images/projects/nassime_timersit/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -449,7 +459,9 @@
    "es": "Locales comerciales Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/lc_andalousia_03/concept-hero-staged.jpg"
+   "hero": "images/projects/lc_andalousia_03/concept-hero-staged.jpg",
+   "thumb": "images/projects/lc_andalousia_03/vignette.webp",
+   "thumb_jpg": "images/projects/lc_andalousia_03/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -509,7 +521,9 @@
   "images": {
    "logo": "images/projects/kb/kb_logo.jpg",
    "hero": "images/projects/kb/concept-hero-staged.jpg",
-   "floorplan": "images/projects/kb/floorplan.jpg"
+   "floorplan": "images/projects/kb/floorplan.jpg",
+   "thumb": "images/projects/kb/vignette.webp",
+   "thumb_jpg": "images/projects/kb/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -579,7 +593,9 @@
    "es": "Locales comerciales Narjiss — Dcheira El Jihadia (La Pergola), Agadir."
   },
   "images": {
-   "hero": "images/projects/lc_perle/concept-hero.jpg"
+   "hero": "images/projects/lc_perle/concept-hero.jpg",
+   "thumb": "images/projects/lc_perle/vignette.webp",
+   "thumb_jpg": "images/projects/lc_perle/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -640,7 +656,9 @@
   "images": {
    "logo": "images/projects/dar_ben_cheikh/dar_ben_cheikh_logo.jpg",
    "hero": "images/projects/dar_ben_cheikh/fiche-adassat.jpg",
-   "floorplan": "images/projects/dar_ben_cheikh/floorplan.jpg"
+   "floorplan": "images/projects/dar_ben_cheikh/floorplan.jpg",
+   "thumb": "images/projects/dar_ben_cheikh/vignette.webp",
+   "thumb_jpg": "images/projects/dar_ben_cheikh/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -711,7 +729,9 @@
   "images": {
    "logo": "images/projects/tazroute_yassamine/tazroute_yassamine_logo.jpg",
    "hero": "images/projects/tazroute_yassamine/fiche-adassat.jpg",
-   "floorplan": "images/projects/tazroute_yassamine/floorplan.jpg"
+   "floorplan": "images/projects/tazroute_yassamine/floorplan.jpg",
+   "thumb": "images/projects/tazroute_yassamine/vignette.webp",
+   "thumb_jpg": "images/projects/tazroute_yassamine/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -769,7 +789,9 @@
   "images": {
    "logo": "images/projects/tazroute/tazroute_logo.jpg",
    "hero": "images/projects/tazroute/fiche-adassat.jpg",
-   "floorplan": "images/projects/tazroute/floorplan.jpg"
+   "floorplan": "images/projects/tazroute/floorplan.jpg",
+   "thumb": "images/projects/tazroute/vignette.webp",
+   "thumb_jpg": "images/projects/tazroute/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -827,7 +849,9 @@
   "images": {
    "logo": "images/projects/andalusia/andalusia_logo.jpg",
    "hero": "images/projects/andalusia/concept-hero-staged.jpg",
-   "floorplan": "images/projects/andalusia/floorplan.jpg"
+   "floorplan": "images/projects/andalusia/floorplan.jpg",
+   "thumb": "images/projects/andalusia/vignette.webp",
+   "thumb_jpg": "images/projects/andalusia/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -908,7 +932,9 @@
    "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/arifane/concept-hero.jpg"
+   "hero": "images/projects/arifane/concept-hero.jpg",
+   "thumb": "images/projects/arifane/vignette.webp",
+   "thumb_jpg": "images/projects/arifane/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -978,7 +1004,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Aït Melloul, Agadir."
   },
   "images": {
-   "hero": "images/projects/ait_melloul/concept-hero.jpg"
+   "hero": "images/projects/ait_melloul/concept-hero.jpg",
+   "thumb": "images/projects/ait_melloul/vignette.webp",
+   "thumb_jpg": "images/projects/ait_melloul/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1035,7 +1063,9 @@
   "images": {
    "logo": "images/projects/nahda2/nahda2_logo.jpg",
    "hero": "images/projects/nahda2/fiche-adassat.jpg",
-   "floorplan": "images/projects/nahda2/floorplan.jpg"
+   "floorplan": "images/projects/nahda2/floorplan.jpg",
+   "thumb": "images/projects/nahda2/vignette.webp",
+   "thumb_jpg": "images/projects/nahda2/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1097,7 +1127,9 @@
   "images": {
    "logo": "images/projects/farah/farah_logo.jpg",
    "hero": "images/projects/farah/fiche-adassat.jpg",
-   "floorplan": "images/projects/farah/floorplan.jpg"
+   "floorplan": "images/projects/farah/floorplan.jpg",
+   "thumb": "images/projects/farah/vignette.webp",
+   "thumb_jpg": "images/projects/farah/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1177,7 +1209,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Drarga, Agadir."
   },
   "images": {
-   "hero": "images/projects/drarga_ahaga/concept-hero.jpg"
+   "hero": "images/projects/drarga_ahaga/concept-hero.jpg",
+   "thumb": "images/projects/drarga_ahaga/vignette.webp",
+   "thumb_jpg": "images/projects/drarga_ahaga/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1237,7 +1271,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/mektoub/concept-hero.jpg"
+   "hero": "images/projects/mektoub/concept-hero.jpg",
+   "thumb": "images/projects/mektoub/vignette.webp",
+   "thumb_jpg": "images/projects/mektoub/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1296,7 +1332,9 @@
    "es": "Oficinas Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/perle_bureaux/concept-hero-staged.jpg"
+   "hero": "images/projects/perle_bureaux/concept-hero-staged.jpg",
+   "thumb": "images/projects/perle_bureaux/vignette.webp",
+   "thumb_jpg": "images/projects/perle_bureaux/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1356,7 +1394,9 @@
    "es": "Locales comerciales Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/lc_j3/concept-hero.jpg"
+   "hero": "images/projects/lc_j3/concept-hero.jpg",
+   "thumb": "images/projects/lc_j3/vignette.webp",
+   "thumb_jpg": "images/projects/lc_j3/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1413,7 +1453,9 @@
   "images": {
    "logo": "images/projects/founty/founty_logo.jpg",
    "hero": "images/projects/founty/fiche-adassat.jpg",
-   "floorplan": "images/projects/founty/floorplan.jpg"
+   "floorplan": "images/projects/founty/floorplan.jpg",
+   "thumb": "images/projects/founty/vignette.webp",
+   "thumb_jpg": "images/projects/founty/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1475,7 +1517,9 @@
   "images": {
    "logo": "images/projects/bayt_mawada/bayt_mawada_logo.jpg",
    "hero": "images/projects/bayt_mawada/fiche-adassat.jpg",
-   "floorplan": "images/projects/bayt_mawada/floorplan.jpg"
+   "floorplan": "images/projects/bayt_mawada/floorplan.jpg",
+   "thumb": "images/projects/bayt_mawada/vignette.webp",
+   "thumb_jpg": "images/projects/bayt_mawada/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1548,7 +1592,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Dcheira El Jihadia (La Pergola), Agadir."
   },
   "images": {
-   "hero": "images/projects/rouchdi/concept-hero.jpg"
+   "hero": "images/projects/rouchdi/concept-hero.jpg",
+   "thumb": "images/projects/rouchdi/vignette.webp",
+   "thumb_jpg": "images/projects/rouchdi/vignette.jpg"
   },
   "commercialization": "on-sale",
   "price_mode": "public",
@@ -1603,7 +1649,9 @@
    "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/afrah/concept-hero.jpg"
+   "hero": "images/projects/afrah/concept-hero.jpg",
+   "thumb": "images/projects/afrah/vignette.webp",
+   "thumb_jpg": "images/projects/afrah/vignette.jpg"
   },
   "commercialization": "last-units",
   "price_mode": "public",
@@ -1664,7 +1712,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Dcheira El Jihadia, Agadir."
   },
   "images": {
-   "hero": "images/projects/oum_lkhir/concept-hero.jpg"
+   "hero": "images/projects/oum_lkhir/concept-hero.jpg",
+   "thumb": "images/projects/oum_lkhir/vignette.webp",
+   "thumb_jpg": "images/projects/oum_lkhir/vignette.jpg"
   },
   "commercialization": "last-units",
   "price_mode": "public",
@@ -1724,7 +1774,9 @@
    "es": "Parcelación de terrenos titulados Narjiss — Tikiouine, Agadir, Agadir."
   },
   "images": {
-   "hero": "images/projects/souiri/concept-hero.jpg"
+   "hero": "images/projects/souiri/concept-hero.jpg",
+   "thumb": "images/projects/souiri/vignette.webp",
+   "thumb_jpg": "images/projects/souiri/vignette.jpg"
   },
   "commercialization": "last-units",
   "price_mode": "public",
@@ -1786,7 +1838,9 @@
   "images": {
    "logo": "images/projects/amical/amical_logo.jpg",
    "hero": "images/projects/amical/fiche-adassat.jpg",
-   "floorplan": "images/projects/amical/floorplan.jpg"
+   "floorplan": "images/projects/amical/floorplan.jpg",
+   "thumb": "images/projects/amical/vignette.webp",
+   "thumb_jpg": "images/projects/amical/vignette.jpg"
   },
   "commercialization": "sold-out",
   "price_mode": "public",
