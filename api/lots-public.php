@@ -96,6 +96,8 @@ if (($_GET['resume'] ?? '') === '1') {
                     COUNT(*) AS total,
                     SUM(statut = 'disponible') AS disponibles,
                     MIN(CASE WHEN statut = 'disponible' THEN prix_dh END) AS prix_min,
+                    MAX(CASE WHEN statut = 'disponible' THEN prix_dh END) AS prix_max,
+                    AVG(CASE WHEN statut = 'disponible' THEN prix_dh END) AS prix_moyen,
                     MIN(surface_habitable) AS surface_min,
                     MAX(surface_habitable) AS surface_max
              FROM v_lots_publics
@@ -116,6 +118,9 @@ if (($_GET['resume'] ?? '') === '1') {
         'total'       => (int) $l['total'],
         'disponibles' => (int) $l['disponibles'],
         'prix_min'    => $prixPublic && $l['prix_min'] !== null ? (float) $l['prix_min'] : null,
+        // Fourchette et moyenne des lots disponibles : mêmes règles de confidentialité que prix_min.
+        'prix_max'    => $prixPublic && $l['prix_max'] !== null ? (float) $l['prix_max'] : null,
+        'prix_moyen'  => $prixPublic && $l['prix_moyen'] !== null ? round((float) $l['prix_moyen']) : null,
         'surface_min' => (float) $l['surface_min'],
         'surface_max' => (float) $l['surface_max'],
     ], $lignes);

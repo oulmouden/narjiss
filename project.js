@@ -2046,6 +2046,47 @@
   /* ─── Fiche projet enrichie : données commerciales, typologies, équipements,
      disponibilité, simulateur. i18n auto-contenu (UIX + tables de libellés). ─── */
 
+  /**
+   * Photos montrables dans la scène : la galerie déclarée, puis le hero s'il
+   * n'y figure pas. Les 25 projets importés du bureau de vente n'ont ni
+   * panorama ni plan, mais tous ont au moins une image : sans cet onglet la
+   * fiche s'ouvrait sur le plan générique de Jawhara — trompeur pour un
+   * lotissement de terrain.
+   */
+  function projectPhotos(project) {
+    var out = [], vus = {};
+    var liste = (project.gallery || []).concat(project.images && project.images.hero ? [project.images.hero] : []);
+    for (var i = 0; i < liste.length; i++) {
+      var src = typeof liste[i] === "string" ? liste[i] : (liste[i] && liste[i].src) || "";
+      if (!src || vus[src]) continue;
+      vus[src] = true; out.push(src);
+    }
+    return out;
+  }
+
+  /**
+   * Code de typologie tel que la base le connaît (f3, terrain, commerce…),
+   * pour rapprocher une carte de projects.json d'une ligne du résumé API.
+   */
+  function typoCode(ty) {
+    if (ty.code) return String(ty.code).toLowerCase();
+    var l = String(ty.label || "").trim().toLowerCase();
+    var m = l.match(/^f\s*(\d)$/);
+    if (m) return "f" + m[1];
+    if (l.indexOf("terrain") >= 0) return "terrain";
+    if (l.indexOf("commerc") >= 0) return "commerce";
+    if (l.indexOf("bureau") >= 0 || l.indexOf("office") >= 0) return "bureau";
+    if (l.indexOf("studio") >= 0) return "studio";
+    if (l.indexOf("duplex") >= 0) return "duplex";
+    return l;
+  }
+  function typoLabelFor(project, code) {
+    var typos = projectTypologies(project);
+    for (var i = 0; i < typos.length; i++) if (typoCode(typos[i]) === code) return typos[i].label;
+    return String(code).toUpperCase();
+  }
+  function prixPublic(project) { return project.price_mode !== "on-request"; }
+
   var UIX = {
     fr: {
       priceOnRequest: "Prix sur demande", typologiesKicker: "Biens", typologiesTitle: "Typologies disponibles",
@@ -2056,7 +2097,8 @@
       featuresTitle: "Équipements & caractéristiques", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilité", lotsAvailable: "lots disponibles", lastUnits: "Derniers lots",
       chooseUnit: "Choisir mon logement", chooseUnitHint: "{n} logements disponibles à l'unité",
-      availLive: "Mis à jour en direct", availFrom: "à partir de", devise: "DH",
+      availLive: "Mis à jour en direct", availFrom: "à partir de", devise: "DH", priceFrom: "À partir de", priceRange: "De {min} à {max}",
+      simNotePublic: "Estimation indicative — montant prérempli avec le prix le plus bas disponible, ajustez-le.",
       simKicker: "Financement", simTitle: "Simulateur de mensualité",
       simNote: "Estimation indicative — saisissez le montant du bien, aucun prix n'est communiqué en ligne.",
       simAmount: "Montant du bien (DH)", simDown: "Apport (DH)", simRate: "Taux annuel (%)",
@@ -2071,7 +2113,8 @@
       featuresTitle: "Amenities & features", availabilityKicker: "Stock",
       availabilityTitle: "Availability", lotsAvailable: "units available", lastUnits: "Last units",
       chooseUnit: "Choose my home", chooseUnitHint: "{n} homes available individually",
-      availLive: "Live figures", availFrom: "from", devise: "MAD",
+      availLive: "Live figures", availFrom: "from", devise: "MAD", priceFrom: "From", priceRange: "{min} to {max}",
+      simNotePublic: "Indicative estimate — prefilled with the lowest available price; adjust it.",
       simKicker: "Financing", simTitle: "Monthly payment simulator",
       simNote: "Indicative estimate — enter the property amount; no price is shown online.",
       simAmount: "Property amount (DH)", simDown: "Down payment (DH)", simRate: "Annual rate (%)",
@@ -2086,7 +2129,8 @@
       featuresTitle: "المرافق والمميزات", availabilityKicker: "المخزون",
       availabilityTitle: "التوفر", lotsAvailable: "وحدة متوفرة", lastUnits: "آخر الوحدات",
       chooseUnit: "اختر سكني", chooseUnitHint: "{n} مسكن متاح للاختيار",
-      availLive: "محدّث مباشرة", availFrom: "ابتداء من", devise: "درهم",
+      availLive: "محدّث مباشرة", availFrom: "ابتداء من", devise: "درهم", priceFrom: "ابتداء من", priceRange: "من {min} إلى {max}",
+      simNotePublic: "تقدير إرشادي — المبلغ مُعبأ مسبقًا بأدنى سعر متاح، عدّله.",
       simKicker: "التمويل", simTitle: "محاكي القسط الشهري",
       simNote: "تقدير إرشادي — أدخل مبلغ العقار، لا يُعرض أي سعر عبر الإنترنت.",
       simAmount: "مبلغ العقار (درهم)", simDown: "الدفعة الأولى (درهم)", simRate: "الفائدة السنوية (%)",
@@ -2101,7 +2145,8 @@
       featuresTitle: "Equipamiento y características", availabilityKicker: "Stock",
       availabilityTitle: "Disponibilidad", lotsAvailable: "lotes disponibles", lastUnits: "Últimos lotes",
       chooseUnit: "Elegir mi vivienda", chooseUnitHint: "{n} viviendas disponibles a la unidad",
-      availLive: "Actualizado en directo", availFrom: "desde", devise: "DH",
+      availLive: "Actualizado en directo", availFrom: "desde", devise: "DH", priceFrom: "Desde", priceRange: "De {min} a {max}",
+      simNotePublic: "Estimación indicativa — importe prerrellenado con el precio más bajo disponible; ajústelo.",
       simKicker: "Financiación", simTitle: "Simulador de cuota",
       simNote: "Estimación indicativa — introduzca el importe del bien; no se muestra ningún precio en línea.",
       simAmount: "Importe del bien (DH)", simDown: "Entrada (DH)", simRate: "Tasa anual (%)",
@@ -2204,7 +2249,7 @@
         ? '<span class="typo-avail' + (low ? " low" : "") + '">' + avail + "/" + total + " " + x.available + '</span>'
         : '<span class="typo-avail sold">' + x.soldOut + '</span>';
       var plan = ty.floorplan ? '<div class="typo-plan"><img src="' + ty.floorplan + '" alt="' + ty.label + '" loading="lazy"></div>' : "";
-      cards += '<article class="typo-card">' + plan +
+      cards += '<article class="typo-card" data-code="' + typoCode(ty) + '">' + plan +
         '<div class="typo-body">' +
           '<div class="typo-label">' + ty.label + '</div>' +
           '<div class="typo-meta">' + (ty.rooms ? ty.rooms + " " + x.rooms : "") + (surf ? " · " + surf : "") + '</div>' +
@@ -2293,6 +2338,29 @@
           ? '<span class="cbadge cbadge-hot">' + x.lastUnits + "</span>"
           : (d.disponibles === 0 ? '<span class="cbadge">' + x.soldOut + "</span>" : "");
 
+        var affichePrix = prixPublic(project);
+        var minGlobal = null;
+        d.typologies.forEach(function (ty) {
+          if (!affichePrix || !ty.prix_min) return;
+          if (minGlobal === null || ty.prix_min < minGlobal) minGlobal = ty.prix_min;
+          // Carte de typologie : fourchette des lots disponibles à la place de « Prix sur demande ».
+          var carte = document.querySelector('.typo-card[data-code="' + String(ty.code).toLowerCase() + '"] .typo-price');
+          if (!carte) return;
+          var texte = (ty.prix_max && ty.prix_max > ty.prix_min)
+            ? String(x.priceRange).replace("{min}", nf(ty.prix_min)).replace("{max}", nf(ty.prix_max))
+            : x.priceFrom + " " + nf(ty.prix_min);
+          carte.innerHTML = '<bdi dir="ltr">' + texte + "</bdi> " + x.devise;
+        });
+        if (minGlobal !== null) {
+          var entete = document.querySelector(".commercial-price");
+          if (entete) entete.innerHTML = x.priceFrom + ' <bdi dir="ltr">' + nf(minGlobal) + "</bdi> " + x.devise;
+          // Le simulateur part du prix le plus bas au lieu d'un montant fictif.
+          var champ = document.getElementById("simPrice");
+          if (champ) { champ.value = minGlobal; champ.dispatchEvent(new Event("input")); }
+          var note = document.querySelector(".sim-note");
+          if (note && x.simNotePublic) note.textContent = x.simNotePublic;
+        }
+
         var rows = d.typologies.map(function (ty) {
           var largeur = ty.total ? Math.round(ty.disponibles / ty.total * 100) : 0;
           var prix = ty.prix_min
@@ -2300,7 +2368,7 @@
               "</bdi> " + x.devise + "</span>"
             : "";
           return '<div class="avail-row">' +
-            '<span class="avail-name">' + String(ty.code).toUpperCase() + "</span>" +
+            '<span class="avail-name">' + typoLabelFor(project, String(ty.code).toLowerCase()) + "</span>" +
             '<div class="avail-bar"><span style="width:' + largeur + '%"></span></div>' +
             '<span class="avail-num"><bdi dir="ltr">' + ty.disponibles + "/" + ty.total + "</bdi></span>" +
             prix + "</div>";
@@ -2364,10 +2432,10 @@
      plan) + barre d'onglets + vignettes de pièces. Remplace le media-wall. ─── */
 
   var MEDIA_UI = {
-    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tabApartment: "Visiter un appartement", tabPlanArch: "Plan architecte", tabPlanVis: "Plan visuel", tabVideos: "Vidéos", tabCarte: "Carte", videoSoon: "Vidéo bientôt disponible pour ce projet.", videoGeneric: "Vidéo de présentation Narjiss", videoPrev: "Vidéo précédente", videoSound: "Activer le son", videoNext: "Vidéo suivante", tourMissing: "Visite 3D bientôt disponible.", mediaSoon: "Images 360° bientôt disponibles pour ce projet.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
-    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tabApartment: "Visit an apartment", tabPlanArch: "Architect plan", tabPlanVis: "Visual plan", tabVideos: "Videos", tabCarte: "Map", videoSoon: "Video coming soon for this project.", videoGeneric: "Narjiss presentation video", videoPrev: "Previous video", videoSound: "Unmute", videoNext: "Next video", tourMissing: "3D tour coming soon.", mediaSoon: "360° images coming soon for this project.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
-    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tabApartment: "زيارة شقة", tabPlanArch: "مخطط معماري", tabPlanVis: "مخطط مرئي", tabVideos: "فيديوهات", tabCarte: "الخريطة", videoSoon: "الفيديو سيتوفر قريبا لهذا المشروع.", videoGeneric: "فيديو تعريفي بنرجس", videoPrev: "الفيديو السابق", videoSound: "تشغيل الصوت", videoNext: "الفيديو التالي", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", mediaSoon: "صور 360° ستتوفر قريبا لهذا المشروع.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
-    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tabApartment: "Visitar un apartamento", tabPlanArch: "Plano arquitecto", tabPlanVis: "Plano visual", tabVideos: "Vídeos", tabCarte: "Mapa", videoSoon: "Vídeo próximamente para este proyecto.", videoGeneric: "Vídeo de presentación Narjiss", videoPrev: "Vídeo anterior", videoSound: "Activar el sonido", videoNext: "Vídeo siguiente", tourMissing: "Tour 3D próximamente.", mediaSoon: "Imágenes 360° próximamente para este proyecto.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
+    fr: { tab360: "Visite 360°", tabTour: "Visite 3D", tabPlan: "Plan", tabApartment: "Visiter un appartement", tabPlanArch: "Plan architecte", tabPlanVis: "Plan visuel", tabVideos: "Vidéos", tabCarte: "Carte", tabPhotos: "Photos", photoPrev: "Photo précédente", photoNext: "Photo suivante", videoSoon: "Vidéo bientôt disponible pour ce projet.", videoGeneric: "Vidéo de présentation Narjiss", videoPrev: "Vidéo précédente", videoSound: "Activer le son", videoNext: "Vidéo suivante", tourMissing: "Visite 3D bientôt disponible.", mediaSoon: "Images 360° bientôt disponibles pour ce projet.", flatNote: "Vue plate (faites défiler). Activez l'accélération matérielle du navigateur pour la vue 360°." },
+    en: { tab360: "360° tour", tabTour: "3D tour", tabPlan: "Floor plan", tabApartment: "Visit an apartment", tabPlanArch: "Architect plan", tabPlanVis: "Visual plan", tabVideos: "Videos", tabCarte: "Map", tabPhotos: "Photos", photoPrev: "Previous photo", photoNext: "Next photo", videoSoon: "Video coming soon for this project.", videoGeneric: "Narjiss presentation video", videoPrev: "Previous video", videoSound: "Unmute", videoNext: "Next video", tourMissing: "3D tour coming soon.", mediaSoon: "360° images coming soon for this project.", flatNote: "Flat view (scroll). Enable your browser's hardware acceleration for the 360° view." },
+    ar: { tab360: "جولة 360°", tabTour: "جولة ثلاثية الأبعاد", tabPlan: "المخطط", tabApartment: "زيارة شقة", tabPlanArch: "مخطط معماري", tabPlanVis: "مخطط مرئي", tabVideos: "فيديوهات", tabCarte: "الخريطة", tabPhotos: "الصور", photoPrev: "الصورة السابقة", photoNext: "الصورة التالية", videoSoon: "الفيديو سيتوفر قريبا لهذا المشروع.", videoGeneric: "فيديو تعريفي بنرجس", videoPrev: "الفيديو السابق", videoSound: "تشغيل الصوت", videoNext: "الفيديو التالي", tourMissing: "الجولة ثلاثية الأبعاد قريبًا.", mediaSoon: "صور 360° ستتوفر قريبا لهذا المشروع.", flatNote: "عرض مسطّح (مرّر). فعّل تسريع العتاد في المتصفح لعرض 360°." },
+    es: { tab360: "Tour 360°", tabTour: "Tour 3D", tabPlan: "Plano", tabApartment: "Visitar un apartamento", tabPlanArch: "Plano arquitecto", tabPlanVis: "Plano visual", tabVideos: "Vídeos", tabCarte: "Mapa", tabPhotos: "Fotos", photoPrev: "Foto anterior", photoNext: "Foto siguiente", videoSoon: "Vídeo próximamente para este proyecto.", videoGeneric: "Vídeo de presentación Narjiss", videoPrev: "Vídeo anterior", videoSound: "Activar el sonido", videoNext: "Vídeo siguiente", tourMissing: "Tour 3D próximamente.", mediaSoon: "Imágenes 360° próximamente para este proyecto.", flatNote: "Vista plana (desplácese). Active la aceleración por hardware para la vista 360°." }
   };
 
   /**
@@ -2398,6 +2466,7 @@
     if (project.apartment_tour_url) tabs += '<button type="button" class="hero-tab" data-tab="apartment">🏠 ' + m.tabApartment + '</button>';
     if (project.plan_architecte_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-arch">📐 ' + m.tabPlanArch + '</button>';
     if (project.plan_visuel_url) tabs += '<button type="button" class="hero-tab" data-tab="plan-vis">🖼️ ' + m.tabPlanVis + '</button>';
+    if (projectPhotos(project).length) tabs += '<button type="button" class="hero-tab" data-tab="photos">📷 ' + m.tabPhotos + '</button>';
     // Toujours proposé : sans vidéo propre au projet, la scène joue le film
     // institutionnel plutôt que de masquer l'onglet.
     tabs += '<button type="button" class="hero-tab" data-tab="videos">🎬 ' + m.tabVideos + '</button>';
@@ -2652,6 +2721,59 @@
       }
     }
 
+    /**
+     * Diaporama des photos : même habillage que le slider vidéo (flèches,
+     * compteur, points). Une photo absente du serveur est retirée de la liste
+     * et on passe à la suivante, plutôt qu'un cadre cassé.
+     */
+    var photos = projectPhotos(project);
+    var photoIndex = 0;
+    function showPhotos(index) {
+      destroyViewer();
+      if (typeof index === "number") photoIndex = index;
+      if (!photos.length) { showVide(); return; }
+      if (photoIndex < 0) photoIndex = photos.length - 1;
+      if (photoIndex >= photos.length) photoIndex = 0;
+      var plusieurs = photos.length > 1;
+      var dots = "";
+      if (plusieurs) {
+        for (var d = 0; d < photos.length; d++) {
+          dots += '<button type="button" class="hero-video-dot' + (d === photoIndex ? " active" : "") +
+            '" data-photo="' + d + '" aria-label="' + (d + 1) + '"></button>';
+        }
+      }
+      stage.innerHTML = '<div class="hero-video hero-photos">' +
+        '<img id="heroPhoto" src="' + photos[photoIndex] + '" alt="' + text(project.name, lang) + '">' +
+        (plusieurs
+          ? '<button type="button" class="hero-video-nav prev" id="heroPhotoPrev" aria-label="' + m.photoPrev + '">‹</button>' +
+            '<button type="button" class="hero-video-nav next" id="heroPhotoNext" aria-label="' + m.photoNext + '">›</button>'
+          : "") +
+        (plusieurs
+          ? '<div class="hero-video-bar"><span class="hero-video-title"></span>' +
+            '<span class="hero-video-count">' + (photoIndex + 1) + " / " + photos.length + '</span>' +
+            '<span class="hero-video-dots">' + dots + '</span></div>'
+          : "") +
+      '</div>';
+      var img = document.getElementById("heroPhoto");
+      if (img) {
+        img.addEventListener("error", function () {
+          if (img.dataset.repliTente) return;   // l'écouteur global tente d'abord le générique
+          photos.splice(photoIndex, 1);
+          showPhotos(photoIndex);
+        });
+      }
+      var prev = document.getElementById("heroPhotoPrev");
+      var next = document.getElementById("heroPhotoNext");
+      if (prev) prev.addEventListener("click", function () { showPhotos(photoIndex - 1); });
+      if (next) next.addEventListener("click", function () { showPhotos(photoIndex + 1); });
+      var dotEls = stage.querySelectorAll(".hero-video-dot");
+      for (var k = 0; k < dotEls.length; k++) {
+        (function (bouton) {
+          bouton.addEventListener("click", function () { showPhotos(+bouton.getAttribute("data-photo")); });
+        })(dotEls[k]);
+      }
+    }
+
     function showPlanImage(url) {
       afficherPlan(url, url);
     }
@@ -2682,6 +2804,7 @@
           else if (tab === "plan-arch") showPlanImage(project.plan_architecte_url);
           else if (tab === "plan-vis") showPlanImage(project.plan_visuel_url);
           else if (tab === "videos") showVideos(videoIndex);
+          else if (tab === "photos") showPhotos(photoIndex);
           else if (tab === "plan") showPlan();
         });
       })(tabEls[i]);
@@ -2752,6 +2875,9 @@
     else if (project.apartment_tour_url) { markTab("apartment"); showApartment(); }
     else if (project.plan_architecte_url) { markTab("plan-arch"); showPlanImage(project.plan_architecte_url); }
     else if (project.plan_visuel_url) { markTab("plan-vis"); showPlanImage(project.plan_visuel_url); }
+    // Sans visite ni plan déclaré, la photo passe avant le plan de masse : un
+    // plan absent retomberait sur celui, générique, de Jawhara.
+    else if (photos.length) { markTab("photos"); showPhotos(0); }
     else { markTab("plan"); showPlan(); }
 
     sonderVisite("tour", project.tour_url, ongletActif("tour"));
