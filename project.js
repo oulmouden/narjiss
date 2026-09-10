@@ -2309,7 +2309,7 @@
         '<span class="avail-num">' + ltr(a + "/" + tt) + '</span></div>';
     }
     return '<section class="section availability"><div class="section-kicker">' + x.availabilityKicker + '</div><h2>' + x.availabilityTitle + " " + badge + '</h2>' +
-      '<div class="avail-headline"><strong>' + tot.avail + '</strong> ' + x.lotsAvailable + " " + ltr("/ " + tot.total) + '</div>' +
+      '<div class="avail-headline">' + ltr("<strong>" + tot.avail + "</strong> / " + tot.total) + " " + x.lotsAvailable + '</div>' +
       '<div class="avail-rows">' + rows + '</div></section>';
   }
 
@@ -2397,8 +2397,10 @@
           '<div class="section-kicker">' + x.availabilityKicker + "</div>" +
           "<h2>" + x.availabilityTitle + " " + badge +
             ' <span class="avail-live">' + x.availLive + "</span></h2>" +
-          '<div class="avail-headline"><strong>' + d.disponibles + "</strong> " +
-            x.lotsAvailable + ' <bdi dir="ltr">/ ' + d.total + "</bdi></div>" +
+          // « 12 / 19 » reste un seul bloc LTR, le libellé vient après — en
+          // arabe, un « / 19 » isolé partait à l'autre bout de la ligne.
+          '<div class="avail-headline">' + ltr("<strong>" + d.disponibles + "</strong> / " + d.total) +
+            " " + x.lotsAvailable + "</div>" +
           '<div class="avail-rows">' + rows + "</div>" +
           '<div class="avail-cta">' +
             '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' +
