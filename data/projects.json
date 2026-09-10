@@ -69,10 +69,10 @@
    }
   ],
   "name": {
-   "fr": "Residence Al Jawhara",
-   "en": "Al Jawhara Residence",
-   "ar": "إقامة الجوهرة",
-   "es": "Residencia Al Jawhara"
+   "fr": "Jawhara-demo",
+   "en": "Jawhara-demo",
+   "ar": "الجوهرة - عرض توضيحي",
+   "es": "Jawhara-demo"
   },
   "location": {
    "fr": "Dcheira El Jihadia, Agadir",
@@ -179,6 +179,63 @@
      "es": "Pasillo"
     }
    }
+  ],
+  "demo": true
+ },
+ {
+  "id": "jawhara_j3",
+  "folder": "jawhara_j3",
+  "status": "live",
+  "type": "appartements",
+  "source_id": 65,
+  "lat": 30.373385,
+  "lng": -9.536658,
+  "poi_count": 77,
+  "has_tour": false,
+  "detail_url": "",
+  "tour_url": "",
+  "brochure_pdf": "images/projects/jawhara_j3/fiche-projet.pdf",
+  "name": {
+   "fr": "Résidence Al Jawhara 03 « J3 » (R+3)",
+   "en": "Al Jawhara 03 \"J3\" Residence (R+3)",
+   "es": "Residencia Al Jawhara 03 «J3» (R+3)",
+   "ar": "إقامة الجوهرة 03 «J3» (R+3)"
+  },
+  "location": {
+   "fr": "Dcheira El Jihadia, Agadir",
+   "en": "Dcheira El Jihadia, Agadir",
+   "ar": "الدشيرة الجهادية، أكادير",
+   "es": "Dcheira El Jihadia, Agadir"
+  },
+  "description": {
+   "fr": "Résidence d'appartements Narjiss — Dcheira El Jihadia, Agadir.",
+   "en": "Apartment residence Narjiss — Dcheira El Jihadia, Agadir.",
+   "ar": "إقامة سكنية Narjiss — الدشيرة الجهادية، أكادير.",
+   "es": "Residencia de apartamentos Narjiss — Dcheira El Jihadia, Agadir."
+  },
+  "images": {
+   "hero": "images/projects/jawhara_j3/concept-hero.jpg"
+  },
+  "commercialization": "on-sale",
+  "price_mode": "public",
+  "promoteur": "Narjiss Immobilière",
+  "legal": {
+   "titre": true
+  },
+  "typologies": [
+   {
+    "label": "F3",
+    "rooms": 3,
+    "surface_min": 42,
+    "surface_max": 578,
+    "units_total": 98,
+    "units_available": 82
+   }
+  ],
+  "features": [],
+  "gallery": [
+   "images/projects/jawhara_j3/concept-hero.jpg",
+   "images/projects/jawhara_j3/photo-1.jpg"
   ]
  },
  {
