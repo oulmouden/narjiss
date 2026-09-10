@@ -88,7 +88,7 @@
   },
   "images": {
    "logo": "images/projects/jawhara/jawhara_logo.jpg",
-   "hero": "images/projects/jawhara/concept-hero.jpg",
+   "hero": "images/projects/jawhara/concept-hero-j3.jpg",
    "floorplan": "images/projects/jawhara/floorplan.jpg"
   },
   "commercialization": "on-sale",
@@ -140,6 +140,7 @@
    "syndic"
   ],
   "gallery": [
+   "images/projects/jawhara/concept-hero-j3.jpg",
    "images/projects/jawhara/concept-hero.jpg"
   ],
   "panoramas": [
