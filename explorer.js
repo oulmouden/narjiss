@@ -273,10 +273,14 @@
     return "project.html?id=" + encodeURIComponent(project.id) + "#" + lang;
   }
 
+  /**
+   * Visuel de la carte : le hero du projet (sa fiche ou son image mise en
+   * scène), pas son logo. Les logos étaient des rendus provisoires, les mêmes
+   * d'un projet à l'autre — trois cartes voisines montraient la même façade.
+   */
   function projectImage(project) {
-    if (project.images && project.images.logo) return project.images.logo;
-    if (project.images && project.images.triptych) return project.images.triptych;
-    return "";
+    var imgs = project.images || {};
+    return imgs.hero || imgs.triptych || imgs.logo || "";
   }
 
   function markerLabel(project, lang) {
