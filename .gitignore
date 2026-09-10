@@ -94,3 +94,11 @@ visites/
 
 # Presence simulee pour les demos : etat d execution, propre a chaque serveur
 data/presence-demo.json
+
+# Import des projets reels (10/09/2026) : sources de travail et donnees personnelles, jamais dans le depot
+data/equipe.csv
+data/equipe-acces-provisoires.txt
+data/narjiss-adassat-export-*.xlsx
+data/~$*.xlsx
+data/adassat-projets/
+data/poi-adassat/
