@@ -2080,11 +2080,27 @@
     if (l.indexOf("duplex") >= 0) return "duplex";
     return l;
   }
-  function typoLabelFor(project, code) {
-    var typos = projectTypologies(project);
-    for (var i = 0; i < typos.length; i++) if (typoCode(typos[i]) === code) return typos[i].label;
-    return String(code).toUpperCase();
+  var TYPO_LABELS = {
+    fr: { terrain: "Lot de terrain", commerce: "Local commercial", bureau: "Bureau", studio: "Studio", duplex: "Duplex" },
+    en: { terrain: "Land plot", commerce: "Commercial unit", bureau: "Office", studio: "Studio", duplex: "Duplex" },
+    ar: { terrain: "بقعة أرضية", commerce: "محل تجاري", bureau: "مكتب", studio: "ستوديو", duplex: "دوبلكس" },
+    es: { terrain: "Parcela", commerce: "Local comercial", bureau: "Oficina", studio: "Estudio", duplex: "Dúplex" }
+  };
+  /** Libellé d'une typologie dans la langue de la page ; F2/F3/F4 restent tels quels. */
+  function typoLabel(ty, lang) {
+    var code = typoCode(ty);
+    var t = TYPO_LABELS[lang] || TYPO_LABELS.fr;
+    return t[code] || ty.label || String(code).toUpperCase();
   }
+  function typoLabelFor(project, code, lang) {
+    var typos = projectTypologies(project);
+    for (var i = 0; i < typos.length; i++) if (typoCode(typos[i]) === code) return typoLabel(typos[i], lang);
+    var t = TYPO_LABELS[lang] || TYPO_LABELS.fr;
+    return t[code] || String(code).toUpperCase();
+  }
+  /* En arabe, une plage « 21–39 » lue de droite à gauche devient « 39–21 » :
+     tout ce qui est chiffré est isolé en LTR. */
+  function ltr(s) { return '<bdi dir="ltr">' + s + "</bdi>"; }
   function prixPublic(project) { return project.price_mode !== "on-request"; }
 
   var UIX = {
@@ -2209,15 +2225,15 @@
     var badges = "";
     if (project.commercialization) badges += '<span class="cbadge cbadge-status">' + (STATUT_LABELS[lang][project.commercialization] || project.commercialization) + '</span>';
     if (project.standing) badges += '<span class="cbadge">' + (STANDING_LABELS[lang][project.standing] || project.standing) + '</span>';
-    if (project.delivery && project.delivery.date) badges += '<span class="cbadge">🗝 ' + x.deliveryLabel + ' ' + project.delivery.date + '</span>';
+    if (project.delivery && project.delivery.date) badges += '<span class="cbadge">🗝 ' + x.deliveryLabel + ' ' + ltr(project.delivery.date) + '</span>';
     if (project.legal && project.legal.titre) badges += '<span class="cbadge">📄 ' + x.titled + '</span>';
 
     function fact(v, l) { return '<div class="fact"><strong>' + v + '</strong><span>' + l + '</span></div>'; }
     var facts = "";
     if (typos.length) facts += fact(typos.length, x.typologiesWord);
-    if (range) facts += fact(range.min + (range.max > range.min ? "–" + range.max : "") + " m²", x.surfaceWord);
+    if (range) facts += fact(ltr(range.min + (range.max > range.min ? "–" + range.max : "")) + " m²", x.surfaceWord);
     if (tot.total) facts += fact(tot.avail, x.lotsAvailable);
-    if (project.delivery && project.delivery.date) facts += fact(project.delivery.date, x.deliveryLabel);
+    if (project.delivery && project.delivery.date) facts += fact(ltr(project.delivery.date), x.deliveryLabel);
 
     var fiche = '<a class="btn-luxe btn-dark" href="fiche.html?projet=' + encodeURIComponent(project.id) + '#' + lang + '">📝 ' + x.fillForm + '</a>';
     // Vers le sélecteur de lots. La page gère elle-même le cas d'un projet
@@ -2242,16 +2258,16 @@
     var cards = "";
     for (var i = 0; i < typos.length; i++) {
       var ty = typos[i];
-      var surf = ty.surface_min ? (ty.surface_min + (ty.surface_max && ty.surface_max > ty.surface_min ? "–" + ty.surface_max : "") + " m²") : "";
+      var surf = ty.surface_min ? (ltr(ty.surface_min + (ty.surface_max && ty.surface_max > ty.surface_min ? "–" + ty.surface_max : "")) + " m²") : "";
       var avail = ty.units_available || 0, total = ty.units_total || 0;
       var low = total && avail > 0 && (avail / total) < 0.25;
       var availHtml = avail > 0
-        ? '<span class="typo-avail' + (low ? " low" : "") + '">' + avail + "/" + total + " " + x.available + '</span>'
+        ? '<span class="typo-avail' + (low ? " low" : "") + '">' + ltr(avail + "/" + total) + " " + x.available + '</span>'
         : '<span class="typo-avail sold">' + x.soldOut + '</span>';
-      var plan = ty.floorplan ? '<div class="typo-plan"><img src="' + ty.floorplan + '" alt="' + ty.label + '" loading="lazy"></div>' : "";
+      var plan = ty.floorplan ? '<div class="typo-plan"><img src="' + ty.floorplan + '" alt="' + typoLabel(ty, lang) + '" loading="lazy"></div>' : "";
       cards += '<article class="typo-card" data-code="' + typoCode(ty) + '">' + plan +
         '<div class="typo-body">' +
-          '<div class="typo-label">' + ty.label + '</div>' +
+          '<div class="typo-label">' + typoLabel(ty, lang) + '</div>' +
           '<div class="typo-meta">' + (ty.rooms ? ty.rooms + " " + x.rooms : "") + (surf ? " · " + surf : "") + '</div>' +
           availHtml +
           '<div class="typo-price">' + x.priceOnRequest + '</div>' +
@@ -2286,12 +2302,12 @@
     for (var i = 0; i < typos.length; i++) {
       var ty = typos[i], a = ty.units_available || 0, tt = ty.units_total || 0;
       if (!tt) continue;
-      rows += '<div class="avail-row"><span class="avail-name">' + ty.label + '</span>' +
+      rows += '<div class="avail-row"><span class="avail-name">' + typoLabel(ty, lang) + '</span>' +
         '<div class="avail-bar"><span style="width:' + Math.round(a / tt * 100) + '%"></span></div>' +
-        '<span class="avail-num">' + a + "/" + tt + '</span></div>';
+        '<span class="avail-num">' + ltr(a + "/" + tt) + '</span></div>';
     }
     return '<section class="section availability"><div class="section-kicker">' + x.availabilityKicker + '</div><h2>' + x.availabilityTitle + " " + badge + '</h2>' +
-      '<div class="avail-headline"><strong>' + tot.avail + '</strong> ' + x.lotsAvailable + " / " + tot.total + '</div>' +
+      '<div class="avail-headline"><strong>' + tot.avail + '</strong> ' + x.lotsAvailable + " " + ltr("/ " + tot.total) + '</div>' +
       '<div class="avail-rows">' + rows + '</div></section>';
   }
 
@@ -2368,7 +2384,7 @@
               "</bdi> " + x.devise + "</span>"
             : "";
           return '<div class="avail-row">' +
-            '<span class="avail-name">' + typoLabelFor(project, String(ty.code).toLowerCase()) + "</span>" +
+            '<span class="avail-name">' + typoLabelFor(project, String(ty.code).toLowerCase(), lang) + "</span>" +
             '<div class="avail-bar"><span style="width:' + largeur + '%"></span></div>' +
             '<span class="avail-num"><bdi dir="ltr">' + ty.disponibles + "/" + ty.total + "</bdi></span>" +
             prix + "</div>";
