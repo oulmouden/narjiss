@@ -1540,6 +1540,8 @@
         icon: makeIcon(poi, isHome),
         zIndexOffset: isHome ? 1000 : 0
       }).bindPopup(makePopup(poi, lang, j));
+      // Le nom au survol, sans avoir à cliquer : la fiche complète reste dans la bulle.
+      if (poi.nom) marker.bindTooltip(String(poi.nom).replace(/&/g, "&amp;").replace(/</g, "&lt;"), { direction: "top", offset: [0, -14], opacity: 0.95 });
       if (isHome) {
         marker.on("mouseover", function() {
           this.openPopup();

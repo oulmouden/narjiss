@@ -14,7 +14,7 @@
       active: "En ligne",
       map: "Carte interactive",
       visit: "Visite 360 disponible",
-      noVisit: "Carte du quartier",
+      noVisit: "Carte du quartier", poiWord: "POI", langsWord: "langues",
       provider: "NARJISS IMMOBILIERE",
       open: "Voir le projet",
       empty: "Aucun projet ne correspond à votre recherche.",
@@ -37,7 +37,7 @@
       active: "Live",
       map: "Interactive map",
       visit: "360 tour available",
-      noVisit: "Neighborhood map",
+      noVisit: "Neighborhood map", poiWord: "POIs", langsWord: "languages",
       provider: "NARJISS REAL ESTATE",
       open: "View project",
       empty: "No project matches your search.",
@@ -60,7 +60,7 @@
       active: "متاح",
       map: "خريطة تفاعلية",
       visit: "جولة 360 متاحة",
-      noVisit: "خريطة الحي",
+      noVisit: "خريطة الحي", poiWord: "نقطة اهتمام", langsWord: "لغات",
       provider: "نرجس العقارية",
       open: "عرض المشروع",
       empty: "لا يوجد مشروع مطابق للبحث.",
@@ -83,7 +83,7 @@
       active: "En línea",
       map: "Mapa interactivo",
       visit: "Visita 360 disponible",
-      noVisit: "Mapa del barrio",
+      noVisit: "Mapa del barrio", poiWord: "PDI", langsWord: "idiomas",
       provider: "NARJISS INMOBILIARIA",
       open: "Ver proyecto",
       empty: "Ningún proyecto coincide con tu búsqueda.",
@@ -350,7 +350,8 @@
         '</div>' +
         '<div class="listing-body">' +
           '<div class="listing-name">' + tr(p.name, lang) + '</div>' +
-          '<div class="listing-meta">' + (p.poi_count || 0) + ' POI | 4 langues | ' + (p.has_tour ? t.visit : t.noVisit) + '</div>' +
+          // Chiffres isolés en LTR : en arabe, « 86 POI » se lisait « POI 86 » au mauvais endroit.
+          '<div class="listing-meta"><bdi dir="ltr">' + (p.poi_count || 0) + '</bdi> ' + t.poiWord + ' | <bdi dir="ltr">4</bdi> ' + t.langsWord + ' | ' + (p.has_tour ? t.visit : t.noVisit) + '</div>' +
           '<div class="listing-address">' + tr(p.location, lang) + '</div>' +
           '<div class="listing-provider">' + t.provider + '</div>' +
         '</div>' +

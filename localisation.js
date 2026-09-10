@@ -1107,6 +1107,8 @@
         icon: makeIcon(poi, isHome),
         zIndexOffset: isHome ? 1000 : 0
       }).bindPopup(makePopup(poi, l, m));
+      // Le nom au survol, sans avoir à cliquer : la fiche complète reste dans la bulle.
+      if (poi.nom) marker.bindTooltip(echapper(poi.nom), { direction: 'top', offset: [0, -14], opacity: 0.95 });
       marker._cat = poi.cat;
       poserMarqueur(marker, isHome);
       mapMarkers.push(marker);
