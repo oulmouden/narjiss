@@ -91,6 +91,9 @@
       enPreparation: 'Données en cours de mise à jour',
       enPreparationTitre: 'Les disponibilités de ce projet arrivent bientôt.',
       enPreparationAide: 'La grille des lots est en cours de préparation. Nos conseillers peuvent déjà répondre à vos questions.',
+      indispoTitre: 'Les disponibilités sont momentanément indisponibles.',
+      indispoAide: 'Le service ne répond pas pour le moment. Réessayez dans un instant — nos conseillers restent joignables.',
+      reessayer: 'Réessayer',
       contacter: 'Contacter un conseiller', voirFiche: 'Voir la fiche du projet',
       visiterBureau: 'Bureau de vente',
       yAller: 'Itinéraire',
@@ -146,6 +149,9 @@
       enPreparation: 'Data being updated',
       enPreparationTitre: 'Availability for this project is coming soon.',
       enPreparationAide: 'The unit list is being prepared. Our advisers can already answer your questions.',
+      indispoTitre: 'Availability is temporarily unavailable.',
+      indispoAide: 'The service is not responding right now. Please try again in a moment — our advisers remain available.',
+      reessayer: 'Try again',
       contacter: 'Contact an adviser', voirFiche: 'View the project page',
       visiterBureau: 'Sales office',
       yAller: 'Directions',
@@ -201,6 +207,9 @@
       enPreparation: 'البيانات قيد التحديث',
       enPreparationTitre: 'ستتوفر قائمة هذا المشروع قريبا.',
       enPreparationAide: 'قائمة الوحدات قيد الإعداد. يمكن لمستشارينا الإجابة عن أسئلتكم منذ الآن.',
+      indispoTitre: 'العروض غير متاحة مؤقتًا.',
+      indispoAide: 'الخدمة لا تستجيب حاليًا. أعد المحاولة بعد لحظات — مستشارونا رهن إشارتكم.',
+      reessayer: 'إعادة المحاولة',
       contacter: 'الاتصال بمستشار', voirFiche: 'عرض بطاقة المشروع',
       visiterBureau: 'مكتب البيع',
       yAller: 'المسار',
@@ -256,6 +265,9 @@
       enPreparation: 'Datos en actualización',
       enPreparationTitre: 'Las disponibilidades de este proyecto llegarán pronto.',
       enPreparationAide: 'La lista de lotes se está preparando. Nuestros asesores ya pueden responder a sus preguntas.',
+      indispoTitre: 'La disponibilidad no está accesible por el momento.',
+      indispoAide: 'El servicio no responde ahora mismo. Inténtelo de nuevo en un instante — nuestros asesores siguen disponibles.',
+      reessayer: 'Reintentar',
       contacter: 'Contactar con un asesor', voirFiche: 'Ver la ficha del proyecto',
       visiterBureau: 'Oficina de venta',
       yAller: 'Cómo llegar',
@@ -2661,7 +2673,12 @@
   }
 
   /** Le projet choisi n'a pas encore de grille : on le dit, sans page vide. */
-  function afficherEnPreparation() {
+  /**
+   * Écran sans grille. Deux cas très différents sous la même mise en page :
+   * `panne` à vrai, le service n'a pas répondu (on propose de réessayer) ;
+   * sinon le projet n'a légitimement pas encore de grille.
+   */
+  function afficherEnPreparation(panne) {
     var lang = langue();
     document.getElementById('njCompteur').textContent = '';
     document.getElementById('njLegende').innerHTML = '';
@@ -2675,14 +2692,20 @@
     }
     document.getElementById('njGrille').innerHTML =
       '<div class="nj-vide nj-attente">' +
-        '<p><strong>' + t('enPreparationTitre') + '</strong></p>' +
-        '<p>' + t('enPreparationAide') + '</p>' +
+        '<p><strong>' + t(panne ? 'indispoTitre' : 'enPreparationTitre') + '</strong></p>' +
+        '<p>' + t(panne ? 'indispoAide' : 'enPreparationAide') + '</p>' +
         '<p class="nj-attente-liens">' +
-          '<a class="nj-choix-lien" href="project.html?id=' + encodeURIComponent(etat.projet) +
-          '#' + lang + '">' + t('voirFiche') + '</a>' +
+          (panne
+            ? '<button type="button" class="nj-choix-lien" id="njReessayer">' + t('reessayer') + '</button>'
+            : '<a class="nj-choix-lien" href="project.html?id=' + encodeURIComponent(etat.projet) +
+              '#' + lang + '">' + t('voirFiche') + '</a>') +
           '<a class="nj-choix-lien" href="contact.html#' + lang + '">' + t('contacter') + '</a>' +
         '</p>' +
       '</div>';
+    /* Recharger la page plutôt que rejouer demarrer() : au retour du service,
+       tout doit repartir d'un état propre (liste des projets, filtres, vue). */
+    var rej = document.getElementById('njReessayer');
+    if (rej) rej.addEventListener('click', function () { location.reload(); });
     // Les filtres n'ont rien à filtrer : on les masque plutôt que de les
     // laisser vides et cliquables.
     basculerFiltres(false);
@@ -2704,9 +2727,15 @@
     return fetch('api/lots-public.php?projets=1', { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        etat.avecDonnees = d.ok ? d.projets.map(function (p) { return p.id; }) : [];
+        /* Une réponse en erreur n'est PAS une liste vide : la base peut être
+           injoignable. Confondre les deux affichait « arrivent bientôt » sur
+           tout le catalogue pendant une panne, sans que personne ne s'en
+           doute. On mémorise donc la panne pour le dire clairement. */
+        if (!d.ok) { etat.serviceIndispo = true; etat.avecDonnees = []; return; }
+        etat.serviceIndispo = false;
+        etat.avecDonnees = d.projets.map(function (p) { return p.id; });
       })
-      .catch(function () { etat.avecDonnees = []; })
+      .catch(function () { etat.serviceIndispo = true; etat.avecDonnees = []; })
       .then(function () {
         // Sans projet dans l'URL, on ouvre le premier qui a des données ;
         // à défaut le premier du site, pour ne jamais afficher un écran nu.
@@ -2722,6 +2751,10 @@
 
   /** Affiche le projet courant : sa grille, ou le message d'attente. */
   function afficherProjet() {
+    if (etat.serviceIndispo) {
+      afficherEnPreparation(true);
+      return Promise.resolve();
+    }
     if (etat.avecDonnees && etat.avecDonnees.indexOf(etat.projet) === -1) {
       afficherEnPreparation();
       return Promise.resolve();
@@ -3187,6 +3220,10 @@
     rendreSelecteurProjets();
     // Le message d'attente porte ses propres libellés et des liens suffixés
     // par la langue : il doit être reconstruit, pas seulement la grille.
+    // Le drapeau de panne est repassé, sinon ce rendu — déclenché aussi au
+    // démarrage par le menu partagé — écraserait le message de panne par
+    // celui du projet en préparation.
+    if (etat.serviceIndispo) { afficherEnPreparation(true); return; }
     if (etat.avecDonnees && etat.avecDonnees.indexOf(etat.projet) === -1) {
       afficherEnPreparation();
       return;

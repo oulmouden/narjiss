@@ -338,6 +338,12 @@ html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 
 /* Message affiché quand le projet choisi n'a pas encore de grille. */
 .nj-choix-lien { color: var(--accent-solid); font-weight: 700; }
+/* « Réessayer » est un bouton (il recharge, il ne navigue pas) : on lui rend
+   l'apparence des liens voisins plutôt que de le déguiser en <a>. */
+button.nj-choix-lien {
+  padding: 0; border: 0; background: none; font: inherit; font-weight: 700;
+  text-decoration: underline; cursor: pointer;
+}
 .nj-attente { text-align: start; max-width: 620px; }
 .nj-attente p { margin: 0 0 .6rem; }
 .nj-attente-liens { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem !important; }
@@ -1543,6 +1549,6 @@ body.nj-fige-plein { overflow: hidden; }
 <div id="mainFooter"></div>
 
 <script src="shared/menu.js?v=261c0325"></script>
-<script src="disponibilites.js?v=28186818"></script>
+<script src="disponibilites.js?v=d2d6b972"></script>
 </body>
 </html>
