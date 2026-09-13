@@ -56,6 +56,10 @@
       <p id="heroSubtitle"><strong class="brand-word">NARJISS</strong> vous accompagne en toute confiance.</p>
       <div class="hero-actions">
         <a href="explorer.html" class="btn btn-primary" id="ctaProjects">Voir les projets →</a>
+        <!-- Le questionnaire guidé est une voie proposée, jamais un péage :
+             même style que « Voir les projets », posé à côté et non devant,
+             pour que le visiteur qui sait ce qu'il cherche file au catalogue. -->
+        <a href="trouver.html" class="btn btn-primary" id="ctaTrouver">🧭 Trouvons votre logement</a>
         <a href="carte.html" class="btn btn-outline" id="ctaMap">🗺️ Carte globale</a>
         <a href="demo.html" class="btn btn-outline" id="ctaDemo">▶️ Démo guidée</a>
         <a href="contact.html" class="btn btn-outline" id="ctaContact">✉️ Nous contacter</a>
@@ -109,6 +113,7 @@ var PAGE_UI = {
     title: "Achetez mieux,<br><em>investissez sereinement</em>",
     subtitle: "<strong class=\"brand-word\">NARJISS</strong> vous accompagne en toute confiance.",
     ctaProjects: "Voir les projets →",
+    ctaTrouver: "🧭 Trouvons votre logement",
     ctaMap: "🗺️ Carte globale",
     ctaDemo: "▶️ Démo guidée",
     ctaContact: "✉️ Nous contacter",
@@ -136,6 +141,7 @@ var PAGE_UI = {
     title: "Buy smarter,<br><em>invest with confidence</em>",
     subtitle: "<strong class=\"brand-word\">NARJISS</strong> supports you with trust at every step.",
     ctaProjects: "View projects →",
+    ctaTrouver: "🧭 Let’s find your home",
     ctaMap: "🗺️ Global map",
     ctaDemo: "▶️ Guided demo",
     ctaContact: "✉️ Contact us",
@@ -163,6 +169,7 @@ var PAGE_UI = {
     title: "امتلك بثقة أكبر<br><em>واستثمر باطمئنان</em>",
     subtitle: "<strong>نرجس</strong> ترافقك بكل ثقة.",
     ctaProjects: "عرض المشاريع ←",
+    ctaTrouver: "🧭 لنجد سكنك",
     ctaMap: "🗺️ خريطة شاملة",
     ctaDemo: "▶️ عرض توضيحي",
     ctaContact: "✉️ اتصل بنا",
@@ -190,6 +197,7 @@ var PAGE_UI = {
     title: "Compra mejor,<br><em>invierte con tranquilidad</em>",
     subtitle: "<strong class=\"brand-word\">NARJISS</strong> te acompaña con total confianza.",
     ctaProjects: "Ver proyectos →",
+    ctaTrouver: "🧭 Encontremos su vivienda",
     ctaMap: "🗺️ Mapa global",
     ctaDemo: "▶️ Demo guiada",
     ctaContact: "✉️ Contáctenos",
@@ -434,6 +442,8 @@ window.onLanguageChange = function(lang) {
   document.getElementById('heroSubtitle').innerHTML = t.subtitle;
   document.getElementById('ctaProjects').textContent = t.ctaProjects;
   document.getElementById('ctaProjects').href = 'explorer.html#' + lang;
+  document.getElementById('ctaTrouver').textContent = t.ctaTrouver;
+  document.getElementById('ctaTrouver').href = 'trouver.html#' + lang;
   document.getElementById('ctaMap').textContent = t.ctaMap;
   document.getElementById('ctaMap').href = 'carte.html#' + lang;
   document.getElementById('ctaDemo').textContent = t.ctaDemo;

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<script>(function(){try{var t=localStorage.getItem("nj-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/icones/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Narjiss">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2430" media="(prefers-color-scheme: dark)">
+<title>Narjiss — Trouvons votre logement</title>
+<link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/menu.css?v=ca70e814">
+<style>
+/* Étape 1 du parcours, en version guidée : trois questions qui filtrent sur
+   des données réelles, une quatrième qui qualifie sans filtrer, puis une
+   sélection de projets. Chaque écran ne propose que des réponses qui mènent
+   quelque part — une option qui donnerait zéro résultat n'est pas affichée. */
+
+.tr-hero {
+  padding: 1.1rem 1.5rem .6rem; text-align: center;
+  background: linear-gradient(180deg, var(--sand) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tr-hero h1 {
+  margin: 0 0 .2rem; font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 3vw, 2rem); color: var(--charcoal);
+}
+.tr-hero p { margin: 0; color: var(--muted); font-size: .9rem; }
+
+/* `width: 100%` n'est pas décoratif : le body du site est un flex column, où
+   un enfant `margin: 0 auto` se rétracte à la largeur de son contenu. Sans
+   cette ligne, un écran à deux pastilles s'affichait dans une colonne de
+   285 px au milieu d'une fenêtre de 563. */
+.tr-shell {
+  width: 100%; max-width: 860px; margin: 0 auto; box-sizing: border-box;
+  padding: var(--space-lg) var(--space-md) 4rem;
+}
+.tr-hero { width: 100%; box-sizing: border-box; }
+
+/* Progression : quatre points, celui en cours plein. Discret — le visiteur
+   doit sentir que c'est court, pas être mis en garde contre la longueur. */
+.tr-jauge { display: flex; justify-content: center; gap: .45rem; margin-bottom: 1.4rem; }
+.tr-jauge i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--border-medium); transition: background .2s, transform .2s;
+}
+.tr-jauge i.est-faite { background: var(--ocean); }
+.tr-jauge i.est-active { background: var(--accent-solid); transform: scale(1.35); }
+
+.tr-question {
+  margin: 0 0 .35rem; text-align: center;
+  font-family: var(--font-serif); font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+  color: var(--charcoal);
+}
+.tr-aide { margin: 0 0 1.5rem; text-align: center; color: var(--muted); font-size: .88rem; }
+
+/* Réponses : grandes cibles tactiles — cette page sert aussi sur la borne du
+   bureau de vente, où l'on répond au doigt. */
+.tr-choix { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.tr-carte {
+  display: flex; align-items: center; gap: .8rem;
+  min-height: 74px; padding: .9rem 1.1rem; text-align: start;
+  background: var(--surface); border: 1.5px solid var(--border-medium);
+  border-radius: 14px; font: inherit; color: var(--text); cursor: pointer;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.tr-carte:hover { border-color: var(--ocean); transform: translateY(-2px); box-shadow: var(--shadow); }
+.tr-carte:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.tr-carte.est-choisie { border-color: var(--accent-solid); background: var(--surface-raised); }
+.tr-carte-emoji { font-size: 1.7rem; line-height: 1; flex: none; }
+.tr-carte-txt { min-width: 0; }
+.tr-carte-titre { display: block; font-weight: 700; font-size: .98rem; }
+.tr-carte-note { display: block; margin-top: .15rem; color: var(--muted); font-size: .78rem; }
+
+/* Pastilles : villes et tailles, plus nombreuses et plus courtes que les cartes. */
+.tr-pastilles { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.tr-pastille {
+  min-height: 46px; padding: .5rem 1.1rem;
+  background: var(--surface); border: 1.5px solid var(--border-medium);
+  border-radius: 999px; font: inherit; font-weight: 600; color: var(--text); cursor: pointer;
+}
+.tr-pastille:hover { border-color: var(--ocean); }
+.tr-pastille:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.tr-pastille small { color: var(--muted); font-weight: 400; }
+
+/* Barre du bas : retour à gauche, « passer » à droite. « Passer » est un lien
+   et non un bouton plein : sauter une question doit rester facile mais ne pas
+   concurrencer les réponses. */
+.tr-barre {
+  display: flex; align-items: center; gap: 1rem;
+  margin-top: 1.8rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);
+}
+.tr-retour, .tr-passer {
+  background: none; border: 0; font: inherit; cursor: pointer;
+  color: var(--muted); font-weight: 600; padding: .4rem .2rem;
+}
+.tr-retour:hover, .tr-passer:hover { color: var(--text); text-decoration: underline; }
+.tr-passer { margin-inline-start: auto; }
+
+/* ── Résultat ───────────────────────────────────────────────────────── */
+.tr-resume {
+  display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center;
+  margin-bottom: 1.2rem;
+}
+.tr-resume span {
+  padding: .25rem .7rem; border-radius: 999px;
+  background: var(--surface-raised); border: 1px solid var(--border-subtle);
+  font-size: .78rem; font-weight: 600; color: var(--muted);
+}
+.tr-liste { display: grid; gap: 1rem; }
+.tr-projet {
+  display: grid; grid-template-columns: 150px minmax(0, 1fr);
+  background: var(--surface); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+}
+@media (max-width: 620px) { .tr-projet { grid-template-columns: 1fr; } }
+.tr-projet-img { background: var(--sand-dark) center/cover no-repeat; min-height: 118px; }
+.tr-projet-corps { padding: .9rem 1.1rem; }
+.tr-projet-nom { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--charcoal); }
+.tr-projet-lieu { margin: .15rem 0 .5rem; color: var(--muted); font-size: .84rem; }
+.tr-projet-faits { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .7rem; }
+.tr-fait {
+  padding: .18rem .6rem; border-radius: 6px; font-size: .74rem; font-weight: 700;
+  background: var(--surface-raised); color: var(--muted);
+}
+/* Le vert « disponible » n'existe pas dans les jetons partagés (il vit dans
+   disponibilites.html) : on le déclare ici, avec sa variante sombre. */
+.tr-fait-dispo { background: #e4f6ea; color: #17663a; }
+[data-theme="dark"] .tr-fait-dispo { background: #16301f; color: #6ddb9a; }
+.tr-projet-actions { display: flex; flex-wrap: wrap; gap: .45rem; }
+.tr-btn {
+  display: inline-flex; align-items: center; min-height: 42px; padding: .45rem 1rem;
+  border-radius: 9px; font: inherit; font-weight: 700; font-size: .85rem;
+  text-decoration: none; cursor: pointer; border: 1.5px solid var(--border-medium);
+  background: var(--surface); color: var(--text);
+}
+.tr-btn:hover { border-color: var(--ocean); }
+.tr-btn-or { background: var(--accent-solid); border-color: var(--accent-solid); color: var(--on-accent); }
+.tr-btn-or:hover { filter: brightness(1.06); }
+
+/* Capture : l'échange de valeur — on donne la sélection, on demande un contact.
+   Posé APRÈS les résultats : le visiteur a d'abord reçu quelque chose. */
+.tr-capture {
+  margin-top: 1.6rem; padding: 1.1rem 1.2rem; text-align: center;
+  background: var(--surface-raised); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+}
+.tr-capture p { margin: 0 0 .8rem; color: var(--muted); font-size: .9rem; }
+.tr-wa {
+  display: inline-flex; align-items: center; gap: .5rem;
+  min-height: 48px; padding: .6rem 1.3rem; border-radius: 999px;
+  background: var(--wa); color: #05240f; font-weight: 800; text-decoration: none;
+}
+.tr-wa:hover { filter: brightness(1.06); }
+.tr-wa .whatsapp-icon { width: 22px; height: 22px; fill: currentColor; }
+
+.tr-vide { padding: 2rem 1rem; text-align: center; color: var(--muted); }
+.tr-refaire { margin-top: 1.2rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="mainMenu"></div>
+
+<section class="tr-hero">
+  <h1 id="trTitre">Trouvons votre logement</h1>
+  <p id="trSousTitre">Quelques questions, et nous vous montrons ce qui vous correspond.</p>
+  <!-- Étape 1 du parcours : le fil se rend et se traduit depuis shared/menu.js -->
+  <ol class="nj-fil" data-nj-etape="criteres"></ol>
+</section>
+
+<div class="tr-shell">
+  <div id="njTrouver" aria-live="polite"></div>
+</div>
+
+<div id="mainFooter"></div>
+
+<script src="shared/menu.js?v=863f4d7d"></script>
+<script src="trouver.js?v=9a6cffd1"></script>
+</body>
+</html>
