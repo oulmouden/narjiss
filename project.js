@@ -2248,8 +2248,11 @@
         '<div class="commercial-price">' + x.priceOnRequest + '</div>' +
         '<div class="commercial-badges">' + badges + '</div>' +
       '</div>' +
-      (facts ? '<div class="quick-facts">' + facts + '</div>' : "") +
+      /* Les actions avant les caractéristiques : placées en fin de section,
+         elles tombaient 700 px plus bas, derrière une grille de faits que le
+         visiteur parcourt du regard mais sur laquelle il ne clique pas. */
       '<div class="commercial-actions">' + fiche + dispos + brochure + '</div>' +
+      (facts ? '<div class="quick-facts">' + facts + '</div>' : "") +
     '</section>';
   }
 
@@ -2343,12 +2346,15 @@
         var section = document.querySelector(".section.availability");
         if (!section) {
           // Projet sans typologies déclarées : le bloc n'a pas été rendu, on
-          // le crée avant le simulateur pour ne pas perdre l'information.
-          var simulateur = document.querySelector(".section.simulator");
-          if (!simulateur) return;
+          // le crée devant l'en-tête commercial — soit la même place que pour
+          // les autres projets. Le créer avant le simulateur, comme avant,
+          // l'aurait renvoyé au milieu de la page pour ces seuls projets.
+          var apres = document.querySelector(".section.commercial-header") ||
+                      document.querySelector(".section.simulator");
+          if (!apres) return;
           section = document.createElement("section");
           section.className = "section availability";
-          simulateur.parentNode.insertBefore(section, simulateur);
+          apres.parentNode.insertBefore(section, apres);
         }
 
         var pct = Math.round(d.disponibles / d.total * 100);
@@ -2920,7 +2926,17 @@
     /* Une seule barre au-dessus de la carte : le retour aux projets occupait
        auparavant sa propre ligne, pour un unique lien. Il ouvre désormais la
        série, là où le regard le cherche de toute façon en premier. */
-    var topActions = '<a class="btn-luxe btn-glass" href="explorer.html#' + lang + '">← ' + t.backProjects + '</a>' +
+    /* « Choisir mon logement » ouvre la rangée : c'est l'action centrale du
+       parcours, et elle manquait ici. Elle n'existait qu'au tiers de la page
+       (bloc Disponibilité) et dans l'en-tête commercial, soit au-delà de
+       2 300 px — trois écrans de défilement sur une page qui en fait 15 600.
+       Posée dans le héros, elle est visible sans défiler. */
+    /* chooseUnit vit dans UIX (libellés commerciaux), pas dans PAGE_UI d'où
+       vient `t` : les deux dictionnaires coexistent dans ce fichier. */
+    var topActions = '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' +
+        encodeURIComponent(project.id) + '#' + lang + '">🏢 ' +
+        (UIX[lang] || UIX.fr).chooseUnit + '</a>' +
+      '<a class="btn-luxe btn-glass" href="explorer.html#' + lang + '">← ' + t.backProjects + '</a>' +
       '<a class="btn-luxe btn-gold" href="contact.html#' + lang + '">' + t.contactAdvisor + '</a>' +
       '<a class="btn-luxe btn-glass" href="bureaudevente.html?id=' + encodeURIComponent(project.id) + '#' + lang + '">🏢 ' + t.visitSalesOffice + '</a>' +
       '<button class="btn-luxe btn-glass projectCurrentRoute" type="button">' + t.goFromHere + '</button>' +
@@ -2961,10 +2977,14 @@
     document.title = name + " - Narjiss";
     document.documentElement.style.setProperty("--project-gradient", gradient);
     document.getElementById("projectApp").innerHTML =
+      /* La disponibilité passe juste après les médias : c'est la question n°1
+         de l'acheteur (« qu'est-ce qui reste ? »), et le seul bloc qui porte
+         une action. Elle arrivait en cinquième position, à 4 000 px du haut,
+         derrière 1 370 px de typologies — sur une page qui en fait 15 600. */
       renderHeroMedia(project, lang, t, name, location, topActions, mapSection) +
+      renderAvailability(project, lang) +
       renderCommercialHeader(project, lang) +
       renderTypologies(project, lang) +
-      renderAvailability(project, lang) +
       renderSimulator(lang) +
       '<section class="section">' +
         '<div class="section-kicker">' + t.majorKicker + '</div>' +
