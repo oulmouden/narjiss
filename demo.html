@@ -255,7 +255,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 #njSceneAide[hidden] { display: none; }
 
 /* ── Loupe de la pastille ───────────────────────────────────────────────── */
-.nj-nom { overflow: hidden; text-overflow: ellipsis; }
+/* min-width:0 : sans lui, l'item flex refuse de rétrécir sous la largeur de
+   son texte — le nom débordait, rogné net, et l'ellipsis ne venait jamais. */
+.nj-nom { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .nj-loupe {
   flex: none;
   display: inline-flex;
@@ -293,7 +295,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  /* Aligné au début (gauche, ou droite en RTL) : centré, un nom trop long
+     était rogné DES DEUX côtés — le début disparaissait sans indicateur. */
+  justify-content: flex-start;
   max-width: 180px;
   min-width: 92px;
   min-height: 34px;
@@ -304,13 +308,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
   border-radius: 999px;
   box-shadow: 0 8px 22px rgba(17,24,39,.28);
   font-family: 'Outfit', sans-serif;
-  font-size: .78rem;
+  font-size: .72rem;
   font-weight: 900;
   line-height: 1.1;
-  text-align: center;
+  text-align: start;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
   cursor: pointer;
 }
 .project-name-marker::after {

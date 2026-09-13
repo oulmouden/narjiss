@@ -379,7 +379,9 @@ html[dir=rtl] .listing-badges {
 .project-price-marker {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  /* Aligné au début (gauche, ou droite en RTL) : centré, un nom trop long
+     était rogné DES DEUX côtés — le début disparaissait sans indicateur. */
+  justify-content: flex-start;
   min-width: 92px;
   max-width: 168px;
   height: 34px;
@@ -390,11 +392,18 @@ html[dir=rtl] .listing-badges {
   border: 2px solid white;
   box-shadow: 0 6px 16px rgba(17,24,39,.32);
   font-weight: 900;
-  font-size: .78rem;
+  font-size: .72rem;
   line-height: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: start;
   white-space: nowrap;
+}
+/* L'ellipsis vit sur un span : posé sur le conteneur flex, il ne s'applique
+   pas au texte anonyme, et min-width:0 autorise le rétrécissement. */
+.project-price-marker .nj-nom {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .leaflet-marker-icon.is-active .project-price-marker {
   background: #9a4700;
@@ -573,6 +582,6 @@ html[dir=rtl] .listing-badges {
 </main>
 <div id="mainFooter"></div>
 <script src="shared/menu.js?v=261c0325"></script>
-<script src="explorer.js?v=b2693773"></script>
+<script src="explorer.js?v=736c8b85"></script>
 </body>
 </html>

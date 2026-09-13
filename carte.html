@@ -141,7 +141,9 @@ html[dir=rtl] .map-search-item { text-align: right; }
   position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  /* Aligné au début (gauche, ou droite en RTL) : centré, un nom trop long
+     était rogné DES DEUX côtés — le début disparaissait sans indicateur. */
+  justify-content: flex-start;
   max-width: 180px;
   min-width: 92px;
   min-height: 34px;
@@ -151,11 +153,17 @@ html[dir=rtl] .map-search-item { text-align: right; }
   border: 2px solid var(--sun);
   border-radius: 999px;
   box-shadow: 0 8px 22px rgba(17,24,39,.28);
-  font-size: .78rem;
+  font-size: .72rem;
   font-weight: 900;
   line-height: 1.1;
-  text-align: center;
+  text-align: start;
   white-space: nowrap;
+  overflow: hidden;
+}
+/* L'ellipsis vit sur un span : posé sur le conteneur flex, il ne s'applique
+   pas au texte anonyme, et min-width:0 autorise le rétrécissement. */
+.project-name-marker .nj-nom {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -392,7 +400,7 @@ window.onLanguageChange = function(lang) {
   for (var i = 0; i < PROJECTS.length; i++) {
     var p = PROJECTS[i];
     var projectName = p.name[lang] || p.name.fr || p.id;
-    var markerHtml = '<div class="project-name-marker">' + projectName + '</div>';
+    var markerHtml = '<div class="project-name-marker"><span class="nj-nom">' + projectName + '</span></div>';
     var icon = L.divIcon({
       html: markerHtml,
       iconSize: [180, 42],
@@ -405,7 +413,9 @@ window.onLanguageChange = function(lang) {
 
     var popup = '<div class="popup-card"><div class="pc-cat">Narjiss</div><div class="pc-name">' + projectName + '</div><div class="pc-loc">📍 ' + p.location[lang] + '</div>' + link + '</div>';
 
-    var marker = L.marker([p.lat, p.lng], { icon: icon, zIndexOffset: 1000 }).bindPopup(popup);
+    // title : info-bulle native avec le nom complet — utile quand l'étiquette
+    // est tronquée. Posé par Leaflet en propriété DOM, donc sans risque d'injection.
+    var marker = L.marker([p.lat, p.lng], { icon: icon, zIndexOffset: 1000, title: projectName }).bindPopup(popup);
     marker.on('mouseover', function() { this.openPopup(); });
     marker.on('click', function() { this.openPopup(); });
     marker.addTo(globalMap);

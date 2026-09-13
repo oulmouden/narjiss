@@ -299,7 +299,7 @@
 
   function makeMarker(project, lang) {
     return L.divIcon({
-      html: '<div class="project-price-marker">' + markerLabel(project, lang) + '</div>',
+      html: '<div class="project-price-marker"><span class="nj-nom">' + markerLabel(project, lang) + '</span></div>',
       iconSize: [168, 34],
       iconAnchor: [84, 17],
       popupAnchor: [0, -18],
@@ -390,7 +390,9 @@
     var bounds = L.latLngBounds([]);
 
     currentProjects.forEach(function(project) {
-      var marker = L.marker([project.lat, project.lng], { icon: makeMarker(project, lang) });
+      // title : info-bulle native avec le nom complet — utile quand
+      // l'étiquette est tronquée (posé en propriété DOM par Leaflet).
+      var marker = L.marker([project.lat, project.lng], { icon: makeMarker(project, lang), title: markerLabel(project, lang) });
       marker.bindPopup(
         '<div class="popup-card">' +
           '<div class="pc-cat">Narjiss</div>' +
