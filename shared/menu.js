@@ -1622,9 +1622,14 @@ function njRendreFil(basePath) {
       var e = NJ_PARCOURS_ETAPES[i];
       var libelle = njParcoursT(e);
       var actif = (i === rang);
-      // Seul le passe est cliquable : proposer une etape qu'on n'a pas encore
-      // preparee (un projet non choisi, une selection vide) menerait a un vide.
-      var lien = (!actif && i < rang) ? njParcoursLien(e, basePath, projet) : '';
+      // Est un lien toute etape qui a une destination valide — passee comme a
+      // venir. njParcoursLien() rend '' quand l'etape n'est pas preparee (pas
+      // de projet choisi, selection vide), ce qui suffit a eviter les culs-de-sac.
+      //
+      // Pourquoi l'avenir aussi : sur la fiche projet, le premier lien vers les
+      // disponibilites est a 2 500 px du haut, sur une page qui en fait 15 000.
+      // Le fil est alors le chemin le plus court vers l'etape suivante.
+      var lien = actif ? '' : njParcoursLien(e, basePath, projet);
       var corps = lien
         ? '<a href="' + lien + '">' + libelle + '</a>'
         : libelle;
