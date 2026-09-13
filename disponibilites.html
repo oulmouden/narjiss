@@ -13,7 +13,7 @@
 <title>Narjiss — Choisissez votre logement</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=65b11474">
+<link rel="stylesheet" href="shared/menu.css?v=ca70e814">
 <style>
 /* Étape 3 du parcours client. Dimensionné pour le grand écran tactile du
    bureau de vente : cibles d'au moins 44 px, aucune interaction au survol
@@ -70,16 +70,8 @@
 .nj-hero-actions button:hover { transform: translateY(-2px); }
 html[dir=rtl] .nj-hero-actions { font-family: var(--font-arabic); }
 
-.nj-fil {
-  display: flex; justify-content: center; gap: .4rem;
-  margin: .5rem 0 0; padding: 0; list-style: none;
-  font-size: .8rem; color: var(--muted);
-}
-.nj-fil li { display: flex; align-items: center; gap: .4rem; }
-.nj-fil li::after { content: '›'; opacity: .5; }
-[dir="rtl"] .nj-fil li::after { content: '‹'; }
-.nj-fil li:last-child::after { content: ''; }
-.nj-fil .nj-fil-actif { color: var(--ocean-deep); font-weight: 600; }
+/* Le fil d'Ariane du parcours est désormais stylé dans shared/menu.css et
+   rendu par shared/menu.js : il sert cinq pages, il n'a plus à vivre ici. */
 
 .nj-shell {
   /* Une seule colonne : filtres et etages passent au-dessus du plan, qui
@@ -1469,13 +1461,7 @@ body.nj-fige-plein { overflow: hidden; }
     <!-- Le fil d'etapes a quitte l'entete : place entre le titre et les
          criteres, il les separait. Ici il annonce les resultats, ce qui est
          aussi le moment ou savoir « ou j'en suis » a le plus de sens. -->
-    <ol class="nj-fil" id="njFil">
-      <li>Vos critères</li>
-      <li>Le projet</li>
-      <li class="nj-fil-actif">Les logements</li>
-      <li>Ma sélection</li>
-      <li>Un conseiller</li>
-    </ol>
+    <ol class="nj-fil" id="njFil" data-nj-etape="logements"></ol>
     <h2 class="nj-projet-bandeau" id="njProjetBandeau"></h2>
     <div class="nj-resultats-tete">
       <p class="nj-compteur" id="njCompteur">…</p>
@@ -1548,7 +1534,7 @@ body.nj-fige-plein { overflow: hidden; }
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=261c0325"></script>
-<script src="disponibilites.js?v=d2d6b972"></script>
+<script src="shared/menu.js?v=10bd1cea"></script>
+<script src="disponibilites.js?v=6b48f112"></script>
 </body>
 </html>

@@ -108,8 +108,7 @@
       prixLabel: 'Prix :',
       rue: 'Sur rue', cour: 'Sur cour', jardin: 'Sur jardin',
       double: 'Traversant', angle: 'Angle',
-      erreur: 'Disponibilités indisponibles pour le moment.',
-      fil: ['Vos critères', 'Le projet', 'Les logements', 'Ma sélection', 'Un conseiller']
+      erreur: 'Disponibilités indisponibles pour le moment.'
     },
     en: {
       titre: 'Choose your home', affiner: 'Refine',
@@ -166,8 +165,7 @@
       prixLabel: 'Price:',
       rue: 'Street facing', cour: 'Courtyard facing', jardin: 'Garden facing',
       double: 'Dual aspect', angle: 'Corner',
-      erreur: 'Availability cannot be loaded right now.',
-      fil: ['Your criteria', 'The project', 'The homes', 'My shortlist', 'An adviser']
+      erreur: 'Availability cannot be loaded right now.'
     },
     ar: {
       titre: 'اختر سكنك', affiner: 'حدد الخيارات',
@@ -224,8 +222,7 @@
       prixLabel: 'السعر:',
       rue: 'على الشارع', cour: 'على الفناء', jardin: 'على الحديقة',
       double: 'واجهتان', angle: 'زاوية',
-      erreur: 'تعذر عرض المتوفر حاليا.',
-      fil: ['معاييرك', 'المشروع', 'المساكن', 'اختياري', 'مستشار']
+      erreur: 'تعذر عرض المتوفر حاليا.'
     },
     es: {
       titre: 'Elija su vivienda', affiner: 'Afinar',
@@ -282,8 +279,7 @@
       prixLabel: 'Precio:',
       rue: 'A la calle', cour: 'Al patio', jardin: 'Al jardín',
       double: 'Doble orientación', angle: 'Esquina',
-      erreur: 'Las disponibilidades no se pueden cargar por ahora.',
-      fil: ['Sus criterios', 'El proyecto', 'Las viviendas', 'Mi selección', 'Un asesor']
+      erreur: 'Las disponibilidades no se pueden cargar por ahora.'
     }
   };
 
@@ -3190,13 +3186,9 @@
     var lienConseiller = document.getElementById('njBarreConseiller');
     if (lienConseiller) lienConseiller.href = 'contact.html#' + lang;
 
-    var fil = document.getElementById('njFil');
-    if (fil) {
-      var etapes = T[lang].fil;
-      [].forEach.call(fil.children, function (li, i) {
-        if (etapes[i]) li.textContent = etapes[i];
-      });
-    }
+    /* Le fil d'Ariane est rendu ET traduit par shared/menu.js, qui repasse à
+       chaque changement de langue. Le traduire ici écrasait ses liens de
+       retour (textContent supprime les <a> enfants). */
 
     texte('njLegendeLbl', t('legende'));
     texte('njProjetLbl', t('leProjet'));

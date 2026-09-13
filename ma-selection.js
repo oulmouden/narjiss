@@ -56,7 +56,6 @@
     fr: {
       titre: 'Ma sélection',
       sousTitre: 'Comparez vos logements, puis parlons-en avec un conseiller.',
-      fil: ['Vos critères', 'Le projet', 'Les logements', 'Ma sélection', 'Un conseiller'],
       titreComparatif: 'Vos logements côte à côte',
       aideComparatif: 'Le meilleur prix et la plus grande surface sont mis en évidence.',
       modifier: 'Modifier ma sélection',
@@ -104,7 +103,6 @@
     en: {
       titre: 'My shortlist',
       sousTitre: "Compare your homes, then let's discuss them with an adviser.",
-      fil: ['Your criteria', 'The project', 'The homes', 'My shortlist', 'An adviser'],
       titreComparatif: 'Your homes side by side',
       aideComparatif: 'The best price and the largest area are highlighted.',
       modifier: 'Change my shortlist',
@@ -153,7 +151,6 @@
     ar: {
       titre: 'اختياري',
       sousTitre: 'قارن بين المساكن، ثم لنتحدث عنها مع مستشار.',
-      fil: ['معاييرك', 'المشروع', 'المساكن', 'اختياري', 'مستشار'],
       titreComparatif: 'مساكنك جنبا إلى جنب',
       aideComparatif: 'أفضل سعر وأكبر مساحة مميزان في الجدول.',
       modifier: 'تعديل اختياري',
@@ -203,7 +200,6 @@
     es: {
       titre: 'Mi selección',
       sousTitre: 'Compare sus viviendas y hablemos de ellas con un asesor.',
-      fil: ['Sus criterios', 'El proyecto', 'Las viviendas', 'Mi selección', 'Un asesor'],
       titreComparatif: 'Sus viviendas una al lado de otra',
       aideComparatif: 'Se destacan el mejor precio y la mayor superficie.',
       modifier: 'Modificar mi selección',
@@ -618,13 +614,9 @@
     var msg = document.getElementById('fMessage');
     if (msg) msg.placeholder = t('messagePlaceholder');
 
-    var fil = document.getElementById('njFil');
-    if (fil) {
-      var etapes = T[langue()].fil;
-      [].forEach.call(fil.children, function (li, i) {
-        if (etapes[i]) li.textContent = etapes[i];
-      });
-    }
+    /* Le fil d'Ariane est rendu ET traduit par shared/menu.js, qui repasse à
+       chaque changement de langue. Le traduire ici écrasait ses liens de
+       retour (textContent supprime les <a> enfants). */
     // Le comparatif porte lui aussi des libellés traduits.
     if (etat.lots.length) rendreComparatif();
   }

@@ -14,7 +14,7 @@
 <title>Narjiss — Ma sélection</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=65b11474">
+<link rel="stylesheet" href="shared/menu.css?v=ca70e814">
 <style>
 /* Étapes 4 et 5 du parcours. Mêmes repères visuels que disponibilites.html :
    le visiteur doit sentir qu'il avance dans un même tunnel. */
@@ -28,15 +28,8 @@
   margin: 0 0 .25rem; font-family: var(--font-serif);
   font-size: clamp(1.5rem, 3vw, 2.2rem); color: var(--charcoal);
 }
-.nj-fil {
-  display: flex; justify-content: center; gap: .4rem;
-  margin: .5rem 0 0; padding: 0; list-style: none; font-size: .8rem; color: var(--muted);
-}
-.nj-fil li { display: flex; align-items: center; gap: .4rem; }
-.nj-fil li::after { content: '›'; opacity: .5; }
-[dir="rtl"] .nj-fil li::after { content: '‹'; }
-.nj-fil li:last-child::after { content: ''; }
-.nj-fil .nj-fil-actif { color: var(--ocean-deep); font-weight: 600; }
+/* Le fil d'Ariane du parcours est désormais stylé dans shared/menu.css et
+   rendu par shared/menu.js : il sert cinq pages, il n'a plus à vivre ici. */
 
 .nj-shell { max-width: 1100px; margin: 0 auto; padding: var(--space-lg) var(--space-md) 4rem; }
 .nj-section { margin-bottom: var(--space-lg); }
@@ -245,13 +238,7 @@
 <section class="nj-hero">
   <h1 id="njTitre">Ma sélection</h1>
   <p id="njSousTitre">Comparez vos logements, puis parlons-en avec un conseiller.</p>
-  <ol class="nj-fil" id="njFil">
-    <li>Vos critères</li>
-    <li>Le projet</li>
-    <li>Les logements</li>
-    <li class="nj-fil-actif">Ma sélection</li>
-    <li>Un conseiller</li>
-  </ol>
+  <ol class="nj-fil" id="njFil" data-nj-etape="selection"></ol>
 </section>
 
 <div class="nj-shell">
@@ -378,7 +365,7 @@
 
 <script src="assets/vendor/mrz/mrz-td1.js?v=064255c9"></script>
 <script src="assets/cin-mrz.js?v=2eb2483a"></script>
-<script src="shared/menu.js?v=261c0325"></script>
-<script src="ma-selection.js?v=9fa0fa41"></script>
+<script src="shared/menu.js?v=10bd1cea"></script>
+<script src="ma-selection.js?v=8a78eef8"></script>
 </body>
 </html>

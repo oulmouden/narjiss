@@ -1509,6 +1509,170 @@ function njParlonsInstaller(basePath) {
 
   njParlonsSonderPresence(basePath, racine);
 }
+// ===== PARCOURS CLIENT : FIL D'ARIANE + REPRISE =====
+/*
+ * Le parcours d'achat tient en cinq etapes. Il etait declare en dur dans deux
+ * pages seulement (disponibilites, ma-selection) : partout ailleurs, le
+ * visiteur ne savait pas ou il en etait. Le fil est donc rendu ici, d'un seul
+ * endroit, et se retraduit tout seul puisque installMenuAndFooter() repasse a
+ * chaque changement de langue.
+ *
+ * Une page s'y branche par le seul balisage, sans appel JS :
+ *     <ol class="nj-fil" data-nj-etape="logements"></ol>
+ *     <div data-nj-reprise></div>     (facultatif : bandeau « reprendre »)
+ */
+var NJ_PARCOURS_CLE = 'nj-parcours';
+var NJ_PARCOURS_ETAPES = ['criteres', 'projet', 'logements', 'selection', 'conseiller'];
+
+var NJ_PARCOURS_I18N = {
+  fr: { criteres: 'Vos critères', projet: 'Le projet', logements: 'Les logements',
+        selection: 'Ma sélection', conseiller: 'Un conseiller',
+        etapes: 'Votre parcours', reprendre: 'Reprendre', fermer: 'Ne plus proposer' },
+  en: { criteres: 'Your criteria', projet: 'The project', logements: 'The units',
+        selection: 'My selection', conseiller: 'An adviser',
+        etapes: 'Your journey', reprendre: 'Resume', fermer: 'Stop suggesting' },
+  ar: { criteres: 'معاييرك', projet: 'المشروع', logements: 'المساكن',
+        selection: 'اختياري', conseiller: 'مستشار',
+        etapes: 'مسارك', reprendre: 'استئناف', fermer: 'عدم الاقتراح مجددًا' },
+  es: { criteres: 'Sus criterios', projet: 'El proyecto', logements: 'Las viviendas',
+        selection: 'Mi selección', conseiller: 'Un asesor',
+        etapes: 'Su recorrido', reprendre: 'Reanudar', fermer: 'No proponer más' }
+};
+
+function njParcoursT(cle) {
+  var d = NJ_PARCOURS_I18N[currentLang] || NJ_PARCOURS_I18N.fr;
+  return d[cle] || NJ_PARCOURS_I18N.fr[cle] || cle;
+}
+
+/** Projet en cours, lu dans l'URL (?id= ou ?projet=), sinon dans la memoire. */
+function njParcoursProjet() {
+  try {
+    var p = new URLSearchParams(location.search);
+    var id = p.get('id') || p.get('projet');
+    if (id) return id;
+  } catch (e) {}
+  var m = njParcoursMemoire();
+  return m ? m.projet : '';
+}
+
+/** Nom traduit d'un projet, pour le bandeau de reprise. */
+function njParcoursNomProjet(id) {
+  var liste = window.PROJECTS || [];
+  for (var i = 0; i < liste.length; i++) {
+    if (liste[i].id === id) {
+      var n = liste[i].name || {};
+      return n[currentLang] || n.fr || id;
+    }
+  }
+  return id;
+}
+
+/** Derniere position connue, ou null (memoire absente, illisible ou perimee). */
+function njParcoursMemoire() {
+  try {
+    var brut = JSON.parse(localStorage.getItem(NJ_PARCOURS_CLE) || 'null');
+    if (!brut || !brut.etape) return null;
+    // Au-dela d'un mois, proposer de « reprendre » n'a plus de sens : le
+    // visiteur ne se souvient plus de ce qu'il regardait.
+    if (brut.ts && Date.now() - brut.ts > 30 * 24 * 3600 * 1000) return null;
+    return brut;
+  } catch (e) { return null; }
+}
+
+function njParcoursRetenir(etape, projet) {
+  try {
+    localStorage.setItem(NJ_PARCOURS_CLE, JSON.stringify({
+      etape: etape, projet: projet || '', ts: Date.now()
+    }));
+  } catch (e) {}   // navigation privee ou quota plein : la memoire est un confort
+}
+
+/** Adresse d'une etape, ou '' quand elle n'est pas encore atteignable. */
+function njParcoursLien(etape, basePath, projet) {
+  var h = '#' + currentLang;
+  if (etape === 'criteres')   return basePath + 'explorer.html' + h;
+  if (etape === 'conseiller') return basePath + 'contact.html' + h;
+  if (etape === 'selection') {
+    var n = 0;
+    try { n = (JSON.parse(localStorage.getItem('nj-selection-lots') || '[]') || []).length; } catch (e) {}
+    return n ? basePath + 'ma-selection.html' + h : '';
+  }
+  if (!projet) return '';   // sans projet choisi, ces deux etapes n'ont pas de cible
+  if (etape === 'projet')    return basePath + 'project.html?id=' + encodeURIComponent(projet) + h;
+  if (etape === 'logements') return basePath + 'disponibilites.html?projet=' + encodeURIComponent(projet) + h;
+  return '';
+}
+
+/**
+ * Rend le fil dans chaque conteneur [data-nj-etape] de la page, et retient la
+ * position atteinte. Les etapes deja franchies sont des liens : revenir en
+ * arriere est le geste le plus frequent, il ne doit pas passer par le menu.
+ */
+function njRendreFil(basePath) {
+  var conteneurs = document.querySelectorAll('[data-nj-etape]');
+  if (!conteneurs.length) return;
+  var courante = conteneurs[0].getAttribute('data-nj-etape');
+  var projet = njParcoursProjet();
+  njParcoursRetenir(courante, projet);
+
+  var rang = NJ_PARCOURS_ETAPES.indexOf(courante);
+  for (var c = 0; c < conteneurs.length; c++) {
+    var html = '';
+    for (var i = 0; i < NJ_PARCOURS_ETAPES.length; i++) {
+      var e = NJ_PARCOURS_ETAPES[i];
+      var libelle = njParcoursT(e);
+      var actif = (i === rang);
+      // Seul le passe est cliquable : proposer une etape qu'on n'a pas encore
+      // preparee (un projet non choisi, une selection vide) menerait a un vide.
+      var lien = (!actif && i < rang) ? njParcoursLien(e, basePath, projet) : '';
+      var corps = lien
+        ? '<a href="' + lien + '">' + libelle + '</a>'
+        : libelle;
+      html += '<li' + (actif ? ' class="nj-fil-actif" aria-current="step"' : '') + '>' + corps + '</li>';
+    }
+    conteneurs[c].innerHTML = html;
+    conteneurs[c].setAttribute('aria-label', njParcoursT('etapes'));
+  }
+}
+
+/**
+ * Bandeau « reprendre ou j'en etais », pose dans [data-nj-reprise]. Discret :
+ * il ne s'affiche que si une position anterieure existe ET qu'on n'est pas
+ * deja dessus, et le visiteur peut le congedier pour de bon.
+ */
+function njRendreReprise(basePath) {
+  var hotes = document.querySelectorAll('[data-nj-reprise]');
+  if (!hotes.length) return;
+  var m = njParcoursMemoire();
+  var surLeParcours = !!document.querySelector('[data-nj-etape]');
+  var congedie = false;
+  try { congedie = localStorage.getItem(NJ_PARCOURS_CLE + '-non') === '1'; } catch (e) {}
+
+  for (var i = 0; i < hotes.length; i++) hotes[i].innerHTML = '';
+  if (!m || surLeParcours || congedie) return;
+
+  var lien = njParcoursLien(m.etape, basePath, m.projet) ||
+             njParcoursLien('criteres', basePath, m.projet);
+  var ou = njParcoursT(m.etape);
+  if (m.projet) ou = njParcoursNomProjet(m.projet) + ' · ' + ou;
+
+  for (var h = 0; h < hotes.length; h++) {
+    hotes[h].innerHTML =
+      '<div class="nj-reprise">' +
+        '<span class="nj-reprise-txt">' + ou + '</span>' +
+        '<a class="nj-reprise-btn" href="' + lien + '">' + njParcoursT('reprendre') + ' →</a>' +
+        '<button type="button" class="nj-reprise-x" aria-label="' + njParcoursT('fermer') + '" ' +
+          'title="' + njParcoursT('fermer') + '">×</button>' +
+      '</div>';
+    var x = hotes[h].querySelector('.nj-reprise-x');
+    if (x) x.addEventListener('click', function () {
+      try { localStorage.setItem(NJ_PARCOURS_CLE + '-non', '1'); } catch (e) {}
+      var b = this.closest('[data-nj-reprise]');
+      if (b) b.innerHTML = '';
+    });
+  }
+}
+
 // ===== INSTALLATION DU MENU & FOOTER =====
 function installMenuAndFooter(activePage, basePath) {
   // Inject menu at the start of body
@@ -1572,6 +1736,10 @@ function installMenuAndFooter(activePage, basePath) {
   // Lanceur « On en parle ? ». Posé ici et non dans initPage() parce que
   // switchLang() repasse par cette fonction : le panneau doit se retraduire.
   njParlonsInstaller(basePath);
+
+  // Parcours client : même raison, le fil et le bandeau doivent se retraduire.
+  njRendreFil(basePath);
+  njRendreReprise(basePath);
 }
 
 // ===== CHANGEMENT DE LANGUE =====

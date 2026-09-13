@@ -1288,3 +1288,51 @@ body.lg-has-bar.lg-barre-repliee .nj-parlons { bottom: calc(1.15rem + 52px); }
   .nj-parlons-btn:hover,
   .nj-parlons-opt:hover { transform: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PARCOURS CLIENT — fil d'Ariane et bandeau de reprise
+   Rendus par menu.js dans [data-nj-etape] et [data-nj-reprise]. Les styles
+   vivaient en double dans disponibilites.html et ma-selection.html : posés
+   ici, ils servent les cinq pages du parcours sans risque de dérive.
+   ═══════════════════════════════════════════════════════════════════════ */
+.nj-fil {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem;
+  margin: .5rem 0 0; padding: 0; list-style: none;
+  font-size: .8rem; color: var(--muted);
+}
+.nj-fil li { display: flex; align-items: center; gap: .4rem; }
+.nj-fil li::after { content: '›'; opacity: .5; }
+[dir="rtl"] .nj-fil li::after { content: '‹'; }
+.nj-fil li:last-child::after { content: ''; }
+.nj-fil .nj-fil-actif { color: var(--ocean-deep); font-weight: 600; }
+/* Les étapes franchies ramènent en arrière : soulignées au survol seulement,
+   pour rester un repère de lecture avant d'être une barre de navigation. */
+.nj-fil a { color: inherit; text-decoration: none; }
+.nj-fil a:hover, .nj-fil a:focus-visible { color: var(--ocean-deep); text-decoration: underline; }
+
+/* Variante en bandeau : sur les pages sans héros (explorateur, projet), le fil
+   se pose seul sous le menu et a besoin de son propre fond. */
+.nj-fil-bandeau {
+  background: var(--surface-raised); border-bottom: 1px solid var(--border-subtle);
+  padding: .55rem 1rem; margin: 0;
+}
+
+/* Bandeau « reprendre où j'en étais » */
+.nj-reprise {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .6rem;
+  max-width: 1100px; margin: .8rem auto 0; padding: .55rem .9rem;
+  background: var(--surface-raised); border: 1px solid var(--border-subtle);
+  border-radius: 999px; font-size: .85rem;
+}
+.nj-reprise-txt { color: var(--muted); font-weight: 600; }
+.nj-reprise-btn {
+  margin-inline-start: auto; padding: .25rem .8rem; border-radius: 999px;
+  background: var(--ocean); color: #fff; font-weight: 700; text-decoration: none;
+  white-space: nowrap;
+}
+.nj-reprise-btn:hover { filter: brightness(1.08); }
+.nj-reprise-x {
+  border: 0; background: none; color: var(--muted); cursor: pointer;
+  font-size: 1.1rem; line-height: 1; padding: 0 .2rem;
+}
+.nj-reprise-x:hover { color: var(--text); }

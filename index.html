@@ -13,7 +13,7 @@
 <title>Narjiss — Immobilier au Maroc</title>
 <link rel="icon" type="image/jpeg" href="images/logo-narjiss.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/menu.css?v=65b11474">
+<link rel="stylesheet" href="shared/menu.css?v=ca70e814">
 <link rel="stylesheet" href="shared/index.css?v=b204eec5">
 <!-- Balises lues par les moteurs et les apercus de messagerie AVANT tout
      JavaScript. Posees par tools/poser-seo-pages.py ; modifiables a la main,
@@ -63,6 +63,10 @@
     </div>
   </section>
 
+  <!-- « Reprendre où j'en étais » : rempli par shared/menu.js quand une visite
+       précédente a laissé une position, vide sinon (donc invisible). -->
+  <div data-nj-reprise></div>
+
   <section class="projects-section" id="projects">
     <div class="section-title">
       <h2 id="projectsTitle"></h2>
@@ -97,7 +101,7 @@
 
 <div id="mainFooter"></div>
 
-<script src="shared/menu.js?v=261c0325"></script>
+<script src="shared/menu.js?v=10bd1cea"></script>
 <script>
 var PAGE_UI = {
   fr: {
