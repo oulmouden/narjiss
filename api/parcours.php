@@ -52,7 +52,7 @@ if ($action === 'recap') {
     try {
         $st = nj_db()->prepare(
             'SELECT s.token, s.projet, s.canal, s.created_at, s.fiche_reference,
-                    l.numero_lot, l.typologie, l.surface_habitable, l.prix_dh, l.statut
+                    l.numero_lot, l.typologie, l.surface_habitable, l.statut
              FROM parcours_sessions s
              JOIN parcours_selection ps ON ps.session_id = s.id
              JOIN lots l ON l.id = ps.lot_id
@@ -77,7 +77,6 @@ if ($action === 'recap') {
             'numero'    => $r['numero_lot'],
             'typologie' => $r['typologie'],
             'surface'   => (float) $r['surface_habitable'],
-            'prix'      => (float) $r['prix_dh'],
             'statut'    => $r['statut'],
         ], $rows),
     ], JSON_UNESCAPED_UNICODE);

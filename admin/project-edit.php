@@ -122,9 +122,8 @@ admin_header(t_brut($id ? 'pe_titre_modifier' : 'projets_nouveau'));
         </label>
         <label>
             <?= t('pe_prix_publics') ?>
-            <select name="price_mode">
-                <option value="public" <?= (($project['price_mode'] ?? 'public') !== 'on-request') ? 'selected' : '' ?>><?= t('pe_prix_afficher') ?></option>
-                <option value="on-request" <?= (($project['price_mode'] ?? '') === 'on-request') ? 'selected' : '' ?>><?= t('pe_prix_masquer') ?></option>
+            <select name="price_mode" disabled>
+                <option value="on-request" selected><?= t('pe_prix_masquer') ?></option>
             </select>
             <small style="color:#64748b"><?= t('pe_prix_aide') ?></small>
         </label>

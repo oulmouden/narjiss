@@ -57,7 +57,7 @@
       titre: 'Ma sélection',
       sousTitre: 'Comparez vos logements, puis parlons-en avec un conseiller.',
       titreComparatif: 'Vos logements côte à côte',
-      aideComparatif: 'Le meilleur prix et la plus grande surface sont mis en évidence.',
+      aideComparatif: 'La plus grande surface est mise en évidence.',
       modifier: 'Modifier ma sélection',
       titreContact: 'Parler à un conseiller',
       suivezNous: 'Suivez-nous',
@@ -104,7 +104,7 @@
       titre: 'My shortlist',
       sousTitre: "Compare your homes, then let's discuss them with an adviser.",
       titreComparatif: 'Your homes side by side',
-      aideComparatif: 'The best price and the largest area are highlighted.',
+      aideComparatif: 'The largest area is highlighted.',
       modifier: 'Change my shortlist',
       titreContact: 'Talk to an adviser',
       suivezNous: 'Follow us',
@@ -152,7 +152,7 @@
       titre: 'اختياري',
       sousTitre: 'قارن بين المساكن، ثم لنتحدث عنها مع مستشار.',
       titreComparatif: 'مساكنك جنبا إلى جنب',
-      aideComparatif: 'أفضل سعر وأكبر مساحة مميزان في الجدول.',
+      aideComparatif: 'أكبر مساحة مميزة في الجدول.',
       modifier: 'تعديل اختياري',
       titreContact: 'التحدث إلى مستشار',
       suivezNous: 'تابعونا',
@@ -201,7 +201,7 @@
       titre: 'Mi selección',
       sousTitre: 'Compare sus viviendas y hablemos de ellas con un asesor.',
       titreComparatif: 'Sus viviendas una al lado de otra',
-      aideComparatif: 'Se destacan el mejor precio y la mayor superficie.',
+      aideComparatif: 'Se destaca la mayor superficie.',
       modifier: 'Modificar mi selección',
       titreContact: 'Hablar con un asesor',
       suivezNous: 'Síguenos',
@@ -278,10 +278,9 @@
   // Un rendu par critère, dans l'ordre de T[lang].lignes : les libellés sont
   // traduits, seule la mise en forme de la valeur vit ici.
   var LIGNES = [
-    function (l) {
-      return '<strong>' + (l.prix != null ? montant(l.prix) + ' ' + t('dh') : t('nousConsulter')) + '</strong>';
-    },
-    function (l) { return l.prix_m2 != null ? montant(l.prix_m2) + ' ' + t('dh') : t('nousConsulter'); },
+    // Aucun prix diffusé en ligne (api/data.php) : « Nous consulter » d'office.
+    function () { return '<strong>' + t('nousConsulter') + '</strong>'; },
+    function () { return t('nousConsulter'); },
     function (l) { return l.typologie.toUpperCase(); },
     function (l) { return l.surface + ' m²'; },
     function (l) { return l.balcon > 0 ? l.balcon + ' m²' : t('aucun'); },
@@ -306,7 +305,7 @@
     if (vals.length < 2) return -1;
     // Prix masques (projet « nous consulter ») : aucune valeur a mettre en avant.
     if (vals.some(function (v) { return v == null; })) return -1;
-    if (cle === 'prix' || cle === 'prix_m2') return vals.indexOf(Math.min.apply(null, vals));
+    if (cle === 'prix' || cle === 'prix_m2') return -1;   // prix jamais affichés
     return vals.indexOf(Math.max.apply(null, vals));
   }
 

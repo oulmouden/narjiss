@@ -213,8 +213,13 @@ admin_header(t_brut('li_titre_court'));
                 <tr>
                     <td><strong><?= htmlspecialchars($m['numero_lot']) ?></strong></td>
                     <td><?= htmlspecialchars($champ) ?></td>
+                <?php if (str_starts_with((string) $champ, 'prix')): // prix jamais affichés, même à l'équipe ?>
+                    <td class="file-hint"><?= t('prix_nous_consulter') ?></td>
+                    <td class="file-hint"><?= t('prix_nous_consulter') ?></td>
+                <?php else: ?>
                     <td><?= htmlspecialchars(is_float($avant) ? number_format($avant, 2, ',', ' ') : (string) $avant) ?></td>
                     <td><strong><?= htmlspecialchars(is_float($apres) ? number_format($apres, 2, ',', ' ') : (string) $apres) ?></strong></td>
+                <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
             <?php endforeach; ?>

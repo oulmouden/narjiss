@@ -167,7 +167,6 @@ admin_header(t_brut('accueil_titre'));
         $ca = $global[$s]['ca'] ?? 0.0; ?>
         <span class="badge lot-<?= $s ?>">
             <?= t('lot_statut_' . $s) ?> : <strong><?= $n ?></strong>
-            <?php if ($n > 0): ?><small>(<?= $nf($ca) ?> DH)</small><?php endif; ?>
         </span>
     <?php endforeach; ?>
 </section>
@@ -195,7 +194,7 @@ admin_header(t_brut('accueil_titre'));
                     <td><?= $n ? '<span class="badge lot-' . $s . '">' . $n . '</span>' : '<span class="file-hint">·</span>' ?></td>
                 <?php endforeach; ?>
                 <td><?= $taux ?> %</td>
-                <td><?= $nf($c['ca_dispo'] ?? 0) ?></td>
+                <td class="file-hint"><?= t('prix_nous_consulter') ?></td>
                 <td><?= isset($c['import']) ? $dm($c['import']) : '<span class="file-hint">' . t('tb_jamais') . '</span>' ?></td>
             </tr>
         <?php endforeach; ?>

@@ -178,8 +178,8 @@ function nj_lots_lire_csv(string $chemin): array
         $prix_m2 = $prix / $surface;
         if ($prix_m2 < 3000 || $prix_m2 > 40000) {
             $alertes[] = sprintf(
-                'Ligne %d (%s) : prix au m² inhabituel, %s DH/m². À vérifier.',
-                $numero_ligne, $numero, number_format($prix_m2, 0, ',', ' ')
+                'Ligne %d (%s) : prix au m² inhabituel. À vérifier.',
+                $numero_ligne, $numero
             );
         }
 
