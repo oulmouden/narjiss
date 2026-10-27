@@ -508,11 +508,6 @@
     return "images/projects/" + (project.folder || project.id) + "/floorplan.jpg";
   }
 
-  function projectMassPlanPdf(project) {
-    var floorPlan = projectFloorPlan(project);
-    return floorPlan.slice(0, floorPlan.lastIndexOf("/") + 1) + "PLAN DE MASSE.pdf";
-  }
-
   /* ─── Repli sur le projet générique ────────────────────────────────────────
      Tous les projets n'ont pas encore leur reportage photo. Plutôt qu'un cadre
      brisé, on ressert le fichier de même nom depuis images/projects/
@@ -618,9 +613,9 @@
     '</figure>';
   }
 
-  function renderFloorPlanTile(src, pdfUrl, alt, caption) {
+  function renderFloorPlanTile(src, alt, caption) {
     if (!src) return '<div class="media-tile floor-plan-tile"></div>';
-    return '<a class="media-tile floor-plan-tile floor-plan-link" href="' + pdfUrl + '" target="_blank" rel="noopener" aria-label="' + alt + '">' +
+    return '<a class="media-tile floor-plan-tile floor-plan-link" href="' + src + '" target="_blank" rel="noopener" aria-label="' + alt + '">' +
       '<img src="' + src + '" alt="' + alt + '">' +
       (caption || "") +
     '</a>';
@@ -631,7 +626,6 @@
     var statusLabel = text(media.status_label, lang) || (project.status === "live" ? t.statusLive : t.statusSoon);
     var tourCover = media.cover360 || mediaImage(project, 1);
     var floorPlan = projectFloorPlan(project);
-    var massPlanPdf = projectMassPlanPdf(project);
     var allPhotosLabel = lang === "en" ? "See all photos" : lang === "es" ? "Ver todas las fotos" : lang === "ar" ? "عرض كل الصور" : "Voir toutes les photos";
     var tourLabel = lang === "en" ? "EXPLORE 3D TOUR" : lang === "es" ? "EXPLORAR TOUR 3D" : lang === "ar" ? "استكشاف الجولة 3D" : "EXPLORER 3D TOUR";
     var floorLabel = lang === "ar" ? "المخطط" : "Floor plan";
@@ -658,7 +652,7 @@
           '<div class="tour-overlay"><button class="tour-trigger" type="button" id="openMediaTour" aria-label="' + tourLabel + '"><span>□</span></button><div class="tour-pill">' + tourLabel + '</div></div>' +
         '</div>' +
         renderMediaTile(mediaImage(project, 2), name, "top-last", "") +
-        renderFloorPlanTile(floorPlan, massPlanPdf, floorLabel + " " + name, '<figcaption class="floor-badge">⌗ ' + floorLabel + '</figcaption>') +
+        renderFloorPlanTile(floorPlan, floorLabel + " " + name, '<figcaption class="floor-badge">⌗ ' + floorLabel + '</figcaption>') +
         renderMediaTile(mediaImage(project, 3), name, "last", '<figcaption class="photos-badge">▦ ' + allPhotosLabel + '</figcaption>') +
       '</div>' +
       '<div class="media-tour-modal" id="mediaTourModal" aria-hidden="true">' +
@@ -2241,7 +2235,8 @@
     // Vers le sélecteur de lots. La page gère elle-même le cas d'un projet
     // dont la grille n'est pas encore prête, donc pas de condition ici.
     var dispos = '<a class="btn-luxe btn-gold" href="disponibilites.html?projet=' + encodeURIComponent(project.id) + '#' + lang + '">🏢 ' + x.seeUnits + '</a>';
-    var brochure = project.brochure_pdf ? '<a class="btn-luxe btn-glass" href="' + project.brochure_pdf + '" target="_blank" rel="noopener">📄 ' + x.brochure + '</a>' : "";
+    // Aucun PDF proposé au téléchargement : les fiches contenaient les prix.
+    var brochure = "";
 
     return '<section class="section commercial-header">' +
       '<div class="commercial-top">' +
@@ -2806,7 +2801,7 @@
       afficherPlan(url, url);
     }
     function showPlan() {
-      afficherPlan(projectFloorPlan(project), projectMassPlanPdf(project));
+      afficherPlan(projectFloorPlan(project));
     }
     function afficherPlan(url, lien) {
       destroyViewer();
