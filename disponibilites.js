@@ -313,7 +313,7 @@
    * tarifs (réglage price_mode, appliqué côté serveur : l'API renvoie alors
    * prix = null, et prix_public = false).
    */
-  function prixPublic() { return etat.prixPublic !== false; }
+  function prixPublic() { return false; }   // aucun prix diffusé en ligne (api/data.php)
   function prixHtml(v) {
     return prixPublic() && v != null
       ? montant(v) + ' <small>' + t('dh') + '</small>'
@@ -475,7 +475,7 @@
       .then(function (d) {
         if (!d.ok) throw new Error(d.error || 'erreur');
         etat.lots = d.lots;
-        etat.prixPublic = d.prix_public !== false;   // projet à prix masqués ?
+        etat.prixPublic = false;   // aucun prix diffusé en ligne
         if (!etat.facettes) etat.facettes = d.facettes;   // figées : voir api
         rendreFiltres();
         afficherLots();

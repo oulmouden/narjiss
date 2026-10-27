@@ -2103,7 +2103,7 @@
   /* En arabe, une plage « 21–39 » lue de droite à gauche devient « 39–21 » :
      tout ce qui est chiffré est isolé en LTR. */
   function ltr(s) { return '<bdi dir="ltr">' + s + "</bdi>"; }
-  function prixPublic(project) { return project.price_mode !== "on-request"; }
+  function prixPublic() { return false; }   // aucun prix diffusé en ligne (api/data.php)
 
   var UIX = {
     fr: {

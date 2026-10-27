@@ -189,8 +189,8 @@ function posted_project(?array $existing = null): array
     $project['poi_count'] = (int) ($_POST['poi_count'] ?? $existing['poi_count'] ?? 0);
     $project['has_tour'] = isset($_POST['has_tour']);
     // Diffusion des prix : 'public' (défaut) ou 'on-request' → « Nous consulter ».
-    $modePrix = (string) ($_POST['price_mode'] ?? $existing['price_mode'] ?? 'public');
-    $project['price_mode'] = $modePrix === 'on-request' ? 'on-request' : 'public';
+    // Aucun prix n'est diffusé sur le site (voir nj_prix_public) : réglage figé.
+    $project['price_mode'] = 'on-request';
     $project['detail_url'] = trim((string) ($_POST['detail_url'] ?? $existing['detail_url'] ?? ''));
     /* Visite 360 : deux régimes pour un même champ.
      *

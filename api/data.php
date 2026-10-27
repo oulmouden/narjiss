@@ -33,18 +33,17 @@ function nj_project_name(string $id, string $lang = 'fr'): string {
 /**
  * Les prix de ce projet sont-ils diffusables au public ?
  *
- * Réglage par projet (`price_mode` dans data/projects.json) :
- *   'public'      — les montants s'affichent (valeur par défaut) ;
- *   'on-request'  — ils sont remplacés par « Nous consulter ».
+ * Non : depuis octobre 2026, AUCUN prix n'est diffusé sur le site, quel que
+ * soit le réglage `price_mode` de data/projects.json. Le réglage par projet
+ * laissait passer des montants (projets restés sur « public ») ; les prix ne
+ * sont plus communiqués que par un conseiller.
  *
  * Le masquage se fait CÔTÉ SERVEUR, dans les réponses de l'API : masquer à
  * l'écran seulement laisserait les montants lisibles dans la réponse réseau,
  * ce qui ne vaut rien comme stratégie commerciale.
  */
 function nj_prix_public(string $projectId): bool {
-  $projects = nj_projects();
-  $mode = $projects[$projectId]['price_mode'] ?? 'public';
-  return $mode !== 'on-request';
+  return false;
 }
 
 /** Libellé lisible (pluriel FR) d'une catégorie de POI ; repli sur le slug. */

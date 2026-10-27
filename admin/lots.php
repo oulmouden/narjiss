@@ -152,7 +152,6 @@ admin_header(t_brut('nav_lots'));
         $ca = $synthese[$s]['ca'] ?? 0.0; ?>
         <span class="badge lot-<?= $s ?>">
             <?= t('lot_statut_' . $s) ?> : <strong><?= $n ?></strong>
-            <?php if ($n > 0): ?><small>(<?= number_format($ca, 0, ',', ' ') ?> DH)</small><?php endif; ?>
         </span>
     <?php endforeach; ?>
 </div>
@@ -182,8 +181,8 @@ admin_header(t_brut('nav_lots'));
                 <?php endif; ?>
             </td>
             <td><?= htmlspecialchars($lot['orientation']) ?></td>
-            <td><?= number_format((float) $lot['prix_dh'], 0, ',', ' ') ?> DH</td>
-            <td><?= number_format((float) $lot['prix_m2'], 0, ',', ' ') ?></td>
+            <td class="file-hint"><?= t('prix_nous_consulter') ?></td>
+            <td class="file-hint"><?= t('prix_nous_consulter') ?></td>
             <td><span class="badge lot-<?= htmlspecialchars($lot['statut']) ?>">
                 <?= t('lot_statut_' . $lot['statut']) ?></span>
                 <?php if ($lot['date_fin_option']): ?>
