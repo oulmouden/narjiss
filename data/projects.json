@@ -197,7 +197,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/jawhara_j3/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Résidence Al Jawhara 03 « J3 » (R+3)",
    "en": "Al Jawhara 03 \"J3\" Residence (R+3)",
@@ -255,7 +255,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/tamount/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Tamount",
    "en": "Lot Tamount",
@@ -312,7 +312,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/andalusia_03/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Groupement d'habitation Andalusia 03",
    "en": "Andalusia 03 Housing Complex",
@@ -378,7 +378,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/nassime_timersit/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Nassime Timersit",
    "en": "Lot Nassime Timersit",
@@ -439,7 +439,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/lc_andalousia_03/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Locaux commerciaux Andalousia 03",
    "en": "Andalousia 03 Commercial Units",
@@ -573,7 +573,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/lc_perle/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Locaux commerciaux Perle",
    "en": "Perle Commercial Units",
@@ -912,7 +912,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/arifane/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Appartements Al Arifane (R+2)",
    "en": "Al Arifane Apartments (R+2)",
@@ -984,7 +984,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/ait_melloul/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Aït Melloul (TF 15119)",
    "en": "Lot Aït Melloul (TF 15119)",
@@ -1189,7 +1189,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/drarga_ahaga/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Drarga Ahaga",
    "en": "Lot Drarga Ahaga",
@@ -1251,7 +1251,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/mektoub/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Mektoub",
    "en": "Lot Mektoub",
@@ -1312,7 +1312,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/perle_bureaux/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Plateau de bureaux Perle",
    "en": "Perle Office Space",
@@ -1374,7 +1374,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/lc_j3/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Locaux commerciaux J3",
    "en": "J3 Commercial Units",
@@ -1572,7 +1572,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/rouchdi/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Rouchdi",
    "en": "Lot Rouchdi",
@@ -1629,7 +1629,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/afrah/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Appartements Afrah (R+2)",
    "en": "Afrah Apartments (R+2)",
@@ -1692,7 +1692,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/oum_lkhir/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Oum Lkhir",
    "en": "Lot Oum Lkhir",
@@ -1754,7 +1754,7 @@
   "has_tour": false,
   "detail_url": "",
   "tour_url": "",
-  "brochure_pdf": "images/projects/souiri/fiche-projet.pdf",
+  "brochure_pdf": "",
   "name": {
    "fr": "Lotissement Souiri El Jadida",
    "en": "Lot Souiri El Jadida",
